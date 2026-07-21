@@ -1,16 +1,38 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: prototype 0.1.
+Status: gældende design for det nye spil. Version: prototype 0.2.
 
 ## High concept
 
-Dice Dungeon Incremental er et mobile-first extraction-spil, hvor spillerens terninger er permanente genstande. Hver terning har seks individuelle faces med stabile IDs. Spilleren mærker progressionen direkte ved at opgradere én konkret face og senere se netop den face lande i kamp.
+Dice Dungeon Incremental er først og fremmest et mobile-first incremental combat-spil. Spilleren begynder med få muligheder og korte dungeon-runs, men opbygger permanent styrke, større systemadgang og gradvist mere automation. Dungeon-dybde er et resultat af spillerens langsigtede progression.
 
-Kernespørgsmålet er:
+Spillerens terninger er permanente genstande. Hver terning har seks individuelle faces med stabile IDs. Spilleren mærker progressionen direkte ved at opgradere én konkret face og senere se netop den face lande i kamp.
+
+Extraction er spillets risikolag, ikke dets primære genreidentitet. Et run skaber altid permanent fremgang gennem XP, mens extraction afgør, om de optjente Run Souls også kommer med hjem og kan forbedre terningerne.
+
+Det overordnede produktløfte er:
+
+> Hvert run gør spilleren permanent mere kapabel, og de permanente forbedringer lader spilleren nå dybere, tjene hurtigere og gradvist automatisere tidligere manuelt arbejde.
+
+Det centrale spørgsmål inde i et run er:
 
 > Tør jeg tage én kamp mere med min nuværende HP og mine Run Souls på spil?
 
 Det gamle Dice Dungeon spurgte, om spilleren turde trække én terning mere før bust. Det draw/bust-loop er ikke en del af det nye spil.
+
+## Incremental-first designhierarki
+
+Spillets systemer prioriteres i denne rækkefølge:
+
+1. Permanent incremental fremgang.
+2. Personlige, permanente terninger.
+3. Klar og tilfredsstillende combat-feedback.
+4. Extraction-risiko omkring Souls.
+5. Gradvis automation og større systemdybde.
+
+Tidlige runs må gerne være korte. De er ikke selvstændige roguelike-builds, der skal kunne gennemføre alt fra starten. De leverer ressourcer til den permanente progression, som flytter spillerens forventede dungeon-dybde over tid.
+
+Spilleren skal mærke hurtig fremgang fra begyndelsen. De første 2–3 runs skal give adgang til mærkbare XP-opgraderinger, og terning nummer to skal unlockes tidligt nok til, at combat-loopet hurtigt udvikler sig fra ét enkelt roll til opbygningen af en rigtig rundetotal.
 
 ## Kerne-loop
 
@@ -20,10 +42,12 @@ Hub
 → træk alle permanente terninger i tilfældig rækkefølge
 → resolve Heal, Attack, Shield og enemy intent
 → vind XP og Run Souls
-→ Extract eller Continue
-→ bank Souls
-→ opgradér én bestemt face
-→ start et nyt run og genkend forbedringen
+→ bliv permanent tættere på næste XP-talent
+→ Extract og bank Souls, eller Continue og risikér dem for større udbytte
+→ brug XP på karakter-, system- og content-unlocks
+→ brug Banked Souls på én bestemt face på én eksisterende terning
+→ start et nyt run med større kapacitet og stærkere personlige dice
+→ nå dybere, tjene hurtigere og unlock mere automation
 ```
 
 ## Ressourcer
@@ -36,6 +60,61 @@ Hub
 
 Der findes ingen Gold, Coins eller Materials.
 
+Spillet har to permanente progressionsakser med adskilte roller:
+
+### XP — adgang og kapacitet
+
+XP repræsenterer spillerens erfaring og optjenes ved enemy kills. XP mistes aldrig ved Defeat. Når XP bruges på en talent-node, trækkes prisen atomisk, og talentet er permanent.
+
+XP svarer på:
+
+> Hvad kan min karakter nu?
+
+XP bruges på Talent Tree til eksempelvis:
+
+- Mere Max HP.
+- Flere dice slots.
+- Unlock af Shield Dice og Heal Dice.
+- Unlock af nye dice families.
+- Auto Roll og hurtigere combat.
+- Nye dungeons.
+- Højere face caps.
+- Adgang til face evolutions.
+- Soul-relaterede talents, eksempelvis delvis beskyttelse ved Defeat.
+
+XP gør ikke eksisterende dice faces stærkere direkte. En XP-node kan give adgang til eller tildele en ny permanent die, men efterfølgende forbedringer af den konkrete die betales med Banked Souls.
+
+### Souls — konkret dice-styrke
+
+Souls repræsenterer kraft taget med ud af dungeonen. Ved enemy kills tilføjes de som Run Souls til det aktive run.
+
+- Ved `Defeat` mistes alle ubankede Run Souls.
+- Ved `Extract` flyttes alle Run Souls atomisk til Banked Souls.
+- Banked Souls mistes aldrig ved Defeat.
+- Banked Souls bruges kun på konkrete permanente dice- og face-upgrades.
+
+Souls svarer på:
+
+> Hvor stærke er mine terninger blevet?
+
+Souls må ikke købe Talent Tree-noder, Max HP, dice slots, automation eller dungeon-adgang. XP må omvendt ikke betale for en konkret face-upgrade.
+
+### Samspillet mellem XP og Souls
+
+XP unlocker muligheder; Souls forbedrer de konkrete muligheder:
+
+```text
+XP: Unlock Shield Dice
+→ spilleren modtager sin første permanente Shield Die
+→ Banked Souls forbedrer individuelle faces på netop den terning
+
+XP: Unlock Face Mastery
+→ faces må udvikles over den nuværende cap
+→ Banked Souls betaler for den konkrete face-opgradering eller evolution
+```
+
+Denne opdeling er bindende. Talent Tree og Die Workshop må aldrig konkurrere om samme funktion.
+
 ## Permanente terninger
 
 - En `DieInstance` har stabilt ID, navn, family og seks faces.
@@ -46,7 +125,7 @@ Der findes ingen Gold, Coins eller Materials.
 Start-loadout:
 
 - Attack Die: `1, 1, 2, 2, 2, 3 Attack`.
-- Shield Die og Heal Die findes i content-kataloget, men unlockes først senere gennem progression.
+- Shield Die og Heal Die findes i content-kataloget, men unlockes først senere gennem XP-progression.
 
 ## Kamp
 
@@ -86,6 +165,8 @@ HP fortsætter mellem encounters. Efter hver sejr gives XP permanent med det sam
 - `Continue`: behold HP og Run Souls, spawn næste encounter med større pres og reward.
 - `Defeat`: sæt Run Souls til 0; behold XP, Banked Souls, dice collection og face-upgrades.
 
+Et Defeat er derfor ikke et tabt run i incremental forstand: al XP optjent under runnet beholdes og flytter spilleren permanent mod næste talent. Det eneste risikotab er de endnu ikke bankede Run Souls.
+
 ## Die Workshop
 
 Spilleren vælger først én permanent terning og derefter én af dens seks konkrete faces. UI viser face-ID, nuværende værdi, næste værdi og pris.
@@ -123,8 +204,10 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 
 ## Prototypegrænse og næste gate
 
-Før flere dice families, talent tree, bosses eller automatisering bygges, skal følgende playtestes:
+Den nuværende extraction- og face-upgrade-slice beviser kun Souls-aksen. For at bevise spillets egentlige incremental-identitet skal næste vertikale slice også implementere et lille, tidligt XP Talent Tree med mærkbare upgrades i de første 2–3 runs og en tidlig vej til terning nummer to.
 
-> Er det tilfredsstillende at risikere Souls, extracte, forbedre én konkret face og genkende forbedringen i næste run?
+Før mange dice families, bosses eller avanceret automation bygges, skal følgende playtestes:
 
-Hvis svaret ikke er et tydeligt ja, forbedres feedback, pacing og upgrade-loopet først. Den komplette rækkefølge findes i `NEW_DICE_DUNGEON_IMPLEMENTATION_PLAN.md`.
+> Føles hvert tidligt run som permanent fremgang gennem XP, samtidig med at extraction af Souls er spændende, og kan spilleren tydeligt mærke både nye muligheder og stærkere personlige dice i efterfølgende runs?
+
+Hvis svaret ikke er et tydeligt ja, forbedres XP-cadence, extraction-spænding, combat-feedback og dice-upgrade-loopet før større content-produktion. Den komplette rækkefølge findes i `NEW_DICE_DUNGEON_IMPLEMENTATION_PLAN.md`.
