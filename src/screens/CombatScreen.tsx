@@ -91,7 +91,8 @@ export function CombatScreen() {
       }
     : combat.totals
   const rollSpeed = Math.max(0.25, profile.settings.rollSpeed)
-  const rollDurationSeconds = 0.52 / rollSpeed
+  const rollDurationMilliseconds = 620 / rollSpeed
+  const rollDurationSeconds = rollDurationMilliseconds / 1000
   const isScoreAnimating = pendingFaceId !== null
   const animationLabel = activeRoll?.stage === 'rolling' ? 'Rolling...' : 'Scoring...'
   const activeDie = activeRoll && pendingResult
@@ -114,6 +115,13 @@ export function CombatScreen() {
         const existingTypeTarget = scoreStageElement.current?.querySelector<HTMLElement>(
           `[data-total-type="${result.type}"]`,
         )
+        const totalsRail = existingTypeTarget?.parentElement
+        if (existingTypeTarget && totalsRail) {
+          totalsRail.scrollLeft = Math.max(
+            0,
+            existingTypeTarget.offsetLeft - totalsRail.clientWidth / 2 + existingTypeTarget.offsetWidth / 2,
+          )
+        }
         const targetRect = (existingTypeTarget ?? scoreTargetElement.current)?.getBoundingClientRect()
         const fromX = sourceRect ? sourceRect.left + sourceRect.width / 2 : window.innerWidth / 2
         const fromY = sourceRect ? sourceRect.top + sourceRect.height / 2 : window.innerHeight / 2
@@ -131,10 +139,10 @@ export function CombatScreen() {
           duration: Math.max(0.34, 0.46 / rollSpeed),
         })
         setActiveRoll(null)
-      }, 140 / rollSpeed)
+      }, 260 / rollSpeed)
 
       rollTimers.current.push(collectionTimer)
-    }, 540 / rollSpeed)
+    }, rollDurationMilliseconds)
 
     rollTimers.current = [landingTimer]
   }
@@ -179,7 +187,10 @@ export function CombatScreen() {
         </div>
       </section>
 
-      <section className="player-zone" aria-label="Adventurer status and round power">
+      <section
+        className={`player-zone${scoredResults.length > 0 ? ' player-zone--with-totals' : ''}`}
+        aria-label="Adventurer status and round power"
+      >
         <div className="player-vitals">
           <span className="player-vitals__label">Adventurer</span>
           <div className="player-health">

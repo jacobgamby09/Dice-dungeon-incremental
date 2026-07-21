@@ -89,6 +89,8 @@ Combat er reference for resten af spillets game feel og læses i denne rækkefø
 
 Den aktive die er større end afsluttede resultater. Når den er scoret, flytter resultatet ned i draw-order-racket og forbliver læsbart. Racket må scrolle vandret ved mange dice; det må ikke wrappe og skabe en uforudsigelig høj skærm. Tom plads skal have en scenisk funktion som arena, runes eller fysisk arbejdsflade — aldrig ligne et manglende dashboard-card.
 
+Afslørede round totals ligger i en separat vandret **effect-rail** under spillerens HP. Hver type bruger ikon, værdi og kort label fra den centrale face registry. Railen viser kun typer, der faktisk er rullet, bevarer deres første reveal-rækkefølge og scroller vandret ved mange typer. HP-baren eller draw-headeren må aldrig blive smallere, når Shield, Heal, Poison eller senere effects tilføjes.
+
 ### Motion grammar
 
 Hver effekt består af **anticipation → impact → settled state**:
