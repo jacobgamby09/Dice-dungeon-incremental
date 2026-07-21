@@ -16,6 +16,7 @@ describe('resolveRound', () => {
     expect(result.playerHp).toBe(3)
     expect(result.enemyHp).toBe(7)
     expect(result.healApplied).toBe(1)
+    expect(result.playerHpAfterPlayerPhase).toBe(7)
     expect(result.enemyDamageBlocked).toBe(2)
     expect(result.playerDamageTaken).toBe(4)
   })
@@ -46,6 +47,7 @@ describe('resolveRound', () => {
 
     expect(result.outcome).toBe('victory')
     expect(result.enemyActed).toBe(false)
+    expect(result.playerHpAfterPlayerPhase).toBe(2)
     expect(result.playerHp).toBe(2)
   })
 
@@ -81,4 +83,3 @@ describe('resolveRound', () => {
     expect(result.enemyActed).toBe(false)
   })
 })
-

@@ -57,6 +57,7 @@ describe('new game progression loop', () => {
     expect(combat.phase).toBe('awaiting_resolve')
 
     expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('ongoing')
+    useNewGameStore.getState().advanceRoundResolution()
     useNewGameStore.getState().finishRoundResolution()
     const nextRound = useNewGameStore.getState().combat
     expect(nextRound.roundNumber).toBe(2)
@@ -105,7 +106,7 @@ describe('new game progression loop', () => {
     expect(state.run.runSouls).toBe(0)
   })
 
-  it('loses only unbanked Souls on defeat while permanent XP survives', () => {
+  it('resolves the enemy attack after the player phase, then handles defeat', () => {
     useNewGameStore.getState().startRun('prototype-depths')
     const state = useNewGameStore.getState()
     useNewGameStore.setState({
@@ -116,9 +117,21 @@ describe('new game progression loop', () => {
     prepareResolvedRound({ attack: 0, shield: 0, heal: 0 })
 
     const resolution = useNewGameStore.getState().beginRoundResolution()
-    const defeated = useNewGameStore.getState()
+    const afterPlayerPhase = useNewGameStore.getState()
 
     expect(resolution?.outcome).toBe('defeat')
+    expect(afterPlayerPhase.combat.resolutionStep).toBe('player')
+    expect(afterPlayerPhase.run.playerHp).toBe(1)
+    expect(afterPlayerPhase.run.runSouls).toBe(17)
+
+    useNewGameStore.getState().finishRoundResolution()
+    expect(useNewGameStore.getState().screen).toBe('combat')
+
+    useNewGameStore.getState().advanceRoundResolution()
+    const defeated = useNewGameStore.getState()
+
+    expect(defeated.combat.resolutionStep).toBe('enemy')
+    expect(defeated.run.playerHp).toBe(0)
     expect(defeated.run.runSouls).toBe(0)
     expect(defeated.lastLostRunSouls).toBe(17)
     expect(defeated.profile.xp).toBe(13)

@@ -30,6 +30,7 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     return {
       outcome: 'defeat',
       healedPlayerHp,
+      playerHpAfterPlayerPhase: 0,
       playerHp: 0,
       enemyHp,
       enemyShield,
@@ -47,6 +48,7 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     return {
       outcome: 'victory',
       healedPlayerHp,
+      playerHpAfterPlayerPhase: hpAfterRecoil,
       playerHp: hpAfterRecoil,
       enemyHp: 0,
       enemyShield,
@@ -67,6 +69,7 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
   return {
     outcome: playerHp <= 0 ? 'defeat' : 'ongoing',
     healedPlayerHp,
+    playerHpAfterPlayerPhase: hpAfterRecoil,
     playerHp,
     enemyHp,
     enemyShield,
@@ -78,4 +81,3 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     playerDamageTaken: recoil + unblockedDamage,
   }
 }
-

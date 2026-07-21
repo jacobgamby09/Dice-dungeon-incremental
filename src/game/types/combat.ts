@@ -13,10 +13,12 @@ export interface RoundTotals {
 
 export type CombatOutcome = 'ongoing' | 'victory' | 'defeat'
 export type CombatPhase = 'awaiting_roll' | 'awaiting_resolve' | 'resolving' | 'victory' | 'defeat'
+export type ResolutionStep = 'player' | 'enemy' | null
 
 export interface RoundResolution {
   outcome: CombatOutcome
   healedPlayerHp: number
+  playerHpAfterPlayerPhase: number
   playerHp: number
   enemyHp: number
   enemyShield: number
@@ -36,6 +38,7 @@ export interface CombatState {
   totals: RoundTotals
   lastResolution: RoundResolution | null
   resolutionVersion: number
+  resolutionStep: ResolutionStep
 }
 
 export const EMPTY_TOTALS: RoundTotals = {

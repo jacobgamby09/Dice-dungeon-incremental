@@ -13,6 +13,7 @@ export function CombatScreen() {
   const combat = useNewGameStore((state) => state.combat)
   const drawNextDie = useNewGameStore((state) => state.drawNextDie)
   const beginRoundResolution = useNewGameStore((state) => state.beginRoundResolution)
+  const advanceRoundResolution = useNewGameStore((state) => state.advanceRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
 
   const [rollingFaceId, setRollingFaceId] = useState<string | null>(null)
@@ -27,25 +28,34 @@ export function CombatScreen() {
   useEffect(() => {
     const resolution = combat.lastResolution
     if (combat.phase !== 'resolving' || !resolution) return
+    const resolutionStep = combat.resolutionStep ?? 'player'
 
     const timers: number[] = []
-    if (resolution.attackDamageToEnemy > 0) {
+    if (resolutionStep === 'player' && resolution.attackDamageToEnemy > 0) {
       timers.push(window.setTimeout(() => {
         setEnemyHitVersion((version) => version + 1)
       }, 0))
     }
-    if (resolution.enemyActed) {
+    if (resolutionStep === 'player' && resolution.enemyActed) {
+      timers.push(window.setTimeout(advanceRoundResolution, 720))
+    } else if (resolutionStep === 'enemy') {
       timers.push(window.setTimeout(() => {
         setEnemyAttackVersion((version) => version + 1)
-      }, 320))
+      }, 0))
+      timers.push(window.setTimeout(finishRoundResolution, 860))
+    } else {
+      timers.push(window.setTimeout(finishRoundResolution, 900))
     }
-    timers.push(window.setTimeout(
-      finishRoundResolution,
-      resolution.enemyActed ? 1050 : 760,
-    ))
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
-  }, [combat.lastResolution, combat.phase, combat.resolutionVersion, finishRoundResolution])
+  }, [
+    advanceRoundResolution,
+    combat.lastResolution,
+    combat.phase,
+    combat.resolutionStep,
+    combat.resolutionVersion,
+    finishRoundResolution,
+  ])
 
   const enemy = run.enemy
   if (!enemy || !run.dungeonId) return null
@@ -99,12 +109,12 @@ export function CombatScreen() {
         <HpBar current={run.playerHp} max={run.playerMaxHp} />
         <RoundTotalsPanel results={combat.results} totals={combat.totals} />
         {combat.phase === 'resolving' && combat.lastResolution && (
-          <div className="resolution-banner" role="status">
+          <div className={`resolution-banner resolution-banner--${combat.resolutionStep ?? 'player'}`} role="status">
             {combat.lastResolution.outcome === 'victory'
               ? 'Enemy defeated — its intent is cancelled!'
-              : combat.lastResolution.enemyActed
+              : combat.resolutionStep === 'enemy'
                 ? `${combat.lastResolution.enemyDamageBlocked} blocked · ${combat.lastResolution.playerDamageTaken} damage taken`
-                : 'Resolving round...'}
+                : `Your attack lands for ${combat.lastResolution.attackDamageToEnemy}`}
           </div>
         )}
       </section>

@@ -29,6 +29,7 @@ export interface NewGameState {
   startRun: (dungeonId: DungeonId) => void
   drawNextDie: () => RollResult | null
   beginRoundResolution: () => RoundResolution | null
+  advanceRoundResolution: () => void
   finishRoundResolution: () => void
   continueRun: () => void
   extractRun: () => void
@@ -91,6 +92,7 @@ function createCombatState(
     totals: { ...EMPTY_TOTALS },
     lastResolution: null,
     resolutionVersion,
+    resolutionStep: null,
   }
 }
 
@@ -257,12 +259,13 @@ export const useNewGameStore = create<NewGameState>()(
               phase: 'resolving',
               lastResolution: resolution,
               resolutionVersion,
+              resolutionStep: 'player',
             },
           })
           return resolution
         }
 
-        if (resolution.outcome === 'defeat') {
+        if (resolution.outcome === 'defeat' && !resolution.enemyActed) {
           set({
             run: {
               ...state.run,
@@ -280,6 +283,7 @@ export const useNewGameStore = create<NewGameState>()(
               phase: 'resolving',
               lastResolution: resolution,
               resolutionVersion,
+              resolutionStep: 'player',
             },
             lastLostRunSouls: state.run.runSouls,
           })
@@ -289,7 +293,7 @@ export const useNewGameStore = create<NewGameState>()(
         set({
           run: {
             ...state.run,
-            playerHp: resolution.playerHp,
+            playerHp: resolution.playerHpAfterPlayerPhase,
             enemy: {
               ...enemy,
               hp: resolution.enemyHp,
@@ -301,14 +305,38 @@ export const useNewGameStore = create<NewGameState>()(
             phase: 'resolving',
             lastResolution: resolution,
             resolutionVersion,
+            resolutionStep: 'player',
           },
         })
         return resolution
       },
 
+      advanceRoundResolution: () => {
+        const state = get()
+        const resolution = state.combat.lastResolution
+        if (state.combat.phase !== 'resolving' || (state.combat.resolutionStep ?? 'player') !== 'player') return
+        if (!resolution?.enemyActed) return
+
+        const playerDefeated = resolution.outcome === 'defeat'
+        set({
+          run: {
+            ...state.run,
+            status: playerDefeated ? 'defeat' : state.run.status,
+            playerHp: resolution.playerHp,
+            runSouls: playerDefeated ? 0 : state.run.runSouls,
+          },
+          combat: {
+            ...state.combat,
+            resolutionStep: 'enemy',
+          },
+          ...(playerDefeated ? { lastLostRunSouls: state.run.runSouls } : {}),
+        })
+      },
+
       finishRoundResolution: () => {
         const state = get()
         if (state.combat.phase !== 'resolving' || !state.combat.lastResolution) return
+        if (state.combat.lastResolution.enemyActed && state.combat.resolutionStep !== 'enemy') return
 
         if (state.combat.lastResolution.outcome === 'victory') {
           set({

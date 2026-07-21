@@ -68,6 +68,8 @@ Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er to
 
 Spilleren skal kunne føle sig overpowered. En fjende, der bliver dræbt af spillerens Attack, får derfor aldrig et sidste gratis angreb. Senere enemies skaleres i stedet op.
 
+Resolutionen vises som to faktiske state-trin: først opdateres enemy HP og spillerens Attack-animation, derefter — efter en tydelig pause — udføres og vises en overlevende fjendes tur. Player HP må ikke falde, før enemy-trinnet begynder.
+
 ## Dungeon og extraction
 
 Prototype-dungeonen `The First Descent` har tre encounters:
@@ -113,6 +115,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
 - Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
+- Victory skal føles som en pixel-game scene frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, loot-pickups og to tydelige ruter for Extract eller Continue.
 - Kritisk information må aldrig eksistere kun i animation; resultat og totals forbliver læsbare.
 
 ## Prototypegrænse og næste gate

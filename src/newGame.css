@@ -395,6 +395,18 @@
   text-align: center;
 }
 
+.resolution-banner--player {
+  border-color: #38bdf8;
+  background: #082f49;
+  color: #bae6fd;
+}
+
+.resolution-banner--enemy {
+  border-color: #ef4444;
+  background: #450a0a;
+  color: #fecaca;
+}
+
 .roll-zone {
   flex: 1;
   min-height: 190px;
@@ -453,8 +465,309 @@
 }
 
 .outcome-screen { justify-content: center; }
-.victory-header { border-left-color: #16a34a; text-align: center; }
-.victory-header h1 { color: #86efac; text-shadow: 3px 3px 0 #166534; }
+.victory-screen {
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 0 14px 28px;
+  background:
+    linear-gradient(rgba(7, 8, 18, 0.84), rgba(7, 8, 18, 0.96)),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(109, 40, 217, 0.14) 31px 33px),
+    #090911;
+}
+
+.victory-stage {
+  position: relative;
+  isolation: isolate;
+  min-height: 338px;
+  margin: 0 -14px;
+  overflow: hidden;
+  border-bottom: 4px solid #02030a;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.62), transparent 25% 75%, rgba(0, 0, 0, 0.62)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(2, 6, 23, 0.7) 31px 34px),
+    repeating-linear-gradient(90deg, #18152a 0 46px, #201937 46px 49px, #151326 49px 94px);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.victory-stage::before,
+.victory-stage::after {
+  position: absolute;
+  z-index: -1;
+  bottom: 0;
+  width: 76px;
+  height: 220px;
+  border: 4px solid #05050b;
+  background:
+    linear-gradient(90deg, transparent 62%, rgba(255, 255, 255, 0.04) 62%),
+    #242039;
+  box-shadow: inset -10px 0 0 #12101f, 7px 0 0 rgba(0, 0, 0, 0.38);
+  content: '';
+}
+
+.victory-stage::before { left: -29px; transform: skewY(-6deg); }
+.victory-stage::after { right: -29px; transform: skewY(6deg) scaleX(-1); }
+
+.victory-stage__rays {
+  position: absolute;
+  z-index: -1;
+  inset: 20px 25px 36px;
+  background: repeating-conic-gradient(from -7deg at 50% 70%, rgba(74, 222, 128, 0.1) 0 10deg, transparent 10deg 22deg);
+  clip-path: polygon(50% 0, 100% 18%, 92% 100%, 8% 100%, 0 18%);
+  animation: victory-pulse 2.2s steps(4, end) infinite;
+}
+
+.victory-banner {
+  position: relative;
+  z-index: 4;
+  width: min(82%, 294px);
+  margin-top: 28px;
+  border: 4px solid #05050b;
+  background: #166534;
+  box-shadow: 0 7px 0 #052e16, 0 11px 0 #020308, inset 0 4px 0 #4ade80, inset 0 -5px 0 #14532d;
+  padding: 9px 12px 10px;
+  text-align: center;
+  transform: perspective(360px) rotateX(-3deg);
+}
+
+.victory-banner::before,
+.victory-banner::after {
+  position: absolute;
+  top: 12px;
+  width: 17px;
+  height: 49px;
+  border-block: 4px solid #05050b;
+  background: #14532d;
+  content: '';
+}
+
+.victory-banner::before { left: -18px; border-left: 4px solid #05050b; }
+.victory-banner::after { right: -18px; border-right: 4px solid #05050b; }
+
+.victory-banner span {
+  color: #bbf7d0;
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.23em;
+  text-transform: uppercase;
+}
+
+.victory-banner h1 {
+  margin: 1px 0 0;
+  color: #f7fee7;
+  font-size: clamp(2.25rem, 12vw, 3.25rem);
+  line-height: 0.94;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-shadow: 3px 3px 0 #052e16, -2px -2px 0 #4ade80;
+}
+
+.victory-stage__enemy {
+  position: absolute;
+  z-index: 3;
+  bottom: 53px;
+  min-width: 170px;
+  display: grid;
+  place-items: center;
+}
+
+.victory-stage__enemy > strong {
+  margin-top: -3px;
+  border: 2px solid #05050b;
+  background: #12101f;
+  box-shadow: 3px 3px 0 #05050b;
+  padding: 4px 9px;
+  color: #d8b4fe;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.victory-stage__platform {
+  position: absolute;
+  z-index: 1;
+  bottom: 39px;
+  left: 50%;
+  width: 208px;
+  height: 44px;
+  border: 4px solid #05050b;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 18%, transparent 18% 100%),
+    #35314b;
+  box-shadow: 0 10px 0 #171522, 0 14px 0 #05050b;
+  transform: translateX(-50%) perspective(220px) rotateX(58deg) rotateZ(-2deg);
+}
+
+.victory-stage > p {
+  position: absolute;
+  z-index: 2;
+  bottom: 10px;
+  margin: 0;
+  color: #a9a5bc;
+  font-size: 0.59rem;
+  text-align: center;
+}
+
+.loot-spoils {
+  border: 3px solid #05050b;
+  background: #151322;
+  box-shadow: 0 5px 0 #05050b, inset 0 3px 0 #2d2840;
+  padding: 11px;
+}
+
+.loot-spoils__heading {
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.loot-spoils__heading > strong {
+  color: #86efac;
+  font-size: 0.59rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.loot-drops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.loot-drop {
+  --loot-color: #67e8f9;
+  --loot-dark: #164e63;
+  min-width: 0;
+  border: 3px solid #05050b;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--loot-dark) 62%, #19172a), #11101c);
+  box-shadow: 0 4px 0 #05050b, inset 0 2px 0 color-mix(in srgb, var(--loot-color) 35%, transparent);
+  padding: 9px;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  align-items: center;
+  gap: 7px;
+  color: var(--loot-color);
+}
+
+.loot-drop--souls { --loot-color: #d8b4fe; --loot-dark: #581c87; }
+
+.loot-drop__icon {
+  width: 36px;
+  height: 36px;
+  border: 2px solid currentColor;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 3px 3px 0 rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  transform: rotate(-3deg);
+}
+
+.loot-drop > div { display: grid; gap: 2px; }
+.loot-drop strong { font-size: 1.22rem; line-height: 1; }
+.loot-drop span:last-child { color: #a9a5bc; font-size: 0.5rem; text-transform: uppercase; }
+
+.expedition-status {
+  border-block: 3px solid #05050b;
+  background: #0f0e1a;
+  box-shadow: inset 0 2px 0 #252138;
+  padding: 9px 11px 10px;
+}
+
+.expedition-status__stats {
+  margin-top: 7px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.expedition-status__stats > div {
+  min-width: 0;
+  border-right: 2px solid #29253c;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: center;
+  gap: 2px 5px;
+  color: #f9a8d4;
+}
+
+.expedition-status__stats > div:nth-child(2) { color: #d8b4fe; }
+.expedition-status__stats > div:nth-child(3) { border-right: 0; color: #67e8f9; }
+.expedition-status__stats strong { font-size: 0.8rem; }
+.expedition-status__stats span { grid-column: 1 / -1; color: #77738c; font-size: 0.49rem; text-align: center; text-transform: uppercase; }
+
+.decision-paths {
+  position: relative;
+  display: grid;
+  gap: 13px;
+}
+
+.path-choice {
+  --path-color: #34d399;
+  position: relative;
+  border: 3px solid #05050b;
+  border-left: 6px solid var(--path-color);
+  background: linear-gradient(105deg, color-mix(in srgb, var(--path-color) 12%, #151322), #12101d 55%);
+  box-shadow: 5px 5px 0 #05050b, inset 0 3px 0 rgba(255, 255, 255, 0.035);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 9px;
+}
+
+.path-choice--deeper { --path-color: #ef4444; }
+
+.path-choice__marker {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #05050b;
+  background: color-mix(in srgb, var(--path-color) 32%, #11101d);
+  box-shadow: 3px 3px 0 #05050b;
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--path-color) 76%, white);
+}
+
+.path-choice__copy > span {
+  color: var(--path-color);
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.path-choice__copy h2 {
+  margin: 2px 0 3px;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+}
+
+.path-choice__copy p { margin: 0; color: #918da5; font-size: 0.59rem; line-height: 1.4; }
+.path-choice .pixel-button { grid-column: 1 / -1; min-height: 46px; }
+
+.path-divider {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 24px;
+  border: 3px solid #05050b;
+  background: #252138;
+  box-shadow: 2px 2px 0 #05050b;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%) rotate(-2deg);
+}
+
+.path-divider span { color: #aaa5bc; font-size: 0.52rem; font-weight: 900; text-transform: uppercase; }
+
+@keyframes victory-pulse {
+  0%, 100% { opacity: 0.62; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
 .defeat-header { border-left-color: #dc2626; text-align: center; }
 .defeat-header h1 { color: #f87171; text-shadow: 3px 3px 0 #7f1d1d; }
 
