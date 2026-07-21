@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Flame, Heart, Swords } from 'lucide-react'
+import { Dices, Flame, Heart, Swords } from 'lucide-react'
 import { EnemySprite } from '../components/EnemySprite'
 import { HpBar } from '../components/newgame/HpBar'
 import { RollDieTile } from '../components/newgame/RollDieTile'
@@ -94,6 +94,11 @@ export function CombatScreen() {
   const rollDurationSeconds = 0.52 / rollSpeed
   const isScoreAnimating = pendingFaceId !== null
   const animationLabel = activeRoll?.stage === 'rolling' ? 'Rolling...' : 'Scoring...'
+  const activeDie = activeRoll && pendingResult
+    ? run.equippedDiceSnapshot.find((candidate) => candidate.id === pendingResult.dieId)
+    : undefined
+  const roundReady = diceLeft === 0 && !isScoreAnimating
+  const enemyDefeated = enemy.hp <= 0
 
   function handleDraw() {
     if (isScoreAnimating) return
@@ -142,30 +147,46 @@ export function CombatScreen() {
         <div className="run-souls"><Flame aria-hidden="true" size={15} /><strong>{run.runSouls}</strong><span>at risk</span></div>
       </header>
 
-      <section className="enemy-zone" aria-label={`${enemy.name}, ${enemy.hp} health`}>
+      <section
+        className={`enemy-zone enemy-zone--${enemyDefeated ? 'defeated' : combat.resolutionStep ?? 'watching'}`}
+        aria-label={`${enemy.name}, ${enemy.hp} health`}
+      >
+        <div aria-hidden="true" className="enemy-zone__arch" />
+        <header className="enemy-zone__title">
+          <span className="eyebrow">Enemy ahead</span>
+          <h1>{enemy.name}</h1>
+        </header>
         <div className="enemy-zone__sprite">
           <EnemySprite
             enemyAttackVersion={enemyAttackVersion}
             enemyHitVersion={enemyHitVersion}
             enemyName={enemy.spriteName}
             hp={enemy.hp}
-            size={5}
+            size={6}
           />
         </div>
-        <div className="enemy-zone__info">
-          <span className="eyebrow">Enemy intent</span>
-          <h1>{enemy.name}</h1>
-          <div className="intent-badge"><Swords aria-hidden="true" size={16} /> Attack {enemy.intent.value}</div>
+        <div aria-hidden="true" className="enemy-zone__pedestal" />
+        <div className="intent-badge">
+          <span>{enemyDefeated ? 'Intent cancelled' : 'Next intent'}</span>
+          <strong>
+            <Swords aria-hidden="true" size={16} />
+            {enemyDefeated ? 'No counterattack' : `Attack ${enemy.intent.value}`}
+          </strong>
+        </div>
+        <div className="enemy-zone__vitals">
           <div className="hp-label"><span>HP</span><strong>{enemy.hp}/{enemy.maxHp}</strong></div>
           <HpBar current={enemy.hp} max={enemy.maxHp} tone="enemy" />
         </div>
       </section>
 
-      <section className="player-zone">
-        <div className="player-health">
-          <Heart aria-hidden="true" size={18} />
-          <strong>{run.playerHp}</strong>
-          <span>/ {run.playerMaxHp} HP</span>
+      <section className="player-zone" aria-label="Adventurer status and round power">
+        <div className="player-vitals">
+          <span className="player-vitals__label">Adventurer</span>
+          <div className="player-health">
+            <Heart aria-hidden="true" size={18} />
+            <strong>{run.playerHp}</strong>
+            <span>/ {run.playerMaxHp} HP</span>
+          </div>
         </div>
         <HpBar current={run.playerHp} max={run.playerMaxHp} />
         <div className="round-totals-stage" ref={scoreStageElement}>
@@ -184,35 +205,65 @@ export function CombatScreen() {
       </section>
 
       <section className="roll-zone" aria-label="Played dice">
-        <div className="section-heading section-heading--compact">
+        <header className="dice-stage-header">
           <div>
-            <span className="eyebrow">Random draw bag</span>
-            <h2>{diceLeft > 0 ? `${diceLeft} left in bag` : 'All dice drawn'}</h2>
+            <span className="eyebrow">Shuffled draw</span>
+            <h2>{roundReady ? 'Round armed' : 'Roll the bag'}</h2>
           </div>
-        </div>
-        <div className="roll-grid">
-          {combat.results.length === 0 && (
-            <p className="draw-empty">No dice played yet. Draw from the shuffled bag.</p>
-          )}
-          {combat.results.map((result) => {
-            const die = run.equippedDiceSnapshot.find((candidate) => candidate.id === result.dieId)
-            return die ? (
+          <div className="bag-counter" aria-label={`${diceLeft} dice left in bag`}>
+            <Dices aria-hidden="true" size={17} />
+            <strong>{diceLeft}</strong>
+            <span>left</span>
+          </div>
+        </header>
+
+        <div className="dice-arena">
+          <div aria-hidden="true" className="dice-arena__runes" />
+          <div className={`roll-pedestal${activeDie ? ' roll-pedestal--active' : ''}`}>
+            {activeDie && pendingResult && activeRoll ? (
               <RollDieTile
-                activeElementRef={result.faceId === activeRoll?.faceId ? activeDieElement : undefined}
-                die={die}
-                key={result.faceId}
-                result={result}
+                activeElementRef={activeDieElement}
+                die={activeDie}
+                key={pendingResult.faceId}
+                result={pendingResult}
                 rollDuration={rollDurationSeconds}
-                stage={result.faceId === activeRoll?.faceId ? activeRoll.stage : 'settled'}
+                stage={activeRoll.stage}
               />
-            ) : null
-          })}
+            ) : (
+              <div className={`roll-prompt${roundReady ? ' roll-prompt--ready' : ''}`}>
+                {roundReady ? <Swords aria-hidden="true" size={24} /> : <Dices aria-hidden="true" size={24} />}
+                <strong>{roundReady ? 'Power gathered' : 'Pedestal waiting'}</strong>
+                <span>{roundReady ? 'Resolve when ready' : 'Draw to reveal a face'}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="played-dice-rack">
+            <span className="played-dice-rack__label">
+              {scoredResults.length > 0 ? `Draw order · ${scoredResults.length} played` : 'Draw order · no results yet'}
+            </span>
+            <div className="roll-grid">
+              {scoredResults.map((result) => {
+                const die = run.equippedDiceSnapshot.find((candidate) => candidate.id === result.dieId)
+                return die ? (
+                  <RollDieTile
+                    die={die}
+                    key={result.faceId}
+                    result={result}
+                    rollDuration={rollDurationSeconds}
+                    stage="settled"
+                  />
+                ) : null
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
       <footer className="combat-actions">
         {combat.phase === 'awaiting_resolve' ? (
-          <button className="pixel-button pixel-button--attack" disabled={isScoreAnimating} onClick={beginRoundResolution} type="button">
+          <button className="pixel-button pixel-button--resolve" disabled={isScoreAnimating} onClick={beginRoundResolution} type="button">
+            <Swords aria-hidden="true" size={18} />
             {isScoreAnimating ? animationLabel : 'Resolve Round'}
           </button>
         ) : (
@@ -222,11 +273,14 @@ export function CombatScreen() {
             onClick={handleDraw}
             type="button"
           >
+            <Dices aria-hidden="true" size={18} />
             {isScoreAnimating
               ? animationLabel
               : diceLeft > 0
                 ? `Draw (${diceLeft} left)`
-                : 'Waiting...'}
+                : combat.phase === 'resolving'
+                  ? 'Resolving...'
+                  : 'Waiting...'}
           </button>
         )}
       </footer>

@@ -20,11 +20,12 @@ export const RollDieTile = memo(function RollDieTile({
   rollDuration,
   stage,
 }: RollDieTileProps) {
-  const meta = FACE_META[die.family]
+  const meta = FACE_META[result.type]
   const isRolling = stage === 'rolling'
   return (
     <article
-      className={`roll-die roll-die--${die.family}`}
+      className={`roll-die roll-die--${result.type} roll-die--${stage}`}
+      data-stage={stage}
       aria-label={isRolling ? `${die.name} rolling` : `${die.name} rolled ${result.value} ${meta.label}`}
     >
       <motion.div
@@ -32,12 +33,12 @@ export const RollDieTile = memo(function RollDieTile({
         className="roll-die__body"
         animate={
           isRolling
-            ? { rotateY: 720, scale: [1, 0.82, 1], y: [0, -18, 0] }
+            ? { rotateX: [0, 180, 360, 540, 720], rotateY: [0, 270, 450, 630, 720], scale: [1, 0.82, 0.92, 0.86, 1], y: [0, -22, -8, -18, 0] }
             : stage === 'landed'
-              ? { rotateY: 0, scale: [1, 1.13, 1], y: 0 }
-              : { rotateY: 0, scale: 1, y: 0 }
+              ? { rotateX: 0, rotateY: 0, scale: [1, 1.14, 0.96, 1], y: 0 }
+              : { rotateX: 0, rotateY: 0, scale: 1, y: 0 }
         }
-        transition={{ duration: isRolling ? rollDuration : 0.14, ease: 'easeOut' }}
+        transition={{ duration: isRolling ? rollDuration : 0.18, ease: isRolling ? 'linear' : 'easeOut' }}
       >
         {isRolling ? (
           <span className="roll-die__question">?</span>
