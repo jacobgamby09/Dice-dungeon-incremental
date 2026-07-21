@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  color: #f8fafc;
+  background: #090911;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  image-rendering: pixelated;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(76, 29, 149, 0.18), transparent 38%),
+    #090911;
+}
+
+button {
+  font: inherit;
+}
+
+button:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+

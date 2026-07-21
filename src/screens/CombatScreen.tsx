@@ -1,0 +1,173 @@
+import { useEffect, useRef, useState } from 'react'
+import { Flame, Heart, Shield, Swords } from 'lucide-react'
+import { EnemySprite } from '../components/EnemySprite'
+import { DieSummary } from '../components/newgame/DieSummary'
+import { HpBar } from '../components/newgame/HpBar'
+import { RollDieTile } from '../components/newgame/RollDieTile'
+import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
+import { DUNGEONS } from '../game/content/dungeons'
+import { useNewGameStore } from '../store/newGameStore'
+
+export function CombatScreen() {
+  const profile = useNewGameStore((state) => state.profile)
+  const run = useNewGameStore((state) => state.run)
+  const combat = useNewGameStore((state) => state.combat)
+  const rollNextDie = useNewGameStore((state) => state.rollNextDie)
+  const beginRoundResolution = useNewGameStore((state) => state.beginRoundResolution)
+  const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
+
+  const [rollingIndex, setRollingIndex] = useState<number | null>(null)
+  const [showDiceFaces, setShowDiceFaces] = useState(false)
+  const [enemyHitVersion, setEnemyHitVersion] = useState(0)
+  const [enemyAttackVersion, setEnemyAttackVersion] = useState(0)
+  const rollTimer = useRef<number | null>(null)
+
+  useEffect(() => () => {
+    if (rollTimer.current !== null) window.clearTimeout(rollTimer.current)
+  }, [])
+
+  useEffect(() => {
+    const resolution = combat.lastResolution
+    if (combat.phase !== 'resolving' || !resolution) return
+
+    const timers: number[] = []
+    if (resolution.attackDamageToEnemy > 0) {
+      timers.push(window.setTimeout(() => {
+        setEnemyHitVersion((version) => version + 1)
+      }, 0))
+    }
+    if (resolution.enemyActed) {
+      timers.push(window.setTimeout(() => {
+        setEnemyAttackVersion((version) => version + 1)
+      }, 320))
+    }
+    timers.push(window.setTimeout(
+      finishRoundResolution,
+      resolution.enemyActed ? 1050 : 760,
+    ))
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer))
+  }, [combat.lastResolution, combat.phase, combat.resolutionVersion, finishRoundResolution])
+
+  const enemy = run.enemy
+  if (!enemy || !run.dungeonId) return null
+  const dungeon = DUNGEONS[run.dungeonId]
+  const currentDie = run.equippedDiceSnapshot[combat.currentDieIndex]
+
+  function handleRoll() {
+    if (rollingIndex !== null) return
+    const index = combat.currentDieIndex
+    const result = rollNextDie()
+    if (!result) return
+    setRollingIndex(index)
+    rollTimer.current = window.setTimeout(() => {
+      setRollingIndex(null)
+      rollTimer.current = null
+    }, 540 / profile.settings.rollSpeed)
+  }
+
+  return (
+    <main className="game-shell combat-screen">
+      <header className="combat-meta">
+        <div><span>Encounter</span><strong>{run.encounterIndex + 1}/{dungeon.encounters.length}</strong></div>
+        <div><span>Round</span><strong>{combat.roundNumber}</strong></div>
+        <div className="run-souls"><Flame aria-hidden="true" size={15} /><strong>{run.runSouls}</strong><span>at risk</span></div>
+      </header>
+
+      <section className="enemy-zone" aria-label={`${enemy.name}, ${enemy.hp} health`}>
+        <div className="enemy-zone__sprite">
+          <EnemySprite
+            enemyAttackVersion={enemyAttackVersion}
+            enemyHitVersion={enemyHitVersion}
+            enemyName={enemy.spriteName}
+            hp={enemy.hp}
+            size={5}
+          />
+        </div>
+        <div className="enemy-zone__info">
+          <span className="eyebrow">Enemy intent</span>
+          <h1>{enemy.name}</h1>
+          <div className="intent-badge"><Swords aria-hidden="true" size={16} /> Attack {enemy.intent.value}</div>
+          <div className="hp-label"><span>HP</span><strong>{enemy.hp}/{enemy.maxHp}</strong></div>
+          <HpBar current={enemy.hp} max={enemy.maxHp} tone="enemy" />
+        </div>
+      </section>
+
+      <section className="player-zone">
+        <div className="player-health">
+          <Heart aria-hidden="true" size={18} />
+          <strong>{run.playerHp}</strong>
+          <span>/ {run.playerMaxHp} HP</span>
+        </div>
+        <HpBar current={run.playerHp} max={run.playerMaxHp} />
+        <RoundTotalsPanel totals={combat.totals} />
+        {combat.phase === 'resolving' && combat.lastResolution && (
+          <div className="resolution-banner" role="status">
+            {combat.lastResolution.outcome === 'victory'
+              ? 'Enemy defeated — its intent is cancelled!'
+              : combat.lastResolution.enemyActed
+                ? `${combat.lastResolution.enemyDamageBlocked} blocked · ${combat.lastResolution.playerDamageTaken} damage taken`
+                : 'Resolving round...'}
+          </div>
+        )}
+      </section>
+
+      <section className="roll-zone" aria-label="Equipped dice">
+        <div className="section-heading section-heading--compact">
+          <div>
+            <span className="eyebrow">Roll order</span>
+            <h2>{currentDie ? `Next: ${currentDie.name}` : 'All dice rolled'}</h2>
+          </div>
+          <button
+            aria-expanded={showDiceFaces}
+            className="inspect-button"
+            onClick={() => setShowDiceFaces((isVisible) => !isVisible)}
+            type="button"
+          >
+            {showDiceFaces ? 'Hide faces' : 'Inspect dice'}
+          </button>
+        </div>
+        <div className="roll-grid">
+          {run.equippedDiceSnapshot.map((die, index) => (
+            <RollDieTile
+              die={die}
+              isNext={index === combat.currentDieIndex && combat.phase === 'awaiting_roll'}
+              isRolling={index === rollingIndex}
+              key={die.id}
+              result={combat.results[index]}
+            />
+          ))}
+        </div>
+        {showDiceFaces && (
+          <div className="combat-dice-inspector" aria-label="Permanent dice faces">
+            {run.equippedDiceSnapshot.map((die) => (
+              <DieSummary compact die={die} key={die.id} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <footer className="combat-actions">
+        <div className="resolution-preview">
+          <span><Heart aria-hidden="true" size={13} /> Heal first</span>
+          <span><Swords aria-hidden="true" size={13} /> Attack second</span>
+          <span><Shield aria-hidden="true" size={13} /> Block if enemy lives</span>
+        </div>
+        {combat.phase === 'awaiting_resolve' ? (
+          <button className="pixel-button pixel-button--attack" disabled={rollingIndex !== null} onClick={beginRoundResolution} type="button">
+            Resolve Round
+          </button>
+        ) : (
+          <button
+            className="pixel-button pixel-button--primary"
+            disabled={combat.phase !== 'awaiting_roll' || rollingIndex !== null}
+            onClick={handleRoll}
+            type="button"
+          >
+            {rollingIndex !== null ? 'Rolling...' : currentDie ? `Roll ${currentDie.name}` : 'Waiting...'}
+          </button>
+        )}
+      </footer>
+    </main>
+  )
+}
