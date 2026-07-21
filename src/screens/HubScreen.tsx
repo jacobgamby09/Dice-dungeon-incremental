@@ -34,7 +34,7 @@ export function HubScreen() {
             <span className="eyebrow">Current loadout</span>
             <h2>Your permanent dice</h2>
           </div>
-          <span className="slot-count">{profile.equippedDieIds.length} / 3</span>
+          <span className="slot-count">{profile.equippedDieIds.length} equipped</span>
         </div>
         <div className="dice-list">
           {profile.equippedDieIds.map((dieId) => {
@@ -55,4 +55,3 @@ export function HubScreen() {
     </main>
   )
 }
-

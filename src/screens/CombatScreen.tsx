@@ -12,11 +12,11 @@ export function CombatScreen() {
   const profile = useNewGameStore((state) => state.profile)
   const run = useNewGameStore((state) => state.run)
   const combat = useNewGameStore((state) => state.combat)
-  const rollNextDie = useNewGameStore((state) => state.rollNextDie)
+  const drawNextDie = useNewGameStore((state) => state.drawNextDie)
   const beginRoundResolution = useNewGameStore((state) => state.beginRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
 
-  const [rollingIndex, setRollingIndex] = useState<number | null>(null)
+  const [rollingFaceId, setRollingFaceId] = useState<string | null>(null)
   const [showDiceFaces, setShowDiceFaces] = useState(false)
   const [enemyHitVersion, setEnemyHitVersion] = useState(0)
   const [enemyAttackVersion, setEnemyAttackVersion] = useState(0)
@@ -52,16 +52,15 @@ export function CombatScreen() {
   const enemy = run.enemy
   if (!enemy || !run.dungeonId) return null
   const dungeon = DUNGEONS[run.dungeonId]
-  const currentDie = run.equippedDiceSnapshot[combat.currentDieIndex]
+  const diceLeft = combat.drawPileDieIds.length
 
-  function handleRoll() {
-    if (rollingIndex !== null) return
-    const index = combat.currentDieIndex
-    const result = rollNextDie()
+  function handleDraw() {
+    if (rollingFaceId !== null) return
+    const result = drawNextDie()
     if (!result) return
-    setRollingIndex(index)
+    setRollingFaceId(result.faceId)
     rollTimer.current = window.setTimeout(() => {
-      setRollingIndex(null)
+      setRollingFaceId(null)
       rollTimer.current = null
     }, 540 / profile.settings.rollSpeed)
   }
@@ -112,11 +111,11 @@ export function CombatScreen() {
         )}
       </section>
 
-      <section className="roll-zone" aria-label="Equipped dice">
+      <section className="roll-zone" aria-label="Played dice">
         <div className="section-heading section-heading--compact">
           <div>
-            <span className="eyebrow">Roll order</span>
-            <h2>{currentDie ? `Next: ${currentDie.name}` : 'All dice rolled'}</h2>
+            <span className="eyebrow">Random draw bag</span>
+            <h2>{diceLeft > 0 ? `${diceLeft} left in bag` : 'All dice drawn'}</h2>
           </div>
           <button
             aria-expanded={showDiceFaces}
@@ -128,15 +127,20 @@ export function CombatScreen() {
           </button>
         </div>
         <div className="roll-grid">
-          {run.equippedDiceSnapshot.map((die, index) => (
-            <RollDieTile
-              die={die}
-              isNext={index === combat.currentDieIndex && combat.phase === 'awaiting_roll'}
-              isRolling={index === rollingIndex}
-              key={die.id}
-              result={combat.results[index]}
-            />
-          ))}
+          {combat.results.length === 0 && (
+            <p className="draw-empty">No dice played yet. Draw from the shuffled bag.</p>
+          )}
+          {combat.results.map((result) => {
+            const die = run.equippedDiceSnapshot.find((candidate) => candidate.id === result.dieId)
+            return die ? (
+              <RollDieTile
+                die={die}
+                isRolling={result.faceId === rollingFaceId}
+                key={result.faceId}
+                result={result}
+              />
+            ) : null
+          })}
         </div>
         {showDiceFaces && (
           <div className="combat-dice-inspector" aria-label="Permanent dice faces">
@@ -154,17 +158,21 @@ export function CombatScreen() {
           <span><Shield aria-hidden="true" size={13} /> Block if enemy lives</span>
         </div>
         {combat.phase === 'awaiting_resolve' ? (
-          <button className="pixel-button pixel-button--attack" disabled={rollingIndex !== null} onClick={beginRoundResolution} type="button">
+          <button className="pixel-button pixel-button--attack" disabled={rollingFaceId !== null} onClick={beginRoundResolution} type="button">
             Resolve Round
           </button>
         ) : (
           <button
             className="pixel-button pixel-button--primary"
-            disabled={combat.phase !== 'awaiting_roll' || rollingIndex !== null}
-            onClick={handleRoll}
+            disabled={combat.phase !== 'awaiting_roll' || rollingFaceId !== null}
+            onClick={handleDraw}
             type="button"
           >
-            {rollingIndex !== null ? 'Rolling...' : currentDie ? `Roll ${currentDie.name}` : 'Waiting...'}
+            {rollingFaceId !== null
+              ? 'Drawing...'
+              : diceLeft > 0
+                ? `Draw (${diceLeft} left)`
+                : 'Waiting...'}
           </button>
         )}
       </footer>

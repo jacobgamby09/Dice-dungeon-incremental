@@ -17,7 +17,7 @@ Det gamle Dice Dungeon spurgte, om spilleren turde trække én terning mere før
 ```text
 Hub
 → vælg dungeon
-→ rul permanente terninger i fast rækkefølge
+→ træk alle permanente terninger i tilfældig rækkefølge
 → resolve Heal, Attack, Shield og enemy intent
 → vind XP og Run Souls
 → Extract eller Continue
@@ -43,17 +43,16 @@ Der findes ingen Gold, Coins eller Materials.
 - Faces med samme type og værdi er stadig forskellige objekter og kan opgraderes uafhængigt.
 - Udstyrede terninger snapshots ved run-start. Et aktivt run ændres derfor ikke af senere Hub-data.
 
-Prototype-loadout:
+Start-loadout:
 
 - Attack Die: `1, 1, 2, 2, 2, 3 Attack`.
-- Shield Die: `1, 1, 2, 2, 2, 3 Shield`.
-- Heal Die: `1, 1, 1, 1, 2, 2 Heal`.
+- Shield Die og Heal Die findes i content-kataloget, men unlockes først senere gennem progression.
 
 ## Kamp
 
-Spilleren ser altid enemy HP og næste intent før første roll. Terninger rulles sekventielt i fast udstyrsorden. Hvert resultat gemmes som præcis `face.id`, type og værdi før animationen vises.
+Spilleren ser altid enemy HP og næste intent før første draw. Ved rundens start blandes alle udstyrede terninger i en persisteret draw-pile. `Draw` tager den næste tilfældige terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste Attack-, Shield- eller Heal-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
 
-Når alle terninger er rullet, aktiveres manuel `Resolve Round`.
+Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er tom, aktiveres manuel `Resolve Round`. Der er intet stop- eller bust-valg.
 
 ### Resolution-rækkefølge
 
@@ -75,7 +74,7 @@ Prototype-dungeonen `The First Descent` har tre encounters:
 
 | Encounter | Enemy | HP | Intent | XP | Run Souls |
 |---:|---|---:|---|---:|---:|
-| 1 | Slime | 12 | Attack 4 | 8 | 5 |
+| 1 | Slime | 5 | Attack 2 | 8 | 5 |
 | 2 | Goblin | 16 | Attack 5/4 | 14 | 10 |
 | 3 | Skeleton | 22 | Attack 6/5/7 | 24 | 20 |
 

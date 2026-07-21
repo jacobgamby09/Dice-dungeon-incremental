@@ -2,7 +2,7 @@
 
 ## Implementeringsstatus — 21. juli 2026
 
-Fase 0–5 er implementeret som den første vertikale prototype. Kerneflowet Hub → dungeon → sekventielle rolls → manuel resolution → Victory/Defeat → Extract/Continue → permanent face-upgrade er nu spilbart. Domain-, store- og persistence-tests dækker de fastlåste economy-, death- og combat-regler.
+Fase 0–5 er implementeret som den første vertikale prototype. Kerneflowet Hub → dungeon → random draw af alle udstyrede dice → manuel resolution → Victory/Defeat → Extract/Continue → permanent face-upgrade er nu spilbart. Domain-, store- og persistence-tests dækker de fastlåste economy-, death- og combat-regler.
 
 Næste skridt er den planlagte playtest-gate efter Fase 5. Fase 6 og frem må først startes, når combat-feedback, extraction-spænding og glæden ved at genkende en opgraderet face er vurderet.
 
@@ -51,7 +51,11 @@ Følgende regler er fundamentale og må ikke ændres indirekte under implementat
 - Når spillerens angreb dræber fjenden, udfører fjenden ikke sit intent.
 - Hvis en fremtidig mechanic skaber en reel Double K.O. gennem recoil, Thorns eller selvskade, har Player Death prioritet.
 - Spillet designes teknisk til cirka 1–12 udstyrede terninger.
-- Den første prototype starter med tre terninger.
+- Spilleren starter kun med én Attack Die.
+- Shield Die og Heal Die unlockes senere gennem progression.
+- Alle udstyrede terninger blandes og trækkes uden replacement hver runde.
+- Spilleren skal trække alle terninger, før runden kan resolves.
+- Combat-boardet har ingen faste dice-slots og viser kun spillede dice i draw-rækkefølge.
 - Manuel rulning er grundsystemet.
 - Auto Roll automatiserer kun spillerens tryk og ændrer ikke combat-reglerne.
 - Alle synlige talent nodes skal have en implementeret effekt.
@@ -396,8 +400,9 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 - Genopbyg den mobile combat-komposition.
 - Genbrug enemy zone, HP-bars og intent-præsentation.
-- Start med tre tydelige dice slots.
-- Implementér knappen `ROLL NEXT`.
+- Start med én Attack Die i en random draw-bag.
+- Implementér knappen `DRAW`.
+- Vis faktisk trukne dice dynamisk uden faste board-slots.
 - Vis aktiv terning, spin, landing og face-resultat.
 - Animér effekten fra terningen til den relevante total.
 - Aktivér `RESOLVE ROUND`, når alle terninger er rullet.
@@ -558,7 +563,7 @@ Det eksisterende pan/zoom-koncept kan tilpasses, men valutaen bliver XP.
 
 ### Arbejde
 
-- Auto Roll simulerer kun trykket på `ROLL NEXT`.
+- Auto Roll simulerer kun trykket på `DRAW`.
 - Roll speed ændrer kun animationsvarigheden.
 - Auto Resolve implementeres som en separat unlock.
 - Auto Start Next Round implementeres senere.
@@ -691,8 +696,8 @@ Der bør ikke tilføjes en tredje synlig currency-pung.
 0 Banked Souls
 
 1 Attack Die
-1 Shield Die
-1 Heal Die
+
+Shield Die og Heal Die unlockes senere gennem progression.
 ```
 
 ### Første Attack Die
@@ -767,7 +772,7 @@ Den første prototype er færdig, når spilleren kan:
 2. Se hver ternings seks individuelle faces.
 3. Gå ind i en dungeon.
 4. Se enemy intent før rulning.
-5. Rulle alle tre terninger sekventielt.
+5. Trække alle udstyrede terninger i tilfældig rækkefølge uden replacement.
 6. Se Attack, Shield og Heal totals blive opbygget.
 7. Resolve runden manuelt.
 8. Dræbe en enemy, før den angriber.
@@ -795,7 +800,7 @@ Efter den første fungerende kamp vurderes:
 
 - Er et enkelt roll tilfredsstillende?
 - Er det tydeligt, hvilken terning og face der skabte resultatet?
-- Er tempoet rigtigt ved tre terninger?
+- Er tempoet rigtigt, når alle dice skal trækkes, og boardet vokser dynamisk?
 - Føles victory før enemy attack stærk og retfærdig?
 
 ### Gate B — Extraction-loop

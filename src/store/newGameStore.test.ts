@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { PersistStorage, StorageValue } from 'zustand/middleware'
+import { createDiceCatalog } from '../game/content/dice'
 import type { NewGameState } from './newGameStore'
 import { useNewGameStore } from './newGameStore'
 
@@ -9,7 +10,7 @@ function prepareResolvedRound(totals: { attack: number; shield: number; heal: nu
     combat: {
       ...state.combat,
       phase: 'awaiting_resolve',
-      currentDieIndex: state.run.equippedDiceSnapshot.length,
+      drawPileDieIds: [],
       totals,
     },
   })
@@ -18,6 +19,51 @@ function prepareResolvedRound(totals: { attack: number; shield: number; heal: nu
 describe('new game progression loop', () => {
   beforeEach(() => {
     useNewGameStore.getState().resetProgress()
+  })
+
+  it('starts the player with exactly one permanent Attack Die', () => {
+    const profile = useNewGameStore.getState().profile
+
+    expect(profile.diceCollection).toHaveLength(1)
+    expect(profile.equippedDieIds).toEqual(['attack-die-1'])
+    expect(profile.diceCollection[0].family).toBe('attack')
+  })
+
+  it('draws every equipped die once in the persisted shuffled-bag order', () => {
+    const state = useNewGameStore.getState()
+    const diceCollection = createDiceCatalog()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        diceCollection,
+        equippedDieIds: diceCollection.map((die) => die.id),
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+    const drawOrder = [...useNewGameStore.getState().combat.drawPileDieIds]
+
+    expect([...drawOrder].sort()).toEqual(diceCollection.map((die) => die.id).sort())
+    for (const [index, expectedDieId] of drawOrder.entries()) {
+      expect(useNewGameStore.getState().drawNextDie()?.dieId).toBe(expectedDieId)
+      if (index < drawOrder.length - 1) {
+        expect(useNewGameStore.getState().combat.phase).toBe('awaiting_roll')
+        expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
+      }
+    }
+
+    const combat = useNewGameStore.getState().combat
+    expect(combat.drawPileDieIds).toEqual([])
+    expect(combat.results.map((result) => result.dieId)).toEqual(drawOrder)
+    expect(combat.phase).toBe('awaiting_resolve')
+
+    expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('ongoing')
+    useNewGameStore.getState().finishRoundResolution()
+    const nextRound = useNewGameStore.getState().combat
+    expect(nextRound.roundNumber).toBe(2)
+    expect([...nextRound.drawPileDieIds].sort()).toEqual(
+      diceCollection.map((die) => die.id).sort(),
+    )
+    expect(nextRound.results).toEqual([])
   })
 
   it('awards permanent XP immediately and lets a lethal player hit cancel the enemy intent', () => {
@@ -159,7 +205,7 @@ describe('new game progression loop', () => {
     try {
       useNewGameStore.getState().resetProgress()
       useNewGameStore.getState().startRun('prototype-depths')
-      const committedRoll = useNewGameStore.getState().rollNextDie()
+      const committedRoll = useNewGameStore.getState().drawNextDie()
       const activeRunBeforeReload = useNewGameStore.getState().run
       const persistedSnapshot = structuredClone(
         saved as unknown as StorageValue<NewGameState>,
@@ -174,7 +220,55 @@ describe('new game progression loop', () => {
       expect(rehydrated.run.status).toBe('active')
       expect(rehydrated.run.enemy).toEqual(activeRunBeforeReload.enemy)
       expect(rehydrated.combat.results).toEqual([committedRoll])
-      expect(rehydrated.combat.currentDieIndex).toBe(1)
+      expect(rehydrated.combat.drawPileDieIds).toEqual([])
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('migrates the old three-die prototype save to the one-Attack-die start', async () => {
+    const state = useNewGameStore.getState()
+    const oldDiceCollection = createDiceCatalog()
+    const oldState: NewGameState = {
+      ...state,
+      screen: 'combat',
+      profile: {
+        ...state.profile,
+        saveVersion: 1,
+        xp: 21,
+        bankedSouls: 9,
+        diceCollection: oldDiceCollection,
+        equippedDieIds: oldDiceCollection.map((die) => die.id),
+      },
+    }
+    let saved: StorageValue<NewGameState> | null = {
+      state: oldState,
+      version: 1,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+
+      expect(migrated.screen).toBe('hub')
+      expect(migrated.run.status).toBe('inactive')
+      expect(migrated.profile.saveVersion).toBe(2)
+      expect(migrated.profile.xp).toBe(21)
+      expect(migrated.profile.bankedSouls).toBe(9)
+      expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
+      expect(migrated.profile.equippedDieIds).toEqual(['attack-die-1'])
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()

@@ -56,6 +56,9 @@ Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og S
 - Brug kun save-key `new-dice-dungeon-save` og versionsstyr save-formatet.
 - Persistér både profil, aktivt run, runde og allerede rullede face-resultater.
 - Gem det valgte `face.id`-resultat før animationen starter.
+- Bland en persisteret draw-pile ved rundestart; træk uden replacement, indtil alle udstyrede dice er spillet.
+- `Resolve Round` må ikke aktiveres, mens draw-pilen stadig indeholder dice.
+- Combat-boardet må kun vise faktisk trukne dice i draw-rækkefølge; der findes ingen faste type-slots.
 - Rewards, extraction og face-køb skal være idempotente; reload eller dobbeltklik må ikke duplikere værdier.
 - Equipped dice snapshots ved run-start, så Hub-opgraderinger ikke kan ændre et aktivt run.
 

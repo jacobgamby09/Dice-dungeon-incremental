@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
+import { shuffleDieIds } from '../game/combat/drawBag'
 import { addRollToTotals, rollDie } from '../game/combat/rollDie'
 import { resolveRound } from '../game/combat/resolveRound'
 import { createStartingDice } from '../game/content/dice'
@@ -26,7 +27,7 @@ export interface NewGameState {
   openWorkshop: () => void
   goToHub: () => void
   startRun: (dungeonId: DungeonId) => void
-  rollNextDie: () => RollResult | null
+  drawNextDie: () => RollResult | null
   beginRoundResolution: () => RoundResolution | null
   finishRoundResolution: () => void
   continueRun: () => void
@@ -36,7 +37,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 1
+const SAVE_VERSION = 2
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const BASE_PLAYER_HP = 10
 const NON_BROWSER_STORAGE: StateStorage = {
@@ -78,18 +79,46 @@ function createInactiveRun(): RunState {
 }
 
 function createCombatState(
+  equippedDice: readonly DieInstance[] = [],
   roundNumber = 1,
   resolutionVersion = 0,
 ): CombatState {
   return {
     phase: 'awaiting_roll',
     roundNumber,
-    currentDieIndex: 0,
+    drawPileDieIds: shuffleDieIds(equippedDice.map((die) => die.id)),
     results: [],
     totals: { ...EMPTY_TOTALS },
     lastResolution: null,
     resolutionVersion,
   }
+}
+
+function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
+  if (version >= SAVE_VERSION) return persistedState as NewGameState
+
+  const persisted = persistedState as Partial<NewGameState>
+  const freshProfile = createInitialProfile()
+  const existingProfile = persisted.profile
+  const existingAttackDie = existingProfile?.diceCollection.find(
+    (die) => die.id === freshProfile.diceCollection[0].id,
+  )
+  const attackDie = cloneDie(existingAttackDie ?? freshProfile.diceCollection[0])
+
+  return {
+    ...persisted,
+    screen: 'hub',
+    profile: {
+      ...freshProfile,
+      ...existingProfile,
+      saveVersion: SAVE_VERSION,
+      diceCollection: [attackDie],
+      equippedDieIds: [attackDie.id],
+    },
+    run: createInactiveRun(),
+    combat: createCombatState(),
+    lastLostRunSouls: persisted.lastLostRunSouls ?? 0,
+  } as NewGameState
 }
 
 function getEquippedDice(profile: PlayerProfile): DieInstance[] {
@@ -148,28 +177,28 @@ export const useNewGameStore = create<NewGameState>()(
             enemy: createEnemyState(firstEnemyId),
             lastReward: null,
           },
-          combat: createCombatState(1, state.combat.resolutionVersion),
+          combat: createCombatState(equippedDiceSnapshot, 1, state.combat.resolutionVersion),
           lastLostRunSouls: 0,
         })
       },
 
-      rollNextDie: () => {
+      drawNextDie: () => {
         const state = get()
         if (state.screen !== 'combat' || state.run.status !== 'active') return null
         if (state.combat.phase !== 'awaiting_roll') return null
 
-        const die = state.run.equippedDiceSnapshot[state.combat.currentDieIndex]
+        const [nextDieId, ...remainingDieIds] = state.combat.drawPileDieIds
+        const die = state.run.equippedDiceSnapshot.find((candidate) => candidate.id === nextDieId)
         if (!die) return null
 
         const result = rollDie(die)
-        const currentDieIndex = state.combat.currentDieIndex + 1
-        const allDiceRolled = currentDieIndex >= state.run.equippedDiceSnapshot.length
+        const allDiceDrawn = remainingDieIds.length === 0
 
         set({
           combat: {
             ...state.combat,
-            phase: allDiceRolled ? 'awaiting_resolve' : 'awaiting_roll',
-            currentDieIndex,
+            phase: allDiceDrawn ? 'awaiting_resolve' : 'awaiting_roll',
+            drawPileDieIds: remainingDieIds,
             results: [...state.combat.results, result],
             totals: addRollToTotals(state.combat.totals, result),
           },
@@ -305,6 +334,7 @@ export const useNewGameStore = create<NewGameState>()(
             enemy: advanceEnemyIntent(enemy),
           },
           combat: createCombatState(
+            state.run.equippedDiceSnapshot,
             state.combat.roundNumber + 1,
             state.combat.resolutionVersion,
           ),
@@ -328,7 +358,11 @@ export const useNewGameStore = create<NewGameState>()(
             enemy: createEnemyState(nextEnemyId),
             lastReward: null,
           },
-          combat: createCombatState(1, state.combat.resolutionVersion),
+          combat: createCombatState(
+            state.run.equippedDiceSnapshot,
+            1,
+            state.combat.resolutionVersion,
+          ),
         })
       },
 
@@ -342,7 +376,7 @@ export const useNewGameStore = create<NewGameState>()(
             bankedSouls: state.profile.bankedSouls + state.run.runSouls,
           },
           run: createInactiveRun(),
-          combat: createCombatState(1, state.combat.resolutionVersion),
+          combat: createCombatState([], 1, state.combat.resolutionVersion),
         })
       },
 
@@ -352,7 +386,7 @@ export const useNewGameStore = create<NewGameState>()(
         set({
           screen: 'hub',
           run: createInactiveRun(),
-          combat: createCombatState(1, state.combat.resolutionVersion),
+          combat: createCombatState([], 1, state.combat.resolutionVersion),
         })
       },
 
@@ -404,7 +438,7 @@ export const useNewGameStore = create<NewGameState>()(
       storage: createJSONStorage(() => (
         typeof localStorage === 'undefined' ? NON_BROWSER_STORAGE : localStorage
       )),
-      migrate: (persistedState) => persistedState as NewGameState,
+      migrate: migrateNewGameState,
       partialize: (state) => ({
         screen: state.screen,
         profile: state.profile,

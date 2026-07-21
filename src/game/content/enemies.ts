@@ -5,8 +5,8 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     id: 'slime',
     name: 'Slime',
     spriteName: 'Slime',
-    maxHp: 12,
-    intentPattern: [4],
+    maxHp: 5,
+    intentPattern: [2],
     xpReward: 8,
     soulReward: 5,
   },
@@ -56,4 +56,3 @@ export function advanceEnemyIntent(enemy: EnemyState): EnemyState {
     intent: { type: 'attack', value: definition.intentPattern[intentIndex] },
   }
 }
-

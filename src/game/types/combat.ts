@@ -31,7 +31,7 @@ export interface RoundResolution {
 export interface CombatState {
   phase: CombatPhase
   roundNumber: number
-  currentDieIndex: number
+  drawPileDieIds: string[]
   results: RollResult[]
   totals: RoundTotals
   lastResolution: RoundResolution | null
@@ -43,4 +43,3 @@ export const EMPTY_TOTALS: RoundTotals = {
   shield: 0,
   heal: 0,
 }
-
