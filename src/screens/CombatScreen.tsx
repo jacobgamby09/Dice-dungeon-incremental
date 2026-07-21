@@ -1,11 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Flame, Heart, Swords } from 'lucide-react'
 import { EnemySprite } from '../components/EnemySprite'
 import { HpBar } from '../components/newgame/HpBar'
 import { RollDieTile } from '../components/newgame/RollDieTile'
 import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
+import { ScoreTransfer } from '../components/newgame/ScoreTransfer'
+import type { ScoreTransferPath } from '../components/newgame/ScoreTransfer'
 import { DUNGEONS } from '../game/content/dungeons'
 import { useNewGameStore } from '../store/newGameStore'
+
+interface ActiveRoll {
+  faceId: string
+  stage: 'rolling' | 'landed'
+}
 
 export function CombatScreen() {
   const profile = useNewGameStore((state) => state.profile)
@@ -16,13 +23,22 @@ export function CombatScreen() {
   const advanceRoundResolution = useNewGameStore((state) => state.advanceRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
 
-  const [rollingFaceId, setRollingFaceId] = useState<string | null>(null)
+  const [activeRoll, setActiveRoll] = useState<ActiveRoll | null>(null)
+  const [scoreTransfer, setScoreTransfer] = useState<ScoreTransferPath | null>(null)
   const [enemyHitVersion, setEnemyHitVersion] = useState(0)
   const [enemyAttackVersion, setEnemyAttackVersion] = useState(0)
-  const rollTimer = useRef<number | null>(null)
+  const rollTimers = useRef<number[]>([])
+  const activeDieElement = useRef<HTMLDivElement | null>(null)
+  const scoreStageElement = useRef<HTMLDivElement | null>(null)
+  const scoreTargetElement = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => () => {
-    if (rollTimer.current !== null) window.clearTimeout(rollTimer.current)
+    rollTimers.current.forEach((timer) => window.clearTimeout(timer))
+  }, [])
+
+  const completeScoreTransfer = useCallback(() => {
+    setScoreTransfer(null)
+    rollTimers.current = []
   }, [])
 
   useEffect(() => {
@@ -61,16 +77,61 @@ export function CombatScreen() {
   if (!enemy || !run.dungeonId) return null
   const dungeon = DUNGEONS[run.dungeonId]
   const diceLeft = combat.drawPileDieIds.length
+  const pendingFaceId = activeRoll?.faceId ?? scoreTransfer?.faceId ?? null
+  const pendingResult = pendingFaceId
+    ? combat.results.find((result) => result.faceId === pendingFaceId)
+    : undefined
+  const scoredResults = pendingFaceId
+    ? combat.results.filter((result) => result.faceId !== pendingFaceId)
+    : combat.results
+  const displayedTotals = pendingResult
+    ? {
+        ...combat.totals,
+        [pendingResult.type]: Math.max(0, combat.totals[pendingResult.type] - pendingResult.value),
+      }
+    : combat.totals
+  const rollSpeed = Math.max(0.25, profile.settings.rollSpeed)
+  const rollDurationSeconds = 0.52 / rollSpeed
+  const isScoreAnimating = pendingFaceId !== null
+  const animationLabel = activeRoll?.stage === 'rolling' ? 'Rolling...' : 'Scoring...'
 
   function handleDraw() {
-    if (rollingFaceId !== null) return
+    if (isScoreAnimating) return
     const result = drawNextDie()
     if (!result) return
-    setRollingFaceId(result.faceId)
-    rollTimer.current = window.setTimeout(() => {
-      setRollingFaceId(null)
-      rollTimer.current = null
-    }, 540 / profile.settings.rollSpeed)
+    setActiveRoll({ faceId: result.faceId, stage: 'rolling' })
+
+    const landingTimer = window.setTimeout(() => {
+      setActiveRoll({ faceId: result.faceId, stage: 'landed' })
+
+      const collectionTimer = window.setTimeout(() => {
+        const sourceRect = activeDieElement.current?.getBoundingClientRect()
+        const existingTypeTarget = scoreStageElement.current?.querySelector<HTMLElement>(
+          `[data-total-type="${result.type}"]`,
+        )
+        const targetRect = (existingTypeTarget ?? scoreTargetElement.current)?.getBoundingClientRect()
+        const fromX = sourceRect ? sourceRect.left + sourceRect.width / 2 : window.innerWidth / 2
+        const fromY = sourceRect ? sourceRect.top + sourceRect.height / 2 : window.innerHeight / 2
+        const toX = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth / 2
+        const toY = targetRect ? targetRect.top + targetRect.height / 2 : fromY - 100
+
+        setScoreTransfer({
+          faceId: result.faceId,
+          type: result.type,
+          value: result.value,
+          fromX,
+          fromY,
+          toX,
+          toY,
+          duration: Math.max(0.34, 0.46 / rollSpeed),
+        })
+        setActiveRoll(null)
+      }, 140 / rollSpeed)
+
+      rollTimers.current.push(collectionTimer)
+    }, 540 / rollSpeed)
+
+    rollTimers.current = [landingTimer]
   }
 
   return (
@@ -107,7 +168,10 @@ export function CombatScreen() {
           <span>/ {run.playerMaxHp} HP</span>
         </div>
         <HpBar current={run.playerHp} max={run.playerMaxHp} />
-        <RoundTotalsPanel results={combat.results} totals={combat.totals} />
+        <div className="round-totals-stage" ref={scoreStageElement}>
+          <RoundTotalsPanel results={scoredResults} totals={displayedTotals} />
+          <div aria-hidden="true" className="score-target-anchor" ref={scoreTargetElement} />
+        </div>
         {combat.phase === 'resolving' && combat.lastResolution && (
           <div className={`resolution-banner resolution-banner--${combat.resolutionStep ?? 'player'}`} role="status">
             {combat.lastResolution.outcome === 'victory'
@@ -134,10 +198,12 @@ export function CombatScreen() {
             const die = run.equippedDiceSnapshot.find((candidate) => candidate.id === result.dieId)
             return die ? (
               <RollDieTile
+                activeElementRef={result.faceId === activeRoll?.faceId ? activeDieElement : undefined}
                 die={die}
-                isRolling={result.faceId === rollingFaceId}
                 key={result.faceId}
                 result={result}
+                rollDuration={rollDurationSeconds}
+                stage={result.faceId === activeRoll?.faceId ? activeRoll.stage : 'settled'}
               />
             ) : null
           })}
@@ -146,24 +212,25 @@ export function CombatScreen() {
 
       <footer className="combat-actions">
         {combat.phase === 'awaiting_resolve' ? (
-          <button className="pixel-button pixel-button--attack" disabled={rollingFaceId !== null} onClick={beginRoundResolution} type="button">
-            Resolve Round
+          <button className="pixel-button pixel-button--attack" disabled={isScoreAnimating} onClick={beginRoundResolution} type="button">
+            {isScoreAnimating ? animationLabel : 'Resolve Round'}
           </button>
         ) : (
           <button
             className="pixel-button pixel-button--primary"
-            disabled={combat.phase !== 'awaiting_roll' || rollingFaceId !== null}
+            disabled={combat.phase !== 'awaiting_roll' || isScoreAnimating}
             onClick={handleDraw}
             type="button"
           >
-            {rollingFaceId !== null
-              ? 'Drawing...'
+            {isScoreAnimating
+              ? animationLabel
               : diceLeft > 0
                 ? `Draw (${diceLeft} left)`
                 : 'Waiting...'}
           </button>
         )}
       </footer>
+      {scoreTransfer && <ScoreTransfer onComplete={completeScoreTransfer} path={scoreTransfer} />}
     </main>
   )
 }

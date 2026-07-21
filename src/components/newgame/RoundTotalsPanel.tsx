@@ -24,13 +24,22 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({ results, totals
         <motion.div
           aria-label={`${FACE_META[type].label} total ${totals[type]}`}
           className="round-total"
+          data-total-type={type}
           initial={{ opacity: 0, scale: 0.65, y: 6 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           key={type}
+          layout
           style={{ color: FACE_META[type].color }}
         >
           <FaceIcon type={type} size={22} />
-          <strong>{totals[type]}</strong>
+          <motion.strong
+            animate={{ filter: ['brightness(1.8)', 'brightness(1)'], scale: [1.75, 0.88, 1] }}
+            initial={{ scale: 0.6 }}
+            key={`${type}-${totals[type]}`}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+          >
+            {totals[type]}
+          </motion.strong>
         </motion.div>
       ))}
     </section>

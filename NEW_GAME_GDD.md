@@ -114,6 +114,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Combat-boardet er rent og uden ydre kort omkring spillede dice eller totals.
 - En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
 - Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
+- Et nyt roll-resultat må ikke tælle med i den synlige total, mens terningen ruller. Efter landing flyver face-ikonet og værdien op i scoreområdet; totalen opdateres først ved impact. Samme feedback-system skal genbruges af alle nuværende og fremtidige face-typer.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
 - Victory skal føles som en pixel-game scene frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, loot-pickups og to tydelige ruter for Extract eller Continue.
 - Kritisk information må aldrig eksistere kun i animation; resultat og totals forbliver læsbare.

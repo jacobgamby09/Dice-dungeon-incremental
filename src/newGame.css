@@ -376,6 +376,19 @@
   gap: 20px;
 }
 
+.round-totals-stage {
+  position: relative;
+}
+
+.score-target-anchor {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 .round-total {
   display: flex;
   align-items: center;
@@ -384,6 +397,60 @@
 }
 
 .round-total strong { font-size: 1.35rem; }
+
+.score-transfer-origin {
+  --score-color: #f87171;
+  --score-dark: #7f1d1d;
+  position: fixed;
+  z-index: 100;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.score-transfer {
+  position: absolute;
+  top: -19px;
+  left: -35px;
+  min-width: 70px;
+  height: 38px;
+  border: 3px solid #05050b;
+  background: var(--score-dark);
+  box-shadow: 0 4px 0 #05050b, inset 0 2px 0 color-mix(in srgb, var(--score-color) 58%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--score-color);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--score-color) 58%, transparent));
+}
+
+.score-transfer strong {
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #05050b;
+}
+
+.score-transfer__spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: var(--score-color);
+  box-shadow: 1px 1px 0 #05050b;
+  opacity: 0;
+  animation: score-spark 0.28s steps(3, end) 0.16s both;
+}
+
+.score-transfer__spark--one { top: -8px; left: 9px; --spark-x: -9px; --spark-y: -7px; }
+.score-transfer__spark--two { top: -7px; right: 8px; --spark-x: 10px; --spark-y: -5px; }
+.score-transfer__spark--three { right: -7px; bottom: 3px; --spark-x: 9px; --spark-y: 7px; }
+
+@keyframes score-spark {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  35% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--spark-x), var(--spark-y)) scale(0.5); }
+}
 
 .resolution-banner {
   margin-top: 8px;
