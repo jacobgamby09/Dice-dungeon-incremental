@@ -37,6 +37,8 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 - Terninger og deres seks individuelle faces er permanente og har stabile IDs.
 - Alle udstyrede terninger trækkes tilfældigt uden replacement hver runde.
 - Boardet viser kun faktisk trukne terninger i draw-rækkefølge og har ingen faste dice-slots.
+- Combat viser ingen tomme typebokse; totals og ikoner opstår først, når en face-type bliver rullet.
+- Spillede dice genkendes på face-farve og ikon frem for ydre typekort.
 - XP er permanent og mistes aldrig.
 - Run Souls mistes ved død; Banked Souls overlever og bruges i Workshop.
 - Der findes ingen Gold, Coins eller Materials.

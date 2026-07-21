@@ -17,7 +17,6 @@ export const RollDieTile = memo(function RollDieTile({ die, result, isRolling }:
       className={`roll-die roll-die--${die.family}`}
       aria-label={`${die.name} rolled ${result.value} ${meta.label}`}
     >
-      <span className="roll-die__name">{die.name}</span>
       <motion.div
         className="roll-die__body"
         animate={isRolling ? { rotateY: 720, y: [0, -18, 0] } : { rotateY: 0, y: 0 }}
@@ -26,9 +25,9 @@ export const RollDieTile = memo(function RollDieTile({ die, result, isRolling }:
         {isRolling ? (
           <span className="roll-die__question">?</span>
         ) : (
-          <span className="roll-die__result" style={{ color: meta.color }}>
+          <span className="roll-die__result">
             {result.value}
-            <FaceIcon type={result.type} size={17} />
+            <FaceIcon type={result.type} size={22} />
           </span>
         )}
       </motion.div>

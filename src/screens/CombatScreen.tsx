@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Flame, Heart, Shield, Swords } from 'lucide-react'
+import { Flame, Heart, Swords } from 'lucide-react'
 import { EnemySprite } from '../components/EnemySprite'
-import { DieSummary } from '../components/newgame/DieSummary'
 import { HpBar } from '../components/newgame/HpBar'
 import { RollDieTile } from '../components/newgame/RollDieTile'
 import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
@@ -17,7 +16,6 @@ export function CombatScreen() {
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
 
   const [rollingFaceId, setRollingFaceId] = useState<string | null>(null)
-  const [showDiceFaces, setShowDiceFaces] = useState(false)
   const [enemyHitVersion, setEnemyHitVersion] = useState(0)
   const [enemyAttackVersion, setEnemyAttackVersion] = useState(0)
   const rollTimer = useRef<number | null>(null)
@@ -99,7 +97,7 @@ export function CombatScreen() {
           <span>/ {run.playerMaxHp} HP</span>
         </div>
         <HpBar current={run.playerHp} max={run.playerMaxHp} />
-        <RoundTotalsPanel totals={combat.totals} />
+        <RoundTotalsPanel results={combat.results} totals={combat.totals} />
         {combat.phase === 'resolving' && combat.lastResolution && (
           <div className="resolution-banner" role="status">
             {combat.lastResolution.outcome === 'victory'
@@ -117,14 +115,6 @@ export function CombatScreen() {
             <span className="eyebrow">Random draw bag</span>
             <h2>{diceLeft > 0 ? `${diceLeft} left in bag` : 'All dice drawn'}</h2>
           </div>
-          <button
-            aria-expanded={showDiceFaces}
-            className="inspect-button"
-            onClick={() => setShowDiceFaces((isVisible) => !isVisible)}
-            type="button"
-          >
-            {showDiceFaces ? 'Hide faces' : 'Inspect dice'}
-          </button>
         </div>
         <div className="roll-grid">
           {combat.results.length === 0 && (
@@ -142,21 +132,9 @@ export function CombatScreen() {
             ) : null
           })}
         </div>
-        {showDiceFaces && (
-          <div className="combat-dice-inspector" aria-label="Permanent dice faces">
-            {run.equippedDiceSnapshot.map((die) => (
-              <DieSummary compact die={die} key={die.id} />
-            ))}
-          </div>
-        )}
       </section>
 
       <footer className="combat-actions">
-        <div className="resolution-preview">
-          <span><Heart aria-hidden="true" size={13} /> Heal first</span>
-          <span><Swords aria-hidden="true" size={13} /> Attack second</span>
-          <span><Shield aria-hidden="true" size={13} /> Block if enemy lives</span>
-        </div>
         {combat.phase === 'awaiting_resolve' ? (
           <button className="pixel-button pixel-button--attack" disabled={rollingFaceId !== null} onClick={beginRoundResolution} type="button">
             Resolve Round

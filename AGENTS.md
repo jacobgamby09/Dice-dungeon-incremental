@@ -68,7 +68,9 @@ Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og S
 - Brug semantiske buttons, headings, labels, progressbars og synlig fokus-state.
 - Subscribér til smalle Zustand-slices frem for hele store-objektet.
 - Hold gameplay-beregninger ude af React-effects; UI-effects må kun orkestrere animation og transition.
-- Alle tre totals og hvert roll-resultat skal kunne aflæses uden animationen.
+- Combat viser ingen tomme Attack/Shield/Heal-placeholders; en type-total opstår først, når typen faktisk rulles.
+- Dice identificeres på selve face-fladens farve og ikon, ikke gennem et ydre typekort eller en label-boks.
+- Hvert afsluttet draw-resultat og hver afsløret total skal kunne aflæses uden animationen.
 
 ## 8. Enemy sprite pipeline
 

@@ -109,6 +109,9 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Mobile-first portræt ved cirka 384 px.
 - Hard-edge pixel-art-kort, tydelige neon-accenter og høj kontrast.
 - Attack er rød, Shield blå, Heal grøn, XP cyan og Souls lilla.
+- Combat-boardet er rent og uden ydre kort omkring spillede dice eller totals.
+- En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
+- Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
 - Kritisk information må aldrig eksistere kun i animation; resultat og totals forbliver læsbare.
 

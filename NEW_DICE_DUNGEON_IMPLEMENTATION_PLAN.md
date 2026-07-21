@@ -56,6 +56,8 @@ Følgende regler er fundamentale og må ikke ændres indirekte under implementat
 - Alle udstyrede terninger blandes og trækkes uden replacement hver runde.
 - Spilleren skal trække alle terninger, før runden kan resolves.
 - Combat-boardet har ingen faste dice-slots og viser kun spillede dice i draw-rækkefølge.
+- Dice genkendes på deres face-farve og ikon, ikke gennem ydre typebokse.
+- Attack-, Shield- og Heal-totaler er skjult, indtil typen faktisk bliver rullet.
 - Manuel rulning er grundsystemet.
 - Auto Roll automatiserer kun spillerens tryk og ændrer ikke combat-reglerne.
 - Alle synlige talent nodes skal have en implementeret effekt.
@@ -403,13 +405,15 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 - Start med én Attack Die i en random draw-bag.
 - Implementér knappen `DRAW`.
 - Vis faktisk trukne dice dynamisk uden faste board-slots.
+- Fjern ydre typekort fra spillede dice; brug face-farve og ikon som identitet.
+- Opret kun en type-total, når den pågældende type bliver rullet.
 - Vis aktiv terning, spin, landing og face-resultat.
 - Animér effekten fra terningen til den relevante total.
 - Aktivér `RESOLVE ROUND`, når alle terninger er rullet.
 - Vis Attack, Shield og Heal separat.
 - Implementér enemy idle, hurt, attack og death.
 - Stop enemy action og attack-animation ved enemy death.
-- Tillad inspektion af permanente dice instances.
+- Tillad inspektion af permanente dice instances i Hub/collection, ikke som combat-støj.
 
 ### Acceptkriterier
 
@@ -508,22 +512,21 @@ Hvis svaret ikke er tydeligt ja, forbedres combat-feedback, pacing og upgrade-lo
 
 ---
 
-## Fase 6 — Permanent collection og flere dice slots
+## Fase 6 — Permanent collection og større draw-bag
 
 ### Arbejde
 
 - Byg en permanent dice collection.
-- Lad spilleren udstyre terninger i nummererede slots.
-- Start med tre slots.
-- Understøt teknisk 1–12 slots.
-- Vis roll-rækkefølgen før og under combat.
-- Brug fast slot-rækkefølge i første version.
+- Lad spilleren udstyre terninger i en permanent draw-bag uden nummererede combat-slots.
+- Start med plads til den ene Attack Die.
+- Understøt teknisk cirka 1–12 udstyrede dice.
+- Skjul draw-rækkefølgen; den bestemmes random uden replacement.
 - Lås loadout-ændringer til Hub.
-- Lad ekstra slots unlockes gennem talent tree.
+- Lad ekstra bag-kapacitet unlockes gennem talent tree.
 
 ### Acceptkriterier
 
-- En ekstra slot kan tilføjes uden at ændre combat-engine.
+- Ekstra bag-kapacitet kan tilføjes uden at ændre combat-engine.
 - UI kan håndtere både én og tolv terninger.
 - Et aktivt run ændres ikke, hvis den permanente collection opdateres uden for runnet.
 
@@ -768,12 +771,12 @@ Efter hver implementeringsfase skal relevante checks bestå:
 
 Den første prototype er færdig, når spilleren kan:
 
-1. Starte i Hub med tre permanente terninger.
+1. Starte i Hub med én permanent Attack Die.
 2. Se hver ternings seks individuelle faces.
 3. Gå ind i en dungeon.
 4. Se enemy intent før rulning.
 5. Trække alle udstyrede terninger i tilfældig rækkefølge uden replacement.
-6. Se Attack, Shield og Heal totals blive opbygget.
+6. Se kun faktisk rullede type-ikoner og totals blive bygget op uden tomme placeholders.
 7. Resolve runden manuelt.
 8. Dræbe en enemy, før den angriber.
 9. Fortsætte gennem mindst tre encounters med vedvarende HP.
