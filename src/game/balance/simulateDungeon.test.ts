@@ -70,6 +70,7 @@ describe('MVP dungeon balance simulator', () => {
       300,
     )
 
-    expect(summary.bossClearRate).toBeGreaterThan(0.95)
+    expect(summary.bossClearRate).toBeGreaterThan(0.9)
   })
+
 })

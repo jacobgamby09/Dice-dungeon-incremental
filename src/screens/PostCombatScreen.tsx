@@ -1,12 +1,22 @@
 import { motion } from 'framer-motion'
 import { Flame, Heart, Shield, Sparkles, Swords } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { DUNGEONS } from '../game/content/dungeons'
+import { getEnemyAttackDie } from '../game/content/enemyDice'
 import { ENEMIES } from '../game/content/enemies'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function PostCombatScreen() {
-  const run = useNewGameStore((state) => state.run)
+  const run = useNewGameStore(useShallow((state) => ({
+    lastReward: state.run.lastReward,
+    dungeonId: state.run.dungeonId,
+    enemy: state.run.enemy,
+    encounterIndex: state.run.encounterIndex,
+    playerHp: state.run.playerHp,
+    playerMaxHp: state.run.playerMaxHp,
+    runSouls: state.run.runSouls,
+  })))
   const xp = useNewGameStore((state) => state.profile.xp)
   const continueRun = useNewGameStore((state) => state.continueRun)
   const extractRun = useNewGameStore((state) => state.extractRun)
@@ -15,6 +25,7 @@ export function PostCombatScreen() {
   const dungeon = DUNGEONS[run.dungeonId]
   const nextFloor = dungeon.floors[run.encounterIndex + 1]
   const nextEnemy = nextFloor ? ENEMIES[nextFloor.enemyId] : null
+  const nextEnemyAttackDie = nextEnemy ? getEnemyAttackDie(nextEnemy.attackDieId) : null
   const dungeonComplete = run.lastReward.dungeonComplete
   const canContinue = !dungeonComplete && Boolean(nextFloor)
 
@@ -92,7 +103,7 @@ export function PostCombatScreen() {
           </button>
         </article>
 
-        {canContinue && nextFloor && nextEnemy && (
+        {canContinue && nextFloor && nextEnemy && nextEnemyAttackDie && (
           <>
             <div aria-hidden="true" className="path-divider"><span>or</span></div>
             <article className="path-choice path-choice--deeper">
@@ -100,7 +111,8 @@ export function PostCombatScreen() {
               <div className="path-choice__copy">
                 <span>{nextFloor.isBoss ? 'Boss floor' : `Floor ${nextFloor.floor} awaits`}</span>
                 <h2>{nextEnemy.name}</h2>
-                <p>HP {nextEnemy.maxHp} · Attack {nextEnemy.intentPattern.join('/')} · Risk every Soul.</p>
+                <p>HP {nextEnemy.maxHp} · Attack Die {nextEnemyAttackDie.faces.map((face) => face.value).join('·')}.</p>
+                <p>Its exact attack is rolled and revealed before your next round.</p>
                 {nextEnemy.startingShield > 0 && <p><Shield aria-hidden="true" size={14} /> Starts with {nextEnemy.startingShield} Shield.</p>}
               </div>
               <button className="pixel-button pixel-button--danger" onClick={continueRun} type="button">

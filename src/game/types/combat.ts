@@ -12,7 +12,13 @@ export interface RoundTotals {
 }
 
 export type CombatOutcome = 'ongoing' | 'victory' | 'defeat'
-export type CombatPhase = 'awaiting_roll' | 'awaiting_resolve' | 'resolving' | 'victory' | 'defeat'
+export type CombatPhase =
+  | 'revealing_enemy_intent'
+  | 'awaiting_roll'
+  | 'awaiting_resolve'
+  | 'resolving'
+  | 'victory'
+  | 'defeat'
 export type ResolutionStep = 'player' | 'enemy' | null
 
 export interface RoundResolution {

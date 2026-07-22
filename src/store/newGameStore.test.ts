@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersistStorage, StorageValue } from 'zustand/middleware'
 import { createDiceCatalog } from '../game/content/dice'
 import { DUNGEONS } from '../game/content/dungeons'
@@ -18,6 +18,10 @@ function prepareResolvedRound(totals: { attack: number; shield: number; heal: nu
       totals,
     },
   })
+}
+
+function revealEnemyIntent() {
+  useNewGameStore.getState().finishEnemyIntentReveal()
 }
 
 describe('new game progression loop', () => {
@@ -44,6 +48,7 @@ describe('new game progression loop', () => {
       },
     })
     useNewGameStore.getState().startRun('prototype-depths')
+    revealEnemyIntent()
     const drawOrder = [...useNewGameStore.getState().combat.drawPileDieIds]
 
     expect([...drawOrder].sort()).toEqual(diceCollection.map((die) => die.id).sort())
@@ -69,13 +74,34 @@ describe('new game progression loop', () => {
     })
     expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('ongoing')
     useNewGameStore.getState().advanceRoundResolution()
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.999)
     useNewGameStore.getState().finishRoundResolution()
+    random.mockRestore()
     const nextRound = useNewGameStore.getState().combat
     expect(nextRound.roundNumber).toBe(2)
+    expect(nextRound.phase).toBe('revealing_enemy_intent')
     expect([...nextRound.drawPileDieIds].sort()).toEqual(
       diceCollection.map((die) => die.id).sort(),
     )
     expect(nextRound.results).toEqual([])
+    expect(useNewGameStore.getState().run.enemy?.intentRoll.faceId).toBe(
+      'slime-attack-die-face-6',
+    )
+  })
+
+  it('precommits a stable enemy face before revealing intent or enabling player draw', () => {
+    useNewGameStore.getState().startRun('prototype-depths')
+    const started = useNewGameStore.getState()
+    const intentRoll = started.run.enemy?.intentRoll
+
+    expect(started.combat.phase).toBe('revealing_enemy_intent')
+    expect(intentRoll?.dieId).toBe('slime-attack-die')
+    expect(intentRoll?.faceId).toMatch(/^slime-attack-die-face-[1-6]$/)
+    expect(useNewGameStore.getState().drawNextDie()).toBeNull()
+
+    revealEnemyIntent()
+    expect(useNewGameStore.getState().combat.phase).toBe('awaiting_roll')
+    expect(useNewGameStore.getState().run.enemy?.intentRoll).toEqual(intentRoll)
   })
 
   it('awards permanent XP immediately and lets a lethal player hit cancel the enemy intent', () => {
@@ -358,6 +384,7 @@ describe('new game progression loop', () => {
     try {
       useNewGameStore.getState().resetProgress()
       useNewGameStore.getState().startRun('prototype-depths')
+      revealEnemyIntent()
       const committedRoll = useNewGameStore.getState().drawNextDie()
       const activeRunBeforeReload = useNewGameStore.getState().run
       const persistedSnapshot = structuredClone(
@@ -417,11 +444,68 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(3)
+      expect(migrated.profile.saveVersion).toBe(4)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
       expect(migrated.profile.equippedDieIds).toEqual(['attack-die-1'])
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('migrates a version 3 numeric intent to the matching stable enemy face', async () => {
+    useNewGameStore.getState().startRun('prototype-depths')
+    const state = useNewGameStore.getState()
+    const enemy = state.run.enemy!
+    const legacyEnemy = {
+      definitionId: enemy.definitionId,
+      name: enemy.name,
+      spriteName: enemy.spriteName,
+      hp: enemy.hp,
+      maxHp: enemy.maxHp,
+      shield: enemy.shield,
+      intentIndex: 0,
+      intent: { type: 'attack' as const, value: 3 },
+      xpReward: enemy.xpReward,
+      soulReward: enemy.soulReward,
+      rewardClaimed: false,
+    }
+    const legacyState = {
+      ...state,
+      profile: { ...state.profile, saveVersion: 3 },
+      run: { ...state.run, enemy: legacyEnemy },
+      combat: { ...state.combat, phase: 'awaiting_roll' as const },
+    }
+    let saved: StorageValue<NewGameState> | null = {
+      state: legacyState as unknown as NewGameState,
+      version: 3,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+
+      expect(migrated.profile.saveVersion).toBe(4)
+      expect(migrated.run.status).toBe('active')
+      expect(migrated.run.enemy?.intentRoll).toMatchObject({
+        dieId: 'slime-attack-die',
+        faceId: 'slime-attack-die-face-6',
+        value: 3,
+      })
+      expect(migrated.combat.phase).toBe('awaiting_roll')
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()

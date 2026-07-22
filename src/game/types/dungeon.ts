@@ -1,5 +1,5 @@
-import type { EnemyIntent } from './combat'
 import type { DieInstance } from './dice'
+import type { EnemyAttackDieId, EnemyAttackRollResult } from './enemyDice'
 
 export type EnemyId =
   | 'slime'
@@ -20,7 +20,7 @@ export interface EnemyDefinition {
   spriteName: string
   maxHp: number
   startingShield: number
-  intentPattern: number[]
+  attackDieId: EnemyAttackDieId
   xpReward: number
   soulReward: number
 }
@@ -32,8 +32,8 @@ export interface EnemyState {
   hp: number
   maxHp: number
   shield: number
-  intentIndex: number
-  intent: EnemyIntent
+  attackDieId: EnemyAttackDieId
+  intentRoll: EnemyAttackRollResult
   xpReward: number
   soulReward: number
   rewardClaimed: boolean

@@ -380,46 +380,179 @@
   transform: perspective(180px) rotateX(61deg);
 }
 
-.intent-badge {
+.enemy-intent-die {
   position: absolute;
-  z-index: 3;
-  top: 67px;
+  z-index: 4;
+  top: 61px;
   right: 13px;
-  width: 142px;
-  border: 3px solid #030308;
-  border-left-color: #ef4444;
-  background: #270d15;
-  box-shadow: 4px 4px 0 #030308, inset 0 2px 0 rgba(248, 113, 113, 0.16);
-  padding: 7px 8px;
+  width: 148px;
   display: grid;
   gap: 4px;
 }
 
-.intent-badge > span {
+.enemy-intent-die__label {
   color: #9e6975;
   font-size: 0.48rem;
   font-weight: 900;
   letter-spacing: 0.12em;
+  text-align: right;
   text-transform: uppercase;
 }
 
-.intent-badge strong {
+.enemy-intent-die__inspect {
+  width: 100%;
+  min-height: 58px;
+  border: 3px solid #030308;
+  border-left-color: #ef4444;
+  background: #270d15;
+  box-shadow: 4px 4px 0 #030308, inset 0 2px 0 rgba(248, 113, 113, 0.16);
+  padding: 4px 6px;
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: 7px;
+  color: #fca5a5;
+  cursor: pointer;
+  text-align: left;
+}
+
+.enemy-intent-die__inspect:disabled { cursor: default; opacity: 1; }
+
+.enemy-intent-die__inspect:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 3px;
+}
+
+.enemy-intent-die__cube {
+  --cube-size: 44px;
+  --cube-depth: 22px;
+  position: relative;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.enemy-intent-die__cube .roll-die__side {
+  border-width: 2px;
+  gap: 3px;
+}
+
+.enemy-intent-die__cube .roll-die__side strong {
+  font-size: 0.9rem;
+  text-shadow: 1px 1px 0 #030308;
+}
+
+.enemy-intent-die__face {
+  width: 46px;
+  height: 46px;
+  border: 2px solid #030308;
+  background: #7f1d2d;
+  box-shadow: 0 4px 0 #030308, inset 0 2px 0 rgba(248, 113, 113, 0.38);
   display: flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 3px;
+  color: #fff;
+}
+
+.enemy-intent-die__face strong {
+  font-size: 1.15rem;
+  text-shadow: 2px 2px 0 #030308;
+}
+
+.enemy-intent-die__value {
   color: #fca5a5;
-  font-size: 0.72rem;
+  font-size: 0.61rem;
+  font-weight: 900;
+  line-height: 1.25;
   text-transform: uppercase;
 }
 
-.enemy-zone--defeated .intent-badge {
+.enemy-intent-die--rolling .enemy-intent-die__inspect {
+  background: #1e1119;
+  box-shadow: 4px 4px 0 #030308, 0 0 12px rgba(239, 68, 68, 0.18);
+}
+
+.enemy-intent-die--attacking .enemy-intent-die__inspect {
+  border-left-color: #fbbf24;
+  box-shadow: 4px 4px 0 #030308, 0 0 14px rgba(239, 68, 68, 0.42), inset 0 2px 0 rgba(251, 191, 36, 0.25);
+}
+
+.enemy-intent-die--cancelled .enemy-intent-die__inspect {
   border-left-color: #4ade80;
   background: #0b261b;
   box-shadow: 4px 4px 0 #030308, inset 0 2px 0 rgba(74, 222, 128, 0.14);
 }
 
-.enemy-zone--defeated .intent-badge > span { color: #6ea88a; }
-.enemy-zone--defeated .intent-badge strong { color: #86efac; }
+.enemy-intent-die--cancelled .enemy-intent-die__label,
+.enemy-intent-die--cancelled .enemy-intent-die__value { color: #86efac; }
+.enemy-intent-die--cancelled .enemy-intent-die__face { background: #14532d; color: #86efac; }
+
+.enemy-intent-die__details {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 184px;
+  border: 3px solid #030308;
+  background: #15111b;
+  box-shadow: 5px 5px 0 #030308, inset 0 2px 0 #39202c;
+  padding: 7px;
+  display: grid;
+  gap: 5px;
+  color: #f8fafc;
+}
+
+.enemy-intent-die__details > strong { font-size: 0.55rem; text-transform: uppercase; }
+.enemy-intent-die__details > div { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+.enemy-intent-die__details > div span {
+  min-height: 23px;
+  border: 2px solid #030308;
+  background: #7f1d2d;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 900;
+}
+.enemy-intent-die__details small { color: #a78b8f; font-size: 0.47rem; }
+
+.enemy-damage-transfer-origin {
+  position: fixed;
+  z-index: 30;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.enemy-damage-transfer {
+  position: absolute;
+  min-width: 68px;
+  margin-top: -22px;
+  margin-left: -34px;
+  border: 2px solid #030308;
+  background: #7f1d1d;
+  box-shadow: 3px 3px 0 #030308, 0 0 12px rgba(239, 68, 68, 0.52);
+  padding: 5px 7px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: 2px 5px;
+  color: #fecaca;
+}
+
+.enemy-damage-transfer strong { color: #fff; font-size: 0.84rem; text-shadow: 2px 2px 0 #030308; }
+.enemy-damage-transfer small {
+  grid-column: 1 / -1;
+  color: #fca5a5;
+  font-size: 0.42rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .enemy-zone--defeated .enemy-zone__title h1 { color: #a7a1b1; text-shadow: 2px 3px 0 #302a37; }
 
 .enemy-zone__vitals {
@@ -2790,7 +2923,7 @@
   .enemy-zone__sprite { left: 6px; width: 128px; }
   .enemy-zone__pedestal { left: 5px; width: 130px; }
   .enemy-zone__title { right: 10px; width: 154px; }
-  .intent-badge { right: 10px; width: 132px; }
+  .enemy-intent-die { right: 10px; width: 134px; }
   .enemy-zone__vitals { right: 10px; width: 174px; }
   .player-zone { padding-inline: 10px; }
   .round-totals { gap: 6px; }

@@ -6,6 +6,8 @@ Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent 
 
 XP Talent Tree indeholder den tidlige progression fra +2 Max HP til anden Attack Die, Shield, tre specialiseringsgrene, Heal, fire slots, Quick Draw og Auto Roll. Nye dice er unikke permanente objekter og skal aktivt equippes. En data-dreven simulator dækker den forventede dybdekurve; næste skridt er nu rigtig browser-playtest og tuning, ikke flere kernesystemer.
 
+Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 4 migrerer eksisterende numeriske intents til stabile enemy-face-ID'er.
+
 Arbejdet fortsætter på branch `agent/random-draw-bag` og den eksisterende draft PR #1. Dette forløbs ændringer er ikke committed endnu.
 
 ## Dokumentets formål
@@ -381,6 +383,8 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 - Implementér summering af Attack, Shield og Heal.
 - Implementér `resolveRound` som en ren funktion.
 - Implementér enemy intent og næste intent.
+- Implementér enemy Attack Dice som data-drevne seks-face definitioner med injicerbar RNG.
+- Precommit hvert enemy-resultat før UI-reveal og brug resultatet direkte som resolver-intent.
 - Implementér victory og defeat.
 - Implementér vedvarende HP mellem encounters.
 - Implementér en injicerbar RNG.
@@ -402,6 +406,8 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 - Genopbyg den mobile combat-komposition.
 - Genbrug enemy zone, HP-bars og intent-præsentation.
+- Vis enemy intent som en mindre fysisk Attack Die med inspectable seks-face-fordeling.
+- Lås player controls under enemy reveal, og vis landed, attacking og cancelled states.
 - Start med én Attack Die i en random draw-bag.
 - Implementér knappen `DRAW`.
 - Vis faktisk trukne dice dynamisk uden faste board-slots.

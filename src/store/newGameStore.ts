@@ -3,10 +3,12 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
 import { shuffleDieIds } from '../game/combat/drawBag'
 import { addRollToTotals, rollDie } from '../game/combat/rollDie'
+import { findEnemyAttackRollByValue } from '../game/combat/rollEnemyAttackDie'
 import { resolveRound } from '../game/combat/resolveRound'
 import { createDieById, createStartingDice } from '../game/content/dice'
 import { DUNGEONS } from '../game/content/dungeons'
-import { advanceEnemyIntent, createEnemyState } from '../game/content/enemies'
+import { getEnemyAttackDie } from '../game/content/enemyDice'
+import { createEnemyState, ENEMIES, rollNextEnemyIntent } from '../game/content/enemies'
 import { TALENTS_BY_ID } from '../game/content/talents'
 import { BASE_FACE_CAP, getFaceUpgradeCost } from '../game/content/upgradeCosts'
 import {
@@ -20,7 +22,7 @@ import type { CombatState, RoundResolution } from '../game/types/combat'
 import { EMPTY_TOTALS } from '../game/types/combat'
 import type { DieFaces, DieInstance, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
-import type { DungeonId, DungeonProgress, EnemyId, RunState } from '../game/types/dungeon'
+import type { DungeonId, DungeonProgress, EnemyState, RunState } from '../game/types/dungeon'
 import type { PlayerProfile } from '../game/types/progression'
 
 export type AppScreen =
@@ -45,6 +47,7 @@ export interface NewGameState {
   openLoadout: () => void
   goToHub: () => void
   startRun: (dungeonId: DungeonId) => void
+  finishEnemyIntentReveal: () => void
   drawNextDie: () => RollResult | null
   beginRoundResolution: () => RoundResolution | null
   advanceRoundResolution: () => void
@@ -60,7 +63,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 3
+const SAVE_VERSION = 4
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -114,9 +117,10 @@ function createCombatState(
   equippedDice: readonly DieInstance[] = [],
   roundNumber = 1,
   resolutionVersion = 0,
+  revealEnemyIntent = false,
 ): CombatState {
   return {
-    phase: 'awaiting_roll',
+    phase: revealEnemyIntent ? 'revealing_enemy_intent' : 'awaiting_roll',
     roundNumber,
     drawPileDieIds: shuffleDieIds(equippedDice.map((die) => die.id)),
     results: [],
@@ -124,6 +128,33 @@ function createCombatState(
     lastResolution: null,
     resolutionVersion,
     resolutionStep: null,
+  }
+}
+
+type LegacyEnemyState = Partial<EnemyState> & {
+  intent?: { type?: 'attack'; value?: number }
+}
+
+function migrateEnemyState(existingEnemy: LegacyEnemyState | null | undefined): EnemyState | null {
+  if (!existingEnemy?.definitionId) return null
+  const definition = ENEMIES[existingEnemy.definitionId]
+  if (!definition) return null
+
+  const canonicalEnemy = createEnemyState(definition.id, () => 0)
+  const legacyIntentValue = existingEnemy.intentRoll?.value
+    ?? existingEnemy.intent?.value
+    ?? canonicalEnemy.intentRoll.value
+  const attackDie = getEnemyAttackDie(definition.attackDieId)
+
+  return {
+    ...canonicalEnemy,
+    hp: existingEnemy.hp ?? canonicalEnemy.hp,
+    maxHp: existingEnemy.maxHp ?? canonicalEnemy.maxHp,
+    shield: existingEnemy.shield ?? canonicalEnemy.shield,
+    xpReward: existingEnemy.xpReward ?? canonicalEnemy.xpReward,
+    soulReward: existingEnemy.soulReward ?? canonicalEnemy.soulReward,
+    rewardClaimed: existingEnemy.rewardClaimed ?? false,
+    intentRoll: findEnemyAttackRollByValue(attackDie, legacyIntentValue),
   }
 }
 
@@ -184,20 +215,19 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     },
   }
 
-  const legacyFloorByEnemy: Partial<Record<EnemyId, number>> = {
-    slime: 0,
-    goblin: 3,
-    skeleton: 6,
-  }
   const existingRun = persisted.run
-  const mappedEncounterIndex = existingRun?.enemy
-    ? legacyFloorByEnemy[existingRun.enemy.definitionId]
-    : undefined
-  const canPreserveRun = existingRun?.status !== 'inactive' && mappedEncounterIndex !== undefined
+  const migratedEnemy = migrateEnemyState(existingRun?.enemy as LegacyEnemyState | null | undefined)
+  const mappedEncounterIndex = migratedEnemy
+    ? DUNGEONS['prototype-depths'].floors.findIndex(
+        (floor) => floor.enemyId === migratedEnemy.definitionId,
+      )
+    : -1
+  const canPreserveRun = existingRun?.status !== 'inactive' && mappedEncounterIndex >= 0
   const migratedRun = canPreserveRun
     ? {
         ...existingRun,
         encounterIndex: mappedEncounterIndex,
+        enemy: migratedEnemy,
       }
     : createInactiveRun()
 
@@ -278,8 +308,25 @@ export const useNewGameStore = create<NewGameState>()(
             enemy: createEnemyState(firstEnemyId),
             lastReward: null,
           },
-          combat: createCombatState(equippedDiceSnapshot, 1, state.combat.resolutionVersion),
+          combat: createCombatState(
+            equippedDiceSnapshot,
+            1,
+            state.combat.resolutionVersion,
+            true,
+          ),
           lastLostRunSouls: 0,
+        })
+      },
+
+      finishEnemyIntentReveal: () => {
+        const state = get()
+        if (state.screen !== 'combat' || state.run.status !== 'active') return
+        if (state.combat.phase !== 'revealing_enemy_intent') return
+        set({
+          combat: {
+            ...state.combat,
+            phase: 'awaiting_roll',
+          },
         })
       },
 
@@ -319,7 +366,7 @@ export const useNewGameStore = create<NewGameState>()(
           playerMaxHp: state.run.playerMaxHp,
           enemyHp: enemy.hp,
           enemyShield: enemy.shield,
-          enemyIntent: enemy.intent,
+          enemyIntent: enemy.intentRoll,
           totals: state.combat.totals,
         })
         const resolutionVersion = state.combat.resolutionVersion + 1
@@ -477,12 +524,13 @@ export const useNewGameStore = create<NewGameState>()(
         set({
           run: {
             ...state.run,
-            enemy: advanceEnemyIntent(enemy),
+            enemy: rollNextEnemyIntent(enemy),
           },
           combat: createCombatState(
             state.run.equippedDiceSnapshot,
             state.combat.roundNumber + 1,
             state.combat.resolutionVersion,
+            true,
           ),
         })
       },
@@ -508,6 +556,7 @@ export const useNewGameStore = create<NewGameState>()(
             state.run.equippedDiceSnapshot,
             1,
             state.combat.resolutionVersion,
+            true,
           ),
         })
       },

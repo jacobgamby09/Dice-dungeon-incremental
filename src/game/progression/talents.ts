@@ -25,10 +25,13 @@ export function getDiceCapacity(unlockedTalentIds: readonly string[]): number {
   )
 }
 
-export function getRollSpeed(profile: PlayerProfile): number {
-  return getPurchasedEffects(profile.unlockedTalentIds).reduce(
+export function getRollSpeed(
+  unlockedTalentIds: readonly string[],
+  baseRollSpeed: number,
+): number {
+  return getPurchasedEffects(unlockedTalentIds).reduce(
     (speed, effect) => speed * (effect.type === 'roll_speed' ? effect.multiplier : 1),
-    Math.max(0.25, profile.settings.rollSpeed),
+    Math.max(0.25, baseRollSpeed),
   )
 }
 

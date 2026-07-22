@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: MVP 0.3.
+Status: gældende design for det nye spil. Version: MVP 0.4.
 
 ## High concept
 
@@ -162,7 +162,9 @@ Den tidlige tilsigtede cadence er:
 
 ## Kamp
 
-Spilleren ser altid enemy HP og næste intent før første draw. Ved rundens start blandes alle udstyrede terninger i en persisteret draw-pile. `Draw` tager den næste tilfældige terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste Attack-, Shield- eller Heal-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
+Spilleren ser altid enemy HP og det præcise næste intent før første draw. Hver enemy ejer en data-drevet seks-sidet Attack Die med stabile die- og face-ID'er. Ved rundestart vælges og persisteres enemy-resultatet først; derefter ruller en mindre fysisk enemy-die automatisk og lander som det synlige intent. Player Draw er låst under reveal-animationen. Resultatet ændres aldrig bagefter, og en dræbt enemy får fortsat sit viste intent annulleret.
+
+Efter enemy reveal blandes alle udstyrede player dice i en persisteret draw-pile. `Draw` tager den næste tilfældige terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste Attack-, Shield- eller Heal-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
 
 Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er tom, aktiveres manuel `Resolve Round`. Der er intet stop- eller bust-valg.
 
@@ -186,18 +188,18 @@ Resolutionen vises som to faktiske state-trin: først opdateres enemy HP og spil
 
 MVP-dungeonen `The First Descent` har ti floors. Floor 10 er bossen.
 
-| Floor | Enemy | HP | Start Shield | Intent | XP | Run Souls |
+| Floor | Enemy | HP | Start Shield | Attack Die faces | XP | Run Souls |
 |---:|---|---:|---:|---|---:|---:|
-| 1 | Slime | 5 | 0 | Attack 2 | 8 | 5 |
-| 2 | Slime Crawler | 7 | 0 | Attack 2/3 | 10 | 7 |
-| 3 | Marrow Bat | 9 | 0 | Attack 3/2/4 | 12 | 9 |
-| 4 | Goblin | 12 | 0 | Attack 3/4 | 14 | 10 |
-| 5 | Shieldbearer | 14 | 3 | Attack 4/3/4 | 18 | 15 |
-| 6 | Cultist | 17 | 0 | Attack 3/5/3 | 22 | 18 |
-| 7 | Skeleton | 20 | 0 | Attack 4/5 | 26 | 22 |
-| 8 | Orc | 24 | 0 | Attack 5/4/6 | 32 | 28 |
-| 9 | Blood Orc | 29 | 0 | Attack 5/7/5 | 40 | 36 |
-| 10 | Demon — Boss | 38 | 6 | Attack 6/6/9 | 60 | 60 |
+| 1 | Slime | 5 | 0 | 1·2·2·2·2·3 | 8 | 5 |
+| 2 | Slime Crawler | 7 | 0 | 2·2·2·3·3·3 | 10 | 7 |
+| 3 | Marrow Bat | 9 | 0 | 2·2·3·3·4·4 | 12 | 9 |
+| 4 | Goblin | 12 | 0 | 3·3·3·4·4·4 | 14 | 10 |
+| 5 | Shieldbearer | 14 | 3 | 3·3·4·4·4·4 | 18 | 15 |
+| 6 | Cultist | 17 | 0 | 3·3·3·4·4·5 | 22 | 18 |
+| 7 | Skeleton | 20 | 0 | 4·4·4·5·5·5 | 26 | 22 |
+| 8 | Orc | 24 | 0 | 4·4·5·5·6·6 | 32 | 28 |
+| 9 | Blood Orc | 29 | 0 | 5·5·5·6·6·7 | 40 | 36 |
+| 10 | Demon — Boss | 38 | 6 | 6·6·6·7·8·9 | 60 | 60 |
 
 HP fortsætter mellem encounters. Efter hver sejr gives XP permanent med det samme, mens Souls føjes til run-puljen.
 
@@ -225,7 +227,8 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 
 - Save-formatet er versionsstyret.
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.
-- Profil, aktivt run, enemy, HP, Run Souls, combat-phase, totals og roll-resultater persisteres.
+- Profil, aktivt run, enemy, HP, Run Souls, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
+- Save version 4 migrerer et eksisterende numerisk enemy intent til en stabil face med samme damage.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning
@@ -237,6 +240,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
 - Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
 - Et nyt roll-resultat må ikke tælle med i den synlige total, mens terningen ruller. Efter landing flyver face-ikonet og værdien op i scoreområdet; totalen opdateres først ved impact. Samme feedback-system skal genbruges af alle nuværende og fremtidige face-typer.
+- Enemy Attack Die bruger samme røde Attack-face, ikon og fysiske terningesprog som player dice, men vises i cirka 65–70% størrelse i enemy-zonen. Den forbliver synlig som låst intent, kan inspiceres for alle seks faces, pulserer ved enemy action og dæmpes som `Cancelled`, hvis fjenden dør.
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
 - Workshop skal føles som et forge-rum: dice-rack, seks fysiske face-fliser, anvil-preview og synlig Souls/impact-feedback, når præcis ét permanent face forbedres.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
@@ -249,13 +253,13 @@ Den data-drevne simulator bruges som regressionsværn, ikke som erstatning for p
 
 | Build | Gennemsnitligt højeste clear |
 |---|---:|
-| 1 Attack Die, 10 HP | 1,26 |
-| 1 Attack Die, 12 HP | 1,61 |
-| 2 Attack Dice, 12 HP | 2,75 |
-| 2 Attack + Shield, 15 HP | 4,57 |
-| 2 Attack + Shield + Heal, 15 HP | 7,05 |
+| 1 Attack Die, 10 HP | 1,18 |
+| 1 Attack Die, 12 HP | 1,46 |
+| 2 Attack Dice, 12 HP | 2,67 |
+| 2 Attack + Shield, 15 HP | 4,41 |
+| 2 Attack + Shield + Heal, 15 HP | 6,99 |
 
-Når alle fire MVP-dice har faces på mindst værdi 2, ligger progressionen ved floor 9. Faces på mindst værdi 3 gør bossen stabilt mulig. Det skaber en bevidst sen MVP-væg, hvor både XP-unlocks og konkrete Soul-opgraderinger er nødvendige.
+Enemy dice sænker den gennemsnitlige dybde en anelse uden at flytte de tilsigtede progression walls. Startbuildet klarer floor 1 i 99,86% af 10.000 seedede runs. Faces på mindst værdi 3 giver den fulde fire-dice build en boss-clear-rate på 93,5%, så bossen er stabilt mulig uden at blive deterministisk. Det skaber en bevidst sen MVP-væg, hvor både XP-unlocks og konkrete Soul-opgraderinger er nødvendige.
 
 Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 

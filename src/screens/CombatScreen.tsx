@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Dices, Flame, Heart, Shield, Swords } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
+import { EnemyDamageTransfer } from '../components/newgame/EnemyDamageTransfer'
+import type { EnemyDamageTransferPath } from '../components/newgame/EnemyDamageTransfer'
+import { EnemyIntentDie } from '../components/newgame/EnemyIntentDie'
 import { HpBar } from '../components/newgame/HpBar'
 import { RollDieTile } from '../components/newgame/RollDieTile'
 import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
 import { ScoreTransfer } from '../components/newgame/ScoreTransfer'
 import type { ScoreTransferPath } from '../components/newgame/ScoreTransfer'
 import { DUNGEONS } from '../game/content/dungeons'
+import { getEnemyAttackDie } from '../game/content/enemyDice'
 import { getRollSpeed, hasAutoRollUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -16,12 +21,35 @@ interface ActiveRoll {
 }
 
 const AUTO_ROLL_PAUSE_MS = 300
+const ENEMY_INTENT_ROLL_MS = 480
+const ENEMY_INTENT_LANDING_PAUSE_MS = 200
 
 export function CombatScreen() {
-  const profile = useNewGameStore((state) => state.profile)
-  const run = useNewGameStore((state) => state.run)
-  const combat = useNewGameStore((state) => state.combat)
+  const profile = useNewGameStore(useShallow((state) => ({
+    settings: state.profile.settings,
+    unlockedTalentIds: state.profile.unlockedTalentIds,
+  })))
+  const run = useNewGameStore(useShallow((state) => ({
+    dungeonId: state.run.dungeonId,
+    encounterIndex: state.run.encounterIndex,
+    runSouls: state.run.runSouls,
+    playerHp: state.run.playerHp,
+    playerMaxHp: state.run.playerMaxHp,
+    equippedDiceSnapshot: state.run.equippedDiceSnapshot,
+    enemy: state.run.enemy,
+  })))
+  const combat = useNewGameStore(useShallow((state) => ({
+    phase: state.combat.phase,
+    roundNumber: state.combat.roundNumber,
+    drawPileDieIds: state.combat.drawPileDieIds,
+    results: state.combat.results,
+    totals: state.combat.totals,
+    lastResolution: state.combat.lastResolution,
+    resolutionVersion: state.combat.resolutionVersion,
+    resolutionStep: state.combat.resolutionStep,
+  })))
   const drawNextDie = useNewGameStore((state) => state.drawNextDie)
+  const finishEnemyIntentReveal = useNewGameStore((state) => state.finishEnemyIntentReveal)
   const beginRoundResolution = useNewGameStore((state) => state.beginRoundResolution)
   const advanceRoundResolution = useNewGameStore((state) => state.advanceRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
@@ -31,8 +59,11 @@ export function CombatScreen() {
   const [scoreTransfer, setScoreTransfer] = useState<ScoreTransferPath | null>(null)
   const [enemyHitVersion, setEnemyHitVersion] = useState(0)
   const [enemyAttackVersion, setEnemyAttackVersion] = useState(0)
+  const [enemyDamageTransfer, setEnemyDamageTransfer] = useState<EnemyDamageTransferPath | null>(null)
   const rollTimers = useRef<number[]>([])
   const activeDieElement = useRef<HTMLDivElement | null>(null)
+  const enemyIntentElement = useRef<HTMLButtonElement | null>(null)
+  const playerHealthElement = useRef<HTMLDivElement | null>(null)
   const scoreStageElement = useRef<HTMLDivElement | null>(null)
   const scoreTargetElement = useRef<HTMLDivElement | null>(null)
 
@@ -43,6 +74,10 @@ export function CombatScreen() {
   const completeScoreTransfer = useCallback(() => {
     setScoreTransfer(null)
     rollTimers.current = []
+  }, [])
+
+  const completeEnemyDamageTransfer = useCallback(() => {
+    setEnemyDamageTransfer(null)
   }, [])
 
   useEffect(() => {
@@ -61,6 +96,19 @@ export function CombatScreen() {
     } else if (resolutionStep === 'enemy') {
       timers.push(window.setTimeout(() => {
         setEnemyAttackVersion((version) => version + 1)
+        const sourceRect = enemyIntentElement.current?.getBoundingClientRect()
+        const targetRect = playerHealthElement.current?.getBoundingClientRect()
+        if (sourceRect && targetRect) {
+          setEnemyDamageTransfer({
+            blocked: resolution.enemyDamageBlocked,
+            fromX: sourceRect.left + sourceRect.width / 2,
+            fromY: sourceRect.top + sourceRect.height / 2,
+            incoming: resolution.enemyDamageBlocked + resolution.playerDamageTaken,
+            taken: resolution.playerDamageTaken,
+            toX: targetRect.left + targetRect.width / 2,
+            toY: targetRect.top + targetRect.height / 2,
+          })
+        }
       }, 0))
       timers.push(window.setTimeout(finishRoundResolution, 860))
     } else {
@@ -77,6 +125,20 @@ export function CombatScreen() {
     finishRoundResolution,
   ])
 
+  const rollSpeed = getRollSpeed(
+    profile.unlockedTalentIds,
+    profile.settings.rollSpeed,
+  )
+
+  useEffect(() => {
+    if (combat.phase !== 'revealing_enemy_intent') return
+    const revealDuration = (
+      ENEMY_INTENT_ROLL_MS + ENEMY_INTENT_LANDING_PAUSE_MS
+    ) / rollSpeed
+    const timer = window.setTimeout(finishEnemyIntentReveal, revealDuration)
+    return () => window.clearTimeout(timer)
+  }, [combat.phase, finishEnemyIntentReveal, rollSpeed])
+
   const diceLeft = combat.drawPileDieIds.length
   const pendingFaceId = activeRoll?.faceId ?? scoreTransfer?.faceId ?? null
   const pendingResult = pendingFaceId
@@ -91,7 +153,6 @@ export function CombatScreen() {
         [pendingResult.type]: Math.max(0, combat.totals[pendingResult.type] - pendingResult.value),
       }
     : combat.totals
-  const rollSpeed = getRollSpeed(profile)
   const autoRollUnlocked = hasAutoRollUnlocked(profile.unlockedTalentIds)
   const rollDurationMilliseconds = 620 / rollSpeed
   const rollDurationSeconds = rollDurationMilliseconds / 1000
@@ -159,6 +220,14 @@ export function CombatScreen() {
   if (!enemy || !run.dungeonId) return null
   const dungeon = DUNGEONS[run.dungeonId]
   const enemyDefeated = enemy.hp <= 0
+  const enemyAttackDie = getEnemyAttackDie(enemy.attackDieId)
+  const enemyIntentStage = enemyDefeated
+    ? 'cancelled'
+    : combat.phase === 'revealing_enemy_intent'
+      ? 'rolling'
+      : combat.phase === 'resolving' && combat.resolutionStep === 'enemy'
+        ? 'attacking'
+        : 'landed'
 
   return (
     <main className="game-shell combat-screen">
@@ -187,13 +256,14 @@ export function CombatScreen() {
           />
         </div>
         <div aria-hidden="true" className="enemy-zone__pedestal" />
-        <div className="intent-badge">
-          <span>{enemyDefeated ? 'Intent cancelled' : 'Next intent'}</span>
-          <strong>
-            <Swords aria-hidden="true" size={16} />
-            {enemyDefeated ? 'No counterattack' : `Attack ${enemy.intent.value}`}
-          </strong>
-        </div>
+        <EnemyIntentDie
+          die={enemyAttackDie}
+          inspectRef={enemyIntentElement}
+          key={`${combat.roundNumber}-${enemy.intentRoll.faceId}`}
+          result={enemy.intentRoll}
+          rollDuration={ENEMY_INTENT_ROLL_MS / 1000 / rollSpeed}
+          stage={enemyIntentStage}
+        />
         <div className="enemy-zone__vitals">
           <div className="hp-label"><span>HP</span><strong>{enemy.hp}/{enemy.maxHp}</strong></div>
           <HpBar current={enemy.hp} max={enemy.maxHp} tone="enemy" />
@@ -207,7 +277,7 @@ export function CombatScreen() {
       >
         <div className="player-vitals">
           <span className="player-vitals__label">Adventurer</span>
-          <div className="player-health">
+          <div className="player-health" ref={playerHealthElement}>
             <Heart aria-hidden="true" size={18} />
             <strong>{run.playerHp}</strong>
             <span>/ {run.playerMaxHp} HP</span>
@@ -311,6 +381,8 @@ export function CombatScreen() {
             <Dices aria-hidden="true" size={18} />
             {profile.settings.autoRoll
               ? 'Auto rolling...'
+              : combat.phase === 'revealing_enemy_intent'
+                ? 'Enemy rolling...'
               : isScoreAnimating
               ? animationLabel
               : diceLeft > 0
@@ -322,6 +394,12 @@ export function CombatScreen() {
         )}
       </footer>
       {scoreTransfer && <ScoreTransfer onComplete={completeScoreTransfer} path={scoreTransfer} />}
+      {enemyDamageTransfer && (
+        <EnemyDamageTransfer
+          onComplete={completeEnemyDamageTransfer}
+          path={enemyDamageTransfer}
+        />
+      )}
     </main>
   )
 }

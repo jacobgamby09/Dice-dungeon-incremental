@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createDiceCatalog } from './dice'
 import { DUNGEONS } from './dungeons'
+import { ENEMY_ATTACK_DICE } from './enemyDice'
 import { ENEMIES } from './enemies'
 import { TALENT_IDS, TALENTS_BY_ID } from './talents'
 
@@ -15,6 +16,20 @@ describe('MVP content integrity', () => {
     for (const die of dice) {
       expect(die.name.length).toBeGreaterThan(0)
       expect(die.faces).toHaveLength(6)
+      expect(die.faces.every((face) => face.id.startsWith(`${die.id}-face-`))).toBe(true)
+    }
+  })
+
+  it('defines one six-face Attack Die with stable IDs for every enemy', () => {
+    const enemyDice = Object.values(ENEMY_ATTACK_DICE)
+    const faceIds = enemyDice.flatMap((die) => die.faces.map((face) => face.id))
+
+    expect(enemyDice).toHaveLength(Object.keys(ENEMIES).length)
+    expect(new Set(faceIds).size).toBe(faceIds.length)
+    for (const enemy of Object.values(ENEMIES)) {
+      const die = ENEMY_ATTACK_DICE[enemy.attackDieId]
+      expect(die.faces).toHaveLength(6)
+      expect(die.faces.every((face) => face.type === 'attack')).toBe(true)
       expect(die.faces.every((face) => face.id.startsWith(`${die.id}-face-`))).toBe(true)
     }
   })
