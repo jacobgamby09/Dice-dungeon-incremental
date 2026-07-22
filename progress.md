@@ -46,25 +46,26 @@ Brug denne skabelon:
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - `The First Descent` har nu 10 floors med Demon-boss på floor 10; boss victory banker hele runnets Soul-pulje automatisk.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
+- Hver enemy har nu sin egen seks-sidede Attack Die. Resultatet fastlåses og persisteres før reveal-animationen, hvorefter spilleren får den præcise værdi at reagere på.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
-- Save-formatet er version 3 og persisterer talent-, collection-, loadout- og dungeon-progress sammen med aktive runs.
-- En deterministisk simulator og 33 automatiserede tests beskytter den første balancekurve og de atomiske transitions.
+- Save-formatet er version 4 og persisterer talent-, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs.
+- En deterministisk simulator og 41 automatiserede tests beskytter den første balancekurve, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Aktiv udviklingsbranch: `agent/random-draw-bag`.
 - Draft PR: [#1 — Build and polish the incremental Dice Dungeon prototype](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/1).
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et helt fresh-save-forløb visuelt ved 320 px og 384 px og kontrollér især det nye Talent Shrine, alle node-states, købsceremonien, aktiv equip af Striker/Shield/Heal, Auto Roll samt Demon-animationerne.
+1. Gennemspil et helt fresh-save-forløb visuelt ved 320 px og 384 px og kontrollér især enemy-die-reveal, intent-inspektion, angrebstransfer, Talent Shrine, aktiv equip, Auto Roll samt Demon-animationerne.
 2. Mål i rigtig playtest, om Battle-Hardened I købes efter run 1 og Twin Arsenal efter run 2–3.
 3. Tune extraction-cadence, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
 4. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
 
 ## Åbne spørgsmål og kendte risici
 
-- Browserlaget var ikke tilgængeligt i implementeringssessionen, så det nye Talent Shrine, de øvrige nye skærme og Demon-sprittens animationer mangler den obligatoriske visuelle 320/384 px-verifikation.
+- Browserlaget var ikke tilgængeligt i implementeringssessionen, så enemy-die-flowet, det nye Talent Shrine, de øvrige nye skærme og Demon-sprittens animationer mangler den obligatoriske visuelle 320/384 px-verifikation.
 - Simuleringen bekræfter den matematiske dybdekurve, men modellerer ikke extraction-valg, købsmønstre eller oplevet combat-tempo.
 - Det skal playtestes, om anden die faktisk unlockes efter 2–3 rigtige runs, så starten er enkel uden at blive flad.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
@@ -83,6 +84,8 @@ Brug denne skabelon:
 - Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
 - MVP-dungeonen har 10 floors; floor 10 er boss og banker automatisk alle Run Souls ved sejr.
 - Alle udstyrede dice skal trækkes hver runde i tilfældig rækkefølge.
+- Hver enemy har præcis én data-driven Attack Die med seks stabile faces; dens resultat fastlåses ved rundestart og gemmes før animationen.
+- Enemy intent vises som den præcise landede værdi efter et kort reveal. Spilleren kan inspicere alle seks faces, men kan ikke rulle egne dice, mens intent ruller.
 - Dice og totals vises først, når deres roll/resultat er afsløret.
 - Player resolution sker før enemy resolution.
 - En død enemy angriber aldrig.
@@ -90,6 +93,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-22 — Enemy Attack Dice og intent reveal
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Alle 10 enemies angriber nu med hver sin permanente seks-sidede Attack Die. Combat starter hver runde med et kompakt enemy-roll, viser derefter det præcise intent og animerer værdien mod spillerens HP ved resolution. Spilleren kan åbne terningen og se alle faces, spænd og gennemsnit.
+- Beslutninger: Enemy-roll-resultatet fastlåses og persisteres før animationen; player-draw er låst under reveal; lethal player attack annullerer fortsat fjendens intent; enemy-die-faces er data-driven med stabile IDs og indgår i den samme deterministiske balance-simulator som player dice.
+- Berørte områder: Nye enemy-dice types/content/combat helper, enemy definitions, pure resolution-integration, save-migration v4, Combat/Victory UI, responsive CSS, simulator, tests, `NEW_GAME_GDD.md` og implementationplanen.
+- Validering: `npx tsc --noEmit`, 41 tests, lint og produktionsbuild bestod. Dev-serveren startede på port 4173. In-app browser-runtime havde ingen tilgængelig browserinstans, så den visuelle 320/384 px-gennemgang kunne ikke udføres.
+- Kendte mangler: Det kompakte die, inspect-panelet, roll-timing og damage-transfer skal stadig godkendes visuelt på både 320 px og 384 px.
+- Git: `43c8cec` — `Add enemy attack dice` på `agent/random-draw-bag`; samme eksisterende draft PR [#1](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/1).
 
 ### 2026-07-22 — Fysisk Talent Shrine og købsceremoni
 
