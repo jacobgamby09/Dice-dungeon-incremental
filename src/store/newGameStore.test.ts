@@ -444,7 +444,7 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(4)
+      expect(migrated.profile.saveVersion).toBe(5)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
@@ -498,7 +498,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(4)
+      expect(migrated.profile.saveVersion).toBe(5)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.enemy?.intentRoll).toMatchObject({
         dieId: 'slime-attack-die',
@@ -506,6 +506,55 @@ describe('new game progression loop', () => {
         value: 3,
       })
       expect(migrated.combat.phase).toBe('awaiting_roll')
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('recovers an active save with the legacy combat shape instead of blanking the app', async () => {
+    useNewGameStore.getState().startRun('prototype-depths')
+    const state = useNewGameStore.getState()
+    const incompatibleCombat = {
+      phase: 'awaiting_roll' as const,
+      roundNumber: 3,
+      currentDieIndex: 1,
+      results: [],
+      totals: { attack: 0, shield: 0, heal: 0 },
+      lastResolution: null,
+      resolutionVersion: 2,
+    }
+    const legacyState = {
+      ...state,
+      screen: 'combat' as const,
+      profile: { ...state.profile, saveVersion: 4 },
+      combat: incompatibleCombat,
+    }
+    let saved: StorageValue<NewGameState> | null = {
+      state: legacyState as unknown as NewGameState,
+      version: 4,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+
+      expect(migrated.profile.saveVersion).toBe(5)
+      expect(migrated.screen).toBe('hub')
+      expect(migrated.run.status).toBe('inactive')
+      expect(migrated.combat.drawPileDieIds).toEqual([])
+      expect(migrated.combat.results).toEqual([])
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()

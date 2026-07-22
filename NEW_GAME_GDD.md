@@ -228,7 +228,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Save-formatet er versionsstyret.
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.
 - Profil, aktivt run, enemy, HP, Run Souls, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
-- Save version 4 migrerer et eksisterende numerisk enemy intent til en stabil face med samme damage.
+- Save version 5 migrerer et eksisterende numerisk enemy intent til en stabil face med samme damage og afviser inkompatible legacy combat-shapes sikkert til Hub i stedet for at lade UI'et crashe.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning

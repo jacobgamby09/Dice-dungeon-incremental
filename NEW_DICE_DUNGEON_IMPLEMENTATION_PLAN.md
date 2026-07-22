@@ -6,7 +6,7 @@ Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent 
 
 XP Talent Tree indeholder den tidlige progression fra +2 Max HP til anden Attack Die, Shield, tre specialiseringsgrene, Heal, fire slots, Quick Draw og Auto Roll. Nye dice er unikke permanente objekter og skal aktivt equippes. En data-dreven simulator dækker den forventede dybdekurve; næste skridt er nu rigtig browser-playtest og tuning, ikke flere kernesystemer.
 
-Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 4 migrerer eksisterende numeriske intents til stabile enemy-face-ID'er.
+Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 5 migrerer eksisterende numeriske intents til stabile enemy-face-ID'er og gendanner sikkert fra inkompatible legacy combat-shapes.
 
 Arbejdet fortsætter på branch `agent/random-draw-bag` og den eksisterende draft PR #1. Dette forløbs ændringer er ikke committed endnu.
 

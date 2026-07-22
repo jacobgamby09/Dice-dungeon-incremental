@@ -63,7 +63,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 4
+const SAVE_VERSION = 5
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -158,6 +158,18 @@ function migrateEnemyState(existingEnemy: LegacyEnemyState | null | undefined): 
   }
 }
 
+function isCompatibleCombatState(combat: Partial<CombatState> | null | undefined): combat is CombatState {
+  return Boolean(
+    combat
+    && Array.isArray(combat.drawPileDieIds)
+    && Array.isArray(combat.results)
+    && combat.totals
+    && Number.isFinite(combat.totals.attack)
+    && Number.isFinite(combat.totals.shield)
+    && Number.isFinite(combat.totals.heal),
+  )
+}
+
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
 
@@ -216,13 +228,16 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
   }
 
   const existingRun = persisted.run
+  const existingCombat = persisted.combat as Partial<CombatState> | undefined
   const migratedEnemy = migrateEnemyState(existingRun?.enemy as LegacyEnemyState | null | undefined)
   const mappedEncounterIndex = migratedEnemy
     ? DUNGEONS['prototype-depths'].floors.findIndex(
         (floor) => floor.enemyId === migratedEnemy.definitionId,
       )
     : -1
-  const canPreserveRun = existingRun?.status !== 'inactive' && mappedEncounterIndex >= 0
+  const canPreserveRun = existingRun?.status !== 'inactive'
+    && mappedEncounterIndex >= 0
+    && isCompatibleCombatState(existingCombat)
   const migratedRun = canPreserveRun
     ? {
         ...existingRun,
@@ -236,7 +251,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     screen: canPreserveRun ? persisted.screen ?? 'combat' : 'hub',
     profile: migratedProfile,
     run: migratedRun,
-    combat: canPreserveRun && persisted.combat ? persisted.combat : createCombatState(),
+    combat: canPreserveRun
+      ? { ...existingCombat, resolutionStep: existingCombat.resolutionStep ?? null }
+      : createCombatState(),
     lastLostRunSouls: persisted.lastLostRunSouls ?? 0,
   } as NewGameState
 }
