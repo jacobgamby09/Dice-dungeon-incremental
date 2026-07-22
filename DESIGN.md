@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.1 — 2026-07-21.
+Version: 1.2 — 2026-07-22.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -273,6 +273,19 @@ Workshoppen skal føles varm, konkret og mekanisk.
 - Pris og betalingsressource skal være tydelige før tryk.
 - Ved opgradering bevæger Souls/impact sig ind i forgen, og kun den valgte face reagerer.
 - Disabled state forklarer årsagen, eksempelvis `Need 10 Souls` eller `Face Cap Reached`.
+
+### Talent Shrine — awakening wall
+
+Talent Tree er en fysisk runetavle i dungeon-væggen, ikke en liste af upgrade-kort.
+
+- Den tidlige progression læses som en smal lodret stamme, der fysisk deler sig i Survival, Arsenal og Control.
+- XP er altid cyan på priser, progress og aktiverede forbindelser. Grenfarver identificerer retning, men ligner aldrig en separat valuta.
+- Træet viser højst én skjult fremtidig node ud over den aktuelle frontier. Dybere indhold fremstår som forseglede stenaftryk uden navn eller pris.
+- En node kan altid undersøges, når den er afsløret. Selve købet sker først i et separat altar-preview med præcis effekt, prerequisite og XP-afstand.
+- Purchased nodes ændrer fysisk materiale og tænder forbindelsen. Ready, for dyr, prerequisite-låst, skjult og nyåbnet bruger både form, tekst og lys — aldrig farve alene.
+- Dice-, slot-, HP- og automation-rewards bruger forskellige silhuetter. En node med flere effects viser dem alle.
+- En talent-die præsenteres efter køb som én konkret navngiven permanent genstand med alle seks faces og en eksplicit vej til Loadout. Den auto-equippes aldrig.
+- Collection, equipped slots og Max HP vises samlet ved shrinet, så kapacitet og ejerskab ikke forveksles.
 
 ### Combat — arena og spilleflade
 

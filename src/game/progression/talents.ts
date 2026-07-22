@@ -51,3 +51,20 @@ export function canPurchaseTalent(profile: PlayerProfile, talentId: string): boo
   const talent = TALENTS_BY_ID[talentId]
   return Boolean(talent && getTalentPurchaseReason(profile, talent) === null)
 }
+
+export function isTalentRevealed(
+  unlockedTalentIds: readonly string[],
+  talent: TalentDefinition,
+): boolean {
+  const unlocked = new Set(unlockedTalentIds)
+  if (unlocked.has(talent.id) || talent.prerequisiteIds.length === 0) return true
+  if (talent.prerequisiteIds.every((id) => unlocked.has(id))) return true
+
+  return talent.prerequisiteIds.every((prerequisiteId) => {
+    const prerequisite = TALENTS_BY_ID[prerequisiteId]
+    return Boolean(
+      prerequisite
+      && prerequisite.prerequisiteIds.every((id) => unlocked.has(id)),
+    )
+  })
+}
