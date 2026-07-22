@@ -73,6 +73,7 @@ export const EnemyIntentDie = memo(function EnemyIntentDie({
       >
         {isRolling ? (
           <motion.span
+            key="rolling-cube"
             animate={{
               rotateX: [0, 205, 430, landingRotation.rotateX],
               rotateY: [0, 255, 505, landingRotation.rotateY],
@@ -102,7 +103,13 @@ export const EnemyIntentDie = memo(function EnemyIntentDie({
           </motion.span>
         ) : (
           <motion.span
-            animate={stage === 'attacking' ? { scale: [1, 1.12, 0.96, 1] } : { scale: 1 }}
+            key="landed-face"
+            initial={{ rotateX: 0, rotateY: 0, scale: 1, y: 0 }}
+            animate={
+              stage === 'attacking'
+                ? { rotateX: 0, rotateY: 0, scale: [1, 1.12, 0.96, 1], y: 0 }
+                : { rotateX: 0, rotateY: 0, scale: 1, y: 0 }
+            }
             className="enemy-intent-die__face"
             transition={{ duration: 0.42, ease: 'easeOut' }}
           >
