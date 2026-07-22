@@ -26,6 +26,17 @@ const LANDING_ROTATIONS = [
   { rotateX: 810, rotateY: 720 },
 ] as const
 
+function EnemyAttackFaceContent({ iconSize, value }: { iconSize: number; value: number }) {
+  return (
+    <>
+      <strong className="enemy-intent-die__face-value">{value}</strong>
+      <span aria-hidden="true" className="enemy-intent-die__face-icon">
+        <FaceIcon type="attack" size={iconSize} />
+      </span>
+    </>
+  )
+}
+
 export const EnemyIntentDie = memo(function EnemyIntentDie({
   die,
   inspectRef,
@@ -85,8 +96,7 @@ export const EnemyIntentDie = memo(function EnemyIntentDie({
                   '--side-surface': '#5f1521',
                 } as CSSProperties}
               >
-                <strong>{face.value}</strong>
-                <FaceIcon type="attack" size={14} />
+                <EnemyAttackFaceContent iconSize={14} value={face.value} />
               </span>
             ))}
           </motion.span>
@@ -99,12 +109,7 @@ export const EnemyIntentDie = memo(function EnemyIntentDie({
             {isCancelled ? (
               <Ban aria-hidden="true" size={22} />
             ) : (
-              <>
-                <strong className="enemy-intent-die__face-value">{result.value}</strong>
-                <span aria-hidden="true" className="enemy-intent-die__face-icon">
-                  <FaceIcon type="attack" size={19} />
-                </span>
-              </>
+              <EnemyAttackFaceContent iconSize={19} value={result.value} />
             )}
           </motion.span>
         )}

@@ -435,7 +435,10 @@
 
 .enemy-intent-die__cube .roll-die__side {
   border-width: 2px;
+  display: grid;
+  grid-template-columns: max-content max-content;
   gap: 3px;
+  direction: ltr;
 }
 
 .enemy-intent-die__cube .roll-die__side strong {
