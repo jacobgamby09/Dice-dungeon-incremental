@@ -51,10 +51,10 @@ Brug denne skabelon:
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Save-formatet er version 5 og persisterer talent-, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; inkompatible legacy combat-shapes sendes sikkert til Hub.
-- En deterministisk simulator og 41 automatiserede tests beskytter den første balancekurve, enemy dice og de atomiske transitions.
+- En deterministisk simulator og 42 automatiserede tests beskytter den første balancekurve, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Aktiv udviklingsbranch: `agent/random-draw-bag`.
-- Draft PR: [#1 — Build and polish the incremental Dice Dungeon prototype](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/1).
+- Aktiv udviklingsbranch: `agent/fix-enemy-die-transform`.
+- Seneste produktionsmerge: [#2 — Fix production save migration](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/2).
 
 ## Næste anbefalede skridt
 
@@ -93,6 +93,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-22 — Enemy die-transform nulstilles efter alle rolls
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Enemy-resultatfladen kan ikke længere stå spejlvendt efter et roll, uanset runde, mob eller landet cube-side.
+- Beslutninger: Den roterende 3D-cube og den flade resultatvisning har nu forskellige React keys, og resultatvisningen nulstiller eksplicit X/Y-rotation og vertikal position.
+- Berørte områder: `EnemyIntentDie.tsx` og progress-log.
+- Validering: `npx tsc --noEmit`, 42 tests, lint og production-build bestod.
+- Kendte mangler: Production-resultatet skal fortsat verificeres visuelt på brugerens mobile Safari efter deployment.
+- Git: `76bfe95` — `Fix enemy die transform reset` på `agent/fix-enemy-die-transform`; hotfix-PR oprettes mod `main`.
 
 ### 2026-07-22 — Production blank-screen migration hotfix
 
