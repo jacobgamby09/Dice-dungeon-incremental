@@ -53,8 +53,7 @@ Brug denne skabelon:
 - Save-formatet er version 5 og persisterer talent-, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; inkompatible legacy combat-shapes sendes sikkert til Hub.
 - En deterministisk simulator og 42 automatiserede tests beskytter den første balancekurve, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Aktiv udviklingsbranch: `agent/fix-enemy-die-transform`.
-- Seneste produktionsmerge: [#2 — Fix production save migration](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/2).
+- Seneste produktionsmerge: [#3 — Fix enemy die transform reset](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/3).
 
 ## Næste anbefalede skridt
 
@@ -104,7 +103,7 @@ Brug denne skabelon:
 - Berørte områder: `EnemyIntentDie.tsx` og progress-log.
 - Validering: `npx tsc --noEmit`, 42 tests, lint og production-build bestod.
 - Kendte mangler: Production-resultatet skal fortsat verificeres visuelt på brugerens mobile Safari efter deployment.
-- Git: `76bfe95` — `Fix enemy die transform reset` på `agent/fix-enemy-die-transform`; hotfix-PR oprettes mod `main`.
+- Git: `76bfe95` — `Fix enemy die transform reset`; merged til `main` via [PR #3](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/3) som `3fe3784` og deployet til production.
 
 ### 2026-07-22 — Production blank-screen migration hotfix
 
