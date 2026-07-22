@@ -1,12 +1,14 @@
 # New Dice Dungeon — Implementation Plan
 
-## Implementeringsstatus — 21. juli 2026
+## Implementeringsstatus — 22. juli 2026
 
-Fase 0–5 er implementeret som den første vertikale prototype. Kerneflowet Hub → dungeon → sekventielle rolls → manuel resolution → Victory/Defeat → Extract/Continue → permanent face-upgrade er nu spilbart. Domain-, store- og persistence-tests dækker de fastlåste economy-, death- og combat-regler.
+Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → Victory/Defeat → Extract/Continue → permanent progression er nu spilbart. Floor 10 er en Demon-boss, der automatisk banker hele runnets Soul-pulje ved sejr.
 
-Næste skridt er den planlagte playtest-gate efter Fase 5. Fase 6 og frem må først startes, når combat-feedback, extraction-spænding og glæden ved at genkende en opgraderet face er vurderet.
+XP Talent Tree indeholder den tidlige progression fra +2 Max HP til anden Attack Die, Shield, tre specialiseringsgrene, Heal, fire slots, Quick Draw og Auto Roll. Nye dice er unikke permanente objekter og skal aktivt equippes. En data-dreven simulator dækker den forventede dybdekurve; næste skridt er nu rigtig browser-playtest og tuning, ikke flere kernesystemer.
 
-GitHub-forbindelsen mangler fortsat, fordi den komplette remote-URL ikke findes i projektmappen.
+Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 4 migrerer eksisterende numeriske intents til stabile enemy-face-ID'er.
+
+Arbejdet fortsætter på branch `agent/random-draw-bag` og den eksisterende draft PR #1. Dette forløbs ændringer er ikke committed endnu.
 
 ## Dokumentets formål
 
@@ -51,7 +53,13 @@ Følgende regler er fundamentale og må ikke ændres indirekte under implementat
 - Når spillerens angreb dræber fjenden, udfører fjenden ikke sit intent.
 - Hvis en fremtidig mechanic skaber en reel Double K.O. gennem recoil, Thorns eller selvskade, har Player Death prioritet.
 - Spillet designes teknisk til cirka 1–12 udstyrede terninger.
-- Den første prototype starter med tre terninger.
+- Spilleren starter kun med én Attack Die.
+- Shield Die og Heal Die unlockes senere gennem progression.
+- Alle udstyrede terninger blandes og trækkes uden replacement hver runde.
+- Spilleren skal trække alle terninger, før runden kan resolves.
+- Combat-boardet har ingen faste dice-slots og viser kun spillede dice i draw-rækkefølge.
+- Dice genkendes på deres face-farve og ikon, ikke gennem ydre typebokse.
+- Attack-, Shield- og Heal-totaler er skjult, indtil typen faktisk bliver rullet.
 - Manuel rulning er grundsystemet.
 - Auto Roll automatiserer kun spillerens tryk og ændrer ikke combat-reglerne.
 - Alle synlige talent nodes skal have en implementeret effekt.
@@ -375,6 +383,8 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 - Implementér summering af Attack, Shield og Heal.
 - Implementér `resolveRound` som en ren funktion.
 - Implementér enemy intent og næste intent.
+- Implementér enemy Attack Dice som data-drevne seks-face definitioner med injicerbar RNG.
+- Precommit hvert enemy-resultat før UI-reveal og brug resultatet direkte som resolver-intent.
 - Implementér victory og defeat.
 - Implementér vedvarende HP mellem encounters.
 - Implementér en injicerbar RNG.
@@ -396,15 +406,20 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 - Genopbyg den mobile combat-komposition.
 - Genbrug enemy zone, HP-bars og intent-præsentation.
-- Start med tre tydelige dice slots.
-- Implementér knappen `ROLL NEXT`.
+- Vis enemy intent som en mindre fysisk Attack Die med inspectable seks-face-fordeling.
+- Lås player controls under enemy reveal, og vis landed, attacking og cancelled states.
+- Start med én Attack Die i en random draw-bag.
+- Implementér knappen `DRAW`.
+- Vis faktisk trukne dice dynamisk uden faste board-slots.
+- Fjern ydre typekort fra spillede dice; brug face-farve og ikon som identitet.
+- Opret kun en type-total, når den pågældende type bliver rullet.
 - Vis aktiv terning, spin, landing og face-resultat.
 - Animér effekten fra terningen til den relevante total.
 - Aktivér `RESOLVE ROUND`, når alle terninger er rullet.
 - Vis Attack, Shield og Heal separat.
 - Implementér enemy idle, hurt, attack og death.
 - Stop enemy action og attack-animation ved enemy death.
-- Tillad inspektion af permanente dice instances.
+- Tillad inspektion af permanente dice instances i Hub/collection, ikke som combat-støj.
 
 ### Acceptkriterier
 
@@ -417,7 +432,7 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 ## Fase 4 — Dungeon-run og extraction
 
-Den første dungeon består af tre eskalerende encounters. Eksisterende Slime-, Goblin- og Skeleton-assets kan bruges for at minimere content-arbejdet.
+Den første dungeon består af ti eskalerende floors. Floor 10 er en boss, og alle ti enemies bruger eksisterende sprite-assets.
 
 ### Victory-flow
 
@@ -503,22 +518,21 @@ Hvis svaret ikke er tydeligt ja, forbedres combat-feedback, pacing og upgrade-lo
 
 ---
 
-## Fase 6 — Permanent collection og flere dice slots
+## Fase 6 — Permanent collection og større draw-bag
 
 ### Arbejde
 
 - Byg en permanent dice collection.
-- Lad spilleren udstyre terninger i nummererede slots.
-- Start med tre slots.
-- Understøt teknisk 1–12 slots.
-- Vis roll-rækkefølgen før og under combat.
-- Brug fast slot-rækkefølge i første version.
+- Lad spilleren udstyre terninger i en permanent draw-bag uden nummererede combat-slots.
+- Start med plads til den ene Attack Die.
+- Understøt teknisk cirka 1–12 udstyrede dice.
+- Skjul draw-rækkefølgen; den bestemmes random uden replacement.
 - Lås loadout-ændringer til Hub.
-- Lad ekstra slots unlockes gennem talent tree.
+- Lad ekstra bag-kapacitet unlockes gennem talent tree.
 
 ### Acceptkriterier
 
-- En ekstra slot kan tilføjes uden at ændre combat-engine.
+- Ekstra bag-kapacitet kan tilføjes uden at ændre combat-engine.
 - UI kan håndtere både én og tolv terninger.
 - Et aktivt run ændres ikke, hvis den permanente collection opdateres uden for runnet.
 
@@ -558,7 +572,7 @@ Det eksisterende pan/zoom-koncept kan tilpasses, men valutaen bliver XP.
 
 ### Arbejde
 
-- Auto Roll simulerer kun trykket på `ROLL NEXT`.
+- Auto Roll simulerer kun trykket på `DRAW`.
 - Roll speed ændrer kun animationsvarigheden.
 - Auto Resolve implementeres som en separat unlock.
 - Auto Start Next Round implementeres senere.
@@ -691,8 +705,8 @@ Der bør ikke tilføjes en tredje synlig currency-pung.
 0 Banked Souls
 
 1 Attack Die
-1 Shield Die
-1 Heal Die
+
+Shield Die og Heal Die unlockes senere gennem progression.
 ```
 
 ### Første Attack Die
@@ -705,13 +719,20 @@ Shield og Heal får tilsvarende simple prototypefordelinger, som efterfølgende 
 
 ### Første dungeon
 
-Prototype-dungeonen består af tre encounters med stigende pres. Eksisterende sprites kan bruges:
+MVP-dungeonen består af ti floors med stigende pres:
 
 1. Slime.
-2. Goblin.
-3. Skeleton.
+2. Slime Crawler.
+3. Marrow Bat.
+4. Goblin.
+5. Shieldbearer.
+6. Cultist.
+7. Skeleton.
+8. Orc.
+9. Blood Orc.
+10. Demon-boss.
 
-Præcise HP-, intent- og reward-tal er content-data og skal kunne ændres uden ændring af combat-engine.
+Præcise HP-, Shield-, intent- og reward-tal er content-data og kan tunes uden ændring af combat-engine. De gældende tal findes i `NEW_GAME_GDD.md`.
 
 ---
 
@@ -763,15 +784,15 @@ Efter hver implementeringsfase skal relevante checks bestå:
 
 Den første prototype er færdig, når spilleren kan:
 
-1. Starte i Hub med tre permanente terninger.
+1. Starte i Hub med én permanent Attack Die.
 2. Se hver ternings seks individuelle faces.
 3. Gå ind i en dungeon.
 4. Se enemy intent før rulning.
-5. Rulle alle tre terninger sekventielt.
-6. Se Attack, Shield og Heal totals blive opbygget.
+5. Trække alle udstyrede terninger i tilfældig rækkefølge uden replacement.
+6. Se kun faktisk rullede type-ikoner og totals blive bygget op uden tomme placeholders.
 7. Resolve runden manuelt.
 8. Dræbe en enemy, før den angriber.
-9. Fortsætte gennem mindst tre encounters med vedvarende HP.
+9. Fortsætte gennem en 10-floor dungeon med vedvarende HP og en boss på floor 10.
 10. Optjene permanent XP.
 11. Optjene midlertidige Run Souls.
 12. Vælge Extract eller Continue.
@@ -782,8 +803,12 @@ Den første prototype er færdig, når spilleren kan:
 17. Starte et nyt run.
 18. Rulle og genkende den forbedrede face.
 19. Genindlæse spillet uden at miste progression eller ændre et aktivt run.
+20. Bruge XP på fungerende talenter og mærke den første upgrade efter run 1.
+21. Unlocke en unik anden Attack Die efter cirka run 2–3 og aktivt equippe den.
+22. Unlocke Shield, Heal, Quick Draw og en spillerstyret Auto Roll-toggle.
+23. Få hele Soul-puljen banket automatisk ved første boss-clear.
 
-Først efter dette går implementationen videre til et større talent tree, flere dice families, evolutions, bosses og avancerede extraction-systemer.
+Først efter browser-playtest og balance-gaten går implementationen videre til flere dice families, evolutions, nye dungeons og avancerede extraction-systemer.
 
 ---
 
@@ -795,12 +820,12 @@ Efter den første fungerende kamp vurderes:
 
 - Er et enkelt roll tilfredsstillende?
 - Er det tydeligt, hvilken terning og face der skabte resultatet?
-- Er tempoet rigtigt ved tre terninger?
+- Er tempoet rigtigt, når alle dice skal trækkes, og boardet vokser dynamisk?
 - Føles victory før enemy attack stærk og retfærdig?
 
 ### Gate B — Extraction-loop
 
-Efter den første tre-enemy dungeon vurderes:
+Efter den første 10-floor dungeon vurderes:
 
 - Er Continue fristende?
 - Er HP-attrition tydelig?

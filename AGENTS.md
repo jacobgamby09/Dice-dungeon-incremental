@@ -56,6 +56,9 @@ Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og S
 - Brug kun save-key `new-dice-dungeon-save` og versionsstyr save-formatet.
 - Persistér både profil, aktivt run, runde og allerede rullede face-resultater.
 - Gem det valgte `face.id`-resultat før animationen starter.
+- Bland en persisteret draw-pile ved rundestart; træk uden replacement, indtil alle udstyrede dice er spillet.
+- `Resolve Round` må ikke aktiveres, mens draw-pilen stadig indeholder dice.
+- Combat-boardet må kun vise faktisk trukne dice i draw-rækkefølge; der findes ingen faste type-slots.
 - Rewards, extraction og face-køb skal være idempotente; reload eller dobbeltklik må ikke duplikere værdier.
 - Equipped dice snapshots ved run-start, så Hub-opgraderinger ikke kan ændre et aktivt run.
 
@@ -65,7 +68,9 @@ Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og S
 - Brug semantiske buttons, headings, labels, progressbars og synlig fokus-state.
 - Subscribér til smalle Zustand-slices frem for hele store-objektet.
 - Hold gameplay-beregninger ude af React-effects; UI-effects må kun orkestrere animation og transition.
-- Alle tre totals og hvert roll-resultat skal kunne aflæses uden animationen.
+- Combat viser ingen tomme Attack/Shield/Heal-placeholders; en type-total opstår først, når typen faktisk rulles.
+- Dice identificeres på selve face-fladens farve og ikon, ikke gennem et ydre typekort eller en label-boks.
+- Hvert afsluttet draw-resultat og hver afsløret total skal kunne aflæses uden animationen.
 
 ## 8. Enemy sprite pipeline
 
@@ -81,3 +86,11 @@ Ved nye eller udskiftede sprites:
 ## 9. Legacy lint-afgrænsning
 
 Legacy-filer kan midlertidigt være eksplicit undtaget i `eslint.config.js`, men nye produktionsfiler må ikke tilføjes til undtagelsen. Når legacy-koden flyttes ud af `src`, fjernes undtagelserne.
+
+## 10. Fælles progress-log
+
+- Læs `progress.md` før et nyt arbejdsforløb, så eksisterende status, beslutninger og kendte risici er forstået.
+- Alle ændringer i kode, assets, design, dokumentation eller bindende beslutninger skal registreres i `progress.md` inden arbejdsforløbet afsluttes.
+- Tilføj nye historikposter øverst; tidligere poster må ikke overskrives eller omskrives uden en konkret rettelse.
+- Hver post skal angive resultat, beslutninger, berørte områder, validering, kendte mangler og Git-status, hvor det er relevant.
+- Opdatér også `Aktuel status`, `Næste anbefalede skridt` og `Åbne spørgsmål og kendte risici`, når arbejdet ændrer projektets situation.

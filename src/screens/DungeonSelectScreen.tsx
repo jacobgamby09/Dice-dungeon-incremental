@@ -5,6 +5,7 @@ import { useNewGameStore } from '../store/newGameStore'
 
 export function DungeonSelectScreen() {
   const unlockedDungeonIds = useNewGameStore((state) => state.profile.unlockedDungeonIds)
+  const dungeonProgress = useNewGameStore((state) => state.profile.dungeonProgress)
   const startRun = useNewGameStore((state) => state.startRun)
   const goToHub = useNewGameStore((state) => state.goToHub)
 
@@ -25,7 +26,8 @@ export function DungeonSelectScreen() {
                 <span className="eyebrow">Prototype dungeon</span>
                 <h2>{dungeon.name}</h2>
                 <p>{dungeon.description}</p>
-                <span className="encounter-count"><Swords aria-hidden="true" size={14} /> {dungeon.encounters.length} encounters</span>
+                <span className="encounter-count"><Swords aria-hidden="true" size={14} /> {dungeon.floors.length} floors</span>
+                <span className="encounter-count">Best: {dungeonProgress[dungeon.id].highestFloorCleared}/{dungeon.floors.length}</span>
               </div>
               <button className="pixel-button pixel-button--danger" onClick={() => startRun(dungeon.id)} type="button">
                 Descend
@@ -39,4 +41,3 @@ export function DungeonSelectScreen() {
     </main>
   )
 }
-

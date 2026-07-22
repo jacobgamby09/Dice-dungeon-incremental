@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createStartingDice } from '../content/dice'
+import { createDiceCatalog, createStartingDice } from '../content/dice'
 import { addRollToTotals, rollDie } from './rollDie'
 
 describe('rollDie', () => {
@@ -13,11 +13,10 @@ describe('rollDie', () => {
   })
 
   it('adds a result to only its matching total', () => {
-    const die = createStartingDice()[1]
+    const die = createDiceCatalog().find((candidate) => candidate.id === 'shield-die-1')!
     const result = rollDie(die, () => 0.5)
     const totals = addRollToTotals({ attack: 4, shield: 1, heal: 2 }, result)
 
     expect(totals).toEqual({ attack: 4, shield: 3, heal: 2 })
   })
 })
-
