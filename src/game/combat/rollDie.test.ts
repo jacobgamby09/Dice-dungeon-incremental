@@ -13,7 +13,7 @@ describe('rollDie', () => {
   })
 
   it('adds a result to only its matching total', () => {
-    const die = createDiceCatalog()[1]
+    const die = createDiceCatalog().find((candidate) => candidate.id === 'shield-die-1')!
     const result = rollDie(die, () => 0.5)
     const totals = addRollToTotals({ attack: 4, shield: 1, heal: 2 }, result)
 

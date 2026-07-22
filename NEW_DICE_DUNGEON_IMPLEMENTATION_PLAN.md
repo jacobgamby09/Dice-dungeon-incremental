@@ -1,12 +1,12 @@
 # New Dice Dungeon — Implementation Plan
 
-## Implementeringsstatus — 21. juli 2026
+## Implementeringsstatus — 22. juli 2026
 
-Fase 0–5 er implementeret som den første vertikale prototype. Kerneflowet Hub → dungeon → random draw af alle udstyrede dice → manuel resolution → Victory/Defeat → Extract/Continue → permanent face-upgrade er nu spilbart. Domain-, store- og persistence-tests dækker de fastlåste economy-, death- og combat-regler.
+Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → Victory/Defeat → Extract/Continue → permanent progression er nu spilbart. Floor 10 er en Demon-boss, der automatisk banker hele runnets Soul-pulje ved sejr.
 
-Næste skridt er den planlagte playtest-gate efter Fase 5. Fase 6 og frem må først startes, når combat-feedback, extraction-spænding og glæden ved at genkende en opgraderet face er vurderet.
+XP Talent Tree indeholder den tidlige progression fra +2 Max HP til anden Attack Die, Shield, tre specialiseringsgrene, Heal, fire slots, Quick Draw og Auto Roll. Nye dice er unikke permanente objekter og skal aktivt equippes. En data-dreven simulator dækker den forventede dybdekurve; næste skridt er nu rigtig browser-playtest og tuning, ikke flere kernesystemer.
 
-GitHub-forbindelsen mangler fortsat, fordi den komplette remote-URL ikke findes i projektmappen.
+Arbejdet fortsætter på branch `agent/random-draw-bag` og den eksisterende draft PR #1. Dette forløbs ændringer er ikke committed endnu.
 
 ## Dokumentets formål
 
@@ -426,7 +426,7 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 ## Fase 4 — Dungeon-run og extraction
 
-Den første dungeon består af tre eskalerende encounters. Eksisterende Slime-, Goblin- og Skeleton-assets kan bruges for at minimere content-arbejdet.
+Den første dungeon består af ti eskalerende floors. Floor 10 er en boss, og alle ti enemies bruger eksisterende sprite-assets.
 
 ### Victory-flow
 
@@ -713,13 +713,20 @@ Shield og Heal får tilsvarende simple prototypefordelinger, som efterfølgende 
 
 ### Første dungeon
 
-Prototype-dungeonen består af tre encounters med stigende pres. Eksisterende sprites kan bruges:
+MVP-dungeonen består af ti floors med stigende pres:
 
 1. Slime.
-2. Goblin.
-3. Skeleton.
+2. Slime Crawler.
+3. Marrow Bat.
+4. Goblin.
+5. Shieldbearer.
+6. Cultist.
+7. Skeleton.
+8. Orc.
+9. Blood Orc.
+10. Demon-boss.
 
-Præcise HP-, intent- og reward-tal er content-data og skal kunne ændres uden ændring af combat-engine.
+Præcise HP-, Shield-, intent- og reward-tal er content-data og kan tunes uden ændring af combat-engine. De gældende tal findes i `NEW_GAME_GDD.md`.
 
 ---
 
@@ -779,7 +786,7 @@ Den første prototype er færdig, når spilleren kan:
 6. Se kun faktisk rullede type-ikoner og totals blive bygget op uden tomme placeholders.
 7. Resolve runden manuelt.
 8. Dræbe en enemy, før den angriber.
-9. Fortsætte gennem mindst tre encounters med vedvarende HP.
+9. Fortsætte gennem en 10-floor dungeon med vedvarende HP og en boss på floor 10.
 10. Optjene permanent XP.
 11. Optjene midlertidige Run Souls.
 12. Vælge Extract eller Continue.
@@ -790,8 +797,12 @@ Den første prototype er færdig, når spilleren kan:
 17. Starte et nyt run.
 18. Rulle og genkende den forbedrede face.
 19. Genindlæse spillet uden at miste progression eller ændre et aktivt run.
+20. Bruge XP på fungerende talenter og mærke den første upgrade efter run 1.
+21. Unlocke en unik anden Attack Die efter cirka run 2–3 og aktivt equippe den.
+22. Unlocke Shield, Heal, Quick Draw og en spillerstyret Auto Roll-toggle.
+23. Få hele Soul-puljen banket automatisk ved første boss-clear.
 
-Først efter dette går implementationen videre til et større talent tree, flere dice families, evolutions, bosses og avancerede extraction-systemer.
+Først efter browser-playtest og balance-gaten går implementationen videre til flere dice families, evolutions, nye dungeons og avancerede extraction-systemer.
 
 ---
 
@@ -808,7 +819,7 @@ Efter den første fungerende kamp vurderes:
 
 ### Gate B — Extraction-loop
 
-Efter den første tre-enemy dungeon vurderes:
+Efter den første 10-floor dungeon vurderes:
 
 - Er Continue fristende?
 - Er HP-attrition tydelig?

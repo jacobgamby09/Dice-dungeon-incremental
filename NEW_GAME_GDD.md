@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: prototype 0.2.
+Status: gældende design for det nye spil. Version: MVP 0.3.
 
 ## High concept
 
@@ -120,12 +120,45 @@ Denne opdeling er bindende. Talent Tree og Die Workshop må aldrig konkurrere om
 - En `DieInstance` har stabilt ID, navn, family og seks faces.
 - En `FaceInstance` har stabilt ID, type, værdi og senere eventuel evolution.
 - Faces med samme type og værdi er stadig forskellige objekter og kan opgraderes uafhængigt.
+- Hver unlock giver præcis én navngiven permanent terning. Unlocks giver aldrig uendelige kopier.
+- Spilleren vælger selv sit loadout i Hub og begrænses af sine unlockede dice slots.
+- En ny terning auto-equippes ikke. Den skal aktivt vælges i Loadout Rack.
+- Mindst én terning skal være equipped, og loadout kan ikke ændres under et aktivt run.
 - Udstyrede terninger snapshots ved run-start. Et aktivt run ændres derfor ikke af senere Hub-data.
 
-Start-loadout:
+MVP-katalog:
 
-- Attack Die: `1, 1, 2, 2, 2, 3 Attack`.
-- Shield Die og Heal Die findes i content-kataloget, men unlockes først senere gennem XP-progression.
+- `attack-die-1`, Worn Blade Die: `1, 1, 2, 2, 2, 3 Attack`.
+- `attack-die-2`, Striker Die: `1, 1, 1, 2, 3, 3 Attack`.
+- `shield-die-1`, Iron Guard Die: `1, 1, 2, 2, 2, 3 Shield`.
+- `heal-die-1`, Vitality Die: `1, 1, 1, 1, 2, 2 Heal`.
+
+Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete terninger kommer fra XP-talenter.
+
+## MVP Talent Tree
+
+Talent Tree bruger kun XP. Alle specialiseringsgrene bliver tilgængelige efter `Shieldcraft` og udelukker ikke hinanden. Spilleren vælger købsrækkefølge, ikke en permanent låst klasse.
+
+| Talent | Pris | Krav | Permanent effekt |
+|---|---:|---|---|
+| Battle-Hardened I | 8 XP | Ingen | +2 Max HP |
+| Twin Arsenal | 16 XP | Battle-Hardened I | +1 dice slot og én Striker Die |
+| Shieldcraft | 32 XP | Twin Arsenal | Én Iron Guard Die og adgang til Shield-familien |
+| Battle-Hardened II | 24 XP | Shieldcraft | +3 Max HP |
+| Third Grip | 40 XP | Shieldcraft | +1 dice slot |
+| Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
+| Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
+| Auto Roll | 40 XP | Quick Draw | Permanent adgang til en spillerstyret Auto Roll-toggle |
+| Fourth Grip | 90 XP | Healing Arts | +1 dice slot |
+
+Auto Roll simulerer kun spillerens `Draw`-tryk. Spilleren kan slå togglen til og fra under combat, og manuel rulning er stadig tilgængelig, når den er slået fra. Næste draw starter 300 ms efter, at det forrige resultat er færdigscoret. Auto Roll resolver ikke automatisk runden; Auto Resolve er en separat senere progression.
+
+Den tidlige tilsigtede cadence er:
+
+1. Første floor giver 8 XP og låser Battle-Hardened I op efter første run.
+2. Twin Arsenal købes normalt efter run 2 eller 3, afhængigt af hvor dybt spilleren gik.
+3. Den nye Striker Die findes derefter i collection, men spilleren skal selv equippe den i det nye slot.
+4. Shieldcraft åbner derefter de tre samtidige spor Survival, Arsenal og Control.
 
 ## Kamp
 
@@ -151,19 +184,27 @@ Resolutionen vises som to faktiske state-trin: først opdateres enemy HP og spil
 
 ## Dungeon og extraction
 
-Prototype-dungeonen `The First Descent` har tre encounters:
+MVP-dungeonen `The First Descent` har ti floors. Floor 10 er bossen.
 
-| Encounter | Enemy | HP | Intent | XP | Run Souls |
-|---:|---|---:|---|---:|---:|
-| 1 | Slime | 5 | Attack 2 | 8 | 5 |
-| 2 | Goblin | 16 | Attack 5/4 | 14 | 10 |
-| 3 | Skeleton | 22 | Attack 6/5/7 | 24 | 20 |
+| Floor | Enemy | HP | Start Shield | Intent | XP | Run Souls |
+|---:|---|---:|---:|---|---:|---:|
+| 1 | Slime | 5 | 0 | Attack 2 | 8 | 5 |
+| 2 | Slime Crawler | 7 | 0 | Attack 2/3 | 10 | 7 |
+| 3 | Marrow Bat | 9 | 0 | Attack 3/2/4 | 12 | 9 |
+| 4 | Goblin | 12 | 0 | Attack 3/4 | 14 | 10 |
+| 5 | Shieldbearer | 14 | 3 | Attack 4/3/4 | 18 | 15 |
+| 6 | Cultist | 17 | 0 | Attack 3/5/3 | 22 | 18 |
+| 7 | Skeleton | 20 | 0 | Attack 4/5 | 26 | 22 |
+| 8 | Orc | 24 | 0 | Attack 5/4/6 | 32 | 28 |
+| 9 | Blood Orc | 29 | 0 | Attack 5/7/5 | 40 | 36 |
+| 10 | Demon — Boss | 38 | 6 | Attack 6/6/9 | 60 | 60 |
 
 HP fortsætter mellem encounters. Efter hver sejr gives XP permanent med det samme, mens Souls føjes til run-puljen.
 
 - `Extract`: flyt alle Run Souls atomisk til Banked Souls, afslut run og returnér til Hub.
 - `Continue`: behold HP og Run Souls, spawn næste encounter med større pres og reward.
 - `Defeat`: sæt Run Souls til 0; behold XP, Banked Souls, dice collection og face-upgrades.
+- `Boss Victory`: bank hele runnets Soul-pulje automatisk, markér dungeon-clear og returnér derefter til Hub uden en ekstra risikobeslutning.
 
 Et Defeat er derfor ikke et tabt run i incremental forstand: al XP optjent under runnet beholdes og flytter spilleren permanent mod næste talent. Det eneste risikotab er de endnu ikke bankede Run Souls.
 
@@ -202,12 +243,22 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Victory skal føles som en pixel-game scene frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, loot-pickups og to tydelige ruter for Extract eller Continue.
 - Kritisk information må aldrig eksistere kun i animation; resultat og totals forbliver læsbare.
 
-## Prototypegrænse og næste gate
+## MVP-balance og næste gate
 
-Den nuværende extraction- og face-upgrade-slice beviser kun Souls-aksen. For at bevise spillets egentlige incremental-identitet skal næste vertikale slice også implementere et lille, tidligt XP Talent Tree med mærkbare upgrades i de første 2–3 runs og en tidlig vej til terning nummer to.
+Den data-drevne simulator bruges som regressionsværn, ikke som erstatning for playtest. Med 10.000 simulerede runs gav første tuning følgende gennemsnitlige dybde:
 
-Før mange dice families, bosses eller avanceret automation bygges, skal følgende playtestes:
+| Build | Gennemsnitligt højeste clear |
+|---|---:|
+| 1 Attack Die, 10 HP | 1,26 |
+| 1 Attack Die, 12 HP | 1,61 |
+| 2 Attack Dice, 12 HP | 2,75 |
+| 2 Attack + Shield, 15 HP | 4,57 |
+| 2 Attack + Shield + Heal, 15 HP | 7,05 |
+
+Når alle fire MVP-dice har faces på mindst værdi 2, ligger progressionen ved floor 9. Faces på mindst værdi 3 gør bossen stabilt mulig. Det skaber en bevidst sen MVP-væg, hvor både XP-unlocks og konkrete Soul-opgraderinger er nødvendige.
+
+Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 
 > Føles hvert tidligt run som permanent fremgang gennem XP, samtidig med at extraction af Souls er spændende, og kan spilleren tydeligt mærke både nye muligheder og stærkere personlige dice i efterfølgende runs?
 
-Hvis svaret ikke er et tydeligt ja, forbedres XP-cadence, extraction-spænding, combat-feedback og dice-upgrade-loopet før større content-produktion. Den komplette rækkefølge findes i `NEW_DICE_DUNGEON_IMPLEMENTATION_PLAN.md`.
+Der skal især måles, om Twin Arsenal faktisk købes efter run 2–3, om spilleren forstår at nye dice skal equippes, og om boss-væggen føles motiverende frem for abrupt. Hvis svaret ikke er et tydeligt ja, justeres XP-priser, enemy-tal, rewards og face-priser før større content-produktion.

@@ -86,3 +86,11 @@ Ved nye eller udskiftede sprites:
 ## 9. Legacy lint-afgrænsning
 
 Legacy-filer kan midlertidigt være eksplicit undtaget i `eslint.config.js`, men nye produktionsfiler må ikke tilføjes til undtagelsen. Når legacy-koden flyttes ud af `src`, fjernes undtagelserne.
+
+## 10. Fælles progress-log
+
+- Læs `progress.md` før et nyt arbejdsforløb, så eksisterende status, beslutninger og kendte risici er forstået.
+- Alle ændringer i kode, assets, design, dokumentation eller bindende beslutninger skal registreres i `progress.md` inden arbejdsforløbet afsluttes.
+- Tilføj nye historikposter øverst; tidligere poster må ikke overskrives eller omskrives uden en konkret rettelse.
+- Hver post skal angive resultat, beslutninger, berørte områder, validering, kendte mangler og Git-status, hvor det er relevant.
+- Opdatér også `Aktuel status`, `Næste anbefalede skridt` og `Åbne spørgsmål og kendte risici`, når arbejdet ændrer projektets situation.

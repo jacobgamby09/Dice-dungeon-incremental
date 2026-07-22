@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Dices, Flame, Heart, Swords } from 'lucide-react'
+import { Dices, Flame, Heart, Shield, Swords } from 'lucide-react'
 import { EnemySprite } from '../components/EnemySprite'
 import { HpBar } from '../components/newgame/HpBar'
 import { RollDieTile } from '../components/newgame/RollDieTile'
@@ -7,12 +7,15 @@ import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
 import { ScoreTransfer } from '../components/newgame/ScoreTransfer'
 import type { ScoreTransferPath } from '../components/newgame/ScoreTransfer'
 import { DUNGEONS } from '../game/content/dungeons'
+import { getRollSpeed, hasAutoRollUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 interface ActiveRoll {
   faceId: string
   stage: 'rolling' | 'landed'
 }
+
+const AUTO_ROLL_PAUSE_MS = 300
 
 export function CombatScreen() {
   const profile = useNewGameStore((state) => state.profile)
@@ -22,6 +25,7 @@ export function CombatScreen() {
   const beginRoundResolution = useNewGameStore((state) => state.beginRoundResolution)
   const advanceRoundResolution = useNewGameStore((state) => state.advanceRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
+  const setAutoRoll = useNewGameStore((state) => state.setAutoRoll)
 
   const [activeRoll, setActiveRoll] = useState<ActiveRoll | null>(null)
   const [scoreTransfer, setScoreTransfer] = useState<ScoreTransferPath | null>(null)
@@ -73,9 +77,6 @@ export function CombatScreen() {
     finishRoundResolution,
   ])
 
-  const enemy = run.enemy
-  if (!enemy || !run.dungeonId) return null
-  const dungeon = DUNGEONS[run.dungeonId]
   const diceLeft = combat.drawPileDieIds.length
   const pendingFaceId = activeRoll?.faceId ?? scoreTransfer?.faceId ?? null
   const pendingResult = pendingFaceId
@@ -90,7 +91,8 @@ export function CombatScreen() {
         [pendingResult.type]: Math.max(0, combat.totals[pendingResult.type] - pendingResult.value),
       }
     : combat.totals
-  const rollSpeed = Math.max(0.25, profile.settings.rollSpeed)
+  const rollSpeed = getRollSpeed(profile)
+  const autoRollUnlocked = hasAutoRollUnlocked(profile.unlockedTalentIds)
   const rollDurationMilliseconds = 620 / rollSpeed
   const rollDurationSeconds = rollDurationMilliseconds / 1000
   const isScoreAnimating = pendingFaceId !== null
@@ -99,9 +101,8 @@ export function CombatScreen() {
     ? run.equippedDiceSnapshot.find((candidate) => candidate.id === pendingResult.dieId)
     : undefined
   const roundReady = diceLeft === 0 && !isScoreAnimating
-  const enemyDefeated = enemy.hp <= 0
 
-  function handleDraw() {
+  const handleDraw = useCallback(() => {
     if (isScoreAnimating) return
     const result = drawNextDie()
     if (!result) return
@@ -145,12 +146,24 @@ export function CombatScreen() {
     }, rollDurationMilliseconds)
 
     rollTimers.current = [landingTimer]
-  }
+  }, [drawNextDie, isScoreAnimating, rollDurationMilliseconds, rollSpeed])
+
+  useEffect(() => {
+    if (!profile.settings.autoRoll) return
+    if (combat.phase !== 'awaiting_roll' || diceLeft <= 0 || isScoreAnimating) return
+    const timer = window.setTimeout(handleDraw, AUTO_ROLL_PAUSE_MS)
+    return () => window.clearTimeout(timer)
+  }, [combat.phase, diceLeft, handleDraw, isScoreAnimating, profile.settings.autoRoll])
+
+  const enemy = run.enemy
+  if (!enemy || !run.dungeonId) return null
+  const dungeon = DUNGEONS[run.dungeonId]
+  const enemyDefeated = enemy.hp <= 0
 
   return (
     <main className="game-shell combat-screen">
       <header className="combat-meta">
-        <div><span>Encounter</span><strong>{run.encounterIndex + 1}/{dungeon.encounters.length}</strong></div>
+        <div><span>Floor</span><strong>{run.encounterIndex + 1}/{dungeon.floors.length}</strong></div>
         <div><span>Round</span><strong>{combat.roundNumber}</strong></div>
         <div className="run-souls"><Flame aria-hidden="true" size={15} /><strong>{run.runSouls}</strong><span>at risk</span></div>
       </header>
@@ -184,6 +197,7 @@ export function CombatScreen() {
         <div className="enemy-zone__vitals">
           <div className="hp-label"><span>HP</span><strong>{enemy.hp}/{enemy.maxHp}</strong></div>
           <HpBar current={enemy.hp} max={enemy.maxHp} tone="enemy" />
+          {enemy.shield > 0 && <div className="enemy-shield"><Shield aria-hidden="true" size={14} /> {enemy.shield} Shield</div>}
         </div>
       </section>
 
@@ -272,6 +286,16 @@ export function CombatScreen() {
       </section>
 
       <footer className="combat-actions">
+        {autoRollUnlocked && combat.phase === 'awaiting_roll' && (
+          <button
+            aria-pressed={profile.settings.autoRoll}
+            className={`auto-roll-toggle${profile.settings.autoRoll ? ' auto-roll-toggle--active' : ''}`}
+            onClick={() => setAutoRoll(!profile.settings.autoRoll)}
+            type="button"
+          >
+            Auto Roll {profile.settings.autoRoll ? 'On' : 'Off'}
+          </button>
+        )}
         {combat.phase === 'awaiting_resolve' ? (
           <button className="pixel-button pixel-button--resolve" disabled={isScoreAnimating} onClick={beginRoundResolution} type="button">
             <Swords aria-hidden="true" size={18} />
@@ -280,12 +304,14 @@ export function CombatScreen() {
         ) : (
           <button
             className="pixel-button pixel-button--primary"
-            disabled={combat.phase !== 'awaiting_roll' || isScoreAnimating}
+            disabled={combat.phase !== 'awaiting_roll' || isScoreAnimating || profile.settings.autoRoll}
             onClick={handleDraw}
             type="button"
           >
             <Dices aria-hidden="true" size={18} />
-            {isScoreAnimating
+            {profile.settings.autoRoll
+              ? 'Auto rolling...'
+              : isScoreAnimating
               ? animationLabel
               : diceLeft > 0
                 ? `Draw (${diceLeft} left)`

@@ -1,12 +1,16 @@
-import { Castle, Dices, DoorOpen, Hammer } from 'lucide-react'
+import { Backpack, Castle, Dices, DoorOpen, Hammer, Sparkles } from 'lucide-react'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
+import { getDiceCapacity } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function HubScreen() {
   const profile = useNewGameStore((state) => state.profile)
   const openDungeonSelect = useNewGameStore((state) => state.openDungeonSelect)
   const openWorkshop = useNewGameStore((state) => state.openWorkshop)
+  const openTalentTree = useNewGameStore((state) => state.openTalentTree)
+  const openLoadout = useNewGameStore((state) => state.openLoadout)
+  const diceCapacity = getDiceCapacity(profile.unlockedTalentIds)
 
   return (
     <main className="game-shell hub-screen">
@@ -31,7 +35,7 @@ export function HubScreen() {
             <span className="eyebrow">Adventurer's rack</span>
             <h2 id="loadout-title">Equipped Dice</h2>
           </div>
-          <span className="loadout-count"><Dices aria-hidden="true" size={14} /> {profile.equippedDieIds.length}</span>
+          <span className="loadout-count"><Dices aria-hidden="true" size={14} /> {profile.equippedDieIds.length}/{diceCapacity}</span>
         </header>
         <div className="dice-rack">
           {profile.equippedDieIds.map((dieId) => {
@@ -39,9 +43,16 @@ export function HubScreen() {
             return die ? <DieSummary die={die} key={die.id} /> : null
           })}
         </div>
+        <button className="loadout-manage" onClick={openLoadout} type="button">
+          <Backpack aria-hidden="true" size={16} /> Manage Loadout
+        </button>
       </section>
 
       <footer className="hub-actions">
+        <button className="hub-action hub-action--talents" onClick={openTalentTree} type="button">
+          <span className="hub-action__icon"><Sparkles aria-hidden="true" size={22} /></span>
+          <span><small>Spend permanent XP</small><strong>Talent Shrine</strong></span>
+        </button>
         <button className="hub-action hub-action--workshop" onClick={openWorkshop} type="button">
           <span className="hub-action__icon"><Hammer aria-hidden="true" size={22} /></span>
           <span><small>Improve permanent faces</small><strong>Enter Workshop</strong></span>

@@ -2,7 +2,9 @@ import { CombatScreen } from './screens/CombatScreen'
 import { DefeatScreen } from './screens/DefeatScreen'
 import { DungeonSelectScreen } from './screens/DungeonSelectScreen'
 import { HubScreen } from './screens/HubScreen'
+import { LoadoutScreen } from './screens/LoadoutScreen'
 import { PostCombatScreen } from './screens/PostCombatScreen'
+import { TalentTreeScreen } from './screens/TalentTreeScreen'
 import { WorkshopScreen } from './screens/WorkshopScreen'
 import { useNewGameStore } from './store/newGameStore'
 import './newGame.css'
@@ -15,6 +17,8 @@ export function App() {
   if (screen === 'combat') content = <CombatScreen />
   if (screen === 'post_combat') content = <PostCombatScreen />
   if (screen === 'workshop') content = <WorkshopScreen />
+  if (screen === 'talent_tree') content = <TalentTreeScreen />
+  if (screen === 'loadout') content = <LoadoutScreen />
   if (screen === 'defeat') content = <DefeatScreen />
 
   return <MotionConfig reducedMotion="user">{content}</MotionConfig>

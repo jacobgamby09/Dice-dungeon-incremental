@@ -1,19 +1,22 @@
 import { motion } from 'framer-motion'
-import { Flame, Heart, Sparkles, Swords } from 'lucide-react'
+import { Flame, Heart, Shield, Sparkles, Swords } from 'lucide-react'
 import { EnemySprite } from '../components/EnemySprite'
 import { DUNGEONS } from '../game/content/dungeons'
+import { ENEMIES } from '../game/content/enemies'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function PostCombatScreen() {
   const run = useNewGameStore((state) => state.run)
-  const profile = useNewGameStore((state) => state.profile)
+  const xp = useNewGameStore((state) => state.profile.xp)
   const continueRun = useNewGameStore((state) => state.continueRun)
   const extractRun = useNewGameStore((state) => state.extractRun)
 
   if (!run.lastReward || !run.dungeonId || !run.enemy) return null
   const dungeon = DUNGEONS[run.dungeonId]
-  const nextEnemyId = dungeon.encounters[run.encounterIndex + 1]
-  const canContinue = !run.lastReward.dungeonComplete && Boolean(nextEnemyId)
+  const nextFloor = dungeon.floors[run.encounterIndex + 1]
+  const nextEnemy = nextFloor ? ENEMIES[nextFloor.enemyId] : null
+  const dungeonComplete = run.lastReward.dungeonComplete
+  const canContinue = !dungeonComplete && Boolean(nextFloor)
 
   return (
     <main className="game-shell outcome-screen victory-screen">
@@ -25,8 +28,8 @@ export function PostCombatScreen() {
           initial={{ opacity: 0, scale: 0.82, y: -18 }}
           transition={{ duration: 0.38, ease: 'backOut' }}
         >
-          <span>Encounter cleared</span>
-          <h1 id="victory-title">Victory</h1>
+          <span>{dungeonComplete ? 'Dungeon conquered' : `Floor ${run.lastReward.floor} cleared`}</span>
+          <h1 id="victory-title">{dungeonComplete ? 'Boss Defeated' : 'Victory'}</h1>
         </motion.div>
 
         <motion.div
@@ -39,7 +42,7 @@ export function PostCombatScreen() {
           <strong>{run.lastReward.enemyName} vanquished</strong>
         </motion.div>
         <div aria-hidden="true" className="victory-stage__platform" />
-        <p>The path deeper into {dungeon.name} is open.</p>
+        <p>{dungeonComplete ? `${dungeon.name} has been conquered.` : `The path to Floor ${run.lastReward.floor + 1} is open.`}</p>
       </section>
 
       <motion.section
@@ -50,7 +53,7 @@ export function PostCombatScreen() {
       >
         <div className="loot-spoils__heading">
           <span className="eyebrow">Battle spoils</span>
-          <strong>Claimed</strong>
+          <strong>{dungeonComplete ? 'Secured' : 'Claimed'}</strong>
         </div>
         <div className="loot-drops">
           <div className="loot-drop loot-drop--xp">
@@ -59,7 +62,10 @@ export function PostCombatScreen() {
           </div>
           <div className="loot-drop loot-drop--souls">
             <span className="loot-drop__icon"><Flame aria-hidden="true" size={24} /></span>
-            <div><strong>+{run.lastReward.runSouls}</strong><span>Run Souls</span></div>
+            <div>
+              <strong>+{dungeonComplete ? run.lastReward.bankedSouls : run.lastReward.runSouls}</strong>
+              <span>{dungeonComplete ? 'Total Souls banked' : 'Run Souls'}</span>
+            </div>
           </div>
         </div>
       </motion.section>
@@ -68,8 +74,8 @@ export function PostCombatScreen() {
         <span className="eyebrow">Expedition status</span>
         <div className="expedition-status__stats">
           <div><Heart aria-hidden="true" size={16} /><strong>{run.playerHp}/{run.playerMaxHp}</strong><span>HP</span></div>
-          <div><Flame aria-hidden="true" size={16} /><strong>{run.runSouls}</strong><span>At risk</span></div>
-          <div><Sparkles aria-hidden="true" size={16} /><strong>{profile.xp}</strong><span>Total XP</span></div>
+          <div><Flame aria-hidden="true" size={16} /><strong>{dungeonComplete ? run.lastReward.bankedSouls : run.runSouls}</strong><span>{dungeonComplete ? 'Banked' : 'At risk'}</span></div>
+          <div><Sparkles aria-hidden="true" size={16} /><strong>{xp}</strong><span>Total XP</span></div>
         </div>
       </section>
 
@@ -77,24 +83,25 @@ export function PostCombatScreen() {
         <article className="path-choice path-choice--extract">
           <div className="path-choice__marker"><Heart aria-hidden="true" size={20} /></div>
           <div className="path-choice__copy">
-            <span>Safe passage</span>
+            <span>{dungeonComplete ? 'Spoils secured' : 'Safe passage'}</span>
             <h2>Return to the Hub</h2>
-            <p>Bank all {run.runSouls} Run Souls.</p>
+            <p>{dungeonComplete ? `${run.lastReward.bankedSouls} Souls were banked automatically.` : `Bank all ${run.runSouls} Run Souls.`}</p>
           </div>
           <button className="pixel-button pixel-button--extract" onClick={extractRun} type="button">
-            Extract · Bank {run.runSouls}
+            {dungeonComplete ? 'Return to Hub' : `Extract · Bank ${run.runSouls}`}
           </button>
         </article>
 
-        {canContinue && (
+        {canContinue && nextFloor && nextEnemy && (
           <>
             <div aria-hidden="true" className="path-divider"><span>or</span></div>
             <article className="path-choice path-choice--deeper">
               <div className="path-choice__marker"><Swords aria-hidden="true" size={20} /></div>
               <div className="path-choice__copy">
-                <span>Depths await</span>
-                <h2>Continue the Run</h2>
-                <p>Keep your current HP. Risk every soul.</p>
+                <span>{nextFloor.isBoss ? 'Boss floor' : `Floor ${nextFloor.floor} awaits`}</span>
+                <h2>{nextEnemy.name}</h2>
+                <p>HP {nextEnemy.maxHp} · Attack {nextEnemy.intentPattern.join('/')} · Risk every Soul.</p>
+                {nextEnemy.startingShield > 0 && <p><Shield aria-hidden="true" size={14} /> Starts with {nextEnemy.startingShield} Shield.</p>}
               </div>
               <button className="pixel-button pixel-button--danger" onClick={continueRun} type="button">
                 <Swords aria-hidden="true" size={16} /> Descend Deeper

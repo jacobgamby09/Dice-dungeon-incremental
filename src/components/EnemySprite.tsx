@@ -135,7 +135,7 @@ function Sprite({ grid, size, boss = false }: { grid: Grid; size: number; boss?:
   )
 }
 
-const SHEET_SPRITES: Record<'orc' | 'slime' | 'skeleton' | 'goblin' | 'bloodOrc' | 'cultist' | 'shieldbearer' | 'marrowBat' | 'slimeCrawler' | 'toxicCreep' | 'spikedBehemoth', SheetConfig> = {
+const SHEET_SPRITES: Record<'orc' | 'slime' | 'skeleton' | 'goblin' | 'bloodOrc' | 'cultist' | 'shieldbearer' | 'marrowBat' | 'slimeCrawler' | 'toxicCreep' | 'spikedBehemoth' | 'demon', SheetConfig> = {
   orc: {
     sheets: {
       idle:   { src: '/sprites/enemies/orc/Orc-Idle.png?v=8',     frames: 6, frameMs: 190, loop: true },
@@ -254,6 +254,17 @@ const SHEET_SPRITES: Record<'orc' | 'slime' | 'skeleton' | 'goblin' | 'bloodOrc'
       death:  { src: '/sprites/enemies/spiked-behemoth/SpikedBehemoth-Death.png',    frames: 4, frameMs: 170, loop: false },
     },
     crop: { x: 0, y: 4, w: 100, h: 92 },
+    unit: 20,
+    minWidth: 118,
+  },
+  demon: {
+    sheets: {
+      idle:   { src: '/sprites/enemies/demon/Demon-Idle.png',     frames: 6, frameMs: 190, loop: true },
+      attack: { src: '/sprites/enemies/demon/Demon-Attack01.png', frames: 6, frameMs: 95,  loop: false },
+      hurt:   { src: '/sprites/enemies/demon/Demon-Hurt.png',     frames: 4, frameMs: 130, loop: false },
+      death:  { src: '/sprites/enemies/demon/Demon-Death.png',    frames: 4, frameMs: 170, loop: false },
+    },
+    crop: { x: 0, y: 0, w: 100, h: 100 },
     unit: 20,
     minWidth: 118,
   },
@@ -467,6 +478,16 @@ export function EnemySprite({
       return (
         <SheetSprite
           config={SHEET_SPRITES.spikedBehemoth}
+          size={size}
+          hp={hp}
+          enemyHitVersion={enemyHitVersion}
+          enemyAttackVersion={enemyAttackVersion}
+        />
+      )
+    case 'demon':
+      return (
+        <SheetSprite
+          config={SHEET_SPRITES.demon}
           size={size}
           hp={hp}
           enemyHitVersion={enemyHitVersion}
