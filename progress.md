@@ -41,7 +41,8 @@ Brug denne skabelon:
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, post-combat, extraction og defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
-- XP Talent Tree giver tidligt +2 Max HP, derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige specialiseringsgrene, Heal, fire slots, Quick Draw og Auto Roll.
+- XP Talent Tree præsenteres som et fysisk cyan-oplyst shrine med onboarding-stamme, tre samtidige specialiseringsgrene, progressive reveals, node-preview og en særskilt købsceremoni.
+- Talentforløbet giver tidligt +2 Max HP, derefter slot 2 og en unik Striker Die; senere følger Shield, Heal, fire slots, Quick Draw og Auto Roll.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - `The First Descent` har nu 10 floors med Demon-boss på floor 10; boss victory banker hele runnets Soul-pulje automatisk.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
@@ -56,14 +57,14 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et helt fresh-save-forløb visuelt ved 384 px og kontrollér især Talent Shrine, aktiv equip af Striker/Shield/Heal, Auto Roll samt alle Demon-animationer.
+1. Gennemspil et helt fresh-save-forløb visuelt ved 320 px og 384 px og kontrollér især det nye Talent Shrine, alle node-states, købsceremonien, aktiv equip af Striker/Shield/Heal, Auto Roll samt Demon-animationerne.
 2. Mål i rigtig playtest, om Battle-Hardened I købes efter run 1 og Twin Arsenal efter run 2–3.
 3. Tune extraction-cadence, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
 4. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
 
 ## Åbne spørgsmål og kendte risici
 
-- Browserlaget var ikke tilgængeligt i implementeringssessionen, så de nye skærme og Demon-sprittens animationer mangler den obligatoriske visuelle 384 px-verifikation.
+- Browserlaget var ikke tilgængeligt i implementeringssessionen, så det nye Talent Shrine, de øvrige nye skærme og Demon-sprittens animationer mangler den obligatoriske visuelle 320/384 px-verifikation.
 - Simuleringen bekræfter den matematiske dybdekurve, men modellerer ikke extraction-valg, købsmønstre eller oplevet combat-tempo.
 - Det skal playtestes, om anden die faktisk unlockes efter 2–3 rigtige runs, så starten er enkel uden at blive flad.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
@@ -89,6 +90,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-22 — Fysisk Talent Shrine og købsceremoni
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Talent Tree er ombygget fra stablede upgrade-kort til en fysisk cyan-oplyst runetavle med onboarding-stamme, forgreningsmekanisme, Survival/Arsenal/Control-spor, progressive reveals og tydelige states for skjult, prerequisite-låst, for dyr, købsklar, aktiv og nyåbnet.
+- Beslutninger: XP forbliver cyan på tværs af alle grene; nodes undersøges før køb; en ny permanent die vises som én konkret navngiven genstand med alle seks faces og tilbydes aldrig silent auto-equip. Collection, equipped slots og Max HP vises ved shrinet.
+- Berørte områder: `TalentTreeScreen.tsx`, nye `TalentNode.tsx` og `TalentDialog.tsx`, talent reveal-logik og tests, `newGame.css` samt `DESIGN.md` version 1.2.
+- Validering: `npx tsc --noEmit`, 36 tests, lint, produktionsbuild og `git diff --check` bestod. React-komponenterne blev gennemgået mod projektets React-kvalitetsregler.
+- Kendte mangler: Browserbindingen var ikke tilgængelig, så den obligatoriske runtime-gennemgang ved 320/384 px mangler fortsat.
+- Git: `01a7f15` — `Build physical talent shrine` på `agent/random-draw-bag`; samme eksisterende draft PR [#1](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/1).
 
 ### 2026-07-22 — 10-floor MVP-progression implementeret
 
