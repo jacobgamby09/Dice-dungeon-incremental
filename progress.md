@@ -94,6 +94,18 @@ Brug denne skabelon:
 
 ## Historik
 
+### 2026-07-22 — Enemy face-rækkefølge dækket på alle rolls
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Både den animerede 3D-cubes seks faces og det statiske landed-face bruger nu samme eksplicitte `værdi → Attack-ikon`-komponent. Rettelsen gælder dermed alle efterfølgende runder og samtlige 10 mobs, ikke kun første landed-state.
+- Beslutninger: Enemy face-indhold har én fælles renderer, og både cube- og landed-layout låses til LTR-grid med faste value/icon-kolonner.
+- Berørte områder: `EnemyIntentDie.tsx` og enemy cube/face CSS i `newGame.css`.
+- Validering: `npx tsc --noEmit`, 41 tests, lint og produktionsbuild bestod; content-registry-testen beskytter fortsat, at alle 10 mobs har præcis seks faces.
+- Kendte mangler: Den samlede fresh-save-gennemgang ved både 320 px og 384 px mangler fortsat.
+- Git: `604f8ba` — `Fix every enemy die face` på `agent/random-draw-bag`; samme eksisterende draft PR [#1](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/1).
+
 ### 2026-07-22 — Enemy die landed-face orientering rettet
 
 **Status:** Færdig
