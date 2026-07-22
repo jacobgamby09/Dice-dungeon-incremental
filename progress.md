@@ -50,7 +50,7 @@ Brug denne skabelon:
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
-- Save-formatet er version 4 og persisterer talent-, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs.
+- Save-formatet er version 5 og persisterer talent-, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; inkompatible legacy combat-shapes sendes sikkert til Hub.
 - En deterministisk simulator og 41 automatiserede tests beskytter den første balancekurve, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Aktiv udviklingsbranch: `agent/random-draw-bag`.
@@ -93,6 +93,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-22 — Production blank-screen migration hotfix
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Production kan nu åbne gamle saves fra det oprindelige version-1-build uden en tom React-root. Et aktivt run med en combat-shape uden `drawPileDieIds` afsluttes sikkert til Hub, mens permanent profilprogression bevares.
+- Beslutninger: Save-formatet hæves til version 5; aktive runs bevares kun, når enemy og combat-state begge består strukturel kompatibilitetskontrol.
+- Berørte områder: `newGameStore.ts`, migrationstests, GDD, implementationplan og progress-log.
+- Validering: `npx tsc --noEmit`, 42 tests, lint og produktionsbuild bestod; production HTML og assets svarede allerede HTTP 200, hvilket isolerede fejlen til client bootstrap/persistence.
+- Kendte mangler: Et inkompatibelt aktivt legacy-run nulstilles til Hub; dets ubankede Run Souls kan ikke rekonstrueres sikkert, men permanent XP, Banked Souls og dice bevares.
+- Git: `c1884e1` — `Fix production save migration` på `agent/fix-production-save-migration`; hotfix-PR oprettes mod `main`.
 
 ### 2026-07-22 — Enemy face-rækkefølge dækket på alle rolls
 
