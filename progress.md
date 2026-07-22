@@ -94,6 +94,18 @@ Brug denne skabelon:
 
 ## Historik
 
+### 2026-07-22 — Enemy die landed-face orientering rettet
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Enemy Attack Die viser nu konsekvent tallet før Attack-ikonet efter roll, så landed-face matcher spillerens dice-retning på mobil.
+- Beslutninger: Den visuelle rækkefølge er gjort eksplicit med separate value/icon-elementer og faste grid-kolonner i stedet for at afhænge af implicit flex-rækkefølge.
+- Berørte områder: `EnemyIntentDie.tsx` og enemy-intent CSS i `newGame.css`.
+- Validering: Brugerens runtime-screenshot identificerede fejlen; `npx tsc --noEmit`, 41 tests, lint og produktionsbuild bestod.
+- Kendte mangler: Den samlede fresh-save-gennemgang ved både 320 px og 384 px mangler fortsat.
+- Git: `32bb366` — `Fix enemy die face order` på `agent/random-draw-bag`; samme eksisterende draft PR [#1](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/1).
+
 ### 2026-07-22 — Enemy Attack Dice og intent reveal
 
 **Status:** Færdig
