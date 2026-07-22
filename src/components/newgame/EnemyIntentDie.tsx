@@ -99,7 +99,12 @@ export const EnemyIntentDie = memo(function EnemyIntentDie({
             {isCancelled ? (
               <Ban aria-hidden="true" size={22} />
             ) : (
-              <><strong>{result.value}</strong><FaceIcon type="attack" size={19} /></>
+              <>
+                <strong className="enemy-intent-die__face-value">{result.value}</strong>
+                <span aria-hidden="true" className="enemy-intent-die__face-icon">
+                  <FaceIcon type="attack" size={19} />
+                </span>
+              </>
             )}
           </motion.span>
         )}

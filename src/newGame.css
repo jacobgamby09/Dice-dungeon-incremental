@@ -449,17 +449,22 @@
   border: 2px solid #030308;
   background: #7f1d2d;
   box-shadow: 0 4px 0 #030308, inset 0 2px 0 rgba(248, 113, 113, 0.38);
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content max-content;
   align-items: center;
   justify-content: center;
   gap: 3px;
   color: #fff;
+  direction: ltr;
 }
 
 .enemy-intent-die__face strong {
   font-size: 1.15rem;
   text-shadow: 2px 2px 0 #030308;
 }
+
+.enemy-intent-die__face-value { grid-column: 1; }
+.enemy-intent-die__face-icon { grid-column: 2; display: grid; place-items: center; }
 
 .enemy-intent-die__value {
   color: #fca5a5;
