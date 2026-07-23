@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.3 — 2026-07-23.
+Version: 1.4 — 2026-07-23.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -276,20 +276,24 @@ Workshoppen skal føles varm, konkret og mekanisk.
 
 ### Talent Tree — incremental dice map
 
-Talent Tree bruger den velkendte visuelle grammatik fra et klassisk incremental tree: en centreret foundation-stamme, tydelige forbindelser og et senere trevejs branch-split. Spillets egen identitet kommer fra, at hver node er en fysisk talent-terning.
+Talent Tree er en bevidst undtagelse fra de øvrige fysiske dungeon-rum: det er et mørkt, rumligt void, hvor permanente muligheder opdages som en voksende konstellation af talent-terninger. Det må ikke ligne en side med et talentkort placeret inde i et shrine, et panel eller tre kolonner.
 
-- Battle-Hardened står alene i centrum på et fresh save. Dice Slot 2 anes kun som en navnløs silhuet bag fog.
-- En talent-node bruger samme størrelsesfamilie, hårde outline og fysiske dybde som player dice. Talent dice er cyan/neutral XP-magi og må ikke ligne en Attack-, Shield- eller Heal Die.
-- Hver node har ét stabilt, tydeligt ikon. Navn, rank, næste effekt og pris vises i et kompakt detailpanel efter valg; lange tekster presses aldrig ind på die-facen.
-- Træet viser højst ét fremtidigt lag som svage, ikke-interaktive silhuetter. Silhuetter viser intet navn, ikon eller pris, og dybere noder renderes ikke.
-- Rankede nodes viser `current/max` på facen. Battle-Hardened bruger tre ranks; senere ranks må ikke visuelt se ud som nye separate talents.
-- XP er altid cyan på priser, aktiverede nodes og forbindelser. Survival, Arsenal og Control bruger navn og ikon som identitet uden at ligne separate valutaer.
-- Et køb animerer på selve træet: XP reagerer, noden ruller kontrolleret på stedet, lander med korrekt ikonorientering og sender energi gennem forbindelsen.
-- Når et køb ændrer frontier, opløses fog, forbindelserne lades op, og nye nodes materialiseres i graf-rækkefølge. Shieldcraft splitter energien ud i alle tre branches.
-- Den store separate reward-dialog bruges ikke. Et kompakt bundpanel håndterer preview og køb og forsvinder før ceremonien, så træets årsag/virkning forbliver synlig.
-- Første køb og nye reveals må vare cirka `1–1.5s`; en ekstra rank uden reveal bruger en kortere ceremoni. `prefers-reduced-motion` bevarer stateændringen uden den fulde bevægelse.
-- En ny permanent die auto-equippes aldrig. Nodebeskrivelsen gør det tydeligt, at den konkrete die tilføjes til collection.
-- Collection, equipped slots og Max HP vises samlet over træet, så kapacitet og ejerskab ikke forveksles.
+- Hele viewporten er en næsten sort, edge-to-edge arbejdsflade. Der findes ingen permanent header, ledger, branch-labels, kort eller dekorativ ramme omkring træet.
+- Battle-Hardened står alene i viewportens centrum på et fresh save. Twin Arsenal anes kun som en meget svag, navnløs silhuet længere nede i mørket.
+- Spilleren trækker direkte i den tomme baggrund for at panorere i begge akser. Træet beholder sin faste nodeafstand og må aldrig komprimeres for at passe ind i mobilbredden.
+- Canvaset er begrænset nok til, at spilleren ikke kan miste træet permanent. En kompakt recenter-knap fører kameraet til den aktuelle frontier.
+- Den eneste permanente chrome er tilbageknap, tilgængelig XP og recenter. Safe areas respekteres, og almindelig body-scroll er slået fra på skærmen.
+- Nodes og forbindelser bruger semantiske HTML-knapper og SVG i en fælles transformeret world. Et rasteriseret `<canvas>` bruges ikke, fordi skarphed, keyboardfokus og stabil aflæsning skal bevares.
+- En talent-node bruger samme face-størrelse, hårde outline og fysiske dybde som player dice. Talent dice er cyan/neutral XP-magi og må ikke ligne en Attack-, Shield- eller Heal Die.
+- Kun ikon og rank-markører vises på selve canvaset. Navn, næste effekt og pris vises i et kompakt, bundforankret inspector-panel efter valg.
+- Træet viser højst ét fremtidigt lag som svage, ikke-interaktive silhuetter. Silhuetter viser intet navn, ikon eller pris, og dybere nodes renderes slet ikke.
+- Battle-Hardeneds tre ranks vises som tre små markører på samme die. Rank 1 åbner Twin Arsenal; rank 2 og 3 forbliver valgfrie.
+- XP er altid cyan på priser, aktiverede nodes og forbindelser. Survival, Arsenal og Control bruger ikon og rumlig placering som identitet uden at ligne separate valutaer.
+- Et køb animerer på selve træet: XP reagerer, noden løfter sig og ruller, lander korrekt og sender en lysende puls gennem forbindelsen.
+- Når et køb ændrer frontier, opløses fog, forbindelserne lades op, og nye nodes materialiseres i graf-rækkefølge. Shieldcraft deler pulsen i tre, mens sidegrenene bevidst fortsætter uden for den smalle viewport.
+- Kameraet må flytte sig roligt til den nye frontier efter reveal, men manuel drag skal fortsat være den primære navigation.
+- Første køb og nye reveals må vare cirka `1–1.8s`; en ekstra rank uden reveal bruger en kortere ceremoni. `prefers-reduced-motion` bevarer stateændringen uden den fulde bevægelse.
+- En ny permanent die auto-equippes aldrig. Inspector-teksten gør det tydeligt, at den konkrete die tilføjes til collection.
 
 ### Combat — arena og spilleflade
 
@@ -480,6 +484,7 @@ Brug disse som visuel og interaktiv baseline:
 - `src/screens/HubScreen.tsx` — fysisk dungeon gate og navigation.
 - `src/screens/WorkshopScreen.tsx` — forge, face selection og upgrade-feedback.
 - `src/screens/CombatScreen.tsx` — roll/reveal/score-transfer og sekventiel resolution.
+- `src/screens/TalentTreeScreen.tsx` og `src/components/newgame/TalentTreeCanvas.tsx` — panorerbart progression-void, fog-frontier og talent-købsceremoni.
 - `src/screens/PostCombatScreen.tsx` — gamey Victory-stage, loot og path choice.
 - `src/newGame.css` — aktuelle tokens, sceneformer, responsive regler og animationer.
 - `src/components/newgame/FaceIcon.tsx` og `faceVisuals.ts` — semantisk face-sprog.

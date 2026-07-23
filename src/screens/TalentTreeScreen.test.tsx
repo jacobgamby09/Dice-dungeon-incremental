@@ -12,12 +12,16 @@ describe('TalentTreeScreen progressive presentation', () => {
     useNewGameStore.getState().resetProgress()
   })
 
-  it('starts with Battle-Hardened and a nameless silhouette', () => {
+  it('starts on a blank canvas with Battle-Hardened and a nameless silhouette', () => {
     const markup = renderTree()
 
+    expect(markup).toContain('data-testid="talent-tree-canvas"')
     expect(markup).toContain('Battle-Hardened')
-    expect(markup).toContain('Unknown')
+    expect(markup).toContain('data-talent-silhouette="true"')
     expect(markup).not.toContain('Twin Arsenal')
     expect(markup).not.toContain('Shieldcraft')
+    expect(markup).not.toContain('Permanent progression')
+    expect(markup).not.toContain('Permanent capability summary')
   })
+
 })

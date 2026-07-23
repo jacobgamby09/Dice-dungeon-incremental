@@ -1,34 +1,27 @@
-import { useEffect, useState } from 'react'
-import { Backpack, ChevronLeft, Dices, Heart, Sparkles } from 'lucide-react'
+import { ChevronLeft, LocateFixed, Sparkles } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { TalentDetailPanel } from '../components/newgame/TalentDetailPanel'
-import { TalentNode } from '../components/newgame/TalentNode'
+import { TalentTreeCanvas } from '../components/newgame/TalentTreeCanvas'
+import type {
+  TalentCanvasFocusRequest,
+  TalentCanvasNode,
+} from '../components/newgame/TalentTreeCanvas'
 import type { TalentNodeState } from '../components/newgame/TalentNode'
-import { TALENT_IDS, TALENTS, TALENTS_BY_ID } from '../game/content/talents'
+import { getTalentTreeFrontierPoint } from '../components/newgame/talentTreeLayout'
+import { TALENTS, TALENTS_BY_ID } from '../game/content/talents'
 import {
   areTalentPrerequisitesMet,
-  getDiceCapacity,
   getNextTalentRank,
-  getPlayerMaxHp,
   getTalentMaxRank,
   getTalentRank,
   getTalentVisibility,
 } from '../game/progression/talents'
+import type { TalentVisibility } from '../game/progression/talents'
 import type {
   TalentDefinition,
   TalentRanks,
-  TalentTrack,
 } from '../game/types/progression'
-import type { TalentVisibility } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
-
-const CORE_TALENTS = TALENTS.filter((talent) => talent.track === 'core')
-const BRANCH_TRACKS: Exclude<TalentTrack, 'core'>[] = ['survival', 'arsenal', 'control']
-
-const TRACK_META: Record<Exclude<TalentTrack, 'core'>, { label: string; subtitle: string }> = {
-  survival: { label: 'Survival', subtitle: 'Endure' },
-  arsenal: { label: 'Arsenal', subtitle: 'Expand' },
-  control: { label: 'Control', subtitle: 'Automate' },
-}
 
 type CeremonyStage = 'rolling' | 'propagating' | 'revealing'
 
@@ -40,11 +33,15 @@ interface VisibilityChange {
 
 interface PurchaseCeremony {
   changes: VisibilityChange[]
+  focusPoint: TalentCanvasFocusRequest['point']
   rank: number
   talentId: string
 }
 
-function getTalentDepth(talent: TalentDefinition, visited: ReadonlySet<string> = new Set()): number {
+function getTalentDepth(
+  talent: TalentDefinition,
+  visited: ReadonlySet<string> = new Set(),
+): number {
   if (talent.prerequisiteIds.length === 0 || visited.has(talent.id)) return 0
 
   const nextVisited = new Set(visited)
@@ -92,8 +89,6 @@ function getVisibilityChanges(
 
 export function TalentTreeScreen() {
   const xp = useNewGameStore((state) => state.profile.xp)
-  const diceCollectionCount = useNewGameStore((state) => state.profile.diceCollection.length)
-  const equippedDiceCount = useNewGameStore((state) => state.profile.equippedDieIds.length)
   const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const purchaseTalent = useNewGameStore((state) => state.purchaseTalent)
   const goToHub = useNewGameStore((state) => state.goToHub)
@@ -101,12 +96,16 @@ export function TalentTreeScreen() {
   const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null)
   const [ceremony, setCeremony] = useState<PurchaseCeremony | null>(null)
   const [ceremonyStage, setCeremonyStage] = useState<CeremonyStage>('rolling')
+  const [focusRequest, setFocusRequest] = useState<TalentCanvasFocusRequest>(() => ({
+    id: 0,
+    point: getTalentTreeFrontierPoint(talentRanks),
+  }))
 
-  const diceCapacity = getDiceCapacity(talentRanks)
-  const maxHp = getPlayerMaxHp(talentRanks)
   const selectedTalent = selectedTalentId ? TALENTS_BY_ID[selectedTalentId] : null
   const selectedRank = selectedTalent ? getTalentRank(talentRanks, selectedTalent.id) : 0
-  const selectedNextRank = selectedTalent ? getNextTalentRank(talentRanks, selectedTalent) : null
+  const selectedNextRank = selectedTalent
+    ? getNextTalentRank(talentRanks, selectedTalent)
+    : null
   const selectedVisibility = selectedTalent
     ? getTalentVisibility(talentRanks, selectedTalent)
     : 'hidden'
@@ -125,45 +124,69 @@ export function TalentTreeScreen() {
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const hasReveal = ceremony.changes.length > 0
-    const propagationDelay = reduceMotion ? 20 : 650
-    const revealDelay = reduceMotion ? 40 : 960
-    const finishDelay = reduceMotion ? 80 : hasReveal ? 1740 : 820
+    const propagationDelay = reduceMotion ? 20 : 640
+    const revealDelay = reduceMotion ? 40 : 1010
+    const finishDelay = reduceMotion ? 90 : hasReveal ? 1840 : 860
 
-    const timers = [
-      window.setTimeout(() => setCeremonyStage('propagating'), propagationDelay),
-      ...(hasReveal
-        ? [window.setTimeout(() => setCeremonyStage('revealing'), revealDelay)]
-        : []),
-      window.setTimeout(() => setCeremony(null), finishDelay),
-    ]
+    const propagationTimer = window.setTimeout(
+      () => setCeremonyStage('propagating'),
+      propagationDelay,
+    )
+    const revealTimer = hasReveal
+      ? window.setTimeout(() => {
+          setCeremonyStage('revealing')
+          setFocusRequest((current) => ({
+            id: current.id + 1,
+            point: ceremony.focusPoint,
+          }))
+        }, revealDelay)
+      : null
+    const finishTimer = window.setTimeout(() => setCeremony(null), finishDelay)
 
-    return () => timers.forEach((timer) => window.clearTimeout(timer))
+    return () => {
+      window.clearTimeout(propagationTimer)
+      if (revealTimer !== null) window.clearTimeout(revealTimer)
+      window.clearTimeout(finishTimer)
+    }
   }, [ceremony])
 
-  const displayVisibility = (talent: TalentDefinition): TalentVisibility => {
+  const canvasNodes = useMemo<TalentCanvasNode[]>(() => TALENTS.flatMap((talent) => {
     const actualVisibility = getTalentVisibility(talentRanks, talent)
-    if (!ceremony || ceremonyStage === 'revealing') return actualVisibility
-    return ceremony.changes.find((change) => change.talentId === talent.id)?.before
-      ?? actualVisibility
-  }
+    const visibility = ceremony && ceremonyStage !== 'revealing'
+      ? ceremony.changes.find((change) => change.talentId === talent.id)?.before
+        ?? actualVisibility
+      : actualVisibility
+    const state = getNodeState(talent, talentRanks, visibility, xp)
+    if (!state) return []
 
-  const visibleCoreTalents = CORE_TALENTS.filter(
-    (talent) => displayVisibility(talent) !== 'hidden',
+    const rank = getTalentRank(talentRanks, talent.id)
+    const nextRank = getNextTalentRank(talentRanks, talent)
+    const revealIndex = ceremony?.changes.findIndex(
+      (change) => change.talentId === talent.id,
+    ) ?? -1
+
+    return [{
+      isActivating: ceremony?.talentId === talent.id && ceremonyStage === 'rolling',
+      isAffordable: Boolean(
+        nextRank
+        && areTalentPrerequisitesMet(talentRanks, talent)
+        && xp >= nextRank.cost,
+      ),
+      isNew: Boolean(ceremony && ceremonyStage === 'revealing' && revealIndex >= 0),
+      nextCost: nextRank?.cost ?? null,
+      rank,
+      revealOrder: Math.max(0, revealIndex),
+      state,
+      talent,
+    }]
+  }), [ceremony, ceremonyStage, talentRanks, xp])
+
+  const chargingTalentIds = useMemo(
+    () => ceremony && ceremonyStage !== 'rolling'
+      ? ceremony.changes.map((change) => change.talentId)
+      : [],
+    [ceremony, ceremonyStage],
   )
-
-  const visibleBranchTalents = Object.fromEntries(
-    BRANCH_TRACKS.map((track) => [
-      track,
-      TALENTS.filter((talent) => (
-        talent.track === track && displayVisibility(talent) !== 'hidden'
-      )),
-    ]),
-  ) as Record<Exclude<TalentTrack, 'core'>, TalentDefinition[]>
-
-  const branchFanVisible = BRANCH_TRACKS.some(
-    (track) => visibleBranchTalents[track].length > 0,
-  )
-  const shieldcraftPurchased = getTalentRank(talentRanks, TALENT_IDS.shieldcraft) > 0
 
   const selectTalent = (talent: TalentDefinition) => {
     if (ceremony) return
@@ -186,177 +209,78 @@ export function TalentTreeScreen() {
     setCeremonyStage('rolling')
     setCeremony({
       changes,
+      focusPoint: getTalentTreeFrontierPoint(afterRanks),
       rank: currentRank + 1,
       talentId: selectedTalent.id,
     })
   }
 
-  const renderNode = (talent: TalentDefinition, branchIndex = 0) => {
-    const visibility = displayVisibility(talent)
-    const state = getNodeState(talent, talentRanks, visibility, xp)
-    if (!state) return null
-
-    const rank = getTalentRank(talentRanks, talent.id)
-    const nextRank = getNextTalentRank(talentRanks, talent)
-    const revealOrder = Math.max(
-      0,
-      ceremony?.changes.findIndex((change) => change.talentId === talent.id) ?? 0,
-    )
-    const isNew = Boolean(
-      ceremony
-      && ceremonyStage === 'revealing'
-      && ceremony.changes.some((change) => change.talentId === talent.id),
-    )
-    const isAffordable = Boolean(
-      nextRank
-      && areTalentPrerequisitesMet(talentRanks, talent)
-      && xp >= nextRank.cost,
-    )
-
-    return (
-      <TalentNode
-        disabled={Boolean(ceremony)}
-        isActivating={ceremony?.talentId === talent.id && ceremonyStage === 'rolling'}
-        isAffordable={isAffordable}
-        isNew={isNew}
-        isSelected={selectedTalentId === talent.id}
-        key={talent.id}
-        nextCost={nextRank?.cost ?? null}
-        onSelect={selectTalent}
-        rank={rank}
-        revealOrder={isNew ? revealOrder + branchIndex : 0}
-        state={state}
-        talent={talent}
-      />
-    )
+  const recenterTree = () => {
+    setFocusRequest((current) => ({
+      id: current.id + 1,
+      point: getTalentTreeFrontierPoint(talentRanks),
+    }))
   }
 
   return (
-    <main className="game-shell talent-screen">
-      <header className="talent-header">
+    <main className="game-shell talent-canvas-screen">
+      <h1 className="talent-canvas-screen__title">Talent Tree</h1>
+
+      <div className="talent-canvas-hud">
         <button
           aria-label="Back to Hub"
-          className="talent-header__back"
+          className="talent-canvas-hud__button"
           disabled={Boolean(ceremony)}
           onClick={goToHub}
           type="button"
         >
-          <ChevronLeft aria-hidden="true" size={20} />
+          <ChevronLeft aria-hidden="true" size={22} />
         </button>
-        <div>
-          <span className="eyebrow">Permanent progression</span>
-          <h1>Talent Tree</h1>
-          <p>Spend XP to awaken new capabilities.</p>
-        </div>
+
         <div
           aria-label={`${xp} permanent XP available`}
-          className={`talent-xp${ceremony ? ' talent-xp--spending' : ''}`}
+          className={`talent-canvas-xp${ceremony ? ' talent-canvas-xp--spending' : ''}`}
         >
           <Sparkles aria-hidden="true" size={15} />
           <strong>{xp}</strong>
           <span>XP</span>
         </div>
-      </header>
+      </div>
 
-      <section className="talent-ledger" aria-label="Permanent capability summary">
-        <div><Heart aria-hidden="true" size={15} /><span>Max HP</span><strong>{maxHp}</strong></div>
-        <div><Backpack aria-hidden="true" size={15} /><span>Loadout</span><strong>{equippedDiceCount}/{diceCapacity}</strong></div>
-        <div><Dices aria-hidden="true" size={15} /><span>Owned</span><strong>{diceCollectionCount}</strong></div>
-      </section>
+      <TalentTreeCanvas
+        chargingTalentIds={chargingTalentIds}
+        disabled={Boolean(ceremony)}
+        focusRequest={focusRequest}
+        nodes={canvasNodes}
+        onClearSelection={() => setSelectedTalentId(null)}
+        onSelectTalent={selectTalent}
+        selectedTalentId={selectedTalentId}
+      />
 
-      <section className="talent-map" aria-label="Permanent talent tree">
-        <header className="talent-map__heading">
-          <span>Foundation</span>
-          <strong>Awaken the path</strong>
-        </header>
+      <button
+        aria-label="Center on current frontier"
+        className="talent-canvas-recenter"
+        disabled={Boolean(ceremony)}
+        onClick={recenterTree}
+        type="button"
+      >
+        <LocateFixed aria-hidden="true" size={19} />
+      </button>
 
-        <div className="talent-core-path">
-          {visibleCoreTalents.map((talent, index) => {
-            const isCharging = Boolean(
-              ceremony
-              && (ceremonyStage === 'propagating' || ceremonyStage === 'revealing')
-              && ceremony.changes.some((change) => change.talentId === talent.id),
-            )
-            return (
-              <div
-                className={`talent-node-slot${isCharging ? ' talent-node-slot--charging' : ''}`}
-                key={talent.id}
-              >
-                {index > 0 && <span aria-hidden="true" className="talent-connector" />}
-                {renderNode(talent)}
-              </div>
-            )
-          })}
-        </div>
-
-        {branchFanVisible && (
-          <>
-            <div
-              aria-hidden="true"
-              className={[
-                'talent-split',
-                shieldcraftPurchased ? 'talent-split--active' : 'talent-split--veiled',
-                ceremony?.talentId === TALENT_IDS.shieldcraft
-                  && ceremonyStage !== 'rolling'
-                  ? 'talent-split--charging'
-                  : '',
-              ].filter(Boolean).join(' ')}
-            >
-              <span /><span /><Sparkles size={17} /><span /><span />
-            </div>
-
-            <div className={`talent-branches${shieldcraftPurchased ? ' talent-branches--revealed' : ' talent-branches--veiled'}`}>
-              {BRANCH_TRACKS.map((track, branchIndex) => {
-                const talents = visibleBranchTalents[track]
-                const meta = TRACK_META[track]
-                return (
-                  <section className={`talent-branch talent-branch--${track}`} key={track}>
-                    <header aria-hidden={!shieldcraftPurchased}>
-                      <span>{shieldcraftPurchased ? meta.subtitle : 'Sealed'}</span>
-                      <h2>{shieldcraftPurchased ? meta.label : 'Unknown'}</h2>
-                    </header>
-                    <div className="talent-branch__path">
-                      {talents.map((talent, index) => {
-                        const isCharging = Boolean(
-                          ceremony
-                          && (ceremonyStage === 'propagating' || ceremonyStage === 'revealing')
-                          && ceremony.changes.some((change) => change.talentId === talent.id),
-                        )
-                        return (
-                          <div
-                            className={`talent-node-slot${isCharging ? ' talent-node-slot--charging' : ''}`}
-                            key={talent.id}
-                          >
-                            {(index > 0 || branchFanVisible) && (
-                              <span aria-hidden="true" className="talent-connector" />
-                            )}
-                            {renderNode(talent, branchIndex)}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </section>
-                )
-              })}
-            </div>
-          </>
+      <div aria-live="polite" className="talent-canvas-status">
+        {ceremony && (
+          <span>
+            <Sparkles aria-hidden="true" size={12} />
+            {ceremonyStage === 'rolling'
+              ? `${TALENTS_BY_ID[ceremony.talentId].name} awakening`
+              : ceremonyStage === 'propagating'
+                ? 'Power moving through the dark'
+                : ceremony.changes.length > 0
+                  ? 'A new path emerges'
+                  : `Rank ${ceremony.rank} awakened`}
+          </span>
         )}
-
-        <div aria-live="polite" className="talent-ceremony-status">
-          {ceremony && (
-            <span>
-              <Sparkles aria-hidden="true" size={12} />
-              {ceremonyStage === 'rolling'
-                ? `${TALENTS_BY_ID[ceremony.talentId].name} awakening`
-                : ceremonyStage === 'propagating'
-                  ? 'Power moving through the path'
-                  : ceremony.changes.length > 0
-                    ? 'New paths revealed'
-                    : `Rank ${ceremony.rank} active`}
-            </span>
-          )}
-        </div>
-      </section>
+      </div>
 
       <TalentDetailPanel
         isAnimating={Boolean(ceremony)}

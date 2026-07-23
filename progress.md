@@ -41,7 +41,7 @@ Brug denne skabelon:
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, post-combat, extraction og defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
-- XP Talent Tree præsenteres som et klassisk vertikalt incremental tree med fysiske talent-terninger, kompakt detailpanel, fog-silhuetter og chain-reaction reveals.
+- XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, kompakt bund-inspector, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
 - Talentforløbet giver derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige grene, Heal, fire slots, Quick Draw og Auto Roll.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
@@ -52,20 +52,21 @@ Brug denne skabelon:
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
-- En deterministisk simulator og 49 automatiserede tests beskytter den første balancekurve, ranked talents, progressive reveals, enemy dice og de atomiske transitions.
+- En deterministisk simulator og 53 automatiserede tests beskytter den første balancekurve, ranked talents, spatial layout-/viewport-matematik, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
+- Aktuel implementerings-PR: [#7 — Build spatial Talent Tree canvas](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7).
 - Seneste produktionsmerge: [#5 — Rebuild the ranked Talent Tree](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5), merge `cc05ef0`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil det nye Talent Tree ved 320 px og 384 px og kontrollér især node-størrelse, bundpanel, fog-læsbarhed, rank-køb, connector-charge og Shieldcrafts trevejs chain reaction.
+1. Gennemspil spatial-canvas Talent Tree-previewet ved 320 px og 384 px og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
 2. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
 3. Tune extraction-cadence, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
 4. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
 
 ## Åbne spørgsmål og kendte risici
 
-- Browserlaget var ikke tilgængeligt i implementeringssessionen, så det nye dice-node Talent Tree, dets købsceremoni og de øvrige tidligere nævnte flows mangler den obligatoriske visuelle 320/384 px-verifikation.
+- Browserlaget havde ingen tilgængelig browser i spatial-canvas-sessionen. Vite-root, SSR, viewport-matematik og production-build er verificeret, men det nye pan, nodeplacering, inspector og købsceremoni mangler stadig den obligatoriske subjektive 320/384 px-browserkontrol.
 - Simuleringen bekræfter den matematiske dybdekurve, men modellerer ikke extraction-valg, købsmønstre eller oplevet combat-tempo.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
@@ -83,6 +84,9 @@ Brug denne skabelon:
 - Battle-Hardened rank 1 er eneste HP-krav for Twin Arsenal; rank 2 og 3 er valgfrie og må ikke blokere videre progression.
 - Twin Arsenal koster 16 XP efter rank 1, så terning nummer to stadig kan nås efter højst tre floor-1 clears via den direkte vej.
 - Shieldcraft åbner Survival, Arsenal og Control samtidigt uden branch lockout.
+- Talent Tree er et næsten sort, edge-to-edge spatial canvas med minimal fast HUD; det må ikke præsenteres som shrine, kort, kolonner eller en almindelig scroll-side.
+- Talent-noder beholder fast die-størrelse og afstand og udforskes med frit pan i begge akser. Træet komprimeres ikke til mobilbredden, og en recenter-knap returnerer kameraet til den aktuelle frontier.
+- Første canvas-version bruger fast zoom. Nodeknapper og SVG-forbindelser ligger i samme transformerede DOM-world, så skarphed, semantic buttons og keyboardfokus bevares.
 - Talent Tree viser kun den aktuelle frontier fuldt og ét kommende lag som en navnløs, ikke-interaktiv fog-silhuet.
 - Talent-køb ruller noden på stedet, tænder forbindelsen og afslører nye nodes som en kort chain reaction; Shieldcraft splitter effekten i tre.
 - Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
@@ -97,6 +101,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-23 — Spatial Talent Tree canvas
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Det indrammede vertikale Talent Tree er erstattet af et næsten sort full-viewport progression-void. Battle-Hardened starter i centrum, nodes beholder fysisk die-størrelse, træet kan trækkes frit i begge akser, forbindelser ligger som SVG i samme world, og en recenter-knap finder den aktuelle frontier.
+- Beslutninger: Der vises kun ikon og rank-pips på canvaset; navn, effekt og pris ligger i et bundforankret inspector-panel. Layoutet komprimeres aldrig til mobilbredden, sidegrene må fortsætte ud i mørket, og første version har fast zoom. Eksisterende priser, prerequisites, store-transitions og save-format er uændrede.
+- Berørte områder: Ny `TalentTreeCanvas`, koordinat-/viewport-layout og tests; omskrevet Talent Tree-skærm, node og inspector; spatial CSS, GDD og visuel designreference.
+- Validering: `npx tsc --noEmit`, 53 tests, lint, production-build og `git diff --check` bestod. Lokal Vite-root svarede HTTP 200, og de ændrede React-komponenter blev gennemgået mod projektets React-kvalitetsregler.
+- Kendte mangler: Den forbundne browserruntime eksponerede ingen browser, så touch-følelse, visuel balance og animationstiming ved 320/384 px skal godkendes i Vercel-previewet.
+- Git: `9b96f44` — `Build spatial Talent Tree canvas` på `agent/rebuild-ranked-talent-tree`; draft PR [#7](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7).
 
 ### 2026-07-23 — Ranked incremental Talent Tree
 
