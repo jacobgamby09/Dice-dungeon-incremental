@@ -54,8 +54,7 @@ Brug denne skabelon:
 - Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
 - En deterministisk simulator og 49 automatiserede tests beskytter den første balancekurve, ranked talents, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Aktiv branch: `agent/rebuild-ranked-talent-tree`; feature-commit `298dedd`, [PR #5](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5) mod `main`.
-- Seneste produktionsmerge: [#4 — Record enemy die production deployment](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/4).
+- Seneste produktionsmerge: [#5 — Rebuild the ranked Talent Tree](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5), merge `cc05ef0`.
 
 ## Næste anbefalede skridt
 
@@ -109,7 +108,7 @@ Brug denne skabelon:
 - Berørte områder: Talent content/types/progression, v6-storemigration og køb, Talent Tree-skærm og komponenter, responsive styles, tests, GDD, DESIGN og implementationplan.
 - Validering: `npx tsc --noEmit`, frisk app-typecheck, 49 tests, lint og production-build bestod. React-komponenterne er gennemgået mod projektets React-kvalitetsregler.
 - Kendte mangler: Browserruntime havde ingen tilgængelig browser, så visuel og interaktiv verifikation ved 320/384 px samt subjektiv animationstiming mangler.
-- Git: `298dedd` — `Rebuild ranked talent tree` på `agent/rebuild-ranked-talent-tree`; [PR #5](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5).
+- Git: `298dedd` — `Rebuild ranked talent tree`; merged til `main` via [PR #5](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5) som `cc05ef0` og deployet til production.
 
 ### 2026-07-22 — Enemy die-transform nulstilles efter alle rolls
 
