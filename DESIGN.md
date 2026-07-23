@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.2 — 2026-07-22.
+Version: 1.3 — 2026-07-23.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -274,18 +274,22 @@ Workshoppen skal føles varm, konkret og mekanisk.
 - Ved opgradering bevæger Souls/impact sig ind i forgen, og kun den valgte face reagerer.
 - Disabled state forklarer årsagen, eksempelvis `Need 10 Souls` eller `Face Cap Reached`.
 
-### Talent Shrine — awakening wall
+### Talent Tree — incremental dice map
 
-Talent Tree er en fysisk runetavle i dungeon-væggen, ikke en liste af upgrade-kort.
+Talent Tree bruger den velkendte visuelle grammatik fra et klassisk incremental tree: en centreret foundation-stamme, tydelige forbindelser og et senere trevejs branch-split. Spillets egen identitet kommer fra, at hver node er en fysisk talent-terning.
 
-- Den tidlige progression læses som en smal lodret stamme, der fysisk deler sig i Survival, Arsenal og Control.
-- XP er altid cyan på priser, progress og aktiverede forbindelser. Grenfarver identificerer retning, men ligner aldrig en separat valuta.
-- Træet viser højst én skjult fremtidig node ud over den aktuelle frontier. Dybere indhold fremstår som forseglede stenaftryk uden navn eller pris.
-- En node kan altid undersøges, når den er afsløret. Selve købet sker først i et separat altar-preview med præcis effekt, prerequisite og XP-afstand.
-- Purchased nodes ændrer fysisk materiale og tænder forbindelsen. Ready, for dyr, prerequisite-låst, skjult og nyåbnet bruger både form, tekst og lys — aldrig farve alene.
-- Dice-, slot-, HP- og automation-rewards bruger forskellige silhuetter. En node med flere effects viser dem alle.
-- En talent-die præsenteres efter køb som én konkret navngiven permanent genstand med alle seks faces og en eksplicit vej til Loadout. Den auto-equippes aldrig.
-- Collection, equipped slots og Max HP vises samlet ved shrinet, så kapacitet og ejerskab ikke forveksles.
+- Battle-Hardened står alene i centrum på et fresh save. Dice Slot 2 anes kun som en navnløs silhuet bag fog.
+- En talent-node bruger samme størrelsesfamilie, hårde outline og fysiske dybde som player dice. Talent dice er cyan/neutral XP-magi og må ikke ligne en Attack-, Shield- eller Heal Die.
+- Hver node har ét stabilt, tydeligt ikon. Navn, rank, næste effekt og pris vises i et kompakt detailpanel efter valg; lange tekster presses aldrig ind på die-facen.
+- Træet viser højst ét fremtidigt lag som svage, ikke-interaktive silhuetter. Silhuetter viser intet navn, ikon eller pris, og dybere noder renderes ikke.
+- Rankede nodes viser `current/max` på facen. Battle-Hardened bruger tre ranks; senere ranks må ikke visuelt se ud som nye separate talents.
+- XP er altid cyan på priser, aktiverede nodes og forbindelser. Survival, Arsenal og Control bruger navn og ikon som identitet uden at ligne separate valutaer.
+- Et køb animerer på selve træet: XP reagerer, noden ruller kontrolleret på stedet, lander med korrekt ikonorientering og sender energi gennem forbindelsen.
+- Når et køb ændrer frontier, opløses fog, forbindelserne lades op, og nye nodes materialiseres i graf-rækkefølge. Shieldcraft splitter energien ud i alle tre branches.
+- Den store separate reward-dialog bruges ikke. Et kompakt bundpanel håndterer preview og køb og forsvinder før ceremonien, så træets årsag/virkning forbliver synlig.
+- Første køb og nye reveals må vare cirka `1–1.5s`; en ekstra rank uden reveal bruger en kortere ceremoni. `prefers-reduced-motion` bevarer stateændringen uden den fulde bevægelse.
+- En ny permanent die auto-equippes aldrig. Nodebeskrivelsen gør det tydeligt, at den konkrete die tilføjes til collection.
+- Collection, equipped slots og Max HP vises samlet over træet, så kapacitet og ejerskab ikke forveksles.
 
 ### Combat — arena og spilleflade
 

@@ -39,8 +39,8 @@ describe('MVP content integrity', () => {
     const firstTalent = TALENTS_BY_ID[TALENT_IDS.battleHardenedOne]
     const secondTalent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
 
-    expect(firstEnemyXp).toBe(firstTalent.cost)
-    expect(firstEnemyXp * 3).toBe(firstTalent.cost + secondTalent.cost)
+    expect(firstEnemyXp).toBe(firstTalent.ranks[0].cost)
+    expect(firstEnemyXp * 3).toBe(firstTalent.ranks[0].cost + secondTalent.ranks[0].cost)
   })
 
   it('orders ten floors with exactly one final boss', () => {

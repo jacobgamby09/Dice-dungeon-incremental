@@ -1,91 +1,132 @@
 import { motion } from 'framer-motion'
 import type { CSSProperties } from 'react'
-import {
-  Backpack,
-  Bot,
-  Dice6,
-  Heart,
-  HelpCircle,
-  LockKeyhole,
-  Sparkles,
-  Zap,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
-import type { TalentDefinition, TalentEffect } from '../../game/types/progression'
+import { LockKeyhole, Sparkles } from 'lucide-react'
+import type { TalentDefinition } from '../../game/types/progression'
+import { TalentIcon } from './TalentIcon'
 
-export type TalentNodeState = 'hidden' | 'locked' | 'too-expensive' | 'ready' | 'purchased'
+export type TalentNodeState =
+  | 'silhouette'
+  | 'locked'
+  | 'unaffordable'
+  | 'ready'
+  | 'active'
+  | 'maxed'
 
 interface TalentNodeProps {
+  disabled?: boolean
+  isActivating?: boolean
+  isAffordable?: boolean
   isNew?: boolean
   isSelected?: boolean
+  nextCost: number | null
   onSelect: (talent: TalentDefinition) => void
+  rank: number
+  revealOrder?: number
   state: TalentNodeState
   talent: TalentDefinition
-  xp: number
 }
 
-const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
-  max_hp: Heart,
-  dice_slots: Backpack,
-  grant_die: Dice6,
-  roll_speed: Zap,
-  unlock_auto_roll: Bot,
-}
-
-const STATE_LABELS: Record<Exclude<TalentNodeState, 'hidden'>, string> = {
-  locked: 'Requires path',
-  'too-expensive': 'Gather XP',
+const STATE_LABELS: Record<Exclude<TalentNodeState, 'silhouette'>, string> = {
+  locked: 'Path required',
+  unaffordable: 'Gather XP',
   ready: 'Ready',
-  purchased: 'Active',
+  active: 'Active',
+  maxed: 'Maxed',
 }
 
-export function TalentNode({ isNew = false, isSelected = false, onSelect, state, talent, xp }: TalentNodeProps) {
-  if (state === 'hidden') {
+export function TalentNode({
+  disabled = false,
+  isActivating = false,
+  isAffordable = false,
+  isNew = false,
+  isSelected = false,
+  nextCost,
+  onSelect,
+  rank,
+  revealOrder = 0,
+  state,
+  talent,
+}: TalentNodeProps) {
+  const maxRank = talent.ranks.length
+  const style = { '--talent-reveal-order': revealOrder } as CSSProperties
+
+  if (state === 'silhouette') {
     return (
-      <div aria-hidden="true" className="talent-node talent-node--hidden">
-        <span className="talent-node__core"><HelpCircle size={19} /></span>
-        <span className="talent-node__name">Unrevealed</span>
-        <span className="talent-node__status">Deeper path</span>
-      </div>
+      <motion.div
+        aria-hidden="true"
+        className={`talent-die-node talent-die-node--silhouette${isNew ? ' talent-die-node--new' : ''}`}
+        initial={isNew ? { opacity: 0, scale: 0.45, y: 14 } : false}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        style={style}
+        transition={{ delay: revealOrder * 0.08, duration: 0.34, ease: 'easeOut' }}
+      >
+        <span className="talent-die-node__fog talent-die-node__fog--one" />
+        <span className="talent-die-node__fog talent-die-node__fog--two" />
+        <span className="talent-die-node__face"><span /></span>
+        <span className="talent-die-node__mystery">Unknown</span>
+      </motion.div>
     )
   }
 
-  const progress = state === 'purchased' ? 100 : Math.min(100, Math.round((xp / talent.cost) * 100))
+  const status = rank > 0 ? `Rank ${rank} of ${maxRank}` : STATE_LABELS[state]
+  const purchaseState = isAffordable && rank > 0 ? ' Upgrade ready.' : ''
 
   return (
     <motion.button
-      aria-label={`${talent.name}. ${talent.description} ${talent.cost} XP. ${STATE_LABELS[state]}.`}
+      aria-label={`${talent.name}. ${talent.description} ${status}.${nextCost === null ? '' : ` Next rank costs ${nextCost} XP.`}${purchaseState}`}
       aria-pressed={isSelected}
-      className={`talent-node talent-node--${state}${isNew ? ' talent-node--new' : ''}`}
-      initial={isNew ? { opacity: 0, scale: 0.72 } : false}
-      animate={{ opacity: 1, scale: 1 }}
+      className={[
+        'talent-die-node',
+        `talent-die-node--${state}`,
+        isAffordable ? 'talent-die-node--affordable' : '',
+        isActivating ? 'talent-die-node--activating' : '',
+        isNew ? 'talent-die-node--new' : '',
+      ].filter(Boolean).join(' ')}
+      disabled={disabled}
+      initial={isNew ? { opacity: 0, scale: 0.45, y: 14 } : false}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
       onClick={() => onSelect(talent)}
-      transition={{ duration: 0.24, ease: 'easeOut' }}
+      style={style}
+      transition={{ delay: revealOrder * 0.08, duration: 0.34, ease: 'easeOut' }}
       type="button"
     >
-      <span className="talent-node__core" aria-hidden="true">
-        {state === 'locked' ? (
-          <LockKeyhole size={19} />
-        ) : (
-          <span className="talent-node__rewards">
-            {talent.effects.map((effect, index) => {
-              const EffectIcon = EFFECT_ICONS[effect.type]
-              return <EffectIcon key={`${effect.type}-${index}`} size={talent.effects.length > 1 ? 14 : 20} />
-            })}
+      <motion.span
+        className="talent-die-node__face"
+        initial={false}
+        animate={isActivating
+          ? {
+              rotateX: [0, -28, 210, 360],
+              rotateY: [0, 170, 335, 360],
+              scale: [1, 1.12, 0.94, 1],
+              y: [0, -15, -5, 0],
+            }
+          : { rotateX: 0, rotateY: 0, scale: 1, y: 0 }}
+        transition={isActivating
+          ? { duration: 0.7, ease: [0.22, 0.76, 0.24, 1] }
+          : { duration: 0.15 }}
+      >
+        {state === 'locked'
+          ? <LockKeyhole aria-hidden="true" size={24} />
+          : <TalentIcon iconKey={talent.iconKey} />}
+        {maxRank > 1 && (
+          <span className="talent-die-node__rank">{rank}/{maxRank}</span>
+        )}
+        {isActivating && (
+          <span aria-hidden="true" className="talent-die-node__particles">
+            {Array.from({ length: 10 }, (_, index) => (
+              <span key={index} style={{ '--particle-index': index } as CSSProperties} />
+            ))}
           </span>
         )}
+      </motion.span>
+      <span className="talent-die-node__name">{talent.name}</span>
+      <span className="talent-die-node__meta">
+        {nextCost === null ? (
+          'MAX'
+        ) : (
+          <><Sparkles aria-hidden="true" size={10} />{nextCost}</>
+        )}
       </span>
-      <span className="talent-node__name">{talent.name}</span>
-      <span className="talent-node__price">
-        <Sparkles aria-hidden="true" size={11} />
-        {state === 'purchased' ? '—' : talent.cost}
-      </span>
-      <span className="talent-node__status">{isNew ? 'New path' : STATE_LABELS[state]}</span>
-      <span
-        aria-hidden="true"
-        className="talent-node__progress"
-        style={{ '--talent-progress': `${progress}%` } as CSSProperties}
-      />
     </motion.button>
   )
 }

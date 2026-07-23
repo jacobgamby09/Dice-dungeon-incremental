@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-22.
+Senest opdateret: 2026-07-23.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -41,8 +41,9 @@ Brug denne skabelon:
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, post-combat, extraction og defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
-- XP Talent Tree præsenteres som et fysisk cyan-oplyst shrine med onboarding-stamme, tre samtidige specialiseringsgrene, progressive reveals, node-preview og en særskilt købsceremoni.
-- Talentforløbet giver tidligt +2 Max HP, derefter slot 2 og en unik Striker Die; senere følger Shield, Heal, fire slots, Quick Draw og Auto Roll.
+- XP Talent Tree præsenteres som et klassisk vertikalt incremental tree med fysiske talent-terninger, kompakt detailpanel, fog-silhuetter og chain-reaction reveals.
+- Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
+- Talentforløbet giver derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige grene, Heal, fire slots, Quick Draw og Auto Roll.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - `The First Descent` har nu 10 floors med Demon-boss på floor 10; boss victory banker hele runnets Soul-pulje automatisk.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
@@ -50,23 +51,24 @@ Brug denne skabelon:
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
-- Save-formatet er version 5 og persisterer talent-, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; inkompatible legacy combat-shapes sendes sikkert til Hub.
-- En deterministisk simulator og 42 automatiserede tests beskytter den første balancekurve, enemy dice og de atomiske transitions.
+- Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
+- En deterministisk simulator og 49 automatiserede tests beskytter den første balancekurve, ranked talents, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste produktionsmerge: [#3 — Fix enemy die transform reset](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/3).
+- Aktiv branch: `agent/rebuild-ranked-talent-tree`; feature-commit `298dedd`, [PR #5](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5) mod `main`.
+- Seneste produktionsmerge: [#4 — Record enemy die production deployment](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/4).
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et helt fresh-save-forløb visuelt ved 320 px og 384 px og kontrollér især enemy-die-reveal, intent-inspektion, angrebstransfer, Talent Shrine, aktiv equip, Auto Roll samt Demon-animationerne.
-2. Mål i rigtig playtest, om Battle-Hardened I købes efter run 1 og Twin Arsenal efter run 2–3.
+1. Gennemspil det nye Talent Tree ved 320 px og 384 px og kontrollér især node-størrelse, bundpanel, fog-læsbarhed, rank-køb, connector-charge og Shieldcrafts trevejs chain reaction.
+2. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
 3. Tune extraction-cadence, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
 4. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
 
 ## Åbne spørgsmål og kendte risici
 
-- Browserlaget var ikke tilgængeligt i implementeringssessionen, så enemy-die-flowet, det nye Talent Shrine, de øvrige nye skærme og Demon-sprittens animationer mangler den obligatoriske visuelle 320/384 px-verifikation.
+- Browserlaget var ikke tilgængeligt i implementeringssessionen, så det nye dice-node Talent Tree, dets købsceremoni og de øvrige tidligere nævnte flows mangler den obligatoriske visuelle 320/384 px-verifikation.
 - Simuleringen bekræfter den matematiske dybdekurve, men modellerer ikke extraction-valg, købsmønstre eller oplevet combat-tempo.
-- Det skal playtestes, om anden die faktisk unlockes efter 2–3 rigtige runs, så starten er enkel uden at blive flad.
+- Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
 - Auto Roll er verificeret på state- og buildniveau, men tempoet med større manuelle loadouts skal vurderes visuelt.
 - Legacy-kode findes stadig i repository og må ikke blandes ind i den nye production-state.
@@ -78,8 +80,12 @@ Brug denne skabelon:
 - Kun `runSouls`, `bankedSouls` og `xp` findes som valuta/progression.
 - Spilleren starter med én Attack Die.
 - Et dice-unlock giver én navngiven permanent die, aldrig uendelige kopier; spilleren equipper den selv.
-- Første talent koster 8 XP, og Twin Arsenal koster 16 XP efter det, så terning nummer to kan nås efter højst tre floor-1 clears.
+- Battle-Hardened har tre ranks til 8/16/32 XP og giver +2 Max HP per rank, maksimalt +6.
+- Battle-Hardened rank 1 er eneste HP-krav for Twin Arsenal; rank 2 og 3 er valgfrie og må ikke blokere videre progression.
+- Twin Arsenal koster 16 XP efter rank 1, så terning nummer to stadig kan nås efter højst tre floor-1 clears via den direkte vej.
 - Shieldcraft åbner Survival, Arsenal og Control samtidigt uden branch lockout.
+- Talent Tree viser kun den aktuelle frontier fuldt og ét kommende lag som en navnløs, ikke-interaktiv fog-silhuet.
+- Talent-køb ruller noden på stedet, tænder forbindelsen og afslører nye nodes som en kort chain reaction; Shieldcraft splitter effekten i tre.
 - Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
 - MVP-dungeonen har 10 floors; floor 10 er boss og banker automatisk alle Run Souls ved sejr.
 - Alle udstyrede dice skal trækkes hver runde i tilfældig rækkefølge.
@@ -92,6 +98,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-23 — Ranked incremental Talent Tree
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Talent Shrine er erstattet af et klassisk mobile-first talent tree med fysiske dice-nodes, unikke ikoner, tre-rank Battle-Hardened, navnløse fog-silhuetter, kompakt købspanel og en trinvis roll/connector/reveal-ceremoni.
+- Beslutninger: Battle-Hardened giver +2 HP per rank til rank 3 og koster foreløbigt 8/16/32 XP; Twin Arsenal kræver kun rank 1; Shieldcraft forbliver junction før de tre samtidige grene; kun ét fremtidigt lag anes som silhuet.
+- Berørte områder: Talent content/types/progression, v6-storemigration og køb, Talent Tree-skærm og komponenter, responsive styles, tests, GDD, DESIGN og implementationplan.
+- Validering: `npx tsc --noEmit`, frisk app-typecheck, 49 tests, lint og production-build bestod. React-komponenterne er gennemgået mod projektets React-kvalitetsregler.
+- Kendte mangler: Browserruntime havde ingen tilgængelig browser, så visuel og interaktiv verifikation ved 320/384 px samt subjektiv animationstiming mangler.
+- Git: `298dedd` — `Rebuild ranked talent tree` på `agent/rebuild-ranked-talent-tree`; [PR #5](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5).
 
 ### 2026-07-22 — Enemy die-transform nulstilles efter alle rolls
 

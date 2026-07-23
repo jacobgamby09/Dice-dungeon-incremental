@@ -15,15 +15,18 @@ import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
   getDiceCapacity,
+  getNextTalentRank,
   getPlayerMaxHp,
+  getTalentRank,
   hasAutoRollUnlocked,
+  normalizeTalentRanks,
 } from '../game/progression/talents'
 import type { CombatState, RoundResolution } from '../game/types/combat'
 import { EMPTY_TOTALS } from '../game/types/combat'
 import type { DieFaces, DieInstance, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
 import type { DungeonId, DungeonProgress, EnemyState, RunState } from '../game/types/dungeon'
-import type { PlayerProfile } from '../game/types/progression'
+import type { PlayerProfile, TalentRanks } from '../game/types/progression'
 
 export type AppScreen =
   | 'hub'
@@ -63,7 +66,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 5
+const SAVE_VERSION = 6
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -77,7 +80,7 @@ function createInitialProfile(): PlayerProfile {
     saveVersion: SAVE_VERSION,
     xp: 0,
     bankedSouls: 0,
-    unlockedTalentIds: [],
+    talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: createInitialDungeonProgress(),
     diceCollection,
@@ -135,6 +138,10 @@ type LegacyEnemyState = Partial<EnemyState> & {
   intent?: { type?: 'attack'; value?: number }
 }
 
+type LegacyPlayerProfile = Partial<PlayerProfile> & {
+  unlockedTalentIds?: string[]
+}
+
 function migrateEnemyState(existingEnemy: LegacyEnemyState | null | undefined): EnemyState | null {
   if (!existingEnemy?.definitionId) return null
   const definition = ENEMIES[existingEnemy.definitionId]
@@ -175,9 +182,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
 
   const persisted = persistedState as Partial<NewGameState>
   const freshProfile = createInitialProfile()
-  const existingProfile = persisted.profile
+  const existingProfile = persisted.profile as LegacyPlayerProfile | undefined
   const allowedExistingDice = version < 2
-    ? existingProfile?.diceCollection.filter((die) => die.id === 'attack-die-1') ?? []
+    ? existingProfile?.diceCollection?.filter((die) => die.id === 'attack-die-1') ?? []
     : existingProfile?.diceCollection ?? []
   const diceCollection = allowedExistingDice
     .map((existingDie) => {
@@ -196,10 +203,13 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     diceCollection.unshift(cloneDie(freshProfile.diceCollection[0]))
   }
 
-  const unlockedTalentIds = existingProfile?.unlockedTalentIds.filter(
-    (talentId) => TALENTS_BY_ID[talentId] !== undefined,
-  ) ?? []
-  const capacity = getDiceCapacity(unlockedTalentIds)
+  const legacyTalentRanks: TalentRanks = Object.fromEntries(
+    (existingProfile?.unlockedTalentIds ?? [])
+      .filter((talentId) => TALENTS_BY_ID[talentId] !== undefined)
+      .map((talentId) => [talentId, 1]),
+  )
+  const talentRanks = normalizeTalentRanks(existingProfile?.talentRanks ?? legacyTalentRanks)
+  const capacity = getDiceCapacity(talentRanks)
   const equippedDieIds = (existingProfile?.equippedDieIds ?? ['attack-die-1'])
     .filter((dieId, index, ids) => (
       ids.indexOf(dieId) === index && diceCollection.some((die) => die.id === dieId)
@@ -209,9 +219,11 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
 
   const migratedProfile: PlayerProfile = {
     ...freshProfile,
-    ...existingProfile,
     saveVersion: SAVE_VERSION,
-    unlockedTalentIds,
+    xp: existingProfile?.xp ?? freshProfile.xp,
+    bankedSouls: existingProfile?.bankedSouls ?? freshProfile.bankedSouls,
+    talentRanks,
+    unlockedDungeonIds: existingProfile?.unlockedDungeonIds ?? freshProfile.unlockedDungeonIds,
     dungeonProgress: {
       ...createInitialDungeonProgress(),
       ...existingProfile?.dungeonProgress,
@@ -221,8 +233,8 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     settings: {
       ...freshProfile.settings,
       ...existingProfile?.settings,
-      autoRoll: hasAutoRollUnlocked(unlockedTalentIds)
-        ? Boolean(existingProfile?.settings.autoRoll)
+      autoRoll: hasAutoRollUnlocked(talentRanks)
+        ? Boolean(existingProfile?.settings?.autoRoll)
         : false,
     },
   }
@@ -310,7 +322,7 @@ export const useNewGameStore = create<NewGameState>()(
         const firstEnemyId = dungeon.floors[0].enemyId
         const equippedDiceSnapshot = getEquippedDice(state.profile)
         if (equippedDiceSnapshot.length === 0) return
-        const playerMaxHp = getPlayerMaxHp(state.profile.unlockedTalentIds)
+        const playerMaxHp = getPlayerMaxHp(state.profile.talentRanks)
 
         set({
           screen: 'combat',
@@ -608,8 +620,12 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive' || !talent) return false
         if (!canPurchaseTalent(state.profile, talentId)) return false
 
+        const currentRank = getTalentRank(state.profile.talentRanks, talent.id)
+        const nextRank = getNextTalentRank(state.profile.talentRanks, talent)
+        if (!nextRank) return false
+
         const diceCollection = [...state.profile.diceCollection]
-        for (const effect of talent.effects) {
+        for (const effect of nextRank.effects) {
           if (effect.type !== 'grant_die') continue
           if (diceCollection.some((die) => die.id === effect.dieId)) continue
           const grantedDie = createDieById(effect.dieId)
@@ -619,8 +635,11 @@ export const useNewGameStore = create<NewGameState>()(
         set({
           profile: {
             ...state.profile,
-            xp: state.profile.xp - talent.cost,
-            unlockedTalentIds: [...state.profile.unlockedTalentIds, talent.id],
+            xp: state.profile.xp - nextRank.cost,
+            talentRanks: {
+              ...state.profile.talentRanks,
+              [talent.id]: currentRank + 1,
+            },
             diceCollection,
           },
         })
@@ -632,7 +651,7 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive') return false
         if (!state.profile.diceCollection.some((die) => die.id === dieId)) return false
         if (state.profile.equippedDieIds.includes(dieId)) return false
-        if (state.profile.equippedDieIds.length >= getDiceCapacity(state.profile.unlockedTalentIds)) return false
+        if (state.profile.equippedDieIds.length >= getDiceCapacity(state.profile.talentRanks)) return false
 
         set({
           profile: {
@@ -660,7 +679,7 @@ export const useNewGameStore = create<NewGameState>()(
 
       setAutoRoll: (enabled) => {
         const state = get()
-        const autoRoll = enabled && hasAutoRollUnlocked(state.profile.unlockedTalentIds)
+        const autoRoll = enabled && hasAutoRollUnlocked(state.profile.talentRanks)
         set({
           profile: {
             ...state.profile,

@@ -139,10 +139,12 @@ Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete t
 
 Talent Tree bruger kun XP. Alle specialiseringsgrene bliver tilgængelige efter `Shieldcraft` og udelukker ikke hinanden. Spilleren vælger købsrækkefølge, ikke en permanent låst klasse.
 
+Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, så noden samlet kan give +6 Max HP. Rank 1 åbner vejen til `Twin Arsenal`; rank 2 og 3 er valgfrie og blokerer ikke videre progression.
+
 | Talent | Pris | Krav | Permanent effekt |
 |---|---:|---|---|
-| Battle-Hardened I | 8 XP | Ingen | +2 Max HP |
-| Twin Arsenal | 16 XP | Battle-Hardened I | +1 dice slot og én Striker Die |
+| Battle-Hardened rank 1/2/3 | 8 / 16 / 32 XP | Forrige rank | +2 Max HP per rank, maksimalt +6 |
+| Twin Arsenal | 16 XP | Battle-Hardened rank 1 | +1 dice slot og én Striker Die |
 | Shieldcraft | 32 XP | Twin Arsenal | Én Iron Guard Die og adgang til Shield-familien |
 | Battle-Hardened II | 24 XP | Shieldcraft | +3 Max HP |
 | Third Grip | 40 XP | Shieldcraft | +1 dice slot |
@@ -153,12 +155,15 @@ Talent Tree bruger kun XP. Alle specialiseringsgrene bliver tilgængelige efter 
 
 Auto Roll simulerer kun spillerens `Draw`-tryk. Spilleren kan slå togglen til og fra under combat, og manuel rulning er stadig tilgængelig, når den er slået fra. Næste draw starter 300 ms efter, at det forrige resultat er færdigscoret. Auto Roll resolver ikke automatisk runden; Auto Resolve er en separat senere progression.
 
+Talent Tree viser kun det nuværende købslag fuldt. Én kommende node eller ét kommende branch-lag anes som en navnløs silhuet bag fog of war. Et køb aktiverer talent-terningen, sender energi gennem forbindelserne og afslører næste lag som en kort chain reaction. Alle talent-noder er terningeformede, har ét stabilt ikon og bruger cyan som fælles XP-identitet.
+
 Den tidlige tilsigtede cadence er:
 
-1. Første floor giver 8 XP og låser Battle-Hardened I op efter første run.
-2. Twin Arsenal købes normalt efter run 2 eller 3, afhængigt af hvor dybt spilleren gik.
-3. Den nye Striker Die findes derefter i collection, men spilleren skal selv equippe den i det nye slot.
-4. Shieldcraft åbner derefter de tre samtidige spor Survival, Arsenal og Control.
+1. Første floor giver 8 XP og køber Battle-Hardened rank 1 efter første run.
+2. Spilleren vælger derefter frit mellem flere HP-ranks og den direkte 16-XP-vej til Twin Arsenal.
+3. Twin Arsenal kan stadig købes efter højst tre floor-1 clears, hvis spilleren prioriterer den direkte vej.
+4. Den nye Striker Die findes derefter i collection, men spilleren skal selv equippe den i det nye slot.
+5. Shieldcraft åbner derefter de tre samtidige spor Survival, Arsenal og Control.
 
 ## Kamp
 
@@ -228,7 +233,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Save-formatet er versionsstyret.
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.
 - Profil, aktivt run, enemy, HP, Run Souls, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
-- Save version 5 migrerer et eksisterende numerisk enemy intent til en stabil face med samme damage og afviser inkompatible legacy combat-shapes sikkert til Hub i stedet for at lade UI'et crashe.
+- Save version 6 bruger canonical `talentRanks`, migrerer version-5 talent-ID'er til rank 1, migrerer eksisterende numeriske enemy intents til stabile faces og afviser inkompatible legacy combat-shapes sikkert til Hub i stedet for at lade UI'et crashe.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning

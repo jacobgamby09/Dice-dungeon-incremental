@@ -1,14 +1,14 @@
 # New Dice Dungeon — Implementation Plan
 
-## Implementeringsstatus — 22. juli 2026
+## Implementeringsstatus — 23. juli 2026
 
 Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → Victory/Defeat → Extract/Continue → permanent progression er nu spilbart. Floor 10 er en Demon-boss, der automatisk banker hele runnets Soul-pulje ved sejr.
 
-XP Talent Tree indeholder den tidlige progression fra +2 Max HP til anden Attack Die, Shield, tre specialiseringsgrene, Heal, fire slots, Quick Draw og Auto Roll. Nye dice er unikke permanente objekter og skal aktivt equippes. En data-dreven simulator dækker den forventede dybdekurve; næste skridt er nu rigtig browser-playtest og tuning, ikke flere kernesystemer.
+XP Talent Tree bruger nu canonical talent-ranks og et klassisk dice-node map. Battle-Hardened kan købes tre gange for samlet +6 Max HP; rank 1 åbner anden Attack Die, mens yderligere HP-ranks forbliver valgfrie. Shieldcraft åbner tre specialiseringsgrene, og én fremtidig frontier vises som en navnløs fog-silhuet. Nye dice er unikke permanente objekter og skal aktivt equippes.
 
-Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 5 migrerer eksisterende numeriske intents til stabile enemy-face-ID'er og gendanner sikkert fra inkompatible legacy combat-shapes.
+Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 6 migrerer version-5 talent-ID'er til rank 1, migrerer numeriske intents til stabile enemy-face-ID'er og gendanner sikkert fra inkompatible legacy combat-shapes.
 
-Arbejdet fortsætter på branch `agent/random-draw-bag` og den eksisterende draft PR #1. Dette forløbs ændringer er ikke committed endnu.
+Arbejdet fortsætter lokalt på branch `agent/rebuild-ranked-talent-tree`. Dette forløbs ændringer er ikke committed endnu.
 
 ## Dokumentets formål
 
@@ -231,7 +231,7 @@ type PlayerProfile = {
   saveVersion: number
   xp: number
   bankedSouls: number
-  unlockedTalentIds: string[]
+  talentRanks: Record<string, number>
   unlockedDungeonIds: string[]
   diceCollection: DieInstance[]
   equippedDieIds: string[]
@@ -540,7 +540,7 @@ Hvis svaret ikke er tydeligt ja, forbedres combat-feedback, pacing og upgrade-lo
 
 ## Fase 7 — XP Talent Tree
 
-Det eksisterende pan/zoom-koncept kan tilpasses, men valutaen bliver XP.
+Tree-layoutet er et mobile-first vertikalt dice-node map. Nodes kan have én eller flere ranks, og kun ét fremtidigt lag vises som en navnløs silhuet.
 
 ### Foreslåede tracks
 
@@ -554,6 +554,9 @@ Det eksisterende pan/zoom-koncept kan tilpasses, men valutaen bliver XP.
 ### Regler
 
 - Hver synlig node skal have en implementeret effekt.
+- Rank 1 kan åbne den videre vej uden at kræve, at en repeatable node maxes.
+- En node må aldrig købes over sin definerede rank-cap.
+- Kun direkte frontier vises fuldt; næste lag vises som ikke-interaktiv fog-silhuet.
 - XP bruges kun permanent.
 - Souls må ikke bruges i talent tree.
 - Pure information som face-beskrivelser og dice inspection er altid tilgængelig.
@@ -564,6 +567,7 @@ Det eksisterende pan/zoom-koncept kan tilpasses, men valutaen bliver XP.
 - Et købt talent påvirker næste relevante situation.
 - XP reduceres præcis én gang ved køb.
 - Talent-unlocks overlever reload og død.
+- Talent-ranks overlever reload, migration og død.
 - Ingen node kan købes uden en effekt.
 
 ---

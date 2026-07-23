@@ -10,7 +10,7 @@ export function HubScreen() {
   const openWorkshop = useNewGameStore((state) => state.openWorkshop)
   const openTalentTree = useNewGameStore((state) => state.openTalentTree)
   const openLoadout = useNewGameStore((state) => state.openLoadout)
-  const diceCapacity = getDiceCapacity(profile.unlockedTalentIds)
+  const diceCapacity = getDiceCapacity(profile.talentRanks)
 
   return (
     <main className="game-shell hub-screen">
@@ -51,7 +51,7 @@ export function HubScreen() {
       <footer className="hub-actions">
         <button className="hub-action hub-action--talents" onClick={openTalentTree} type="button">
           <span className="hub-action__icon"><Sparkles aria-hidden="true" size={22} /></span>
-          <span><small>Spend permanent XP</small><strong>Talent Shrine</strong></span>
+          <span><small>Spend permanent XP</small><strong>Talent Tree</strong></span>
         </button>
         <button className="hub-action hub-action--workshop" onClick={openWorkshop} type="button">
           <span className="hub-action__icon"><Hammer aria-hidden="true" size={22} /></span>
