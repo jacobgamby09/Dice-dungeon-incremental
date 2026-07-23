@@ -54,8 +54,7 @@ Brug denne skabelon:
 - Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
 - En deterministisk simulator og 53 automatiserede tests beskytter den første balancekurve, ranked talents, spatial layout-/viewport-matematik, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Aktuel implementerings-PR: [#7 — Build spatial Talent Tree canvas](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7).
-- Seneste produktionsmerge: [#5 — Rebuild the ranked Talent Tree](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/5), merge `cc05ef0`.
+- Seneste produktionsmerge: [#7 — Build spatial Talent Tree canvas](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7), merge `3ab8b2f`.
 
 ## Næste anbefalede skridt
 
@@ -112,7 +111,7 @@ Brug denne skabelon:
 - Berørte områder: Ny `TalentTreeCanvas`, koordinat-/viewport-layout og tests; omskrevet Talent Tree-skærm, node og inspector; spatial CSS, GDD og visuel designreference.
 - Validering: `npx tsc --noEmit`, 53 tests, lint, production-build og `git diff --check` bestod. Lokal Vite-root svarede HTTP 200, og de ændrede React-komponenter blev gennemgået mod projektets React-kvalitetsregler.
 - Kendte mangler: Den forbundne browserruntime eksponerede ingen browser, så touch-følelse, visuel balance og animationstiming ved 320/384 px skal godkendes i Vercel-previewet.
-- Git: `9b96f44` — `Build spatial Talent Tree canvas` på `agent/rebuild-ranked-talent-tree`; draft PR [#7](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7).
+- Git: `9b96f44` — `Build spatial Talent Tree canvas`; merged til `main` via [PR #7](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7) som `3ab8b2f` og verificeret på production.
 
 ### 2026-07-23 — Ranked incremental Talent Tree
 
