@@ -45,6 +45,7 @@ Brug denne skabelon:
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
 - Talentforløbet giver derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige grene, Heal, fire slots, Quick Draw og Auto Roll.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
+- Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
 - `The First Descent` har nu 10 floors med Demon-boss på floor 10; boss victory banker hele runnets Soul-pulje automatisk.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
 - Hver enemy har nu sin egen seks-sidede Attack Die. Resultatet fastlåses og persisteres før reveal-animationen, hvorefter spilleren får den præcise værdi at reagere på.
@@ -52,8 +53,9 @@ Brug denne skabelon:
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
-- En deterministisk simulator og 53 automatiserede tests beskytter den første balancekurve, ranked talents, spatial layout-/viewport-matematik, progressive reveals, enemy dice og de atomiske transitions.
+- En deterministisk simulator og 55 automatiserede tests beskytter den første balancekurve, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
+- Aktuel implementerings-PR: [#9 — Add safe game reset control](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9).
 - Seneste produktionsmerge: [#7 — Build spatial Talent Tree canvas](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7), merge `3ab8b2f`.
 
 ## Næste anbefalede skridt
@@ -88,6 +90,7 @@ Brug denne skabelon:
 - Første canvas-version bruger fast zoom. Nodeknapper og SVG-forbindelser ligger i samme transformerede DOM-world, så skarphed, semantic buttons og keyboardfokus bevares.
 - Talent Tree viser kun den aktuelle frontier fuldt og ét kommende lag som en navnløs, ikke-interaktiv fog-silhuet.
 - Talent-køb ruller noden på stedet, tænder forbindelsen og afslører nye nodes som en kort chain reaction; Shieldcraft splitter effekten i tre.
+- Dev-reset er tilgængelig nederst på Hubben og må først udføres efter et eksplicit andet bekræftelsestryk; den nulstiller både permanent progression, dungeon-progress og et eventuelt aktivt run.
 - Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
 - MVP-dungeonen har 10 floors; floor 10 er boss og banker automatisk alle Run Souls ved sejr.
 - Alle udstyrede dice skal trækkes hver runde i tilfældig rækkefølge.
@@ -100,6 +103,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-23 — Sikker dev-reset på Hub
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hubben har nu en diskret `DEV · Reset game`-knap. Først efter et separat rødt advarselstrin kan spilleren slette al progression og starte igen med det canonical fresh save.
+- Beslutninger: Reset bruger den eksisterende atomiske `resetProgress()` frem for direkte localStorage-manipulation. Handlingen nulstiller XP, Souls, talents, dice og face-upgrades, loadout, dungeon-progress, aktivt run og combat-state samlet.
+- Berørte områder: `HubScreen.tsx`, Hub-styles, Hub SSR-test og store-reset-test.
+- Validering: `npx tsc --noEmit`, alle 55 tests, ESLint og production-build bestod.
+- Kendte mangler: Browserruntime er fortsat utilgængelig, så confirmation-layoutet mangler visuel 320/384 px-kontrol.
+- Git: `b90c36c` — `Add safe game reset control` på `agent/rebuild-ranked-talent-tree`; draft PR [#9](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9).
 
 ### 2026-07-23 — Spatial Talent Tree canvas
 

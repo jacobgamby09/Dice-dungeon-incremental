@@ -37,6 +37,47 @@ describe('new game progression loop', () => {
     expect(profile.diceCollection[0].family).toBe('attack')
   })
 
+  it('resets permanent progression and an active run to the fresh-game state', () => {
+    const freshProfile = structuredClone(useNewGameStore.getState().profile)
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 73,
+        talentRanks: { [TALENT_IDS.battleHardenedOne]: 2 },
+        xp: 144,
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+    const activeState = useNewGameStore.getState()
+    useNewGameStore.setState({
+      lastLostRunSouls: 29,
+      run: {
+        ...activeState.run,
+        runSouls: 41,
+      },
+    })
+
+    useNewGameStore.getState().resetProgress()
+    const resetState = useNewGameStore.getState()
+
+    expect(resetState.screen).toBe('hub')
+    expect(resetState.profile).toEqual(freshProfile)
+    expect(resetState.run).toMatchObject({
+      status: 'inactive',
+      dungeonId: null,
+      runSouls: 0,
+      enemy: null,
+    })
+    expect(resetState.combat).toMatchObject({
+      phase: 'awaiting_roll',
+      drawPileDieIds: [],
+      results: [],
+      totals: { attack: 0, heal: 0, shield: 0 },
+    })
+    expect(resetState.lastLostRunSouls).toBe(0)
+  })
+
   it('draws every equipped die once in the persisted shuffled-bag order', () => {
     const state = useNewGameStore.getState()
     const diceCollection = createDiceCatalog()
