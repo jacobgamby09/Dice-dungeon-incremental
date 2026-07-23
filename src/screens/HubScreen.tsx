@@ -1,16 +1,33 @@
-import { Backpack, Castle, Dices, DoorOpen, Hammer, Sparkles } from 'lucide-react'
+import {
+  Backpack,
+  Castle,
+  Dices,
+  DoorOpen,
+  Hammer,
+  RotateCcw,
+  Sparkles,
+  TriangleAlert,
+} from 'lucide-react'
+import { useState } from 'react'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { getDiceCapacity } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function HubScreen() {
+  const [resetIsArmed, setResetIsArmed] = useState(false)
   const profile = useNewGameStore((state) => state.profile)
   const openDungeonSelect = useNewGameStore((state) => state.openDungeonSelect)
   const openWorkshop = useNewGameStore((state) => state.openWorkshop)
   const openTalentTree = useNewGameStore((state) => state.openTalentTree)
   const openLoadout = useNewGameStore((state) => state.openLoadout)
+  const resetProgress = useNewGameStore((state) => state.resetProgress)
   const diceCapacity = getDiceCapacity(profile.talentRanks)
+
+  const confirmReset = () => {
+    resetProgress()
+    setResetIsArmed(false)
+  }
 
   return (
     <main className="game-shell hub-screen">
@@ -63,6 +80,46 @@ export function HubScreen() {
           <DoorOpen aria-hidden="true" className="hub-action__door" size={20} />
         </button>
       </footer>
+
+      <section
+        aria-label="Developer tools"
+        className={`dev-reset${resetIsArmed ? ' dev-reset--armed' : ''}`}
+      >
+        {resetIsArmed ? (
+          <div aria-live="polite" className="dev-reset__confirmation">
+            <TriangleAlert aria-hidden="true" size={18} />
+            <div>
+              <strong>Reset all progress?</strong>
+              <p>XP, Souls, dice upgrades and the active run will be permanently cleared.</p>
+            </div>
+            <div className="dev-reset__actions">
+              <button
+                className="dev-reset__cancel"
+                onClick={() => setResetIsArmed(false)}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                className="dev-reset__confirm"
+                onClick={confirmReset}
+                type="button"
+              >
+                Reset everything
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="dev-reset__trigger"
+            onClick={() => setResetIsArmed(true)}
+            type="button"
+          >
+            <RotateCcw aria-hidden="true" size={14} />
+            DEV · Reset game
+          </button>
+        )}
+      </section>
     </main>
   )
 }
