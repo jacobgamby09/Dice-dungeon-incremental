@@ -6,11 +6,11 @@ import { useNewGameStore } from '../store/newGameStore'
 export function LoadoutScreen() {
   const diceCollection = useNewGameStore((state) => state.profile.diceCollection)
   const equippedDieIds = useNewGameStore((state) => state.profile.equippedDieIds)
-  const unlockedTalentIds = useNewGameStore((state) => state.profile.unlockedTalentIds)
+  const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const equipDie = useNewGameStore((state) => state.equipDie)
   const unequipDie = useNewGameStore((state) => state.unequipDie)
   const goToHub = useNewGameStore((state) => state.goToHub)
-  const capacity = getDiceCapacity(unlockedTalentIds)
+  const capacity = getDiceCapacity(talentRanks)
 
   return (
     <main className="game-shell loadout-screen">

@@ -27,7 +27,7 @@ const ENEMY_INTENT_LANDING_PAUSE_MS = 200
 export function CombatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
     settings: state.profile.settings,
-    unlockedTalentIds: state.profile.unlockedTalentIds,
+    talentRanks: state.profile.talentRanks,
   })))
   const run = useNewGameStore(useShallow((state) => ({
     dungeonId: state.run.dungeonId,
@@ -126,7 +126,7 @@ export function CombatScreen() {
   ])
 
   const rollSpeed = getRollSpeed(
-    profile.unlockedTalentIds,
+    profile.talentRanks,
     profile.settings.rollSpeed,
   )
 
@@ -153,7 +153,7 @@ export function CombatScreen() {
         [pendingResult.type]: Math.max(0, combat.totals[pendingResult.type] - pendingResult.value),
       }
     : combat.totals
-  const autoRollUnlocked = hasAutoRollUnlocked(profile.unlockedTalentIds)
+  const autoRollUnlocked = hasAutoRollUnlocked(profile.talentRanks)
   const rollDurationMilliseconds = 620 / rollSpeed
   const rollDurationSeconds = rollDurationMilliseconds / 1000
   const isScoreAnimating = pendingFaceId !== null

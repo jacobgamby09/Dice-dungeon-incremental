@@ -208,8 +208,8 @@ describe('new game progression loop', () => {
     expect(profile.xp).toBe(76)
     expect(profile.diceCollection.filter((die) => die.id === 'attack-die-2')).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
-    expect(getDiceCapacity(profile.unlockedTalentIds)).toBe(2)
-    expect(getPlayerMaxHp(profile.unlockedTalentIds)).toBe(12)
+    expect(getDiceCapacity(profile.talentRanks)).toBe(2)
+    expect(getPlayerMaxHp(profile.talentRanks)).toBe(12)
 
     expect(useNewGameStore.getState().equipDie('attack-die-2')).toBe(true)
     expect(useNewGameStore.getState().profile.equippedDieIds).toEqual([
@@ -218,6 +218,21 @@ describe('new game progression loop', () => {
     ])
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.twinArsenal)).toBe(false)
     expect(useNewGameStore.getState().profile.diceCollection.filter((die) => die.id === 'attack-die-2')).toHaveLength(1)
+  })
+
+  it('buys exactly three Battle-Hardened ranks for a total of +6 Max HP', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({ profile: { ...state.profile, xp: 100 } })
+
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne)).toBe(true)
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne)).toBe(true)
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne)).toBe(true)
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne)).toBe(false)
+
+    const profile = useNewGameStore.getState().profile
+    expect(profile.xp).toBe(44)
+    expect(profile.talentRanks[TALENT_IDS.battleHardenedOne]).toBe(3)
+    expect(getPlayerMaxHp(profile.talentRanks)).toBe(16)
   })
 
   it('opens every specialization after Shieldcraft without branch exclusion', () => {
@@ -232,11 +247,11 @@ describe('new game progression loop', () => {
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.quickDraw)).toBe(true)
 
     const profile = useNewGameStore.getState().profile
-    expect(profile.unlockedTalentIds).toEqual(expect.arrayContaining([
-      TALENT_IDS.battleHardenedTwo,
-      TALENT_IDS.thirdGrip,
-      TALENT_IDS.quickDraw,
-    ]))
+    expect(profile.talentRanks).toMatchObject({
+      [TALENT_IDS.battleHardenedTwo]: 1,
+      [TALENT_IDS.thirdGrip]: 1,
+      [TALENT_IDS.quickDraw]: 1,
+    })
     expect(profile.diceCollection.filter((die) => die.id === 'shield-die-1')).toHaveLength(1)
     expect(profile.equippedDieIds).not.toContain('shield-die-1')
   })
@@ -274,7 +289,7 @@ describe('new game progression loop', () => {
     useNewGameStore.setState({
       profile: {
         ...state.profile,
-        unlockedTalentIds: [TALENT_IDS.autoRoll],
+        talentRanks: { [TALENT_IDS.autoRoll]: 1 },
       },
     })
     useNewGameStore.getState().setAutoRoll(true)
@@ -444,11 +459,58 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(5)
+      expect(migrated.profile.saveVersion).toBe(6)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
       expect(migrated.profile.equippedDieIds).toEqual(['attack-die-1'])
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('migrates version 5 unlocked talent IDs to canonical rank-one talents', async () => {
+    const state = useNewGameStore.getState()
+    const legacyState = {
+      ...state,
+      profile: {
+        ...state.profile,
+        saveVersion: 5,
+        talentRanks: undefined,
+        unlockedTalentIds: [
+          TALENT_IDS.battleHardenedOne,
+          TALENT_IDS.twinArsenal,
+        ],
+      },
+    }
+    let saved: StorageValue<NewGameState> | null = {
+      state: legacyState as unknown as NewGameState,
+      version: 5,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+
+      expect(migrated.profile.saveVersion).toBe(6)
+      expect(migrated.profile.talentRanks).toEqual({
+        [TALENT_IDS.battleHardenedOne]: 1,
+        [TALENT_IDS.twinArsenal]: 1,
+      })
+      expect(getPlayerMaxHp(migrated.profile.talentRanks)).toBe(12)
+      expect(getDiceCapacity(migrated.profile.talentRanks)).toBe(2)
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()
@@ -498,7 +560,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(5)
+      expect(migrated.profile.saveVersion).toBe(6)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.enemy?.intentRoll).toMatchObject({
         dieId: 'slime-attack-die',
@@ -550,7 +612,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(5)
+      expect(migrated.profile.saveVersion).toBe(6)
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
       expect(migrated.combat.drawPileDieIds).toEqual([])
