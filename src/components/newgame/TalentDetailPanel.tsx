@@ -81,7 +81,8 @@ export function TalentDetailPanel({
       {talent && (
         <motion.aside
           aria-labelledby="talent-detail-title"
-          className="talent-detail-panel"
+          className="talent-canvas-inspector"
+          data-testid="talent-detail-panel"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -89,14 +90,14 @@ export function TalentDetailPanel({
         >
           <button
             aria-label="Close talent details"
-            className="talent-detail-panel__close"
+            className="talent-canvas-inspector__close"
             onClick={onClose}
             type="button"
           >
             <X aria-hidden="true" size={17} />
           </button>
 
-          <div className="talent-detail-panel__icon">
+          <div className="talent-canvas-inspector__icon">
             <TalentIcon iconKey={talent.iconKey} size={23} />
           </div>
 
@@ -106,12 +107,12 @@ export function TalentDetailPanel({
             <p>{talent.description}</p>
           </header>
 
-          <div className="talent-detail-panel__rank">
+          <div className="talent-canvas-inspector__rank">
             <span>Rank</span>
             <strong>{rank}/{talent.ranks.length}</strong>
           </div>
 
-          <div className="talent-detail-panel__effects" aria-label="Next rank effects">
+          <div className="talent-canvas-inspector__effects" aria-label="Next rank effects">
             {(nextRank?.effects ?? talent.ranks.at(-1)?.effects ?? []).map((effect, index) => {
               const EffectIcon = EFFECT_ICONS[effect.type]
               return (
@@ -124,7 +125,7 @@ export function TalentDetailPanel({
           </div>
 
           <button
-            className="talent-detail-panel__purchase"
+            className="talent-canvas-inspector__purchase"
             disabled={!nextRank || !isAffordable || isAnimating}
             onClick={onPurchase}
             type="button"

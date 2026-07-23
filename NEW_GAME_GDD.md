@@ -155,7 +155,7 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 
 Auto Roll simulerer kun spillerens `Draw`-tryk. Spilleren kan slå togglen til og fra under combat, og manuel rulning er stadig tilgængelig, når den er slået fra. Næste draw starter 300 ms efter, at det forrige resultat er færdigscoret. Auto Roll resolver ikke automatisk runden; Auto Resolve er en separat senere progression.
 
-Talent Tree viser kun det nuværende købslag fuldt. Én kommende node eller ét kommende branch-lag anes som en navnløs silhuet bag fog of war. Et køb aktiverer talent-terningen, sender energi gennem forbindelserne og afslører næste lag som en kort chain reaction. Alle talent-noder er terningeformede, har ét stabilt ikon og bruger cyan som fælles XP-identitet.
+Talent Tree viser kun det nuværende købslag fuldt. Én kommende node eller ét kommende branch-lag anes som en navnløs silhuet bag fog of war. Et køb aktiverer talent-terningen, sender energi gennem forbindelserne og afslører næste lag som en kort chain reaction. Alle talent-noder er terningeformede, har ét stabilt ikon og bruger cyan som fælles XP-identitet. Træet præsenteres på et næsten sort, frit panorerbart canvas med minimal HUD; det må ikke komprimeres til kort, kolonner eller en almindelig scroll-side.
 
 Den tidlige tilsigtede cadence er:
 
