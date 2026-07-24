@@ -55,8 +55,7 @@ Brug denne skabelon:
 - Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
 - En deterministisk simulator og 55 automatiserede tests beskytter den første balancekurve, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Aktuel implementerings-PR: [#9 — Add safe game reset control](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9).
-- Seneste produktionsmerge: [#7 — Build spatial Talent Tree canvas](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/7), merge `3ab8b2f`.
+- Seneste gameplay-merge i produktion: [#9 — Add safe game reset control](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9), squash merge `0b0ee31`.
 
 ## Næste anbefalede skridt
 
@@ -112,9 +111,9 @@ Brug denne skabelon:
 - Resultat: Hubben har nu en diskret `DEV · Reset game`-knap. Først efter et separat rødt advarselstrin kan spilleren slette al progression og starte igen med det canonical fresh save.
 - Beslutninger: Reset bruger den eksisterende atomiske `resetProgress()` frem for direkte localStorage-manipulation. Handlingen nulstiller XP, Souls, talents, dice og face-upgrades, loadout, dungeon-progress, aktivt run og combat-state samlet.
 - Berørte områder: `HubScreen.tsx`, Hub-styles, Hub SSR-test og store-reset-test.
-- Validering: `npx tsc --noEmit`, alle 55 tests, ESLint og production-build bestod.
-- Kendte mangler: Browserruntime er fortsat utilgængelig, så confirmation-layoutet mangler visuel 320/384 px-kontrol.
-- Git: `b90c36c` — `Add safe game reset control` på `agent/rebuild-ranked-talent-tree`; draft PR [#9](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9).
+- Validering: `npx tsc --noEmit`, alle 55 tests, ESLint og production-build bestod. Vercel markerede production-deploymentet READY for `0b0ee31`; den offentlige URL svarede HTTP 200, og produktionsbundlet indeholdt både reset-triggeren og bekræftelseshandlingen.
+- Kendte mangler: En interaktiv browser var ikke tilgængelig, så confirmation-layoutet mangler fortsat subjektiv visuel 320/384 px-kontrol.
+- Git: `b90c36c` — `Add safe game reset control`; PR [#9](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9) er squash-merget til `main` som `0b0ee31`.
 
 ### 2026-07-23 — Spatial Talent Tree canvas
 
