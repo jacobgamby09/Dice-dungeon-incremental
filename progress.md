@@ -58,7 +58,7 @@ Brug denne skabelon:
 - Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
 - En deterministisk simulator og 66 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice, sprite-mapping og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#13 — Redesign victory and defeat outcomes](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/13), squash merge `1c06584`.
+- Seneste gameplay-merge i produktion: [#15 — Polish combat presentation](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/15), squash merge `57872fc`.
 
 ## Næste anbefalede skridt
 
@@ -121,9 +121,9 @@ Brug denne skabelon:
 - Resultat: Enemy-navnet er gjort renere og mere læsbart, Slime Crawler og Marrow Bat bruger nu hver deres korrekte animation-sheets, og roll-fladen er ryddet for murstensbaggrund, runer, tom piedestal og overflødig idle-copy.
 - Beslutninger: Sprite-rendereren normaliserer stabile compact content-navne som `SlimeCrawler`, `MarrowBat` og `BloodOrc`; den gamle hardcodede Slime Crawler-fallback er fjernet. Den tomme roll-flade bruger bevidst negativ plads, mens draw-header og primær knap kommunikerer state.
 - Berørte områder: Fælles enemy-sprite-renderer og regressionstest, Combat-komposition, combat-CSS, visuel designreference og progress-log.
-- Validering: `npx tsc --noEmit`, alle 66 tests, ESLint, production-build og `git diff --check` består. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund, den lokale Vite-root svarede HTTP 200, og begge enemy-sæt følger 100 px høje horisontale sheets med det forventede frame-antal.
+- Validering: `npx tsc --noEmit`, alle 66 tests, ESLint, production-build og `git diff --check` består. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund, den lokale Vite-root svarede HTTP 200, og begge enemy-sæt følger 100 px høje horisontale sheets med det forventede frame-antal. Vercel markerede production-deploymentet `READY` for `57872fc`; den offentlige HTML-, JavaScript- og CSS-bundle svarede HTTP 200, indeholdt begge korrekte sheet-paths uden den fjernede idle-copy eller rune-styles, og der var ingen runtime-fejl i den seneste time.
 - Kendte mangler: Browserruntime havde ingen tilgængelig browser, så sprite-størrelse, baseline, typografi og den ryddede roll-flade skal stadig vurderes subjektivt ved 320 px og 384 px.
-- Git: `30f9c75` — `Polish combat presentation` på `agent/polish-combat-ui`.
+- Git: `30f9c75` — `Polish combat presentation`; PR [#15](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/15) er squash-merget til `main` som `57872fc`.
 
 ### 2026-07-26 — Incremental Victory- og Defeat-flow
 
