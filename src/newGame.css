@@ -313,25 +313,7 @@
   min-height: 202px;
   overflow: hidden;
   border-bottom: 4px solid #030308;
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.66), transparent 25% 75%, rgba(0, 0, 0, 0.66)),
-    radial-gradient(circle at 30% 58%, rgba(239, 68, 68, 0.12), transparent 31%),
-    repeating-linear-gradient(0deg, transparent 0 30px, rgba(3, 3, 8, 0.75) 30px 34px),
-    repeating-linear-gradient(90deg, #21131e 0 46px, #2b1721 46px 49px, #17121d 49px 94px);
-  box-shadow: inset 0 -13px 0 rgba(0, 0, 0, 0.38);
-}
-
-.enemy-zone__arch {
-  position: absolute;
-  z-index: -1;
-  bottom: -46px;
-  left: -30px;
-  width: 224px;
-  height: 225px;
-  border: 5px solid #05050a;
-  background: radial-gradient(ellipse at 50% 72%, rgba(127, 29, 29, 0.22), #0c0a11 66%);
-  box-shadow: inset 0 0 0 5px #252033, inset 0 0 34px #000;
-  clip-path: polygon(8% 100%, 8% 38%, 18% 16%, 36% 4%, 64% 4%, 82% 16%, 92% 38%, 92% 100%);
+  background: #090911;
 }
 
 .enemy-zone__title {
@@ -365,25 +347,12 @@
 .enemy-zone__sprite {
   position: absolute;
   z-index: 2;
-  bottom: 38px;
-  left: 18px;
+  bottom: 30px;
+  left: 10px;
   width: 142px;
   min-height: 122px;
   display: grid;
   place-items: end center;
-}
-
-.enemy-zone__pedestal {
-  position: absolute;
-  z-index: 1;
-  bottom: 27px;
-  left: 18px;
-  width: 142px;
-  height: 39px;
-  border: 3px solid #030308;
-  background: #302838;
-  box-shadow: 0 7px 0 #100c14, 0 10px 0 #030308;
-  transform: perspective(180px) rotateX(61deg);
 }
 
 .enemy-intent-die {
@@ -3023,8 +2992,7 @@
 @media (max-width: 340px) {
   .game-shell { padding-inline: 10px; }
   .combat-screen { padding-inline: 0; }
-  .enemy-zone__sprite { left: 6px; width: 128px; }
-  .enemy-zone__pedestal { left: 5px; width: 130px; }
+  .enemy-zone__sprite { left: 2px; width: 136px; }
   .enemy-zone__title { right: 10px; width: 154px; }
   .enemy-intent-die { right: 10px; width: 134px; }
   .enemy-zone__vitals { right: 10px; width: 174px; }

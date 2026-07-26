@@ -52,17 +52,17 @@ Brug denne skabelon:
 - Hver enemy har nu sin egen seks-sidede Attack Die. Resultatet fastlåses og persisteres før reveal-animationen, hvorefter spilleren får den præcise værdi at reagere på.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
-- Combat viser nu Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif og en næsten-sort roll-flade uden runer, tom piedestal eller idle-instruktioner.
+- Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Normal Victory viser kun encounter-reward, totals, HP, dungeon-progress og én Continue-knap; næste-enemy-data er fjernet. Boss Victory og Defeat bruger et persisteret descent-resumé med enemies defeated samt optjent XP/Souls.
 - Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
-- En deterministisk simulator og 66 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice, sprite-mapping og de atomiske transitions.
+- En deterministisk simulator og 67 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice, sprite-mapping og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#15 — Polish combat presentation](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/15), squash merge `57872fc`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et fresh save ved 320 px og 384 px og verificér enemy-navne, Slime Crawler-/Marrow Bat-animationer, den ryddede roll-flade, normal Victory, Boss Victory og Defeat-resuméet samt at første kill giver 8 XP + 5 Souls.
+1. Gennemspil et fresh save ved 320 px og 384 px og verificér den rene enemy-stage, den større Slime Crawler, Marrow Bat- og Demon-animationerne, den ryddede roll-flade, normal Victory, Boss Victory og Defeat-resuméet samt at første kill giver 8 XP + 5 Souls.
 2. Gennemspil spatial-canvas Talent Tree-previewet og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
 3. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
 4. Tune permanent Soul-indtjening, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
@@ -72,7 +72,7 @@ Brug denne skabelon:
 
 - Browserlaget havde ingen tilgængelig browser i spatial-canvas-sessionen. Vite-root, SSR, viewport-matematik og production-build er verificeret, men det nye pan, nodeplacering, inspector og købsceremoni mangler stadig den obligatoriske subjektive 320/384 px-browserkontrol.
 - Det nye outcome-layout er dækket semantisk og via SSR, men reward-timing, sticky CTA og den visuelle tæthed ved 320/384 px skal stadig godkendes i en rigtig mobilbrowser.
-- Det ryddede combat-layout og de rettede early-enemy-sprites består build- og mappingtests, men den endelige størrelse, baseline og visuelle ro skal stadig godkendes ved 320/384 px.
+- Det ryddede combat-layout, den større Slime Crawler og den nye Demon-atlas består build-, dimensions- og mappingkontrol, men størrelse, baseline, chroma-edges og visuel ro skal stadig godkendes ved 320/384 px.
 - Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
@@ -110,8 +110,22 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 - Combat-roll-fladen bruger næsten-sort negativ plads uden runer, tom piedestal eller idle-copy; kun et aktivt roll må dominere området.
 - Enemy-navne bruger en ren sans-serif uden display-shadow, og stabile compact content-navne skal mappe direkte til deres egne sprite-sheets uden den gamle hardcodede placeholder.
+- Enemy-stage bruger samme næsten-sorte negative plads som roll-fladen uden murværk, bue eller piedestal; sprite, intent og HP er de eneste højkontrastelementer.
+- Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-26 — Clean enemy-stage og korrekt Demon-boss
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Enemy-stage matcher nu den rene roll-flade uden murværk, bue eller piedestal. Slime Crawler er skaleret cirka 24 % op, og floor-10 Demon er udskiftet fra den forkerte lille humanoide sprite til en stor rød hornet boss med Idle, Attack, Hurt og Death.
+- Beslutninger: Intent, navn og HP bevares som gameplay-information på den næsten-sorte flade. Slime Crawler har creature-specifik skalering. Demonens eksisterende røde source-art er fastholdt som identitet og ombygget til den canonical 100×100-cell pipeline.
+- Berørte områder: Combat-komposition og CSS, enemy-sprite-konfiguration og mappingtest, fire Demon-animation-sheets, ny versioneret Demon-source, visuel designreference og progress-log.
+- Validering: `npx tsc --noEmit`, alle 67 tests, ESLint, production-build og `git diff --check` består. Demon-sheets er visuelt inspiceret og verificeret som 600×100 Idle/Attack samt 400×100 Hurt/Death med transparente hjørner og ingen resterende grønne chroma-pixels. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund.
+- Kendte mangler: Browserruntime er fortsat utilgængelig, så den samlede sprite-størrelse, baseline, chroma-edges og negative plads skal vurderes subjektivt ved 320 px og 384 px efter deployment.
+- Git: Ikke committed.
 
 ### 2026-07-26 — Combat UI og early-enemy-sprites poleret
 

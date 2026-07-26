@@ -96,8 +96,8 @@ const SHEET_SPRITES: Record<string, SheetConfig> = {
       death:  { src: '/sprites/enemies/marrow-bat/MarrowBat-Death.png',    frames: 6, frameMs: 145, loop: false },
     },
     crop: { x: 0, y: 0, w: 100, h: 100 },
-    unit: 17,
-    minWidth: 86,
+    unit: 21,
+    minWidth: 112,
   },
   slimecrawler: {
     sheets: {
@@ -134,14 +134,14 @@ const SHEET_SPRITES: Record<string, SheetConfig> = {
   },
   demon: {
     sheets: {
-      idle:   { src: '/sprites/enemies/demon/Demon-Idle.png',     frames: 6, frameMs: 190, loop: true },
-      attack: { src: '/sprites/enemies/demon/Demon-Attack01.png', frames: 6, frameMs: 95,  loop: false },
-      hurt:   { src: '/sprites/enemies/demon/Demon-Hurt.png',     frames: 4, frameMs: 130, loop: false },
-      death:  { src: '/sprites/enemies/demon/Demon-Death.png',    frames: 4, frameMs: 170, loop: false },
+      idle:   { src: '/sprites/enemies/demon/Demon-Idle.png?v=2',     frames: 6, frameMs: 190, loop: true },
+      attack: { src: '/sprites/enemies/demon/Demon-Attack01.png?v=2', frames: 6, frameMs: 95,  loop: false },
+      hurt:   { src: '/sprites/enemies/demon/Demon-Hurt.png?v=2',     frames: 4, frameMs: 130, loop: false },
+      death:  { src: '/sprites/enemies/demon/Demon-Death.png?v=2',    frames: 4, frameMs: 170, loop: false },
     },
     crop: { x: 0, y: 0, w: 100, h: 100 },
-    unit: 20,
-    minWidth: 118,
+    unit: 22,
+    minWidth: 126,
   },
 }
 

@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.6 — 2026-07-26.
+Version: 1.7 — 2026-07-26.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -82,7 +82,7 @@ Fælles lysretning er ovenfra/venstre. Gameplay-glow kommer fra en identificerba
 Combat er reference for resten af spillets game feel og læses i denne rækkefølge:
 
 1. Kompakt encounter/round/Souls-rail.
-2. Fysisk enemy-stage med enemy, næste intent og HP.
+2. Ren enemy-stage med enemy, næste intent og HP.
 3. Kompakt player-rail med HP og kun faktisk afslørede totals.
 4. Ren draw/roll-flade samt et draw-order-rack til afsluttede resultater.
 5. Én bundforankret primær handling.
@@ -309,7 +309,9 @@ Der må ikke være permanente tomme Attack/Shield/Heal-slots. En totaltype opst�
 
 Enemy intent er en advarsel, ikke en samtidig animation. Player resolution vises først; enemy resolution vises kun bagefter og kun, hvis enemy stadig lever.
 
-Enemy-navnet bruger en ren, tung sans-serif uden outline eller display-shadow, så lange navne kan aflæses øjeblikkeligt. Enemy-sprites vælges fra deres stabile content-navn og må aldrig falde tilbage til den gamle hardcodede Slime Crawler-placeholder.
+Enemy-stage og roll-flade deler den samme næsten-sorte negative plads. Murværk, bue, scenebaggrund og tom enemy-piedestal må ikke konkurrere med sprite, intent eller HP; selve sprite-silhuetten og dens mørke drop-shadow giver kontakten til fladen.
+
+Enemy-navnet bruger en ren, tung sans-serif uden outline eller display-shadow, så lange navne kan aflæses øjeblikkeligt. Enemy-sprites vælges fra deres stabile content-navn og må aldrig falde tilbage til den gamle hardcodede Slime Crawler-placeholder. Små, brede creatures som Slime Crawler må skaleres individuelt, så deres gameplay-silhuet har samme visuelle vægt som de øvrige early enemies.
 
 ### Victory / post-combat — reward stage
 
@@ -404,6 +406,7 @@ Retningslinjer:
 - Lysretning og baseline skal være konsistent inden for samme scene.
 - Enemy sheets ligger i `public/sprites/enemies/<enemy>/`.
 - Sheets bruger 100×100 px cells horisontalt: Idle, Attack01, Hurt og Death.
+- Floor-10 Demon er den store røde, hornede boss fra `Demon-GeneratedSource-v2.png`; den må ikke erstattes af den tidligere lille humanoide placeholder.
 - Fjern magenta/chroma-key fringe.
 - Hold fødder, center og baseline stabile på tværs af frames.
 - En stabil single-frame idle er bedre end en animation, der driver rundt.

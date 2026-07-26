@@ -241,7 +241,6 @@ export function CombatScreen() {
         className={`enemy-zone enemy-zone--${enemyDefeated ? 'defeated' : combat.resolutionStep ?? 'watching'}`}
         aria-label={`${enemy.name}, ${enemy.hp} health`}
       >
-        <div aria-hidden="true" className="enemy-zone__arch" />
         <header className="enemy-zone__title">
           <span className="eyebrow">Enemy ahead</span>
           <h1>{enemy.name}</h1>
@@ -255,7 +254,6 @@ export function CombatScreen() {
             size={6}
           />
         </div>
-        <div aria-hidden="true" className="enemy-zone__pedestal" />
         <EnemyIntentDie
           die={enemyAttackDie}
           inspectRef={enemyIntentElement}
