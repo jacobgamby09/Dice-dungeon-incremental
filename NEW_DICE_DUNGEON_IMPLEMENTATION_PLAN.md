@@ -4,9 +4,11 @@
 
 Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → permanente XP/Soul-rewards → næste floor eller Defeat → permanent progression er nu spilbart. Hver besejret enemy giver permanent XP og permanente Souls med det samme.
 
+Outcome-flowet er nu incremental-first: normal Victory er en kort reward-pulse uden næste-enemy-data, Boss Victory opsummerer hele descenten, og Defeat viser floor reached, enemies defeated samt optjent XP/Souls.
+
 XP Talent Tree bruger nu canonical talent-ranks og et klassisk dice-node map. Battle-Hardened kan købes tre gange for samlet +6 Max HP; rank 1 åbner anden Attack Die, mens yderligere HP-ranks forbliver valgfrie. Shieldcraft åbner tre specialiseringsgrene, og én fremtidig frontier vises som en navnløs fog-silhuet. Nye dice er unikke permanente objekter og skal aktivt equippes.
 
-Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 7 fjerner `runSouls`, flytter gamle Run Souls til permanente Souls én gang og bevarer de tidligere talent-, intent- og combat-shape-migrationer.
+Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 7 fjernede `runSouls` og flyttede gamle Run Souls til permanente Souls én gang. Save version 8 tilføjer et idempotent descent-resumé og bevarer alle tidligere migrationer.
 
 Den gældende gameplay-retning er permanent progression fra hvert kill uden extraction eller tab af Souls ved Defeat.
 
@@ -280,6 +282,11 @@ type RunState = {
   encounterIndex: number
   playerHp: number
   playerMaxHp: number
+  runStats: {
+    enemiesDefeated: number
+    xpEarned: number
+    soulsEarned: number
+  }
   equippedDiceSnapshot: DieInstance[]
   enemy: EnemyState
 }
@@ -434,9 +441,10 @@ Den første dungeon består af ti eskalerende floors. Floor 10 er en boss, og al
 
 - XP gives permanent med det samme.
 - Enemyens faste Soul-reward gives permanent med det samme.
-- Spilleren ser nuværende HP, permanent XP og permanente Souls.
-- Spilleren ser information om næste encounter.
-- Spilleren har én fremadgående handling til næste floor.
+- Spilleren ser `+XP`, `+Souls`, opdaterede totals, nuværende HP og floor-progress.
+- Spilleren ser ingen information om næste enemy, dens HP, Shield, Attack Die eller intent.
+- Spilleren har én fremadgående handling: `Continue to Floor X`.
+- Boss Victory viser hele descentens XP/Souls og enemies defeated før `Return to Hub`.
 
 ### Næste floor
 
@@ -446,9 +454,8 @@ Den første dungeon består af ti eskalerende floors. Floor 10 er en boss, og al
 
 ### Defeat
 
-- XP beholdes.
-- Souls beholdes.
-- Dice collection og alle face-upgrades beholdes.
+- Vis floor reached, enemies defeated og samlet XP/Souls optjent i descenten.
+- Vis de nye samlede XP- og Soul-værdier uden `Permanent`, `Kept`, `Secured` eller tabs-sprog.
 - Spilleren returnerer til Hub efter Defeat-skærmen.
 
 ### Acceptkriterier

@@ -25,7 +25,13 @@ import type { CombatState, RoundResolution } from '../game/types/combat'
 import { EMPTY_TOTALS } from '../game/types/combat'
 import type { DieFaces, DieInstance, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
-import type { DungeonId, DungeonProgress, EnemyState, RunState } from '../game/types/dungeon'
+import type {
+  DungeonId,
+  DungeonProgress,
+  EnemyState,
+  RunState,
+  RunStats,
+} from '../game/types/dungeon'
 import type { PlayerProfile, TalentRanks } from '../game/types/progression'
 
 export type AppScreen =
@@ -65,7 +71,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 7
+const SAVE_VERSION = 8
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -101,6 +107,14 @@ function createInitialDungeonProgress(): Record<DungeonId, DungeonProgress> {
   }
 }
 
+function createEmptyRunStats(): RunStats {
+  return {
+    enemiesDefeated: 0,
+    soulsEarned: 0,
+    xpEarned: 0,
+  }
+}
+
 function createInactiveRun(): RunState {
   return {
     status: 'inactive',
@@ -108,6 +122,7 @@ function createInactiveRun(): RunState {
     encounterIndex: 0,
     playerHp: BASE_PLAYER_HP,
     playerMaxHp: BASE_PLAYER_HP,
+    runStats: createEmptyRunStats(),
     equippedDiceSnapshot: [],
     enemy: null,
     lastReward: null,
@@ -181,6 +196,39 @@ function isCompatibleCombatState(combat: Partial<CombatState> | null | undefined
     && Number.isFinite(combat.totals.shield)
     && Number.isFinite(combat.totals.heal),
   )
+}
+
+function isValidRunStats(runStats: RunStats | null | undefined): runStats is RunStats {
+  return Boolean(
+    runStats
+    && Number.isFinite(runStats.enemiesDefeated)
+    && Number.isFinite(runStats.soulsEarned)
+    && Number.isFinite(runStats.xpEarned),
+  )
+}
+
+function reconstructRunStats(
+  dungeonId: DungeonId,
+  encounterIndex: number,
+  currentEnemy: EnemyState | null,
+  legacyRunSouls: number,
+): RunStats {
+  const dungeon = DUNGEONS[dungeonId]
+  const completedEncounterCount = Math.min(
+    dungeon.floors.length,
+    Math.max(0, encounterIndex + (currentEnemy?.rewardClaimed ? 1 : 0)),
+  )
+  const completedEnemies = dungeon.floors
+    .slice(0, completedEncounterCount)
+    .map((floor) => ENEMIES[floor.enemyId])
+
+  return {
+    enemiesDefeated: completedEnemies.length,
+    soulsEarned: legacyRunSouls > 0
+      ? legacyRunSouls
+      : completedEnemies.reduce((total, enemy) => total + enemy.soulReward, 0),
+    xpEarned: completedEnemies.reduce((total, enemy) => total + enemy.xpReward, 0),
+  }
 }
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
@@ -263,13 +311,27 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     && mappedEncounterIndex >= 0
     && isCompatibleCombatState(existingCombat),
   )
+  const migratedDungeonId = existingRun?.dungeonId ?? 'prototype-depths'
+  const migratedRunStats = isValidRunStats(existingRun?.runStats)
+    ? {
+        enemiesDefeated: Math.max(0, existingRun.runStats.enemiesDefeated),
+        soulsEarned: Math.max(0, existingRun.runStats.soulsEarned),
+        xpEarned: Math.max(0, existingRun.runStats.xpEarned),
+      }
+    : reconstructRunStats(
+        migratedDungeonId,
+        mappedEncounterIndex,
+        migratedEnemy,
+        legacyRunSouls,
+      )
   const migratedRun: RunState = canPreserveRun && existingRun
     ? {
         status: existingRun.status ?? 'active',
-        dungeonId: existingRun.dungeonId ?? 'prototype-depths',
+        dungeonId: migratedDungeonId,
         encounterIndex: mappedEncounterIndex,
         playerHp: existingRun.playerHp ?? BASE_PLAYER_HP,
         playerMaxHp: existingRun.playerMaxHp ?? BASE_PLAYER_HP,
+        runStats: migratedRunStats,
         equippedDiceSnapshot: existingRun.equippedDiceSnapshot ?? [],
         enemy: migratedEnemy,
         lastReward: existingRun.lastReward
@@ -359,6 +421,7 @@ export const useNewGameStore = create<NewGameState>()(
             encounterIndex: 0,
             playerHp: playerMaxHp,
             playerMaxHp,
+            runStats: createEmptyRunStats(),
             equippedDiceSnapshot,
             enemy: createEnemyState(firstEnemyId),
             lastReward: null,
@@ -455,6 +518,13 @@ export const useNewGameStore = create<NewGameState>()(
               ...state.run,
               status: 'victory',
               playerHp: resolution.playerHp,
+              runStats: rewardAlreadyClaimed
+                ? state.run.runStats
+                : {
+                    enemiesDefeated: state.run.runStats.enemiesDefeated + 1,
+                    soulsEarned: state.run.runStats.soulsEarned + soulReward,
+                    xpEarned: state.run.runStats.xpEarned + xpReward,
+                  },
               enemy: {
                 ...enemy,
                 hp: resolution.enemyHp,

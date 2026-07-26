@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: MVP 0.5.
+Status: gældende design for det nye spil. Version: MVP 0.6.
 
 ## High concept
 
@@ -206,9 +206,9 @@ MVP-dungeonen `The First Descent` har ti floors. Floor 10 er bossen.
 
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
-- `Victory`: vis begge permanente rewards og én fremadgående handling til næste floor.
-- `Defeat`: afslut forsøget og nulstil dungeon-dybden; behold XP, Souls, dice collection og face-upgrades.
-- `Boss Victory`: giv bossens permanente rewards, markér dungeon-clear og returnér derefter til Hub.
+- `Victory`: vis `+XP`, `+Souls`, opdaterede totals, nuværende HP og dungeon-progress. Vis ingen information om næste enemy; én knap fortsætter til næste floor.
+- `Defeat`: vis floor reached, enemies defeated og samlet XP/Souls optjent i descenten, før dungeon-dybden nulstilles ved retur til Hub.
+- `Boss Victory`: markér dungeon-clear, vis hele descentens XP/Souls og antal besejrede enemies, og returnér derefter til Hub.
 
 Et Defeat er derfor ikke et tabt run i incremental forstand. Spilleren mister kun positionen i dungeonen og den tid, der skal bruges på at nå samme dybde igen.
 
@@ -231,6 +231,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.
 - Profil, aktivt run, enemy, HP, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
 - Save version 7 fjerner `runSouls` og flytter eventuelle version-6 Run Souls sikkert til spillerens permanente Soul-beholdning. De tidligere talent-, intent- og combat-shape-migrationer bevares.
+- Save version 8 tilføjer idempotente `runStats` for enemies defeated samt XP/Souls optjent i den aktuelle descent. Et kompatibelt version-7-run rekonstruerer statistikken fra sine allerede ryddede floors.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning
@@ -246,7 +247,8 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
 - Workshop skal føles som et forge-rum: dice-rack, seks fysiske face-fliser, anvil-preview og synlig Souls/impact-feedback, når præcis ét permanent face forbedres.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
-- Victory skal føles som en pixel-game scene frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, permanente XP/Soul-loot-pickups og én tydelig rute videre.
+- Victory skal føles som en kort pixel-game reward-pulse frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, tydelige `XP`/`Souls`-drops og én knap videre. Detaljer om næste enemy hører først til på Combat-skærmen.
+- Defeat skal afslutte med et descent-resumé, så spillerens incremental fremgang er synlig uden at forklare, at rewards er “permanent”, “kept” eller “secured”.
 - Kritisk information må aldrig eksistere kun i animation; resultat og totals forbliver læsbare.
 
 ## MVP-balance og næste gate

@@ -2,7 +2,7 @@
 
 Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og permanente Souls; XP åbner nye muligheder, mens Souls opgraderer én konkret face på én konkret terning.
 
-Den nuværende milepæl er den første vertikale prototype: Hub → dungeon → kamp → permanente rewards → næste floor eller Defeat → permanent face-upgrade → nyt run.
+Den nuværende milepæl er den første vertikale prototype: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run.
 
 ## Kør projektet
 

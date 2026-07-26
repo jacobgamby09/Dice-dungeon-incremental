@@ -110,7 +110,6 @@
 .reward-card--souls { color: #c084fc; border-left-color: #7e22ce; }
 
 .panel,
-.kept-rewards,
 .decision-panel article,
 .dungeon-card {
   border: 3px solid #000;
@@ -1053,21 +1052,20 @@
 
 .pixel-button--resolve { background: #4f46e5; }
 
-.outcome-screen { justify-content: center; }
-.victory-screen {
+.outcome-screen {
   justify-content: flex-start;
   gap: 14px;
-  padding: 0 14px 28px;
+  padding: 0 14px max(18px, env(safe-area-inset-bottom));
   background:
-    linear-gradient(rgba(7, 8, 18, 0.84), rgba(7, 8, 18, 0.96)),
+    linear-gradient(rgba(7, 8, 18, 0.86), rgba(7, 8, 18, 0.98)),
     repeating-linear-gradient(90deg, transparent 0 31px, rgba(109, 40, 217, 0.14) 31px 33px),
     #090911;
 }
 
-.victory-stage {
+.outcome-stage {
   position: relative;
   isolation: isolate;
-  min-height: 338px;
+  min-height: 342px;
   margin: 0 -14px;
   overflow: hidden;
   border-bottom: 4px solid #02030a;
@@ -1080,8 +1078,8 @@
   flex-direction: column;
 }
 
-.victory-stage::before,
-.victory-stage::after {
+.outcome-stage--victory::before,
+.outcome-stage--victory::after {
   position: absolute;
   z-index: -1;
   bottom: 0;
@@ -1095,19 +1093,23 @@
   content: '';
 }
 
-.victory-stage::before { left: -29px; transform: skewY(-6deg); }
-.victory-stage::after { right: -29px; transform: skewY(6deg) scaleX(-1); }
+.outcome-stage--victory::before { left: -29px; transform: skewY(-6deg); }
+.outcome-stage--victory::after { right: -29px; transform: skewY(6deg) scaleX(-1); }
 
-.victory-stage__rays {
+.outcome-stage__rays {
   position: absolute;
   z-index: -1;
-  inset: 20px 25px 36px;
-  background: repeating-conic-gradient(from -7deg at 50% 70%, rgba(74, 222, 128, 0.1) 0 10deg, transparent 10deg 22deg);
+  inset: 20px 25px 52px;
+  background: repeating-conic-gradient(from -7deg at 50% 70%, rgba(74, 222, 128, 0.11) 0 10deg, transparent 10deg 22deg);
   clip-path: polygon(50% 0, 100% 18%, 92% 100%, 8% 100%, 0 18%);
-  animation: victory-pulse 2.2s steps(4, end) infinite;
+  animation: outcome-pulse 2.2s steps(4, end) infinite;
 }
 
-.victory-banner {
+.victory-screen--boss .outcome-stage__rays {
+  background: repeating-conic-gradient(from -7deg at 50% 70%, rgba(250, 204, 21, 0.13) 0 10deg, transparent 10deg 22deg);
+}
+
+.outcome-banner {
   position: relative;
   z-index: 4;
   width: min(82%, 294px);
@@ -1120,8 +1122,8 @@
   transform: perspective(360px) rotateX(-3deg);
 }
 
-.victory-banner::before,
-.victory-banner::after {
+.outcome-banner::before,
+.outcome-banner::after {
   position: absolute;
   top: 12px;
   width: 17px;
@@ -1131,10 +1133,10 @@
   content: '';
 }
 
-.victory-banner::before { left: -18px; border-left: 4px solid #05050b; }
-.victory-banner::after { right: -18px; border-right: 4px solid #05050b; }
+.outcome-banner::before { left: -18px; border-left: 4px solid #05050b; }
+.outcome-banner::after { right: -18px; border-right: 4px solid #05050b; }
 
-.victory-banner span {
+.outcome-banner > span {
   color: #bbf7d0;
   font-size: 0.56rem;
   font-weight: 900;
@@ -1142,26 +1144,39 @@
   text-transform: uppercase;
 }
 
-.victory-banner h1 {
+.outcome-banner h1 {
   margin: 1px 0 0;
   color: #f7fee7;
-  font-size: clamp(2.25rem, 12vw, 3.25rem);
+  font-size: clamp(2.15rem, 11vw, 3.15rem);
   line-height: 0.94;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   text-shadow: 3px 3px 0 #052e16, -2px -2px 0 #4ade80;
 }
 
-.victory-stage__enemy {
+.victory-screen--boss .outcome-banner {
+  background: #854d0e;
+  box-shadow: 0 7px 0 #422006, 0 11px 0 #020308, inset 0 4px 0 #facc15, inset 0 -5px 0 #713f12;
+}
+
+.victory-screen--boss .outcome-banner::before,
+.victory-screen--boss .outcome-banner::after { background: #713f12; }
+.victory-screen--boss .outcome-banner > span { color: #fef08a; }
+.victory-screen--boss .outcome-banner h1 {
+  color: #fffbeb;
+  text-shadow: 3px 3px 0 #422006, -2px -2px 0 #facc15;
+}
+
+.outcome-stage__enemy {
   position: absolute;
   z-index: 3;
-  bottom: 53px;
+  bottom: 90px;
   min-width: 170px;
   display: grid;
   place-items: center;
 }
 
-.victory-stage__enemy > strong {
+.outcome-stage__enemy > strong {
   margin-top: -3px;
   border: 2px solid #05050b;
   background: #12101f;
@@ -1173,10 +1188,10 @@
   text-transform: uppercase;
 }
 
-.victory-stage__platform {
+.outcome-stage__platform {
   position: absolute;
   z-index: 1;
-  bottom: 39px;
+  bottom: 78px;
   left: 50%;
   width: 208px;
   height: 44px;
@@ -1188,63 +1203,87 @@
   transform: translateX(-50%) perspective(220px) rotateX(58deg) rotateZ(-2deg);
 }
 
-.victory-stage > p {
+.outcome-depth {
   position: absolute;
-  z-index: 2;
-  bottom: 10px;
-  margin: 0;
-  color: #a9a5bc;
-  font-size: 0.59rem;
-  text-align: center;
+  z-index: 5;
+  right: 14px;
+  bottom: 11px;
+  left: 14px;
+  border: 3px solid #05050b;
+  background: #0f0e1a;
+  box-shadow: 0 4px 0 #05050b, inset 0 2px 0 #29253c;
+  padding: 7px 9px 8px;
 }
 
-.loot-spoils {
+.outcome-depth > div,
+.outcome-health > div {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.outcome-depth span,
+.outcome-health span {
+  color: #9d99ad;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.outcome-depth strong { color: #86efac; font-size: 0.72rem; }
+.outcome-depth progress,
+.outcome-health progress {
+  width: 100%;
+  height: 8px;
+  border: 2px solid #02030a;
+  border-radius: 0;
+  background: #272438;
+  appearance: none;
+}
+
+.outcome-depth progress::-webkit-progress-bar,
+.outcome-health progress::-webkit-progress-bar { background: #272438; }
+.outcome-depth progress::-webkit-progress-value { background: #22c55e; }
+.outcome-depth progress::-moz-progress-bar { background: #22c55e; }
+
+.outcome-rewards {
   border: 3px solid #05050b;
   background: #151322;
   box-shadow: 0 5px 0 #05050b, inset 0 3px 0 #2d2840;
   padding: 11px;
 }
 
-.loot-spoils__heading {
-  margin-bottom: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.loot-spoils__heading > strong {
-  color: #86efac;
-  font-size: 0.59rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.loot-drops {
+.outcome-rewards__heading { margin-bottom: 9px; }
+.outcome-rewards__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 9px;
 }
 
-.loot-drop {
-  --loot-color: #67e8f9;
-  --loot-dark: #164e63;
+.outcome-reward {
+  --reward-color: #67e8f9;
+  --reward-dark: #164e63;
   min-width: 0;
   border: 3px solid #05050b;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--loot-dark) 62%, #19172a), #11101c);
-  box-shadow: 0 4px 0 #05050b, inset 0 2px 0 color-mix(in srgb, var(--loot-color) 35%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--reward-dark) 62%, #19172a), #11101c);
+  box-shadow: 0 4px 0 #05050b, inset 0 2px 0 color-mix(in srgb, var(--reward-color) 35%, transparent);
   padding: 9px;
   display: grid;
-  grid-template-columns: 38px 1fr;
+  grid-template-columns: 36px 1fr;
+  grid-template-rows: auto auto auto;
   align-items: center;
-  gap: 7px;
-  color: var(--loot-color);
+  gap: 1px 7px;
+  color: var(--reward-color);
 }
 
-.loot-drop--souls { --loot-color: #d8b4fe; --loot-dark: #581c87; }
-
-.loot-drop__icon {
-  width: 36px;
-  height: 36px;
+.outcome-reward--souls { --reward-color: #d8b4fe; --reward-dark: #581c87; }
+.outcome-reward__icon {
+  grid-row: 1 / -1;
+  width: 34px;
+  height: 34px;
   border: 2px solid currentColor;
   background: rgba(0, 0, 0, 0.28);
   box-shadow: inset 3px 3px 0 rgba(255, 255, 255, 0.08);
@@ -1253,112 +1292,151 @@
   transform: rotate(-3deg);
 }
 
-.loot-drop > div { display: grid; gap: 2px; }
-.loot-drop strong { font-size: 1.22rem; line-height: 1; }
-.loot-drop span:last-child { color: #a9a5bc; font-size: 0.5rem; text-transform: uppercase; }
+.outcome-reward > span:not(.outcome-reward__icon) {
+  color: #b9b5c8;
+  font-size: 0.49rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
 
-.expedition-status {
+.outcome-reward strong { font-size: 1.22rem; line-height: 1; }
+.outcome-reward small { color: #77738c; font-size: 0.48rem; text-transform: uppercase; }
+
+.outcome-run-status {
   border-block: 3px solid #05050b;
   background: #0f0e1a;
   box-shadow: inset 0 2px 0 #252138;
-  padding: 9px 11px 10px;
+  padding: 10px 11px;
+  display: grid;
+  gap: 10px;
 }
 
-.expedition-status__stats {
-  margin-top: 7px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.expedition-status__stats > div {
-  min-width: 0;
-  border-right: 2px solid #29253c;
-  display: grid;
-  grid-template-columns: auto auto;
-  justify-content: center;
+.outcome-health span {
+  display: flex;
   align-items: center;
-  gap: 2px 5px;
+  gap: 5px;
   color: #f9a8d4;
 }
+.outcome-health strong { color: #fbcfe8; font-size: 0.72rem; }
+.outcome-health progress::-webkit-progress-value { background: #22c55e; }
+.outcome-health progress::-moz-progress-bar { background: #22c55e; }
 
-.expedition-status__stats > div:nth-child(2) { color: #d8b4fe; }
-.expedition-status__stats > div:nth-child(3) { border-right: 0; color: #67e8f9; }
-.expedition-status__stats strong { font-size: 0.8rem; }
-.expedition-status__stats span { grid-column: 1 / -1; color: #77738c; font-size: 0.49rem; text-align: center; text-transform: uppercase; }
-
-.decision-paths {
-  position: relative;
-  display: grid;
-  gap: 13px;
-}
-
-.path-choice {
-  --path-color: #34d399;
-  position: relative;
+.outcome-clear-summary,
+.descent-summary {
   border: 3px solid #05050b;
-  border-left: 6px solid var(--path-color);
-  background: linear-gradient(105deg, color-mix(in srgb, var(--path-color) 12%, #151322), #12101d 55%);
-  box-shadow: 5px 5px 0 #05050b, inset 0 3px 0 rgba(255, 255, 255, 0.035);
-  padding: 12px;
+  background: #171424;
+  box-shadow: 4px 4px 0 #05050b, inset 0 2px 0 #332d48;
+  padding: 9px 10px;
   display: grid;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: auto 1fr;
+  align-items: center;
   gap: 9px;
+  color: #facc15;
 }
 
-.path-choice--deeper { --path-color: #ef4444; }
+.outcome-clear-summary > div,
+.descent-summary > div { display: grid; gap: 2px; }
+.outcome-clear-summary strong,
+.descent-summary strong {
+  color: #f4f1ff;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+.outcome-clear-summary span,
+.descent-summary span { color: #8f8a9f; font-size: 0.53rem; }
 
-.path-choice__marker {
-  width: 38px;
-  height: 38px;
-  border: 3px solid #05050b;
-  background: color-mix(in srgb, var(--path-color) 32%, #11101d);
-  box-shadow: 3px 3px 0 #05050b;
+.outcome-cta {
+  width: 100%;
+  min-height: 54px;
+  margin-top: auto;
+  position: sticky;
+  z-index: 10;
+  bottom: max(10px, env(safe-area-inset-bottom));
+}
+
+.outcome-stage--defeat {
+  min-height: 310px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.72), transparent 24% 76%, rgba(0, 0, 0, 0.72)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(34, 4, 12, 0.64) 31px 34px),
+    repeating-linear-gradient(90deg, #20131c 0 46px, #30151f 46px 49px, #171018 49px 94px);
+}
+
+.outcome-stage__danger-glow {
+  position: absolute;
+  z-index: -1;
+  inset: 26px 54px 48px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25), rgba(127, 29, 29, 0.04) 55%, transparent 72%);
+  animation: outcome-danger-pulse 1.8s steps(3, end) infinite;
+}
+
+.outcome-banner--defeat {
+  background: #7f1d1d;
+  box-shadow: 0 7px 0 #450a0a, 0 11px 0 #020308, inset 0 4px 0 #ef4444, inset 0 -5px 0 #5f1515;
+}
+.outcome-banner--defeat::before,
+.outcome-banner--defeat::after { background: #5f1515; }
+.outcome-banner--defeat > span { color: #fecaca; }
+.outcome-banner--defeat h1 {
+  color: #fff1f2;
+  text-shadow: 3px 3px 0 #450a0a, -2px -2px 0 #ef4444;
+}
+.outcome-banner--defeat p {
+  margin: 4px 0 0;
+  color: #fecaca;
+  font-size: 0.55rem;
+}
+
+.defeat-emblem {
+  position: absolute;
+  top: 138px;
+  width: 82px;
+  height: 82px;
+  border: 4px solid #05050b;
+  background: #2a111a;
+  box-shadow: 7px 7px 0 #05050b, inset 0 4px 0 #5d1c29;
   display: grid;
   place-items: center;
-  color: color-mix(in srgb, var(--path-color) 76%, white);
+  color: #f87171;
+  transform: rotate(-3deg);
 }
 
-.path-choice__copy > span {
-  color: var(--path-color);
-  font-size: 0.52rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
+.outcome-depth--defeat strong { color: #f87171; }
+.outcome-depth--defeat progress::-webkit-progress-value { background: #dc2626; }
+.outcome-depth--defeat progress::-moz-progress-bar { background: #dc2626; }
 
-.path-choice__copy h2 {
-  margin: 2px 0 3px;
-  font-size: 0.88rem;
-  text-transform: uppercase;
-}
+.descent-summary { color: #f87171; }
 
-.path-choice__copy p { margin: 0; color: #918da5; font-size: 0.59rem; line-height: 1.4; }
-.path-choice .pixel-button { grid-column: 1 / -1; min-height: 46px; }
-
-@keyframes victory-pulse {
+@keyframes outcome-pulse {
   0%, 100% { opacity: 0.62; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.04); }
 }
 
-.defeat-header { border-left-color: #dc2626; text-align: center; }
-.defeat-header h1 { color: #f87171; text-shadow: 3px 3px 0 #7f1d1d; }
-
-.kept-rewards {
-  display: grid;
-  gap: 8px;
+@keyframes outcome-danger-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.06); }
 }
 
-.kept-rewards > div {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 8px;
-  color: #cbd5e1;
+@media (max-width: 340px) {
+  .outcome-stage { min-height: 326px; }
+  .outcome-stage--defeat { min-height: 294px; }
+  .outcome-banner { margin-top: 22px; }
+  .outcome-banner h1 { font-size: 2rem; }
+  .outcome-stage__enemy { bottom: 86px; transform: scale(0.9); }
+  .outcome-reward { grid-template-columns: 31px 1fr; gap: 1px 5px; padding: 7px; }
+  .outcome-reward__icon { width: 30px; height: 30px; }
+  .outcome-reward strong { font-size: 1.05rem; }
+  .defeat-emblem { top: 126px; width: 72px; height: 72px; }
 }
 
-.kept-rewards span { color: var(--muted); font-size: 0.68rem; }
-.kept-rewards__souls { color: #d8b4fe !important; }
-.kept-rewards__xp { color: #67e8f9 !important; }
+@media (prefers-reduced-motion: reduce) {
+  .outcome-stage__rays,
+  .outcome-stage__danger-glow {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
 
 .decision-panel article { display: grid; gap: 8px; }
 

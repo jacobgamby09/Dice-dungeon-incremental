@@ -59,6 +59,11 @@ describe('new game progression loop', () => {
       status: 'inactive',
       dungeonId: null,
       enemy: null,
+      runStats: {
+        enemiesDefeated: 0,
+        soulsEarned: 0,
+        xpEarned: 0,
+      },
     })
     expect(resetState.combat).toMatchObject({
       phase: 'awaiting_roll',
@@ -150,6 +155,11 @@ describe('new game progression loop', () => {
     expect(state.profile.bankedSouls).toBe(5)
     expect(state.run.playerHp).toBe(10)
     expect(state.run.lastReward?.souls).toBe(5)
+    expect(state.run.runStats).toEqual({
+      enemiesDefeated: 1,
+      soulsEarned: 5,
+      xpEarned: 8,
+    })
   })
 
   it('cannot claim the same encounter reward twice', () => {
@@ -160,6 +170,11 @@ describe('new game progression loop', () => {
     expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
     expect(useNewGameStore.getState().profile.xp).toBe(8)
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(5)
+    expect(useNewGameStore.getState().run.runStats).toEqual({
+      enemiesDefeated: 1,
+      soulsEarned: 5,
+      xpEarned: 8,
+    })
   })
 
   it('keeps awarded Souls permanent after leaving the victory screen', () => {
@@ -173,6 +188,11 @@ describe('new game progression loop', () => {
     expect(state.screen).toBe('combat')
     expect(state.profile.bankedSouls).toBe(5)
     expect(state.run.status).toBe('active')
+    expect(state.run.runStats).toEqual({
+      enemiesDefeated: 1,
+      soulsEarned: 5,
+      xpEarned: 8,
+    })
   })
 
   it('resolves the enemy attack after the player phase, then handles defeat', () => {
@@ -203,6 +223,32 @@ describe('new game progression loop', () => {
     expect(defeated.profile.xp).toBe(13)
     expect(defeated.profile.bankedSouls).toBe(7)
     expect(JSON.stringify(defeated.profile.diceCollection)).toBe(permanentDiceBeforeDeath)
+  })
+
+  it('keeps the earned descent summary through floor transitions and defeat', () => {
+    useNewGameStore.getState().startRun('prototype-depths')
+    prepareResolvedRound({ attack: 99, shield: 0, heal: 0 })
+    useNewGameStore.getState().beginRoundResolution()
+    useNewGameStore.getState().finishRoundResolution()
+    useNewGameStore.getState().advanceToNextFloor()
+
+    const activeState = useNewGameStore.getState()
+    useNewGameStore.setState({
+      run: { ...activeState.run, playerHp: 1 },
+    })
+    prepareResolvedRound({ attack: 0, shield: 0, heal: 0 })
+    expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('defeat')
+    useNewGameStore.getState().advanceRoundResolution()
+    useNewGameStore.getState().finishRoundResolution()
+
+    const defeated = useNewGameStore.getState()
+    expect(defeated.screen).toBe('defeat')
+    expect(defeated.run.encounterIndex).toBe(1)
+    expect(defeated.run.runStats).toEqual({
+      enemiesDefeated: 1,
+      soulsEarned: 5,
+      xpEarned: 8,
+    })
   })
 
   it('carries current HP and permanent Souls into the next encounter', () => {
@@ -349,6 +395,11 @@ describe('new game progression loop', () => {
     expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('victory')
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(160)
     expect(useNewGameStore.getState().run.lastReward?.souls).toBe(60)
+    expect(useNewGameStore.getState().run.runStats).toEqual({
+      enemiesDefeated: 1,
+      soulsEarned: 60,
+      xpEarned: 60,
+    })
     expect(useNewGameStore.getState().profile.dungeonProgress['prototype-depths']).toEqual({
       highestFloorCleared: 10,
       clearCount: 1,
@@ -467,6 +518,7 @@ describe('new game progression loop', () => {
       },
       run: {
         ...state.run,
+        runStats: undefined,
         runSouls: 17,
       },
       lastLostRunSouls: 4,
@@ -491,11 +543,70 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(7)
+      expect(migrated.profile.saveVersion).toBe(8)
       expect(migrated.profile.bankedSouls).toBe(26)
       expect(migrated.run.status).toBe('active')
+      expect(migrated.run.runStats).toEqual({
+        enemiesDefeated: 0,
+        soulsEarned: 17,
+        xpEarned: 0,
+      })
       expect('runSouls' in migrated.run).toBe(false)
       expect('lastLostRunSouls' in migrated).toBe(false)
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('reconstructs descent stats when migrating a compatible version 7 run', async () => {
+    useNewGameStore.getState().startRun('prototype-depths')
+    const state = useNewGameStore.getState()
+    const legacyState = {
+      ...state,
+      profile: {
+        ...state.profile,
+        saveVersion: 7,
+        bankedSouls: 12,
+        xp: 18,
+      },
+      run: {
+        ...state.run,
+        encounterIndex: 2,
+        enemy: createEnemyState('marrow-bat'),
+        runStats: undefined,
+      },
+    }
+    let saved: StorageValue<NewGameState> | null = {
+      state: legacyState as unknown as NewGameState,
+      version: 7,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+
+      expect(migrated.profile.saveVersion).toBe(8)
+      expect(migrated.profile.bankedSouls).toBe(12)
+      expect(migrated.profile.xp).toBe(18)
+      expect(migrated.run.status).toBe('active')
+      expect(migrated.run.encounterIndex).toBe(2)
+      expect(migrated.run.runStats).toEqual({
+        enemiesDefeated: 2,
+        soulsEarned: 12,
+        xpEarned: 18,
+      })
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()
@@ -539,7 +650,7 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(7)
+      expect(migrated.profile.saveVersion).toBe(8)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
@@ -584,7 +695,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(7)
+      expect(migrated.profile.saveVersion).toBe(8)
       expect(migrated.profile.talentRanks).toEqual({
         [TALENT_IDS.battleHardenedOne]: 1,
         [TALENT_IDS.twinArsenal]: 1,
@@ -640,7 +751,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(7)
+      expect(migrated.profile.saveVersion).toBe(8)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.enemy?.intentRoll).toMatchObject({
         dieId: 'slime-attack-die',
@@ -692,7 +803,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(7)
+      expect(migrated.profile.saveVersion).toBe(8)
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
       expect(migrated.combat.drawPileDieIds).toEqual([])
