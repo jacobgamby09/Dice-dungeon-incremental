@@ -39,7 +39,7 @@ Brug denne skabelon:
 ## Aktuel status
 
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
-- En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, lineært post-combat og defeat.
+- En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, kompakt Victory/Boss Victory og descent-resumé ved Defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
 - XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, kompakt bund-inspector, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
@@ -53,14 +53,15 @@ Brug denne skabelon:
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
-- Save-formatet er version 7 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, og de tidligere migrationer bevares.
-- En deterministisk simulator og 60 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
+- Normal Victory viser kun encounter-reward, totals, HP, dungeon-progress og én Continue-knap; næste-enemy-data er fjernet. Boss Victory og Defeat bruger et persisteret descent-resumé med enemies defeated samt optjent XP/Souls.
+- Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
+- En deterministisk simulator og 63 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#11 — Make every Soul reward permanent](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/11), squash merge `4302736`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et fresh save ved 320 px og 384 px og verificér, at første kill giver 8 XP + 5 permanente Souls, Defeat beholder begge, og den første face-upgrade kan købes uden extraction.
+1. Gennemspil et fresh save ved 320 px og 384 px og verificér timing, plads og læsbarhed på normal Victory, Boss Victory og Defeat-resuméet samt at første kill giver 8 XP + 5 Souls.
 2. Gennemspil spatial-canvas Talent Tree-previewet og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
 3. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
 4. Tune permanent Soul-indtjening, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
@@ -69,6 +70,7 @@ Brug denne skabelon:
 ## Åbne spørgsmål og kendte risici
 
 - Browserlaget havde ingen tilgængelig browser i spatial-canvas-sessionen. Vite-root, SSR, viewport-matematik og production-build er verificeret, men det nye pan, nodeplacering, inspector og købsceremoni mangler stadig den obligatoriske subjektive 320/384 px-browserkontrol.
+- Det nye outcome-layout er dækket semantisk og via SSR, men reward-timing, sticky CTA og den visuelle tæthed ved 320/384 px skal stadig godkendes i en rigtig mobilbrowser.
 - Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
@@ -78,6 +80,8 @@ Brug denne skabelon:
 ## Bindende beslutninger
 
 - Spillet er incremental-first; et kill giver permanent fremgang, og Defeat koster kun dungeon-position.
+- Normal Victory er en kort reward-pulse uden information om næste enemy; Combat introducerer først enemy-data på det nye floor.
+- Boss Victory og Defeat viser descentens `enemiesDefeated`, `xpEarned` og `soulsEarned`; player-facing hedder valutaerne kun `XP` og `Souls`, aldrig `Permanent`, `Kept` eller `Secured` på outcome-skærmene.
 - XP giver permanent adgang og kapacitet; Souls forbedrer konkrete permanente dice/faces.
 - Kun permanent `bankedSouls` (player-facing `Souls`) og `xp` findes som valuta/progression; `runSouls` findes kun som version-6 migrationsfelt.
 - Spilleren starter med én Attack Die.
@@ -104,6 +108,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-26 — Incremental Victory- og Defeat-flow
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Normal Victory er reduceret til en hurtig XP/Souls reward-pulse med HP, floor-progress og én Continue-knap. Boss Victory opsummerer hele descenten, og Defeat viser floor reached, enemies defeated samt optjent XP/Souls.
+- Beslutninger: Next-floor enemy-info vises ikke længere efter Victory. Outcome-skærme bruger kun player-facing `XP` og `Souls`; teknisk `bankedSouls` bevares for save-kompatibilitet. Descent-statistik er kun opsummering og introducerer ingen ny valuta eller risiko.
+- Berørte områder: Run-typer og version-8 migration, reward-transition, fælles outcome-reward-komponent, Victory/Boss Victory/Defeat, responsive styles, SSR/store-tests, GDD, designreference, README og implementationplan.
+- Validering: `npx tsc --noEmit`, alle 63 tests, ESLint, production-build og `git diff --check` består. De ændrede TSX-filer er gennemgået mod React-kvalitetsreglerne uden fund.
+- Kendte mangler: Browser-CLI’en er ikke installeret i runtime, så den nye komposition og animationstiming skal fortsat vurderes subjektivt ved 320 px og 384 px.
+- Git: `45699ed` — `Redesign victory and defeat outcomes`; PR [#13](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/13).
 
 ### 2026-07-26 — Permanent Soul-loot uden extraction
 
