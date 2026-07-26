@@ -57,7 +57,7 @@ Brug denne skabelon:
 - Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
 - En deterministisk simulator og 63 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#11 — Make every Soul reward permanent](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/11), squash merge `4302736`.
+- Seneste gameplay-merge i produktion: [#13 — Redesign victory and defeat outcomes](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/13), squash merge `1c06584`.
 
 ## Næste anbefalede skridt
 
@@ -117,9 +117,9 @@ Brug denne skabelon:
 - Resultat: Normal Victory er reduceret til en hurtig XP/Souls reward-pulse med HP, floor-progress og én Continue-knap. Boss Victory opsummerer hele descenten, og Defeat viser floor reached, enemies defeated samt optjent XP/Souls.
 - Beslutninger: Next-floor enemy-info vises ikke længere efter Victory. Outcome-skærme bruger kun player-facing `XP` og `Souls`; teknisk `bankedSouls` bevares for save-kompatibilitet. Descent-statistik er kun opsummering og introducerer ingen ny valuta eller risiko.
 - Berørte områder: Run-typer og version-8 migration, reward-transition, fælles outcome-reward-komponent, Victory/Boss Victory/Defeat, responsive styles, SSR/store-tests, GDD, designreference, README og implementationplan.
-- Validering: `npx tsc --noEmit`, alle 63 tests, ESLint, production-build og `git diff --check` består. De ændrede TSX-filer er gennemgået mod React-kvalitetsreglerne uden fund.
+- Validering: `npx tsc --noEmit`, alle 63 tests, ESLint, production-build og `git diff --check` består. De ændrede TSX-filer er gennemgået mod React-kvalitetsreglerne uden fund. Vercel markerede production-deploymentet `READY` for `1c06584`; den offentlige URL og JavaScript-bundlet svarede HTTP 200, bundlet indeholdt den nye outcome-copy uden `Permanent Souls` eller `Souls kept`, og der var ingen runtime-fejl i den seneste time.
 - Kendte mangler: Browser-CLI’en er ikke installeret i runtime, så den nye komposition og animationstiming skal fortsat vurderes subjektivt ved 320 px og 384 px.
-- Git: `45699ed` — `Redesign victory and defeat outcomes`; PR [#13](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/13).
+- Git: `45699ed` — `Redesign victory and defeat outcomes`; PR [#13](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/13) er squash-merget til `main` som `1c06584`.
 
 ### 2026-07-26 — Permanent Soul-loot uden extraction
 
