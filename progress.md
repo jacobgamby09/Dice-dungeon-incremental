@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-23.
+Senest opdateret: 2026-07-26.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -39,35 +39,37 @@ Brug denne skabelon:
 ## Aktuel status
 
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
-- En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, post-combat, extraction og defeat.
+- En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, lineært post-combat og defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
 - XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, kompakt bund-inspector, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
 - Talentforløbet giver derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige grene, Heal, fire slots, Quick Draw og Auto Roll.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
-- `The First Descent` har nu 10 floors med Demon-boss på floor 10; boss victory banker hele runnets Soul-pulje automatisk.
+- Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
+- `The First Descent` har 10 floors med Demon-boss på floor 10.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
 - Hver enemy har nu sin egen seks-sidede Attack Die. Resultatet fastlåses og persisteres før reveal-animationen, hvorefter spilleren får den præcise værdi at reagere på.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
-- Save-formatet er version 6 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-5 talent-ID'er migreres til rank 1, og inkompatible legacy combat-shapes sendes sikkert til Hub.
-- En deterministisk simulator og 55 automatiserede tests beskytter den første balancekurve, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
+- Save-formatet er version 7 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, og de tidligere migrationer bevares.
+- En deterministisk simulator og 60 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#9 — Add safe game reset control](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9), squash merge `0b0ee31`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil spatial-canvas Talent Tree-previewet ved 320 px og 384 px og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
-2. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
-3. Tune extraction-cadence, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
-4. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
+1. Gennemspil et fresh save ved 320 px og 384 px og verificér, at første kill giver 8 XP + 5 permanente Souls, Defeat beholder begge, og den første face-upgrade kan købes uden extraction.
+2. Gennemspil spatial-canvas Talent Tree-previewet og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
+3. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
+4. Tune permanent Soul-indtjening, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
+5. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
 
 ## Åbne spørgsmål og kendte risici
 
 - Browserlaget havde ingen tilgængelig browser i spatial-canvas-sessionen. Vite-root, SSR, viewport-matematik og production-build er verificeret, men det nye pan, nodeplacering, inspector og købsceremoni mangler stadig den obligatoriske subjektive 320/384 px-browserkontrol.
-- Simuleringen bekræfter den matematiske dybdekurve, men modellerer ikke extraction-valg, købsmønstre eller oplevet combat-tempo.
+- Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
 - Auto Roll er verificeret på state- og buildniveau, men tempoet med større manuelle loadouts skal vurderes visuelt.
@@ -75,9 +77,9 @@ Brug denne skabelon:
 
 ## Bindende beslutninger
 
-- Spillet er incremental-first med extraction som risikolag.
+- Spillet er incremental-first; et kill giver permanent fremgang, og Defeat koster kun dungeon-position.
 - XP giver permanent adgang og kapacitet; Souls forbedrer konkrete permanente dice/faces.
-- Kun `runSouls`, `bankedSouls` og `xp` findes som valuta/progression.
+- Kun permanent `bankedSouls` (player-facing `Souls`) og `xp` findes som valuta/progression; `runSouls` findes kun som version-6 migrationsfelt.
 - Spilleren starter med én Attack Die.
 - Et dice-unlock giver én navngiven permanent die, aldrig uendelige kopier; spilleren equipper den selv.
 - Battle-Hardened har tre ranks til 8/16/32 XP og giver +2 Max HP per rank, maksimalt +6.
@@ -91,7 +93,7 @@ Brug denne skabelon:
 - Talent-køb ruller noden på stedet, tænder forbindelsen og afslører nye nodes som en kort chain reaction; Shieldcraft splitter effekten i tre.
 - Dev-reset er tilgængelig nederst på Hubben og må først udføres efter et eksplicit andet bekræftelsestryk; den nulstiller både permanent progression, dungeon-progress og et eventuelt aktivt run.
 - Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
-- MVP-dungeonen har 10 floors; floor 10 er boss og banker automatisk alle Run Souls ved sejr.
+- MVP-dungeonen har 10 floors; floor 10 er boss og giver sin permanente reward præcis én gang ved sejr.
 - Alle udstyrede dice skal trækkes hver runde i tilfældig rækkefølge.
 - Hver enemy har præcis én data-driven Attack Die med seks stabile faces; dens resultat fastlåses ved rundestart og gemmes før animationen.
 - Enemy intent vises som den præcise landede værdi efter et kort reveal. Spilleren kan inspicere alle seks faces, men kan ikke rulle egne dice, mens intent ruller.
@@ -102,6 +104,18 @@ Brug denne skabelon:
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
 
 ## Historik
+
+### 2026-07-26 — Permanent Soul-loot uden extraction
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hvert besejret mob giver nu sit faste Soul-drop direkte til spillerens permanente beholdning sammen med permanent XP. Victory har én vej videre, og Defeat fjerner hverken XP eller Souls.
+- Beslutninger: Extraction, `At Risk`, Soul Gates, `runSouls` og Soul-tab ved død er fjernet fra det nye spil. XP åbner fortsat adgang og kapacitet; Souls bruges fortsat kun på konkrete permanente dice/faces.
+- Berørte områder: Reward- og run-state, version-7 migration, Victory/Combat/Defeat/Hub/Workshop UI, simulator, tests, GDD, visuel reference, README, implementationplan og guardrails.
+- Validering: `npx tsc --noEmit`, alle 60 tests, ESLint, production-build og `git diff --check` består. Victory- og Defeat-skærmene er desuden dækket af SSR-komponenttests; subjektiv mobilkontrol udføres på deploymentet.
+- Kendte mangler: De eksisterende Soul-rewards og face-priser er endnu ikke retunet efter fjernelsen af currency-tab og skal måles i fresh-save-playtest.
+- Git: `6329325` — `Make every Soul reward permanent`; PR [#11](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/11).
 
 ### 2026-07-23 — Sikker dev-reset på Hub
 
