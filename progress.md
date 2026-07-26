@@ -58,7 +58,7 @@ Brug denne skabelon:
 - Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
 - En deterministisk simulator og 67 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice, sprite-mapping og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#15 — Polish combat presentation](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/15), squash merge `57872fc`.
+- Seneste gameplay-merge i produktion: [#17 — Clean enemy stage and replace demon boss](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/17), squash merge `65f846c`.
 
 ## Næste anbefalede skridt
 
@@ -123,9 +123,9 @@ Brug denne skabelon:
 - Resultat: Enemy-stage matcher nu den rene roll-flade uden murværk, bue eller piedestal. Slime Crawler er skaleret cirka 24 % op, og floor-10 Demon er udskiftet fra den forkerte lille humanoide sprite til en stor rød hornet boss med Idle, Attack, Hurt og Death.
 - Beslutninger: Intent, navn og HP bevares som gameplay-information på den næsten-sorte flade. Slime Crawler har creature-specifik skalering. Demonens eksisterende røde source-art er fastholdt som identitet og ombygget til den canonical 100×100-cell pipeline.
 - Berørte områder: Combat-komposition og CSS, enemy-sprite-konfiguration og mappingtest, fire Demon-animation-sheets, ny versioneret Demon-source, visuel designreference og progress-log.
-- Validering: `npx tsc --noEmit`, alle 67 tests, ESLint, production-build og `git diff --check` består. Demon-sheets er visuelt inspiceret og verificeret som 600×100 Idle/Attack samt 400×100 Hurt/Death med transparente hjørner og ingen resterende grønne chroma-pixels. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund.
+- Validering: `npx tsc --noEmit`, alle 67 tests, ESLint, production-build og `git diff --check` består. Demon-sheets er visuelt inspiceret og verificeret som 600×100 Idle/Attack samt 400×100 Hurt/Death med transparente hjørner og ingen resterende grønne chroma-pixels. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund. Vercel markerede production-deploymentet `READY` for `65f846c`; den offentlige HTML-, JavaScript- og CSS-bundle samt alle fire Demon-sheets svarede HTTP 200, bundlet bruger den versionerede Demon-v2-path uden de fjernede arch-/pedestal-klasser, og der var ingen runtime-fejl i den seneste time.
 - Kendte mangler: Browserruntime er fortsat utilgængelig, så den samlede sprite-størrelse, baseline, chroma-edges og negative plads skal vurderes subjektivt ved 320 px og 384 px efter deployment.
-- Git: `0b5df21` — `Clean enemy stage and replace demon boss` på `agent/clean-enemy-stage`.
+- Git: `0b5df21` — `Clean enemy stage and replace demon boss`; PR [#17](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/17) er squash-merget til `main` som `65f846c`.
 
 ### 2026-07-26 — Combat UI og early-enemy-sprites poleret
 
