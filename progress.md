@@ -125,7 +125,7 @@ Brug denne skabelon:
 - Berørte områder: Combat-komposition og CSS, enemy-sprite-konfiguration og mappingtest, fire Demon-animation-sheets, ny versioneret Demon-source, visuel designreference og progress-log.
 - Validering: `npx tsc --noEmit`, alle 67 tests, ESLint, production-build og `git diff --check` består. Demon-sheets er visuelt inspiceret og verificeret som 600×100 Idle/Attack samt 400×100 Hurt/Death med transparente hjørner og ingen resterende grønne chroma-pixels. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund.
 - Kendte mangler: Browserruntime er fortsat utilgængelig, så den samlede sprite-størrelse, baseline, chroma-edges og negative plads skal vurderes subjektivt ved 320 px og 384 px efter deployment.
-- Git: Ikke committed.
+- Git: `0b5df21` — `Clean enemy stage and replace demon boss` på `agent/clean-enemy-stage`.
 
 ### 2026-07-26 — Combat UI og early-enemy-sprites poleret
 
