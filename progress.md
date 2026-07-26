@@ -56,7 +56,7 @@ Brug denne skabelon:
 - Save-formatet er version 7 og persisterer canonical talent-ranks, collection-, loadout-, dungeon- og enemy-roll-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, og de tidligere migrationer bevares.
 - En deterministisk simulator og 60 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#9 — Add safe game reset control](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/9), squash merge `0b0ee31`.
+- Seneste gameplay-merge i produktion: [#11 — Make every Soul reward permanent](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/11), squash merge `4302736`.
 
 ## Næste anbefalede skridt
 
@@ -113,9 +113,9 @@ Brug denne skabelon:
 - Resultat: Hvert besejret mob giver nu sit faste Soul-drop direkte til spillerens permanente beholdning sammen med permanent XP. Victory har én vej videre, og Defeat fjerner hverken XP eller Souls.
 - Beslutninger: Extraction, `At Risk`, Soul Gates, `runSouls` og Soul-tab ved død er fjernet fra det nye spil. XP åbner fortsat adgang og kapacitet; Souls bruges fortsat kun på konkrete permanente dice/faces.
 - Berørte områder: Reward- og run-state, version-7 migration, Victory/Combat/Defeat/Hub/Workshop UI, simulator, tests, GDD, visuel reference, README, implementationplan og guardrails.
-- Validering: `npx tsc --noEmit`, alle 60 tests, ESLint, production-build og `git diff --check` består. Victory- og Defeat-skærmene er desuden dækket af SSR-komponenttests; subjektiv mobilkontrol udføres på deploymentet.
+- Validering: `npx tsc --noEmit`, alle 60 tests, ESLint, production-build og `git diff --check` består. Victory- og Defeat-skærmene er dækket af SSR-komponenttests. Vercel markerede production-deploymentet `READY` for `4302736`; den offentlige URL svarede HTTP 200, og bundlet indeholdt de nye permanente Soul-tekster uden `At risk` eller extraction-copy.
 - Kendte mangler: De eksisterende Soul-rewards og face-priser er endnu ikke retunet efter fjernelsen af currency-tab og skal måles i fresh-save-playtest.
-- Git: `6329325` — `Make every Soul reward permanent`; PR [#11](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/11).
+- Git: `6329325` — `Make every Soul reward permanent`; PR [#11](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/11) er squash-merget til `main` som `4302736`.
 
 ### 2026-07-23 — Sikker dev-reset på Hub
 
