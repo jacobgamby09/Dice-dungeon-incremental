@@ -121,9 +121,9 @@ Brug denne skabelon:
 - Resultat: Enemy-navnet er gjort renere og mere læsbart, Slime Crawler og Marrow Bat bruger nu hver deres korrekte animation-sheets, og roll-fladen er ryddet for murstensbaggrund, runer, tom piedestal og overflødig idle-copy.
 - Beslutninger: Sprite-rendereren normaliserer stabile compact content-navne som `SlimeCrawler`, `MarrowBat` og `BloodOrc`; den gamle hardcodede Slime Crawler-fallback er fjernet. Den tomme roll-flade bruger bevidst negativ plads, mens draw-header og primær knap kommunikerer state.
 - Berørte områder: Fælles enemy-sprite-renderer og regressionstest, Combat-komposition, combat-CSS, visuel designreference og progress-log.
-- Validering: `npx tsc --noEmit`, alle 66 tests, ESLint, production-build og `git diff --check` består. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund, og den lokale Vite-root svarede HTTP 200.
+- Validering: `npx tsc --noEmit`, alle 66 tests, ESLint, production-build og `git diff --check` består. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund, den lokale Vite-root svarede HTTP 200, og begge enemy-sæt følger 100 px høje horisontale sheets med det forventede frame-antal.
 - Kendte mangler: Browserruntime havde ingen tilgængelig browser, så sprite-størrelse, baseline, typografi og den ryddede roll-flade skal stadig vurderes subjektivt ved 320 px og 384 px.
-- Git: Ikke committed.
+- Git: `30f9c75` — `Polish combat presentation` på `agent/polish-combat-ui`.
 
 ### 2026-07-26 — Incremental Victory- og Defeat-flow
 
