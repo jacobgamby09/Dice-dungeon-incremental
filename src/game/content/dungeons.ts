@@ -4,7 +4,7 @@ export const DUNGEONS: Record<DungeonId, DungeonDefinition> = {
   'prototype-depths': {
     id: 'prototype-depths',
     name: 'The First Descent',
-    description: 'Ten floors. Extract after a victory or risk everything and face the Demon below.',
+    description: 'Ten floors. Keep every reward, forge stronger dice and return to challenge the Demon.',
     floors: [
       { floor: 1, enemyId: 'slime', isBoss: false },
       { floor: 2, enemyId: 'slime-crawler', isBoss: false },

@@ -4,6 +4,7 @@ import { DUNGEONS } from './dungeons'
 import { ENEMY_ATTACK_DICE } from './enemyDice'
 import { ENEMIES } from './enemies'
 import { TALENT_IDS, TALENTS_BY_ID } from './talents'
+import { getFaceUpgradeCost } from './upgradeCosts'
 
 describe('MVP content integrity', () => {
   it('defines unique permanent dice and six stable faces per die', () => {
@@ -41,6 +42,11 @@ describe('MVP content integrity', () => {
 
     expect(firstEnemyXp).toBe(firstTalent.ranks[0].cost)
     expect(firstEnemyXp * 3).toBe(firstTalent.ranks[0].cost + secondTalent.ranks[0].cost)
+  })
+
+  it('gives permanent Soul loot from every enemy and funds the first face upgrade immediately', () => {
+    expect(Object.values(ENEMIES).every((enemy) => enemy.soulReward > 0)).toBe(true)
+    expect(ENEMIES.slime.soulReward).toBe(getFaceUpgradeCost(1))
   })
 
   it('orders ten floors with exactly one final boss', () => {

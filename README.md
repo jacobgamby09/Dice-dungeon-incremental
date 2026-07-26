@@ -1,8 +1,8 @@
 # Dice Dungeon Incremental
 
-Et mobile-first extraction-spil om permanente terninger. Spilleren kæmper gennem korte dungeons, optjener permanent XP og risikerer midlertidige Run Souls. Extraction flytter Run Souls til Banked Souls, som bruges til at opgradere én konkret face på én konkret terning.
+Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og permanente Souls; XP åbner nye muligheder, mens Souls opgraderer én konkret face på én konkret terning.
 
-Den nuværende milepæl er den første vertikale prototype: Hub → dungeon → kamp → Extract/Continue → permanent face-upgrade → nyt run.
+Den nuværende milepæl er den første vertikale prototype: Hub → dungeon → kamp → permanente rewards → næste floor eller Defeat → permanent face-upgrade → nyt run.
 
 ## Kør projektet
 
@@ -40,7 +40,7 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 - Combat viser ingen tomme typebokse; totals og ikoner opstår først, når en face-type bliver rullet.
 - Spillede dice genkendes på face-farve og ikon frem for ydre typekort.
 - XP er permanent og mistes aldrig.
-- Run Souls mistes ved død; Banked Souls overlever og bruges i Workshop.
+- Hvert mob giver et fast permanent Soul-drop; Souls mistes aldrig og bruges i Workshop.
 - Der findes ingen Gold, Coins eller Materials.
 - HP fortsætter mellem encounters i samme run.
 - Shield gælder kun den aktuelle rundes resolution.

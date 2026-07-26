@@ -3,7 +3,7 @@ import { useNewGameStore } from '../store/newGameStore'
 
 export function DefeatScreen() {
   const xp = useNewGameStore((state) => state.profile.xp)
-  const lastLostRunSouls = useNewGameStore((state) => state.lastLostRunSouls)
+  const souls = useNewGameStore((state) => state.profile.bankedSouls)
   const returnToHub = useNewGameStore((state) => state.returnToHubAfterDefeat)
 
   return (
@@ -11,12 +11,12 @@ export function DefeatScreen() {
       <header className="defeat-header">
         <span className="eyebrow">The dungeon claims this run</span>
         <h1>Defeat</h1>
-        <p>Your permanent progression survived.</p>
+        <p>Your depth was lost. Every reward was kept.</p>
       </header>
 
-      <section className="risk-panel">
-        <div className="loss-row"><Flame aria-hidden="true" size={18} /><span>Run Souls lost</span><strong>-{lastLostRunSouls}</strong></div>
-        <div className="safe-row"><Sparkles aria-hidden="true" size={18} /><span>Permanent XP kept</span><strong>{xp}</strong></div>
+      <section aria-label="Permanent rewards kept" className="kept-rewards">
+        <div className="kept-rewards__souls"><Flame aria-hidden="true" size={18} /><span>Souls kept</span><strong>{souls}</strong></div>
+        <div className="kept-rewards__xp"><Sparkles aria-hidden="true" size={18} /><span>XP kept</span><strong>{xp}</strong></div>
       </section>
 
       <button className="pixel-button pixel-button--primary" onClick={returnToHub} type="button">
@@ -25,4 +25,3 @@ export function DefeatScreen() {
     </main>
   )
 }
-

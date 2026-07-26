@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createDieById } from '../content/dice'
+import { DUNGEONS } from '../content/dungeons'
+import { ENEMIES } from '../content/enemies'
 import { createSeededRandom, simulateDungeonRun, summarizeDungeonSimulations } from './simulateDungeon'
 
 function getDice(...dieIds: string[]) {
@@ -55,7 +57,22 @@ describe('MVP dungeon balance simulator', () => {
     )
 
     expect(twinArsenal.averageHighestFloor).toBeGreaterThan(starting.averageHighestFloor + 1)
+    expect(twinArsenal.averageSouls).toBeGreaterThan(starting.averageSouls)
     expect(twinArsenal.averageXp).toBeGreaterThan(starting.averageXp)
+  })
+
+  it('keeps every Soul earned before defeat', () => {
+    const run = simulateDungeonRun(
+      'prototype-depths',
+      { dice: getDice('attack-die-1'), playerMaxHp: 10 },
+      createSeededRandom(42),
+    )
+
+    const clearedSoulRewards = DUNGEONS['prototype-depths'].floors
+      .slice(0, run.highestFloorCleared)
+      .map((floor) => ENEMIES[floor.enemyId].soulReward)
+
+    expect(run.soulsCollected).toBe(clearedSoulRewards.reduce((total, reward) => total + reward, 0))
   })
 
   it('makes the boss a reachable late-MVP milestone after both XP and Soul growth', () => {

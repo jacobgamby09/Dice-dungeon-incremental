@@ -110,7 +110,7 @@
 .reward-card--souls { color: #c084fc; border-left-color: #7e22ce; }
 
 .panel,
-.risk-panel,
+.kept-rewards,
 .decision-panel article,
 .dungeon-card {
   border: 3px solid #000;
@@ -227,7 +227,6 @@
 .pixel-button--secondary { background: #7e22ce; }
 .pixel-button--danger { background: #991b1b; }
 .pixel-button--attack { background: #b45309; }
-.pixel-button--extract { background: #047857; }
 .pixel-button--upgrade { background: #7e22ce; }
 .pixel-button--ghost { background: #1f2937; color: #cbd5e1; }
 
@@ -306,8 +305,8 @@
 
 .combat-meta span { color: #77738b; font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase; }
 .combat-meta strong { color: #f4f1fb; font-size: 0.78rem; }
-.combat-meta .run-souls { justify-content: flex-end; color: #c084fc; }
-.combat-meta .run-souls strong { color: #d8b4fe; }
+.combat-meta .permanent-souls { justify-content: flex-end; color: #c084fc; }
+.combat-meta .permanent-souls strong { color: #d8b4fe; }
 
 .enemy-zone {
   position: relative;
@@ -1336,23 +1335,6 @@
 .path-choice__copy p { margin: 0; color: #918da5; font-size: 0.59rem; line-height: 1.4; }
 .path-choice .pixel-button { grid-column: 1 / -1; min-height: 46px; }
 
-.path-divider {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  left: 50%;
-  width: 34px;
-  height: 24px;
-  border: 3px solid #05050b;
-  background: #252138;
-  box-shadow: 2px 2px 0 #05050b;
-  display: grid;
-  place-items: center;
-  transform: translate(-50%, -50%) rotate(-2deg);
-}
-
-.path-divider span { color: #aaa5bc; font-size: 0.52rem; font-weight: 900; text-transform: uppercase; }
-
 @keyframes victory-pulse {
   0%, 100% { opacity: 0.62; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.04); }
@@ -1361,12 +1343,12 @@
 .defeat-header { border-left-color: #dc2626; text-align: center; }
 .defeat-header h1 { color: #f87171; text-shadow: 3px 3px 0 #7f1d1d; }
 
-.risk-panel {
+.kept-rewards {
   display: grid;
   gap: 8px;
 }
 
-.risk-panel > div {
+.kept-rewards > div {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -1374,21 +1356,11 @@
   color: #cbd5e1;
 }
 
-.risk-panel span { color: var(--muted); font-size: 0.68rem; }
-.loss-row { color: #f87171 !important; }
-.safe-row { color: #67e8f9 !important; }
+.kept-rewards span { color: var(--muted); font-size: 0.68rem; }
+.kept-rewards__souls { color: #d8b4fe !important; }
+.kept-rewards__xp { color: #67e8f9 !important; }
 
 .decision-panel article { display: grid; gap: 8px; }
-
-.banked-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #c084fc;
-  border: 2px solid #7e22ce;
-  background: #2e1065;
-  padding: 6px 8px;
-}
 
 .die-tabs {
   display: grid;

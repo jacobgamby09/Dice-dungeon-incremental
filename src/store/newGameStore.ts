@@ -43,7 +43,6 @@ export interface NewGameState {
   profile: PlayerProfile
   run: RunState
   combat: CombatState
-  lastLostRunSouls: number
   openDungeonSelect: () => void
   openWorkshop: () => void
   openTalentTree: () => void
@@ -55,8 +54,8 @@ export interface NewGameState {
   beginRoundResolution: () => RoundResolution | null
   advanceRoundResolution: () => void
   finishRoundResolution: () => void
-  continueRun: () => void
-  extractRun: () => void
+  advanceToNextFloor: () => void
+  returnToHubAfterVictory: () => void
   returnToHubAfterDefeat: () => void
   purchaseTalent: (talentId: string) => boolean
   equipDie: (dieId: string) => boolean
@@ -66,7 +65,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 6
+const SAVE_VERSION = 7
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -107,7 +106,6 @@ function createInactiveRun(): RunState {
     status: 'inactive',
     dungeonId: null,
     encounterIndex: 0,
-    runSouls: 0,
     playerHp: BASE_PLAYER_HP,
     playerMaxHp: BASE_PLAYER_HP,
     equippedDiceSnapshot: [],
@@ -140,6 +138,14 @@ type LegacyEnemyState = Partial<EnemyState> & {
 
 type LegacyPlayerProfile = Partial<PlayerProfile> & {
   unlockedTalentIds?: string[]
+}
+
+type LegacyRunState = Partial<RunState> & {
+  runSouls?: number
+  lastReward?: (Partial<NonNullable<RunState['lastReward']>> & {
+    runSouls?: number
+    bankedSouls?: number
+  }) | null
 }
 
 function migrateEnemyState(existingEnemy: LegacyEnemyState | null | undefined): EnemyState | null {
@@ -239,7 +245,11 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     },
   }
 
-  const existingRun = persisted.run
+  const existingRun = persisted.run as LegacyRunState | undefined
+  const legacyRunSouls = Number.isFinite(existingRun?.runSouls)
+    ? Math.max(0, existingRun?.runSouls ?? 0)
+    : 0
+  migratedProfile.bankedSouls += legacyRunSouls
   const existingCombat = persisted.combat as Partial<CombatState> | undefined
   const migratedEnemy = migrateEnemyState(existingRun?.enemy as LegacyEnemyState | null | undefined)
   const mappedEncounterIndex = migratedEnemy
@@ -247,26 +257,44 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         (floor) => floor.enemyId === migratedEnemy.definitionId,
       )
     : -1
-  const canPreserveRun = existingRun?.status !== 'inactive'
+  const canPreserveRun = Boolean(
+    existingRun
+    && existingRun.status !== 'inactive'
     && mappedEncounterIndex >= 0
-    && isCompatibleCombatState(existingCombat)
-  const migratedRun = canPreserveRun
+    && isCompatibleCombatState(existingCombat),
+  )
+  const migratedRun: RunState = canPreserveRun && existingRun
     ? {
-        ...existingRun,
+        status: existingRun.status ?? 'active',
+        dungeonId: existingRun.dungeonId ?? 'prototype-depths',
         encounterIndex: mappedEncounterIndex,
+        playerHp: existingRun.playerHp ?? BASE_PLAYER_HP,
+        playerMaxHp: existingRun.playerMaxHp ?? BASE_PLAYER_HP,
+        equippedDiceSnapshot: existingRun.equippedDiceSnapshot ?? [],
         enemy: migratedEnemy,
+        lastReward: existingRun.lastReward
+          ? {
+              enemyName: existingRun.lastReward.enemyName ?? migratedEnemy?.name ?? 'Enemy',
+              floor: existingRun.lastReward.floor ?? mappedEncounterIndex + 1,
+              isBoss: existingRun.lastReward.isBoss ?? false,
+              xp: existingRun.lastReward.xp ?? 0,
+              souls: existingRun.lastReward.souls
+                ?? existingRun.lastReward.runSouls
+                ?? existingRun.lastReward.bankedSouls
+                ?? 0,
+              dungeonComplete: existingRun.lastReward.dungeonComplete ?? false,
+            }
+          : null,
       }
     : createInactiveRun()
 
   return {
-    ...persisted,
     screen: canPreserveRun ? persisted.screen ?? 'combat' : 'hub',
     profile: migratedProfile,
     run: migratedRun,
-    combat: canPreserveRun
+    combat: canPreserveRun && existingCombat
       ? { ...existingCombat, resolutionStep: existingCombat.resolutionStep ?? null }
       : createCombatState(),
-    lastLostRunSouls: persisted.lastLostRunSouls ?? 0,
   } as NewGameState
 }
 
@@ -282,7 +310,6 @@ const initialState = {
   profile: createInitialProfile(),
   run: createInactiveRun(),
   combat: createCombatState(),
-  lastLostRunSouls: 0,
 }
 
 export const useNewGameStore = create<NewGameState>()(
@@ -330,7 +357,6 @@ export const useNewGameStore = create<NewGameState>()(
             status: 'active',
             dungeonId,
             encounterIndex: 0,
-            runSouls: 0,
             playerHp: playerMaxHp,
             playerMaxHp,
             equippedDiceSnapshot,
@@ -343,7 +369,6 @@ export const useNewGameStore = create<NewGameState>()(
             state.combat.resolutionVersion,
             true,
           ),
-          lastLostRunSouls: 0,
         })
       },
 
@@ -407,7 +432,6 @@ export const useNewGameStore = create<NewGameState>()(
           const soulReward = rewardAlreadyClaimed ? 0 : enemy.soulReward
           const floorDefinition = dungeon.floors[state.run.encounterIndex]
           const dungeonComplete = floorDefinition.isBoss
-          const earnedRunSouls = state.run.runSouls + soulReward
           const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
           const dungeonProgress = {
             ...state.profile.dungeonProgress,
@@ -424,14 +448,13 @@ export const useNewGameStore = create<NewGameState>()(
             profile: {
               ...state.profile,
               xp: state.profile.xp + xpReward,
-              bankedSouls: state.profile.bankedSouls + (dungeonComplete ? earnedRunSouls : 0),
+              bankedSouls: state.profile.bankedSouls + soulReward,
               dungeonProgress,
             },
             run: {
               ...state.run,
               status: 'victory',
               playerHp: resolution.playerHp,
-              runSouls: dungeonComplete ? 0 : earnedRunSouls,
               enemy: {
                 ...enemy,
                 hp: resolution.enemyHp,
@@ -443,8 +466,7 @@ export const useNewGameStore = create<NewGameState>()(
                 floor: floorDefinition.floor,
                 isBoss: floorDefinition.isBoss,
                 xp: xpReward,
-                runSouls: soulReward,
-                bankedSouls: dungeonComplete ? earnedRunSouls : 0,
+                souls: soulReward,
                 dungeonComplete,
               },
             },
@@ -465,7 +487,6 @@ export const useNewGameStore = create<NewGameState>()(
               ...state.run,
               status: 'defeat',
               playerHp: 0,
-              runSouls: 0,
               enemy: {
                 ...enemy,
                 hp: resolution.enemyHp,
@@ -479,7 +500,6 @@ export const useNewGameStore = create<NewGameState>()(
               resolutionVersion,
               resolutionStep: 'player',
             },
-            lastLostRunSouls: state.run.runSouls,
           })
           return resolution
         }
@@ -517,13 +537,11 @@ export const useNewGameStore = create<NewGameState>()(
             ...state.run,
             status: playerDefeated ? 'defeat' : state.run.status,
             playerHp: resolution.playerHp,
-            runSouls: playerDefeated ? 0 : state.run.runSouls,
           },
           combat: {
             ...state.combat,
             resolutionStep: 'enemy',
           },
-          ...(playerDefeated ? { lastLostRunSouls: state.run.runSouls } : {}),
         })
       },
 
@@ -564,7 +582,7 @@ export const useNewGameStore = create<NewGameState>()(
         })
       },
 
-      continueRun: () => {
+      advanceToNextFloor: () => {
         const state = get()
         if (state.screen !== 'post_combat' || state.run.status !== 'victory' || !state.run.dungeonId) return
         const dungeon = DUNGEONS[state.run.dungeonId]
@@ -590,15 +608,12 @@ export const useNewGameStore = create<NewGameState>()(
         })
       },
 
-      extractRun: () => {
+      returnToHubAfterVictory: () => {
         const state = get()
         if (state.screen !== 'post_combat' || state.run.status !== 'victory') return
+        if (!state.run.lastReward?.dungeonComplete) return
         set({
           screen: 'hub',
-          profile: {
-            ...state.profile,
-            bankedSouls: state.profile.bankedSouls + state.run.runSouls,
-          },
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
         })
@@ -730,7 +745,6 @@ export const useNewGameStore = create<NewGameState>()(
           profile: createInitialProfile(),
           run: createInactiveRun(),
           combat: createCombatState(),
-          lastLostRunSouls: 0,
         })
       },
     }),
@@ -746,7 +760,6 @@ export const useNewGameStore = create<NewGameState>()(
         profile: state.profile,
         run: state.run,
         combat: state.combat,
-        lastLostRunSouls: state.lastLostRunSouls,
       }) as NewGameState,
     },
   ),

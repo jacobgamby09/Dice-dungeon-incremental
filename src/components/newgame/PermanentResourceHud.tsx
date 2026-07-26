@@ -26,7 +26,7 @@ export const PermanentResourceHud = memo(function PermanentResourceHud({
       )}
       <div className="resource-hud__item resource-hud__item--souls">
         <Flame aria-hidden="true" size={compact ? 15 : 18} />
-        <span>Banked</span>
+        <span>Souls</span>
         <strong>{bankedSouls}</strong>
       </div>
     </section>

@@ -9,6 +9,7 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { getDiceCapacity } from '../game/progression/talents'
@@ -16,7 +17,13 @@ import { useNewGameStore } from '../store/newGameStore'
 
 export function HubScreen() {
   const [resetIsArmed, setResetIsArmed] = useState(false)
-  const profile = useNewGameStore((state) => state.profile)
+  const profile = useNewGameStore(useShallow((state) => ({
+    bankedSouls: state.profile.bankedSouls,
+    diceCollection: state.profile.diceCollection,
+    equippedDieIds: state.profile.equippedDieIds,
+    talentRanks: state.profile.talentRanks,
+    xp: state.profile.xp,
+  })))
   const openDungeonSelect = useNewGameStore((state) => state.openDungeonSelect)
   const openWorkshop = useNewGameStore((state) => state.openWorkshop)
   const openTalentTree = useNewGameStore((state) => state.openTalentTree)
@@ -38,10 +45,10 @@ export function HubScreen() {
         <span aria-hidden="true" className="hub-soul hub-soul--three" />
         <div aria-hidden="true" className="hub-gate__door"><DoorOpen size={58} /></div>
         <header className="hub-sign">
-          <span>Extraction runner</span>
+          <span>Incremental dice combat</span>
           <h1 id="hub-title">Dice Dungeon</h1>
         </header>
-        <p>Forge permanent dice. Brave the depths. Extract before the dungeon takes your Souls.</p>
+        <p>Forge permanent dice. Brave the depths. Every victory makes you stronger.</p>
       </section>
 
       <PermanentResourceHud bankedSouls={profile.bankedSouls} xp={profile.xp} />
@@ -76,7 +83,7 @@ export function HubScreen() {
         </button>
         <button className="hub-action hub-action--dungeon" onClick={openDungeonSelect} type="button">
           <span className="hub-action__icon"><Castle aria-hidden="true" size={24} /></span>
-          <span><small>Begin an extraction run</small><strong>Enter Dungeon</strong></span>
+          <span><small>Begin a dungeon descent</small><strong>Enter Dungeon</strong></span>
           <DoorOpen aria-hidden="true" className="hub-action__door" size={20} />
         </button>
       </footer>

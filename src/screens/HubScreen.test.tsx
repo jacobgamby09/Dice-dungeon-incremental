@@ -13,6 +13,8 @@ describe('HubScreen developer reset', () => {
 
     expect(markup).toContain('Developer tools')
     expect(markup).toContain('DEV · Reset game')
+    expect(markup).toContain('Incremental dice combat')
+    expect(markup).not.toContain('Extraction runner')
     expect(markup).not.toContain('Reset everything')
   })
 })

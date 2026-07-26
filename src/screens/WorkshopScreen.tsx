@@ -149,7 +149,7 @@ export function WorkshopScreen() {
               ? 'This face has reached the current permanent cap.'
               : canUpgrade
                 ? `Only Face ${selectedDie.faces.findIndex((face) => face.id === selectedFace.id) + 1} will improve. The other five stay unchanged.`
-                : `Extract ${upgradeCost - profile.bankedSouls} more Banked Souls to forge this face.`}
+                : `Collect ${upgradeCost - profile.bankedSouls} more Souls to forge this face.`}
           </div>
 
           <button

@@ -26,13 +26,13 @@ const ENEMY_INTENT_LANDING_PAUSE_MS = 200
 
 export function CombatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
+    bankedSouls: state.profile.bankedSouls,
     settings: state.profile.settings,
     talentRanks: state.profile.talentRanks,
   })))
   const run = useNewGameStore(useShallow((state) => ({
     dungeonId: state.run.dungeonId,
     encounterIndex: state.run.encounterIndex,
-    runSouls: state.run.runSouls,
     playerHp: state.run.playerHp,
     playerMaxHp: state.run.playerMaxHp,
     equippedDiceSnapshot: state.run.equippedDiceSnapshot,
@@ -234,7 +234,7 @@ export function CombatScreen() {
       <header className="combat-meta">
         <div><span>Floor</span><strong>{run.encounterIndex + 1}/{dungeon.floors.length}</strong></div>
         <div><span>Round</span><strong>{combat.roundNumber}</strong></div>
-        <div className="run-souls"><Flame aria-hidden="true" size={15} /><strong>{run.runSouls}</strong><span>at risk</span></div>
+        <div className="permanent-souls"><Flame aria-hidden="true" size={15} /><strong>{profile.bankedSouls}</strong><span>souls</span></div>
       </header>
 
       <section

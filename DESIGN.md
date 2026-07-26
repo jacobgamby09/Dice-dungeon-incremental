@@ -81,7 +81,7 @@ Fælles lysretning er ovenfra/venstre. Gameplay-glow kommer fra en identificerba
 
 Combat er reference for resten af spillets game feel og læses i denne rækkefølge:
 
-1. Kompakt encounter/round/Run Souls-rail.
+1. Kompakt encounter/round/permanent Souls-rail.
 2. Fysisk enemy-stage med enemy, næste intent og HP.
 3. Kompakt player-rail med HP og kun faktisk afslørede totals.
 4. Aktiv roll-piedestal samt et draw-order-rack til afsluttede resultater.
@@ -131,7 +131,7 @@ Farver er semantiske og skal bruges konsekvent:
 | Attack / fare | `#f87171` | `#7f1d2d` | Attack-faces, skade, fjendtlig trussel |
 | Shield | `#60a5fa` | `#1e3a8a` | Shield-faces og blokering |
 | Heal / sikkerhed | `#4ade80` | `#166534` | Heal-faces, HP og sikre valg |
-| Run/Banked Souls | `#c084fc` / `#d8b4fe` | `#581c87` | Souls, portalenergi, extraction |
+| Permanente Souls | `#c084fc` / `#d8b4fe` | `#581c87` | Soul-loot, portalenergi og dice-forbedringer |
 | Permanent XP | `#67e8f9` | `#164e63` | XP og langsigtet adgang |
 | Forge | `#fb923c` | `#7c2d12` | Workshop, varme og opgraderinger |
 | Primær handling | `#6366f1` | `#312e81` | Neutral progression og dungeon entry |
@@ -299,7 +299,7 @@ Talent Tree er en bevidst undtagelse fra de øvrige fysiske dungeon-rum: det er 
 
 Combat skal kunne aflæses oppefra og ned:
 
-1. Encounter, round og Run Souls at risk.
+1. Encounter, round og permanent Soul-beholdning.
 2. Enemy, HP og intent.
 3. Player HP og aktuelle round totals.
 4. Den aktive draw/roll-flade.
@@ -315,17 +315,17 @@ Victory er en lille scene, ikke en overskrift i et card.
 
 - Brug fysisk banner, besejret enemy, platform og lys/rays.
 - Rewards skal ligne loot drops og have klar XP/Souls-semantik.
-- Current HP, Souls at risk og Total XP opsummeres kompakt.
-- Extract og Continue er fysiske, tematiske stier med tydelig sikkerhed/risiko.
-- Extract er grøn/sikker; Continue er rød/farlig.
-- Resultatet skal føles celebratory uden at skjule den næste beslutning.
+- Current HP, permanent Souls og Total XP opsummeres kompakt.
+- Hver enemy viser et fast permanent XP- og Soul-drop.
+- Der er én tydelig fremadgående handling: næste floor eller Hub efter bossen.
+- Resultatet skal føles celebratory uden at forsinke dungeon-flowet.
 
 ### Defeat
 
 Defeat skal være mørkere og mere stille end Victory, men stadig være en game scene. Vis klart:
 
-- Hvad der blev tabt: ubankede Run Souls.
-- Hvad der blev beholdt: XP, Banked Souls og permanente dice upgrades.
+- At kun dungeon-positionen gik tabt.
+- At XP, Souls og permanente dice upgrades blev beholdt.
 - En entydig vej tilbage til Hub.
 
 Player death har altid prioritet over Victory ved simultaneous death.
@@ -343,10 +343,9 @@ Player death har altid prioritet over Victory ved simultaneous death.
 
 ### HUD og ressourcer
 
-- Brug den fælles `PermanentResourceHud` til Banked Souls og XP.
-- Run Souls skal altid markeres som `at risk` under et run.
+- Brug den fælles `PermanentResourceHud` til permanente Souls og XP.
 - Der findes ingen Gold, Coins eller Materials.
-- Banked Souls og Run Souls må ikke ligne samme state: tekst og kontekst skal tydeliggøre forskellen.
+- Souls er altid permanente og bruger samme lilla identitet i Hub, Combat, Victory og Workshop.
 - Ressourceværdien er vigtigere end dens label.
 
 ### Status og feedback
