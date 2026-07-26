@@ -68,12 +68,19 @@ export interface EncounterReward {
 
 export type RunStatus = 'inactive' | 'active' | 'victory' | 'defeat'
 
+export interface RunStats {
+  enemiesDefeated: number
+  soulsEarned: number
+  xpEarned: number
+}
+
 export interface RunState {
   status: RunStatus
   dungeonId: DungeonId | null
   encounterIndex: number
   playerHp: number
   playerMaxHp: number
+  runStats: RunStats
   equippedDiceSnapshot: DieInstance[]
   enemy: EnemyState | null
   lastReward: EncounterReward | null

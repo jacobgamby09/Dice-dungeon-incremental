@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.4 — 2026-07-23.
+Version: 1.5 — 2026-07-26.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -66,7 +66,7 @@ Fælles lysretning er ovenfra/venstre. Gameplay-glow kommer fra en identificerba
 | Combat | Sort sten, blodbrun arena, stål | Lavt rødt trusselslys | Face-typens farve ved impact |
 | Workshop | Jern, sod, mørkt træ | Orange forge-lys nedefra | Lilla Souls ind i forgen |
 | Victory | Stenplatform, loot-metal | Grøn/cyan reward-belysning | XP-cyan og Souls-lilla |
-| Defeat | Kold sten, slukket jern | Smalt rødt restlys | Kun bevaret progression gløder |
+| Defeat | Kold sten, slukket jern | Smalt rødt restlys | Descent-resumé i cyan og lilla |
 
 ### Typografi og ikoner
 
@@ -81,7 +81,7 @@ Fælles lysretning er ovenfra/venstre. Gameplay-glow kommer fra en identificerba
 
 Combat er reference for resten af spillets game feel og læses i denne rækkefølge:
 
-1. Kompakt encounter/round/permanent Souls-rail.
+1. Kompakt encounter/round/Souls-rail.
 2. Fysisk enemy-stage med enemy, næste intent og HP.
 3. Kompakt player-rail med HP og kun faktisk afslørede totals.
 4. Aktiv roll-piedestal samt et draw-order-rack til afsluttede resultater.
@@ -132,7 +132,7 @@ Farver er semantiske og skal bruges konsekvent:
 | Shield | `#60a5fa` | `#1e3a8a` | Shield-faces og blokering |
 | Heal / sikkerhed | `#4ade80` | `#166534` | Heal-faces, HP og sikre valg |
 | Permanente Souls | `#c084fc` / `#d8b4fe` | `#581c87` | Soul-loot, portalenergi og dice-forbedringer |
-| Permanent XP | `#67e8f9` | `#164e63` | XP og langsigtet adgang |
+| XP | `#67e8f9` | `#164e63` | XP og langsigtet adgang |
 | Forge | `#fb923c` | `#7c2d12` | Workshop, varme og opgraderinger |
 | Primær handling | `#6366f1` | `#312e81` | Neutral progression og dungeon entry |
 | Fokus | `#facc15` | — | Keyboard focus og vigtig opmærksomhed |
@@ -315,17 +315,19 @@ Victory er en lille scene, ikke en overskrift i et card.
 
 - Brug fysisk banner, besejret enemy, platform og lys/rays.
 - Rewards skal ligne loot drops og have klar XP/Souls-semantik.
-- Current HP, permanent Souls og Total XP opsummeres kompakt.
-- Hver enemy viser et fast permanent XP- og Soul-drop.
-- Der er én tydelig fremadgående handling: næste floor eller Hub efter bossen.
-- Resultatet skal føles celebratory uden at forsinke dungeon-flowet.
+- Current HP, dungeon-progress og opdaterede XP/Soul-totals opsummeres kompakt.
+- Hver enemy viser sit faste `+XP`- og `+Souls`-drop uden ord som `Permanent`, `Secured` eller `Kept`.
+- Der vises ingen næste-enemy, HP, Shield, Attack Die eller intent-data.
+- Der er én tydelig fremadgående handling: `Continue to Floor X` eller `Return to Hub` efter bossen.
+- Normal Victory er en kort reward-pulse; Boss Victory er større og viser hele descentens rewards og kill-count.
 
 ### Defeat
 
 Defeat skal være mørkere og mere stille end Victory, men stadig være en game scene. Vis klart:
 
-- At kun dungeon-positionen gik tabt.
-- At XP, Souls og permanente dice upgrades blev beholdt.
+- Floor reached og enemies defeated.
+- XP og Souls optjent i denne descent samt de nye totaler.
+- At næste descent begynder fra Hub, uden legacy-sprog om tabte eller bevarede valutaer.
 - En entydig vej tilbage til Hub.
 
 Player death har altid prioritet over Victory ved simultaneous death.
@@ -343,9 +345,9 @@ Player death har altid prioritet over Victory ved simultaneous death.
 
 ### HUD og ressourcer
 
-- Brug den fælles `PermanentResourceHud` til permanente Souls og XP.
+- Brug den fælles `PermanentResourceHud` til Souls og XP.
 - Der findes ingen Gold, Coins eller Materials.
-- Souls er altid permanente og bruger samme lilla identitet i Hub, Combat, Victory og Workshop.
+- Souls bruger samme lilla identitet i Hub, Combat, Victory og Workshop.
 - Ressourceværdien er vigtigere end dens label.
 
 ### Status og feedback
@@ -484,7 +486,8 @@ Brug disse som visuel og interaktiv baseline:
 - `src/screens/WorkshopScreen.tsx` — forge, face selection og upgrade-feedback.
 - `src/screens/CombatScreen.tsx` — roll/reveal/score-transfer og sekventiel resolution.
 - `src/screens/TalentTreeScreen.tsx` og `src/components/newgame/TalentTreeCanvas.tsx` — panorerbart progression-void, fog-frontier og talent-købsceremoni.
-- `src/screens/PostCombatScreen.tsx` — gamey Victory-stage, loot og path choice.
+- `src/screens/PostCombatScreen.tsx` — kort Victory reward-pulse og større Boss Victory-resumé.
+- `src/screens/DefeatScreen.tsx` — floor reached og optjent descent-progress.
 - `src/newGame.css` — aktuelle tokens, sceneformer, responsive regler og animationer.
 - `src/components/newgame/FaceIcon.tsx` og `faceVisuals.ts` — semantisk face-sprog.
 - `src/components/newgame/PermanentResourceHud.tsx` — permanent resource HUD.

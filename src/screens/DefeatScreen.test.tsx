@@ -1,14 +1,45 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { DefeatScreen } from './DefeatScreen'
 
-describe('DefeatScreen permanent rewards', () => {
-  it('makes clear that XP and Souls survive defeat', () => {
+const mockedStore = vi.hoisted(() => ({
+  state: {
+    profile: {
+      bankedSouls: 15,
+      xp: 24,
+    },
+    run: {
+      dungeonId: 'prototype-depths',
+      encounterIndex: 3,
+      runStats: {
+        enemiesDefeated: 3,
+        soulsEarned: 15,
+        xpEarned: 24,
+      },
+    },
+    returnToHubAfterDefeat: () => undefined,
+  },
+}))
+
+vi.mock('../store/newGameStore', () => ({
+  useNewGameStore: <T,>(selector: (state: typeof mockedStore.state) => T): T => (
+    selector(mockedStore.state)
+  ),
+}))
+
+describe('DefeatScreen descent summary', () => {
+  it('shows the depth and progress earned without legacy risk language', () => {
     const markup = renderToStaticMarkup(<DefeatScreen />)
 
-    expect(markup).toContain('Every reward was kept')
-    expect(markup).toContain('Souls kept')
-    expect(markup).toContain('XP kept')
-    expect(markup).not.toContain('Souls lost')
+    expect(markup).toContain('Floor reached')
+    expect(markup).toContain('4/10')
+    expect(markup).toContain('This descent')
+    expect(markup).toContain('+24')
+    expect(markup).toContain('+15')
+    expect(markup).toContain('3 enemies defeated')
+    expect(markup).toContain('Return to Hub')
+    expect(markup).not.toContain('Permanent')
+    expect(markup).not.toContain('kept')
+    expect(markup).not.toContain('lost')
   })
 })
