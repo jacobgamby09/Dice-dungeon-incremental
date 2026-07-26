@@ -62,8 +62,7 @@ export interface EncounterReward {
   floor: number
   isBoss: boolean
   xp: number
-  runSouls: number
-  bankedSouls: number
+  souls: number
   dungeonComplete: boolean
 }
 
@@ -73,7 +72,6 @@ export interface RunState {
   status: RunStatus
   dungeonId: DungeonId | null
   encounterIndex: number
-  runSouls: number
   playerHp: number
   playerMaxHp: number
   equippedDiceSnapshot: DieInstance[]

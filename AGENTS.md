@@ -45,8 +45,7 @@ Før victory/post-combat må vises, skal spillerens HP være over 0. Nye combat-
 
 Kun disse valutaer findes:
 
-- `runSouls`: optjenes i et aktivt run, mistes ved død og bankes ved extraction.
-- `bankedSouls`: permanent valuta til konkrete dice/face-upgrades i Hub.
+- `bankedSouls`: permanent Soul-valuta, som hvert besejret mob giver direkte, og som bruges til konkrete dice/face-upgrades i Hub. Player-facing hedder den blot `Souls`.
 - `xp`: permanent meta-progression til et senere talent tree.
 
 Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og Souls må ikke bruges på talent tree.
@@ -59,7 +58,8 @@ Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og S
 - Bland en persisteret draw-pile ved rundestart; træk uden replacement, indtil alle udstyrede dice er spillet.
 - `Resolve Round` må ikke aktiveres, mens draw-pilen stadig indeholder dice.
 - Combat-boardet må kun vise faktisk trukne dice i draw-rækkefølge; der findes ingen faste type-slots.
-- Rewards, extraction og face-køb skal være idempotente; reload eller dobbeltklik må ikke duplikere værdier.
+- Enemy rewards og face-køb skal være idempotente; reload eller dobbeltklik må ikke duplikere værdier.
+- Version-6 `runSouls` migreres én gang til permanente `bankedSouls`; nye saves og aktive runs må ikke indeholde `runSouls`.
 - Equipped dice snapshots ved run-start, så Hub-opgraderinger ikke kan ændre et aktivt run.
 
 ## 7. UI og React

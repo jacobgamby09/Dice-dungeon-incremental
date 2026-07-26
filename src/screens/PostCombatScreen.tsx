@@ -15,11 +15,13 @@ export function PostCombatScreen() {
     encounterIndex: state.run.encounterIndex,
     playerHp: state.run.playerHp,
     playerMaxHp: state.run.playerMaxHp,
-    runSouls: state.run.runSouls,
   })))
-  const xp = useNewGameStore((state) => state.profile.xp)
-  const continueRun = useNewGameStore((state) => state.continueRun)
-  const extractRun = useNewGameStore((state) => state.extractRun)
+  const profile = useNewGameStore(useShallow((state) => ({
+    bankedSouls: state.profile.bankedSouls,
+    xp: state.profile.xp,
+  })))
+  const advanceToNextFloor = useNewGameStore((state) => state.advanceToNextFloor)
+  const returnToHubAfterVictory = useNewGameStore((state) => state.returnToHubAfterVictory)
 
   if (!run.lastReward || !run.dungeonId || !run.enemy) return null
   const dungeon = DUNGEONS[run.dungeonId]
@@ -27,7 +29,6 @@ export function PostCombatScreen() {
   const nextEnemy = nextFloor ? ENEMIES[nextFloor.enemyId] : null
   const nextEnemyAttackDie = nextEnemy ? getEnemyAttackDie(nextEnemy.attackDieId) : null
   const dungeonComplete = run.lastReward.dungeonComplete
-  const canContinue = !dungeonComplete && Boolean(nextFloor)
 
   return (
     <main className="game-shell outcome-screen victory-screen">
@@ -64,7 +65,7 @@ export function PostCombatScreen() {
       >
         <div className="loot-spoils__heading">
           <span className="eyebrow">Battle spoils</span>
-          <strong>{dungeonComplete ? 'Secured' : 'Claimed'}</strong>
+          <strong>Permanent</strong>
         </div>
         <div className="loot-drops">
           <div className="loot-drop loot-drop--xp">
@@ -74,8 +75,8 @@ export function PostCombatScreen() {
           <div className="loot-drop loot-drop--souls">
             <span className="loot-drop__icon"><Flame aria-hidden="true" size={24} /></span>
             <div>
-              <strong>+{dungeonComplete ? run.lastReward.bankedSouls : run.lastReward.runSouls}</strong>
-              <span>{dungeonComplete ? 'Total Souls banked' : 'Run Souls'}</span>
+              <strong>+{run.lastReward.souls}</strong>
+              <span>Permanent Souls</span>
             </div>
           </div>
         </div>
@@ -85,42 +86,39 @@ export function PostCombatScreen() {
         <span className="eyebrow">Expedition status</span>
         <div className="expedition-status__stats">
           <div><Heart aria-hidden="true" size={16} /><strong>{run.playerHp}/{run.playerMaxHp}</strong><span>HP</span></div>
-          <div><Flame aria-hidden="true" size={16} /><strong>{dungeonComplete ? run.lastReward.bankedSouls : run.runSouls}</strong><span>{dungeonComplete ? 'Banked' : 'At risk'}</span></div>
-          <div><Sparkles aria-hidden="true" size={16} /><strong>{xp}</strong><span>Total XP</span></div>
+          <div><Flame aria-hidden="true" size={16} /><strong>{profile.bankedSouls}</strong><span>Total Souls</span></div>
+          <div><Sparkles aria-hidden="true" size={16} /><strong>{profile.xp}</strong><span>Total XP</span></div>
         </div>
       </section>
 
-      <section className={`decision-paths${canContinue ? '' : ' decision-paths--single'}`}>
-        <article className="path-choice path-choice--extract">
-          <div className="path-choice__marker"><Heart aria-hidden="true" size={20} /></div>
-          <div className="path-choice__copy">
-            <span>{dungeonComplete ? 'Spoils secured' : 'Safe passage'}</span>
-            <h2>Return to the Hub</h2>
-            <p>{dungeonComplete ? `${run.lastReward.bankedSouls} Souls were banked automatically.` : `Bank all ${run.runSouls} Run Souls.`}</p>
-          </div>
-          <button className="pixel-button pixel-button--extract" onClick={extractRun} type="button">
-            {dungeonComplete ? 'Return to Hub' : `Extract · Bank ${run.runSouls}`}
-          </button>
-        </article>
-
-        {canContinue && nextFloor && nextEnemy && nextEnemyAttackDie && (
-          <>
-            <div aria-hidden="true" className="path-divider"><span>or</span></div>
-            <article className="path-choice path-choice--deeper">
-              <div className="path-choice__marker"><Swords aria-hidden="true" size={20} /></div>
-              <div className="path-choice__copy">
-                <span>{nextFloor.isBoss ? 'Boss floor' : `Floor ${nextFloor.floor} awaits`}</span>
-                <h2>{nextEnemy.name}</h2>
-                <p>HP {nextEnemy.maxHp} · Attack Die {nextEnemyAttackDie.faces.map((face) => face.value).join('·')}.</p>
-                <p>Its exact attack is rolled and revealed before your next round.</p>
-                {nextEnemy.startingShield > 0 && <p><Shield aria-hidden="true" size={14} /> Starts with {nextEnemy.startingShield} Shield.</p>}
-              </div>
-              <button className="pixel-button pixel-button--danger" onClick={continueRun} type="button">
-                <Swords aria-hidden="true" size={16} /> Descend Deeper
-              </button>
-            </article>
-          </>
-        )}
+      <section className="decision-paths decision-paths--single">
+        {dungeonComplete ? (
+          <article className="path-choice path-choice--return">
+            <div className="path-choice__marker"><Heart aria-hidden="true" size={20} /></div>
+            <div className="path-choice__copy">
+              <span>Dungeon conquered</span>
+              <h2>Return to the Hub</h2>
+              <p>Every Soul and point of XP earned in the descent is permanently yours.</p>
+            </div>
+            <button className="pixel-button pixel-button--primary" onClick={returnToHubAfterVictory} type="button">
+              Return to Hub
+            </button>
+          </article>
+        ) : nextFloor && nextEnemy && nextEnemyAttackDie ? (
+          <article className="path-choice path-choice--deeper">
+            <div className="path-choice__marker"><Swords aria-hidden="true" size={20} /></div>
+            <div className="path-choice__copy">
+              <span>{nextFloor.isBoss ? 'Boss floor' : `Floor ${nextFloor.floor} awaits`}</span>
+              <h2>{nextEnemy.name}</h2>
+              <p>HP {nextEnemy.maxHp} · Attack Die {nextEnemyAttackDie.faces.map((face) => face.value).join('·')}.</p>
+              <p>Its exact attack is rolled and revealed before your next round.</p>
+              {nextEnemy.startingShield > 0 && <p><Shield aria-hidden="true" size={14} /> Starts with {nextEnemy.startingShield} Shield.</p>}
+            </div>
+            <button className="pixel-button pixel-button--danger" onClick={advanceToNextFloor} type="button">
+              <Swords aria-hidden="true" size={16} /> Descend Deeper
+            </button>
+          </article>
+        ) : null}
       </section>
     </main>
   )

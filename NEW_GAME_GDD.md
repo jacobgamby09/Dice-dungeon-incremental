@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: MVP 0.4.
+Status: gældende design for det nye spil. Version: MVP 0.5.
 
 ## High concept
 
@@ -8,7 +8,7 @@ Dice Dungeon Incremental er først og fremmest et mobile-first incremental comba
 
 Spillerens terninger er permanente genstande. Hver terning har seks individuelle faces med stabile IDs. Spilleren mærker progressionen direkte ved at opgradere én konkret face og senere se netop den face lande i kamp.
 
-Extraction er spillets risikolag, ikke dets primære genreidentitet. Et run skaber altid permanent fremgang gennem XP, mens extraction afgør, om de optjente Run Souls også kommer med hjem og kan forbedre terningerne.
+Hver besejret fjende giver både permanent XP og permanente Souls. Defeat afslutter det aktuelle dungeon-forsøg og nulstiller dybden, men fjerner aldrig allerede optjente rewards.
 
 Det overordnede produktløfte er:
 
@@ -16,7 +16,7 @@ Det overordnede produktløfte er:
 
 Det centrale spørgsmål inde i et run er:
 
-> Tør jeg tage én kamp mere med min nuværende HP og mine Run Souls på spil?
+> Hvor dybt kan mine nuværende permanente dice bringe mig, før jeg må vende stærkere tilbage?
 
 Det gamle Dice Dungeon spurgte, om spilleren turde trække én terning mere før bust. Det draw/bust-loop er ikke en del af det nye spil.
 
@@ -27,7 +27,7 @@ Spillets systemer prioriteres i denne rækkefølge:
 1. Permanent incremental fremgang.
 2. Personlige, permanente terninger.
 3. Klar og tilfredsstillende combat-feedback.
-4. Extraction-risiko omkring Souls.
+4. Et flydende dungeon-loop uden tab af allerede optjent progression.
 5. Gradvis automation og større systemdybde.
 
 Tidlige runs må gerne være korte. De er ikke selvstændige roguelike-builds, der skal kunne gennemføre alt fra starten. De leverer ressourcer til den permanente progression, som flytter spillerens forventede dungeon-dybde over tid.
@@ -41,11 +41,10 @@ Hub
 → vælg dungeon
 → træk alle permanente terninger i tilfældig rækkefølge
 → resolve Heal, Attack, Shield og enemy intent
-→ vind XP og Run Souls
-→ bliv permanent tættere på næste XP-talent
-→ Extract og bank Souls, eller Continue og risikér dem for større udbytte
+→ vind permanent XP og permanente Souls fra hver enemy
+→ fortsæt lineært til næste floor eller returnér efter Defeat/boss
 → brug XP på karakter-, system- og content-unlocks
-→ brug Banked Souls på én bestemt face på én eksisterende terning
+→ brug Souls på én bestemt face på én eksisterende terning
 → start et nyt run med større kapacitet og stærkere personlige dice
 → nå dybere, tjene hurtigere og unlock mere automation
 ```
@@ -55,8 +54,7 @@ Hub
 | Ressource | Type | Optjenes | Bruges | Ved død |
 |---|---|---|---|---|
 | XP | Permanent | Ved enemy kill | Talent tree | Beholdes |
-| Run Souls | Midlertidig | Ved enemy kill | Extraction-pulje | Mistet |
-| Banked Souls | Permanent | Ved extraction | Dice/face-upgrades | Beholdes |
+| Souls | Permanent | Ved enemy kill | Dice/face-upgrades | Beholdes |
 
 Der findes ingen Gold, Coins eller Materials.
 
@@ -80,18 +78,18 @@ XP bruges på Talent Tree til eksempelvis:
 - Nye dungeons.
 - Højere face caps.
 - Adgang til face evolutions.
-- Soul-relaterede talents, eksempelvis delvis beskyttelse ved Defeat.
+- Soul-relaterede talents, eksempelvis større loot-udbytte.
 
-XP gør ikke eksisterende dice faces stærkere direkte. En XP-node kan give adgang til eller tildele en ny permanent die, men efterfølgende forbedringer af den konkrete die betales med Banked Souls.
+XP gør ikke eksisterende dice faces stærkere direkte. En XP-node kan give adgang til eller tildele en ny permanent die, men efterfølgende forbedringer af den konkrete die betales med Souls.
 
 ### Souls — konkret dice-styrke
 
-Souls repræsenterer kraft taget med ud af dungeonen. Ved enemy kills tilføjes de som Run Souls til det aktive run.
+Souls repræsenterer den permanente kraft, hver besejret fjende efterlader som loot.
 
-- Ved `Defeat` mistes alle ubankede Run Souls.
-- Ved `Extract` flyttes alle Run Souls atomisk til Banked Souls.
-- Banked Souls mistes aldrig ved Defeat.
-- Banked Souls bruges kun på konkrete permanente dice- og face-upgrades.
+- Hver enemy har et fast `soulReward` større end 0.
+- Rewarden lægges atomisk direkte til spillerens permanente Soul-beholdning ved et gyldigt kill.
+- Souls mistes aldrig ved Defeat.
+- Souls bruges kun på konkrete permanente dice- og face-upgrades.
 
 Souls svarer på:
 
@@ -106,11 +104,11 @@ XP unlocker muligheder; Souls forbedrer de konkrete muligheder:
 ```text
 XP: Unlock Shield Dice
 → spilleren modtager sin første permanente Shield Die
-→ Banked Souls forbedrer individuelle faces på netop den terning
+→ Souls forbedrer individuelle faces på netop den terning
 
 XP: Unlock Face Mastery
 → faces må udvikles over den nuværende cap
-→ Banked Souls betaler for den konkrete face-opgradering eller evolution
+→ Souls betaler for den konkrete face-opgradering eller evolution
 ```
 
 Denne opdeling er bindende. Talent Tree og Die Workshop må aldrig konkurrere om samme funktion.
@@ -189,11 +187,11 @@ Spilleren skal kunne føle sig overpowered. En fjende, der bliver dræbt af spil
 
 Resolutionen vises som to faktiske state-trin: først opdateres enemy HP og spillerens Attack-animation, derefter — efter en tydelig pause — udføres og vises en overlevende fjendes tur. Player HP må ikke falde, før enemy-trinnet begynder.
 
-## Dungeon og extraction
+## Dungeon-flow og permanente rewards
 
 MVP-dungeonen `The First Descent` har ti floors. Floor 10 er bossen.
 
-| Floor | Enemy | HP | Start Shield | Attack Die faces | XP | Run Souls |
+| Floor | Enemy | HP | Start Shield | Attack Die faces | XP | Souls |
 |---:|---|---:|---:|---|---:|---:|
 | 1 | Slime | 5 | 0 | 1·2·2·2·2·3 | 8 | 5 |
 | 2 | Slime Crawler | 7 | 0 | 2·2·2·3·3·3 | 10 | 7 |
@@ -206,20 +204,19 @@ MVP-dungeonen `The First Descent` har ti floors. Floor 10 er bossen.
 | 9 | Blood Orc | 29 | 0 | 5·5·5·6·6·7 | 40 | 36 |
 | 10 | Demon — Boss | 38 | 6 | 6·6·6·7·8·9 | 60 | 60 |
 
-HP fortsætter mellem encounters. Efter hver sejr gives XP permanent med det samme, mens Souls føjes til run-puljen.
+HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
-- `Extract`: flyt alle Run Souls atomisk til Banked Souls, afslut run og returnér til Hub.
-- `Continue`: behold HP og Run Souls, spawn næste encounter med større pres og reward.
-- `Defeat`: sæt Run Souls til 0; behold XP, Banked Souls, dice collection og face-upgrades.
-- `Boss Victory`: bank hele runnets Soul-pulje automatisk, markér dungeon-clear og returnér derefter til Hub uden en ekstra risikobeslutning.
+- `Victory`: vis begge permanente rewards og én fremadgående handling til næste floor.
+- `Defeat`: afslut forsøget og nulstil dungeon-dybden; behold XP, Souls, dice collection og face-upgrades.
+- `Boss Victory`: giv bossens permanente rewards, markér dungeon-clear og returnér derefter til Hub.
 
-Et Defeat er derfor ikke et tabt run i incremental forstand: al XP optjent under runnet beholdes og flytter spilleren permanent mod næste talent. Det eneste risikotab er de endnu ikke bankede Run Souls.
+Et Defeat er derfor ikke et tabt run i incremental forstand. Spilleren mister kun positionen i dungeonen og den tid, der skal bruges på at nå samme dybde igen.
 
 ## Die Workshop
 
 Spilleren vælger først én permanent terning og derefter én af dens seks konkrete faces. UI viser face-ID, nuværende værdi, næste værdi og pris.
 
-| Upgrade | Banked Souls |
+| Upgrade | Souls |
 |---|---:|
 | 1 → 2 | 5 |
 | 2 → 3 | 10 |
@@ -232,8 +229,8 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 
 - Save-formatet er versionsstyret.
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.
-- Profil, aktivt run, enemy, HP, Run Souls, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
-- Save version 6 bruger canonical `talentRanks`, migrerer version-5 talent-ID'er til rank 1, migrerer eksisterende numeriske enemy intents til stabile faces og afviser inkompatible legacy combat-shapes sikkert til Hub i stedet for at lade UI'et crashe.
+- Profil, aktivt run, enemy, HP, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
+- Save version 7 fjerner `runSouls` og flytter eventuelle version-6 Run Souls sikkert til spillerens permanente Soul-beholdning. De tidligere talent-, intent- og combat-shape-migrationer bevares.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning
@@ -249,7 +246,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
 - Workshop skal føles som et forge-rum: dice-rack, seks fysiske face-fliser, anvil-preview og synlig Souls/impact-feedback, når præcis ét permanent face forbedres.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
-- Victory skal føles som en pixel-game scene frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, loot-pickups og to tydelige ruter for Extract eller Continue.
+- Victory skal føles som en pixel-game scene frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, permanente XP/Soul-loot-pickups og én tydelig rute videre.
 - Kritisk information må aldrig eksistere kun i animation; resultat og totals forbliver læsbare.
 
 ## MVP-balance og næste gate
@@ -268,6 +265,6 @@ Enemy dice sænker den gennemsnitlige dybde en anelse uden at flytte de tilsigte
 
 Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 
-> Føles hvert tidligt run som permanent fremgang gennem XP, samtidig med at extraction af Souls er spændende, og kan spilleren tydeligt mærke både nye muligheder og stærkere personlige dice i efterfølgende runs?
+> Føles hvert enemy kill som permanent fremgang gennem både XP og Souls, og kan spilleren tydeligt mærke både nye muligheder og stærkere personlige dice i efterfølgende runs?
 
 Der skal især måles, om Twin Arsenal faktisk købes efter run 2–3, om spilleren forstår at nye dice skal equippes, og om boss-væggen føles motiverende frem for abrupt. Hvis svaret ikke er et tydeligt ja, justeres XP-priser, enemy-tal, rewards og face-priser før større content-produktion.

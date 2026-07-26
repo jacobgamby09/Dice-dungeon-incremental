@@ -1,14 +1,14 @@
 # New Dice Dungeon — Implementation Plan
 
-## Implementeringsstatus — 23. juli 2026
+## Implementeringsstatus — 26. juli 2026
 
-Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → Victory/Defeat → Extract/Continue → permanent progression er nu spilbart. Floor 10 er en Demon-boss, der automatisk banker hele runnets Soul-pulje ved sejr.
+Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → permanente XP/Soul-rewards → næste floor eller Defeat → permanent progression er nu spilbart. Hver besejret enemy giver permanent XP og permanente Souls med det samme.
 
 XP Talent Tree bruger nu canonical talent-ranks og et klassisk dice-node map. Battle-Hardened kan købes tre gange for samlet +6 Max HP; rank 1 åbner anden Attack Die, mens yderligere HP-ranks forbliver valgfrie. Shieldcraft åbner tre specialiseringsgrene, og én fremtidig frontier vises som en navnløs fog-silhuet. Nye dice er unikke permanente objekter og skal aktivt equippes.
 
-Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 6 migrerer version-5 talent-ID'er til rank 1, migrerer numeriske intents til stabile enemy-face-ID'er og gendanner sikkert fra inkompatible legacy combat-shapes.
+Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 7 fjerner `runSouls`, flytter gamle Run Souls til permanente Souls én gang og bevarer de tidligere talent-, intent- og combat-shape-migrationer.
 
-Arbejdet fortsætter lokalt på branch `agent/rebuild-ranked-talent-tree`. Dette forløbs ændringer er ikke committed endnu.
+Den gældende gameplay-retning er permanent progression fra hvert kill uden extraction eller tab af Souls ved Defeat.
 
 ## Dokumentets formål
 
@@ -21,9 +21,7 @@ Det overordnede mål er at bevise følgende kerne-loop:
 ```text
 Kæmp
 ↓
-Risiker Run Souls
-↓
-Extract
+Modtag permanent XP og permanente Souls
 ↓
 Opgrader én konkret face permanent
 ↓
@@ -42,10 +40,10 @@ Følgende regler er fundamentale og må ikke ændres indirekte under implementat
 - Hver terning har sin egen permanente identitet.
 - Hver af en ternings seks faces er et individuelt, permanent objekt med sit eget ID.
 - XP er permanent og mistes aldrig.
-- Run Souls er midlertidige og mistes ved død.
-- Extraction flytter Run Souls til Banked Souls.
+- Hver besejret enemy giver et fast permanent Soul-drop.
+- Souls mistes aldrig ved død.
 - XP bruges i talent tree.
-- Banked Souls bruges på konkrete terninger og individuelle faces.
+- Souls bruges på konkrete terninger og individuelle faces.
 - Der findes ingen Gold, Coins eller Materials.
 - HP fortsætter mellem encounters i samme dungeon-run.
 - Shield er midlertidigt og nulstilles efter rundens resolution.
@@ -93,7 +91,7 @@ Det gamle spil er et extraction bag-builder-spil, hvor kernespørgsmålet er:
 
 Det nye spil handler i stedet om:
 
-> Hvordan udvikler jeg mine permanente terninger, og tør jeg risikere mine Souls i én kamp mere?
+> Hvordan udvikler jeg mine permanente terninger, så jeg kan nå dybere næste gang?
 
 Det er to forskellige spil. Den gamle implementation skal derfor behandles som reference og donor-materiale, ikke som den nye domain-model.
 
@@ -170,7 +168,6 @@ src/
 
     progression/
       awardRewards.ts
-      extractRun.ts
       upgradeFace.ts
 
   store/
@@ -281,7 +278,6 @@ type RunState = {
   status: 'inactive' | 'active' | 'victory' | 'defeat'
   dungeonId: string
   encounterIndex: number
-  runSouls: number
   playerHp: number
   playerMaxHp: number
   equippedDiceSnapshot: DieInstance[]
@@ -370,7 +366,7 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 - En reload ændrer ikke allerede rullede resultater.
 - XP, Souls, dice collection og face-upgrades overlever reload.
-- Et aktivt run fortsætter med samme HP, Run Souls, enemy og runde.
+- Et aktivt run fortsætter med samme HP, enemy og runde.
 - Det gamle Dice Dungeon-save kan ikke påvirke det nye spil.
 
 ---
@@ -430,46 +426,37 @@ Den nuværende mappe er arbejdsgrundlaget for det nye repository.
 
 ---
 
-## Fase 4 — Dungeon-run og extraction
+## Fase 4 — Dungeon-run og permanent mob-loot
 
 Den første dungeon består af ti eskalerende floors. Floor 10 er en boss, og alle ti enemies bruger eksisterende sprite-assets.
 
 ### Victory-flow
 
 - XP gives permanent med det samme.
-- Run Souls tilføjes det aktive run.
-- Spilleren ser nuværende HP og Run Souls.
+- Enemyens faste Soul-reward gives permanent med det samme.
+- Spilleren ser nuværende HP, permanent XP og permanente Souls.
 - Spilleren ser information om næste encounter.
-- Spilleren vælger `EXTRACT` eller `CONTINUE`.
+- Spilleren har én fremadgående handling til næste floor.
 
-### Continue
+### Næste floor
 
 - HP fortsætter uændret.
-- Run Souls forbliver i fare.
 - Næste enemy spawner.
 - Næste encounter giver en større reward.
 
-### Extract
-
-- Run Souls flyttes atomisk til Banked Souls.
-- Run Souls sættes til 0.
-- Runnet afsluttes.
-- Spilleren returnerer til Hub.
-
 ### Defeat
 
-- Run Souls sættes til 0.
 - XP beholdes.
-- Banked Souls beholdes.
+- Souls beholdes.
 - Dice collection og alle face-upgrades beholdes.
 - Spilleren returnerer til Hub efter Defeat-skærmen.
 
 ### Acceptkriterier
 
-- Extraction-valget har økonomisk betydning efter første encounter.
-- HP-attrition skaber stigende risiko gennem dungeon.
+- Hvert kill giver permanent XP og Souls præcis én gang.
+- HP-attrition skaber stigende pres gennem dungeon.
 - Rewards kan ikke gives to gange gennem reload eller dobbeltklik.
-- Død påvirker kun de værdier, der eksplicit er midlertidige.
+- Død nulstiller kun dungeon-positionen, aldrig allerede optjente currencies.
 
 ---
 
@@ -484,7 +471,7 @@ Hubben får et simpelt Die Workshop.
 3. Vis dens seks individuelle faces.
 4. Vælg én konkret face.
 5. Vis nuværende værdi, næste værdi og pris.
-6. Betal med Banked Souls.
+6. Betal med Souls.
 7. Opgrader kun den valgte `face.id`.
 8. Gem ændringen permanent.
 9. Afvis opgraderinger over den aktuelle face cap.
@@ -493,10 +480,10 @@ Hubben får et simpelt Die Workshop.
 
 | Upgrade | Pris |
 |---|---:|
-| 1 → 2 | 5 Banked Souls |
-| 2 → 3 | 10 Banked Souls |
-| 3 → 4 | 40 Banked Souls |
-| 4 → 5 | 100 Banked Souls |
+| 1 → 2 | 5 Souls |
+| 2 → 3 | 10 Souls |
+| 3 → 4 | 40 Souls |
+| 4 → 5 | 100 Souls |
 
 Priserne er prototypeværdier og skal være data-driven.
 
@@ -512,7 +499,7 @@ Priserne er prototypeværdier og skal være data-driven.
 
 Efter Fase 5 stoppes content-udvidelsen midlertidigt. Følgende skal playtestes:
 
-> Er det tilfredsstillende at risikere Souls, extracte, forbedre én konkret face og derefter genkende forbedringen under næste run?
+> Er det tilfredsstillende at modtage Souls fra hvert kill, forbedre én konkret face og derefter genkende forbedringen under næste run?
 
 Hvis svaret ikke er tydeligt ja, forbedres combat-feedback, pacing og upgrade-loopet, før talent tree og større content bygges.
 
@@ -549,7 +536,7 @@ Tree-layoutet er et mobile-first vertikalt dice-node map. Nodes kan have én ell
 - **Control:** Auto Roll, roll speed og senere Auto Resolve.
 - **Exploration:** Nye dungeons og encounter-information.
 - **Mastery:** Face caps og adgang til evolutions.
-- **Extraction:** Soul protection og reward-forbedringer.
+- **Rewards:** Soul loot-forbedringer og senere reward-specialisering.
 
 ### Regler
 
@@ -614,7 +601,7 @@ Gamle Dice Dungeon-mekanikker bruges som inspirationsbank, ikke som implementati
 
 ```text
 XP unlocker muligheden
-Banked Souls betaler for den konkrete evolution
+Souls betaler for den konkrete evolution
 ```
 
 Eksempel:
@@ -647,36 +634,21 @@ Dette erstatter den gamle arkitekturs mange duplikerede icon- og color-maps.
 
 ---
 
-## Fase 10 — Dungeons, bosses og extraction-depth
+## Fase 10 — Dungeons, bosses og reward-depth
 
 ### Arbejde
 
-- Flyt gradvist extraction fra efter hver mob til designede checkpoints.
 - Øg rewards jo dybere spilleren går.
 - Tilføj enemy intent cycles.
 - Tilføj bosses med tydeligt forudsigelige mønstre.
 - Introducér enemy Shield, Wound eller andre counters efter behov.
 - Tilføj nye dungeons gennem talent progression.
-- Introducér Soul protection forsigtigt.
-
-### Soul protection-regel
-
-Spilleren skal fortsat kun forstå to Souls-beholdninger:
-
-- Run Souls i fare.
-- Banked Souls i sikkerhed.
-
-Beskyttede Souls bør enten:
-
-- Flyttes direkte til Banked Souls, når de sikres, eller
-- Beregnes ved dødsøjeblikket.
-
-Der bør ikke tilføjes en tredje synlig currency-pung.
+- Introducér eventuelle Soul loot-modifiers uden at skabe en ny valuta.
 
 ### Acceptkriterier
 
-- Continue giver målbart højere reward end Extract.
-- Extraction forbliver relevant trods beskyttelsestalenter.
+- Dybere floors giver målbart højere permanent reward.
+- Alle reward-modifiers bevarer én tydelig permanent Soul-beholdning.
 - En OP spiller kan stadig dræbe svagere enemies før deres tur.
 - Sværere enemies skaber modspil gennem stats og mechanics, ikke posthume angreb.
 
@@ -694,7 +666,7 @@ Der bør ikke tilføjes en tredje synlig currency-pung.
 - Fjern alle dev-controls fra produktionsflowet.
 - Profilér 12-terningers combat.
 - Balancér HP, enemy scaling, rewards og upgrade costs.
-- Gennemfør hele flowet fra nyt save til flere succesfulde extractions.
+- Gennemfør hele flowet fra nyt save til flere dungeon-forsøg og permanente upgrades.
 
 ---
 
@@ -705,8 +677,7 @@ Der bør ikke tilføjes en tredje synlig currency-pung.
 ```text
 10 HP
 0 XP
-0 Run Souls
-0 Banked Souls
+0 Souls
 
 1 Attack Die
 
@@ -760,10 +731,9 @@ Efter hver implementeringsfase skal relevante checks bestå:
 - Shield nulstilles efter runden.
 - Player Death har prioritet ved reel Double K.O.
 - XP beholdes ved død.
-- Run Souls mistes ved død.
-- Banked Souls beholdes ved død.
+- Souls beholdes ved død.
 - Dice og face-upgrades beholdes ved død.
-- Extraction overfører Souls præcis én gang.
+- Hvert enemy kill giver permanent XP og Souls præcis én gang.
 - Rewards kan ikke duplikeres ved reload.
 - Kun den valgte `face.id` opgraderes.
 - Face cap respekteres.
@@ -780,7 +750,7 @@ Efter hver implementeringsfase skal relevante checks bestå:
 - Dice spin og landing viser korrekt face.
 - Effekt-animation lander ved korrekt total.
 - UI fungerer med 1, 3, 6 og 12 terninger.
-- Victory, Extract, Continue og Defeat kan ikke overlappe forkert.
+- Victory, næste floor og Defeat kan ikke overlappe forkert.
 
 ---
 
@@ -798,21 +768,19 @@ Den første prototype er færdig, når spilleren kan:
 8. Dræbe en enemy, før den angriber.
 9. Fortsætte gennem en 10-floor dungeon med vedvarende HP og en boss på floor 10.
 10. Optjene permanent XP.
-11. Optjene midlertidige Run Souls.
-12. Vælge Extract eller Continue.
-13. Beholde XP ved død.
-14. Miste Run Souls ved død.
-15. Banke Run Souls ved extraction.
-16. Opgradere én bestemt permanent face.
-17. Starte et nyt run.
-18. Rulle og genkende den forbedrede face.
-19. Genindlæse spillet uden at miste progression eller ændre et aktivt run.
-20. Bruge XP på fungerende talenter og mærke den første upgrade efter run 1.
-21. Unlocke en unik anden Attack Die efter cirka run 2–3 og aktivt equippe den.
-22. Unlocke Shield, Heal, Quick Draw og en spillerstyret Auto Roll-toggle.
-23. Få hele Soul-puljen banket automatisk ved første boss-clear.
+11. Optjene permanente Souls fra hvert mob.
+12. Fortsætte lineært til næste floor.
+13. Beholde både XP og Souls ved død.
+14. Opgradere én bestemt permanent face.
+15. Starte et nyt run.
+16. Rulle og genkende den forbedrede face.
+17. Genindlæse spillet uden at miste progression eller ændre et aktivt run.
+18. Bruge XP på fungerende talenter og mærke den første upgrade efter run 1.
+19. Unlocke en unik anden Attack Die efter cirka run 2–3 og aktivt equippe den.
+20. Unlocke Shield, Heal, Quick Draw og en spillerstyret Auto Roll-toggle.
+21. Modtage bossens XP- og Soul-reward permanent præcis én gang.
 
-Først efter browser-playtest og balance-gaten går implementationen videre til flere dice families, evolutions, nye dungeons og avancerede extraction-systemer.
+Først efter browser-playtest og balance-gaten går implementationen videre til flere dice families, evolutions, nye dungeons og avancerede reward-systemer.
 
 ---
 
@@ -827,18 +795,17 @@ Efter den første fungerende kamp vurderes:
 - Er tempoet rigtigt, når alle dice skal trækkes, og boardet vokser dynamisk?
 - Føles victory før enemy attack stærk og retfærdig?
 
-### Gate B — Extraction-loop
+### Gate B — Permanent reward-loop
 
 Efter den første 10-floor dungeon vurderes:
 
-- Er Continue fristende?
 - Er HP-attrition tydelig?
-- Gør tabet af Run Souls ondt nok til at skabe spænding?
-- Er XP-retention en god sikkerhedsventil?
+- Føles hvert kill værdifuldt gennem både XP og Souls?
+- Skaber dungeon-positionen tilstrækkelig spænding uden currency-tab?
 
 ### Gate C — Permanent face-upgrade
 
-Efter første extraction og upgrade vurderes:
+Efter første Soul-drop og upgrade vurderes:
 
 - Føles valget af en konkret face personligt?
 - Er forbedringen genkendelig i næste run?
@@ -852,7 +819,7 @@ Før større content-produktion vurderes:
 - Skaber talent tree nye muligheder frem for kun større tal?
 - Er flere dice slots interessante uden at ødelægge tempoet?
 - Er automatisering en tilfredsstillende unlock?
-- Bevarer extraction sin betydning efter permanente upgrades?
+- Bevarer XP og Souls hver sin tydelige rolle efter permanente upgrades?
 
 ---
 
@@ -874,4 +841,4 @@ Animation
 Browser-verifikation
 ```
 
-Ingen stor content-udvidelse må bruges til at kompensere for et utilfredsstillende core-loop. Det centrale produktløfte er de permanente, selvbyggede terninger og spændingen ved at risikere Run Souls i én kamp mere.
+Ingen stor content-udvidelse må bruges til at kompensere for et utilfredsstillende core-loop. Det centrale produktløfte er de permanente, selvbyggede terninger og følelsen af, at hvert kill bringer spilleren varigt fremad.
