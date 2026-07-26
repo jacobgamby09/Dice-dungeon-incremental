@@ -313,7 +313,6 @@ export function CombatScreen() {
         </header>
 
         <div className="dice-arena">
-          <div aria-hidden="true" className="dice-arena__runes" />
           <div className={`roll-pedestal${activeDie ? ' roll-pedestal--active' : ''}`}>
             {activeDie && pendingResult && activeRoll ? (
               <RollDieTile
@@ -324,13 +323,7 @@ export function CombatScreen() {
                 rollDuration={rollDurationSeconds}
                 stage={activeRoll.stage}
               />
-            ) : (
-              <div className={`roll-prompt${roundReady ? ' roll-prompt--ready' : ''}`}>
-                {roundReady ? <Swords aria-hidden="true" size={24} /> : <Dices aria-hidden="true" size={24} />}
-                <strong>{roundReady ? 'Power gathered' : 'Pedestal waiting'}</strong>
-                <span>{roundReady ? 'Resolve when ready' : 'Draw to reveal a face'}</span>
-              </div>
-            )}
+            ) : null}
           </div>
 
           <div className="played-dice-rack">

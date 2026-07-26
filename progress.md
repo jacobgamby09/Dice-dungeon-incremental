@@ -52,16 +52,17 @@ Brug denne skabelon:
 - Hver enemy har nu sin egen seks-sidede Attack Die. Resultatet fastlåses og persisteres før reveal-animationen, hvorefter spilleren får den præcise værdi at reagere på.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
+- Combat viser nu Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif og en næsten-sort roll-flade uden runer, tom piedestal eller idle-instruktioner.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Normal Victory viser kun encounter-reward, totals, HP, dungeon-progress og én Continue-knap; næste-enemy-data er fjernet. Boss Victory og Defeat bruger et persisteret descent-resumé med enemies defeated samt optjent XP/Souls.
 - Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
-- En deterministisk simulator og 63 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice og de atomiske transitions.
+- En deterministisk simulator og 66 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice, sprite-mapping og de atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#13 — Redesign victory and defeat outcomes](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/13), squash merge `1c06584`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et fresh save ved 320 px og 384 px og verificér timing, plads og læsbarhed på normal Victory, Boss Victory og Defeat-resuméet samt at første kill giver 8 XP + 5 Souls.
+1. Gennemspil et fresh save ved 320 px og 384 px og verificér enemy-navne, Slime Crawler-/Marrow Bat-animationer, den ryddede roll-flade, normal Victory, Boss Victory og Defeat-resuméet samt at første kill giver 8 XP + 5 Souls.
 2. Gennemspil spatial-canvas Talent Tree-previewet og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
 3. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
 4. Tune permanent Soul-indtjening, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
@@ -71,6 +72,7 @@ Brug denne skabelon:
 
 - Browserlaget havde ingen tilgængelig browser i spatial-canvas-sessionen. Vite-root, SSR, viewport-matematik og production-build er verificeret, men det nye pan, nodeplacering, inspector og købsceremoni mangler stadig den obligatoriske subjektive 320/384 px-browserkontrol.
 - Det nye outcome-layout er dækket semantisk og via SSR, men reward-timing, sticky CTA og den visuelle tæthed ved 320/384 px skal stadig godkendes i en rigtig mobilbrowser.
+- Det ryddede combat-layout og de rettede early-enemy-sprites består build- og mappingtests, men den endelige størrelse, baseline og visuelle ro skal stadig godkendes ved 320/384 px.
 - Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
@@ -106,8 +108,22 @@ Brug denne skabelon:
 - En død enemy angriber aldrig.
 - Player death har prioritet ved reel samtidig død.
 - Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
+- Combat-roll-fladen bruger næsten-sort negativ plads uden runer, tom piedestal eller idle-copy; kun et aktivt roll må dominere området.
+- Enemy-navne bruger en ren sans-serif uden display-shadow, og stabile compact content-navne skal mappe direkte til deres egne sprite-sheets uden den gamle hardcodede placeholder.
 
 ## Historik
+
+### 2026-07-26 — Combat UI og early-enemy-sprites poleret
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Enemy-navnet er gjort renere og mere læsbart, Slime Crawler og Marrow Bat bruger nu hver deres korrekte animation-sheets, og roll-fladen er ryddet for murstensbaggrund, runer, tom piedestal og overflødig idle-copy.
+- Beslutninger: Sprite-rendereren normaliserer stabile compact content-navne som `SlimeCrawler`, `MarrowBat` og `BloodOrc`; den gamle hardcodede Slime Crawler-fallback er fjernet. Den tomme roll-flade bruger bevidst negativ plads, mens draw-header og primær knap kommunikerer state.
+- Berørte områder: Fælles enemy-sprite-renderer og regressionstest, Combat-komposition, combat-CSS, visuel designreference og progress-log.
+- Validering: `npx tsc --noEmit`, alle 66 tests, ESLint, production-build og `git diff --check` består. De ændrede React-komponenter er gennemgået mod React-kvalitetsreglerne uden fund, den lokale Vite-root svarede HTTP 200, og begge enemy-sæt følger 100 px høje horisontale sheets med det forventede frame-antal.
+- Kendte mangler: Browserruntime havde ingen tilgængelig browser, så sprite-størrelse, baseline, typografi og den ryddede roll-flade skal stadig vurderes subjektivt ved 320 px og 384 px.
+- Git: `30f9c75` — `Polish combat presentation` på `agent/polish-combat-ui`.
 
 ### 2026-07-26 — Incremental Victory- og Defeat-flow
 
