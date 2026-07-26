@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.5 — 2026-07-26.
+Version: 1.6 — 2026-07-26.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -84,10 +84,10 @@ Combat er reference for resten af spillets game feel og læses i denne rækkefø
 1. Kompakt encounter/round/Souls-rail.
 2. Fysisk enemy-stage med enemy, næste intent og HP.
 3. Kompakt player-rail med HP og kun faktisk afslørede totals.
-4. Aktiv roll-piedestal samt et draw-order-rack til afsluttede resultater.
+4. Ren draw/roll-flade samt et draw-order-rack til afsluttede resultater.
 5. Én bundforankret primær handling.
 
-Den aktive die er større end afsluttede resultater. Når den er scoret, flytter resultatet ned i draw-order-racket og forbliver læsbart. Racket må scrolle vandret ved mange dice; det må ikke wrappe og skabe en uforudsigelig høj skærm. Tom plads skal have en scenisk funktion som arena, runes eller fysisk arbejdsflade — aldrig ligne et manglende dashboard-card.
+Den aktive die er større end afsluttede resultater. Når den er scoret, flytter resultatet ned i draw-order-racket og forbliver læsbart. Racket må scrolle vandret ved mange dice; det må ikke wrappe og skabe en uforudsigelig høj skærm. Den tomme roll-flade bruger bevidst næsten-sort negativ plads: ingen murstenslinjer, runer, tom piedestal eller idle-instruktioner konkurrerer med den aktive die. Header og primær handling kommunikerer allerede den aktuelle state.
 
 Afslørede round totals ligger i en separat vandret **effect-rail** under spillerens HP. Hver type bruger ikon, værdi og kort label fra den centrale face registry. Railen viser kun typer, der faktisk er rullet, bevarer deres første reveal-rækkefølge og scroller vandret ved mange typer. HP-baren eller draw-headeren må aldrig blive smallere, når Shield, Heal, Poison eller senere effects tilføjes.
 
@@ -308,6 +308,8 @@ Combat skal kunne aflæses oppefra og ned:
 Der må ikke være permanente tomme Attack/Shield/Heal-slots. En totaltype opstår først, når mindst én relevant die er landet og scoret. Systemet skal kunne rumme flere face-typer uden layout-redesign.
 
 Enemy intent er en advarsel, ikke en samtidig animation. Player resolution vises først; enemy resolution vises kun bagefter og kun, hvis enemy stadig lever.
+
+Enemy-navnet bruger en ren, tung sans-serif uden outline eller display-shadow, så lange navne kan aflæses øjeblikkeligt. Enemy-sprites vælges fra deres stabile content-navn og må aldrig falde tilbage til den gamle hardcodede Slime Crawler-placeholder.
 
 ### Victory / post-combat — reward stage
 

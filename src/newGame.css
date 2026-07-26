@@ -340,18 +340,26 @@
   top: 12px;
   right: 13px;
   width: 162px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-align: right;
 }
 
-.enemy-zone__title .eyebrow { color: #d69ba8; }
+.enemy-zone__title .eyebrow {
+  color: #c78392;
+  font-family: inherit;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+}
 
 .enemy-zone__title h1 {
-  margin: 2px 0 0;
-  color: #fecaca;
-  font-size: 1.35rem;
-  line-height: 1;
-  text-transform: uppercase;
-  text-shadow: 2px 3px 0 #7f1d1d;
+  margin: 4px 0 0;
+  color: #fff1f2;
+  font-family: inherit;
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  line-height: 1.08;
+  text-transform: none;
 }
 
 .enemy-zone__sprite {
@@ -559,7 +567,7 @@
   text-transform: uppercase;
 }
 
-.enemy-zone--defeated .enemy-zone__title h1 { color: #a7a1b1; text-shadow: 2px 3px 0 #302a37; }
+.enemy-zone--defeated .enemy-zone__title h1 { color: #a7a1b1; }
 
 .enemy-zone__vitals {
   position: absolute;
@@ -785,10 +793,7 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.42), transparent 18% 82%, rgba(0, 0, 0, 0.42)),
-    repeating-linear-gradient(0deg, transparent 0 31px, rgba(3, 3, 8, 0.58) 31px 34px),
-    #141421;
+  background: #090911;
 }
 
 .dice-stage-header {
@@ -836,72 +841,17 @@
   min-height: 148px;
   display: grid;
   grid-template-rows: minmax(86px, 1fr) auto;
+  background: #090911;
 }
-
-.dice-arena__runes {
-  position: absolute;
-  z-index: 0;
-  top: 21px;
-  left: 50%;
-  width: 118px;
-  height: 118px;
-  border: 2px solid rgba(99, 102, 241, 0.12);
-  box-shadow: inset 0 0 0 11px rgba(99, 102, 241, 0.035);
-  transform: translateX(-50%) rotate(45deg);
-}
-
-.dice-arena__runes::before,
-.dice-arena__runes::after {
-  position: absolute;
-  inset: 21px;
-  border: 2px solid rgba(165, 180, 252, 0.08);
-  content: '';
-}
-
-.dice-arena__runes::after { inset: 43px; background: rgba(99, 102, 241, 0.07); }
 
 .roll-pedestal {
   position: relative;
   z-index: 2;
   min-height: 86px;
-  padding: 8px 14px 13px;
+  padding: 10px 14px;
   display: grid;
   place-items: center;
 }
-
-.roll-pedestal::after {
-  position: absolute;
-  z-index: -1;
-  bottom: 10px;
-  left: 50%;
-  width: 116px;
-  height: 33px;
-  border: 3px solid #030308;
-  background: #2a2638;
-  box-shadow: 0 6px 0 #100e17, 0 9px 0 #030308, inset 0 3px 0 #3b354c;
-  content: '';
-  transform: translateX(-50%) perspective(160px) rotateX(62deg);
-}
-
-.roll-pedestal--active::after {
-  background: #302b48;
-  box-shadow: 0 6px 0 #100e17, 0 9px 0 #030308, 0 0 16px rgba(99, 102, 241, 0.2), inset 0 3px 0 #4c4564;
-}
-
-.roll-prompt {
-  z-index: 2;
-  margin-bottom: 15px;
-  display: grid;
-  place-items: center;
-  gap: 2px;
-  color: #6d6a7e;
-  text-align: center;
-}
-
-.roll-prompt strong { color: #9b97aa; font-size: 0.59rem; text-transform: uppercase; }
-.roll-prompt span { color: #676476; font-size: 0.49rem; }
-.roll-prompt--ready { color: #818cf8; }
-.roll-prompt--ready strong { color: #c7d2fe; }
 
 .played-dice-rack {
   position: relative;
@@ -1022,7 +972,7 @@
 
 .roll-pedestal .roll-die {
   flex-basis: 82px;
-  margin-bottom: 18px;
+  margin-bottom: 0;
 }
 
 .roll-pedestal .roll-die__body {
