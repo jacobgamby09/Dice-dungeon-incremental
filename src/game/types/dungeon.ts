@@ -103,6 +103,24 @@ export interface RunStats {
   xpEarned: number
 }
 
+export interface RunAutomationState {
+  bankedMilliseconds: number
+  lastCheckpointAt: number | null
+  randomSeed: number
+}
+
+export interface AwayRecap {
+  elapsedMilliseconds: number
+  enemiesDefeated: number
+  floorsAdvanced: number
+  fromFloor: number
+  outcome: 'active' | 'defeat' | 'boss_victory'
+  roundsAdvanced: number
+  soulsEarned: number
+  toFloor: number
+  xpEarned: number
+}
+
 export interface RunState {
   status: RunStatus
   dungeonId: DungeonId | null
@@ -110,6 +128,7 @@ export interface RunState {
   playerHp: number
   playerMaxHp: number
   runStats: RunStats
+  automation: RunAutomationState
   equippedDiceSnapshot: DieInstance[]
   enemy: EnemyState | null
   lastReward: EncounterReward | null

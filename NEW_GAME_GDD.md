@@ -74,7 +74,7 @@ XP bruges på Talent Tree til eksempelvis:
 - Flere dice slots.
 - Unlock af Shield Dice og Heal Dice.
 - Unlock af nye dice families.
-- Auto Roll og hurtigere combat.
+- Auto Combat og hurtigere combat.
 - Nye dungeons.
 - Højere face caps.
 - Adgang til face evolutions.
@@ -143,16 +143,18 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 |---|---:|---|---|
 | Battle-Hardened rank 1/2/3 | 8 / 16 / 32 XP | Forrige rank | +2 Max HP per rank, maksimalt +6 |
 | Twin Arsenal | 16 XP | Battle-Hardened rank 1 | +1 dice slot og én Striker Die |
+| Auto Combat | 12 XP | Twin Arsenal | Spillerstyret automation af rolls, resolution, normale victories og næste floor |
 | Shieldcraft | 32 XP | Twin Arsenal | Én Iron Guard Die og adgang til Shield-familien |
 | Second Descent | 60 XP | Shieldcraft + første clear af The First Descent | Unlock The Iron Descent |
 | Battle-Hardened II | 24 XP | Shieldcraft | +3 Max HP |
 | Third Grip | 40 XP | Shieldcraft | +1 dice slot |
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
 | Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
-| Auto Roll | 40 XP | Quick Draw | Permanent adgang til en spillerstyret Auto Roll-toggle |
 | Fourth Grip | 90 XP | Healing Arts | +1 dice slot |
 
-Auto Roll simulerer kun spillerens `Draw`-tryk. Spilleren kan slå togglen til og fra under combat, og manuel rulning er stadig tilgængelig, når den er slået fra. Næste draw starter 300 ms efter, at det forrige resultat er færdigscoret. Auto Roll resolver ikke automatisk runden; Auto Resolve er en separat senere progression.
+Auto Combat er én spillerstyret toggle. Når den er aktiv, ruller den alle player dice, resolver runden, starter næste runde og fortsætter automatisk gennem normale Victory-pulses til næste floor. Den stopper altid ved Defeat og Boss Victory; Auto Retry findes ikke i denne fase. Spilleren kan slå automationen fra under combat, hvorefter det nuværende atomiske animations-/resolutionstrin færdiggøres, før manuel styring overtager.
+
+Auto Combat kan også fortsætte et aktivt run, mens siden er suspenderet. Et tidsbudget, et deterministisk random-seed og det seneste checkpoint persisteres. Ved resume simuleres kun den progression, den faktiske fraværstid tillader, og resultatet committes atomisk. Simulationen stopper ved Defeat eller Boss Victory og viser et kort recap med floors, enemies, XP og Souls. Reload eller gentagne resume-events må aldrig duplikere rewards.
 
 Talent Tree viser kun det nuværende købslag fuldt. Én kommende node eller ét kommende branch-lag anes som en navnløs silhuet bag fog of war. Et køb aktiverer talent-terningen, sender energi gennem forbindelserne og afslører næste lag som en kort chain reaction. Alle talent-noder er terningeformede, har ét stabilt ikon og bruger cyan som fælles XP-identitet. Træet præsenteres på et næsten sort, frit panorerbart canvas med minimal HUD; det må ikke komprimeres til kort, kolonner eller en almindelig scroll-side.
 
@@ -162,9 +164,10 @@ Den tidlige tilsigtede cadence er:
 2. Spilleren vælger derefter frit mellem flere HP-ranks og den direkte 16-XP-vej til Twin Arsenal.
 3. Twin Arsenal kan stadig købes efter højst tre floor-1 clears, hvis spilleren prioriterer den direkte vej.
 4. Den nye Striker Die findes derefter i collection, men spilleren skal selv equippe den i det nye slot.
-5. Shieldcraft åbner derefter de tre samtidige spor Survival, Arsenal og Control.
-6. Healing Arts kan nås sent i Dungeon 1, så spilleren lærer Heal, før en enemy bruger mechanicen.
-7. Første clear af The First Descent afslører adgangskravet til Second Descent; købet åbner Dungeon 2.
+5. Auto Combat bliver tilgængelig for 12 XP direkte efter Twin Arsenal og nås derfor typisk efter cirka 3–5 kills.
+6. Shieldcraft åbner derefter Survival, Arsenal og den senere hastighedsprogression.
+7. Healing Arts kan nås sent i Dungeon 1, så spilleren lærer Heal, før en enemy bruger mechanicen.
+8. Første clear af The First Descent afslører adgangskravet til Second Descent; købet åbner Dungeon 2.
 
 ## Kamp
 
@@ -174,7 +177,7 @@ Enemy Shield er midlertidigt. Det nye Shield-roll erstatter sidste rundes værdi
 
 Efter enemy reveal blandes alle udstyrede player dice i en persisteret draw-pile. `Draw` tager den næste tilfældige terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste Attack-, Shield- eller Heal-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
 
-Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er tom, aktiveres manuel `Resolve Round`. Der er intet stop- eller bust-valg.
+Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er tom, kan runden resolves. I manuel mode aktiveres `Resolve Round`; Auto Combat udfører samme transition automatisk efter sidste færdigscorede roll. Der er intet stop- eller bust-valg.
 
 ### Resolution-rækkefølge
 
@@ -233,7 +236,7 @@ Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har én Attack D
 
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
-- `Victory`: vis `+XP`, `+Souls`, opdaterede totals, nuværende HP og dungeon-progress. Vis ingen information om næste enemy; én knap fortsætter til næste floor.
+- `Victory`: vis `+XP`, `+Souls`, opdaterede totals, nuværende HP og dungeon-progress. Vis ingen information om næste enemy. Manuel mode bruger én Continue-knap; Auto Combat viser pulsen i cirka 1,25 sekunder og fortsætter, medmindre spilleren trykker Pause.
 - `Defeat`: vis floor reached, enemies defeated og samlet XP/Souls optjent i descenten, før dungeon-dybden nulstilles ved retur til Hub.
 - `Boss Victory`: markér dungeon-clear, vis hele descentens XP/Souls og antal besejrede enemies, og returnér derefter til Hub.
 
@@ -260,6 +263,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Save version 7 fjerner `runSouls` og flytter eventuelle version-6 Run Souls sikkert til spillerens permanente Soul-beholdning. De tidligere talent-, intent- og combat-shape-migrationer bevares.
 - Save version 8 tilføjer idempotente `runStats` for enemies defeated samt XP/Souls optjent i den aktuelle descent. Et kompatibelt version-7-run rekonstruerer statistikken fra sine allerede ryddede floors.
 - Save version 9 introducerer stabile encounter-ID'er, gentagne enemy-levels, 1–3 enemy dice og Dungeon 2. Et aktivt ældre run mappes sikkert via dungeonens floor-index, og eksisterende XP, Souls, talents, dice og faces bevares.
+- Save version 10 erstatter den gamle Auto Roll-setting med Auto Combat, flytter talentet direkte efter Twin Arsenal, refunderer den gamle prisforskel én gang og persisterer automationens checkpoint, tidsbudget og random-seed.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning

@@ -9,12 +9,13 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   faceMinimum: 3,
   maxHp: 15,
   soulsSpent: 255,
-  xpSpent: 325,
+  xpSpent: 337,
 } as const
 
 const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
   [TALENT_IDS.battleHardenedOne]: 1,
   [TALENT_IDS.twinArsenal]: 1,
+  [TALENT_IDS.autoCombat]: 1,
   [TALENT_IDS.shieldcraft]: 1,
   [TALENT_IDS.secondDescent]: 1,
   [TALENT_IDS.battleHardenedTwo]: 1,
@@ -54,8 +55,7 @@ export function createPostDungeonOneDevProfile(
     equippedDieIds: diceCollection.map((die) => die.id),
     settings: {
       rollSpeed: 1,
-      autoRoll: false,
-      autoResolve: false,
+      autoCombat: false,
     },
   }
 }

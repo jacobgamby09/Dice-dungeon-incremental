@@ -21,6 +21,7 @@ npm run build
 src/
   game/
     combat/          # Rene, testbare roll- og resolution-funktioner
+    automation/      # Deterministisk Auto Combat og background fast-forward
     content/         # Dice, enemies, dungeons og upgrade-priser
     types/           # Permanent profile, run, combat og dice instances
   components/newgame # Delte UI-primitives og central face-visualisering
@@ -35,7 +36,7 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 
 Hubben har to bevidst totrins-beskyttede developer-handlinger:
 
-- `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med den kanoniske post-Dungeon-1-profil: én clear, 15 Max HP, fire slots, fire udstyrede permanente dice, alle faces på mindst 3 og The Iron Descent ulåst. Profilen repræsenterer 325 brugt XP og 255 brugte Souls og lader Quick Draw samt Auto Roll være ukøbte.
+- `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med den kanoniske post-Dungeon-1-profil: én clear, 15 Max HP, fire slots, fire udstyrede permanente dice, alle faces på mindst 3 og The Iron Descent ulåst. Profilen repræsenterer 337 brugt XP og 255 brugte Souls. Auto Combat er købt men starter slået fra; Quick Draw er fortsat ukøbt.
 - `DEV · Reset game` genskaber den almindelige fresh-save-start.
 
 Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres, før Dungeon 2 startes.
@@ -45,6 +46,8 @@ Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres
 - Spilleren starter kun med én permanent Attack Die; Shield og Heal unlockes senere.
 - Terninger og deres seks individuelle faces er permanente og har stabile IDs.
 - Alle udstyrede terninger trækkes tilfældigt uden replacement hver runde.
+- Auto Combat unlockes tidligt efter Twin Arsenal og automatiserer draw, resolve, normale Victory-pulses og næste floor, men stopper ved Defeat eller Boss Victory.
+- Et aktivt Auto Combat-run kan fast-forwardes deterministisk efter browser-suspension uden at duplikere rewards.
 - Boardet viser kun faktisk trukne terninger i draw-rækkefølge og har ingen faste dice-slots.
 - Combat viser ingen tomme typebokse; totals og ikoner opstår først, når en face-type bliver rullet.
 - Spillede dice genkendes på face-farve og ikon frem for ydre typekort.

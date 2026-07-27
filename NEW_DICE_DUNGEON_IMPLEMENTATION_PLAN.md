@@ -1,14 +1,14 @@
 # New Dice Dungeon — Implementation Plan
 
-## Implementeringsstatus — 26. juli 2026
+## Implementeringsstatus — 27. juli 2026
 
-Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → 10-floor dungeon → random draw af alle udstyrede dice → manuel eller automatisk rulning → permanente XP/Soul-rewards → næste floor eller Defeat → permanent progression er nu spilbart. Hver besejret enemy giver permanent XP og permanente Souls med det samme.
+Fase 0–8 er implementeret som en samlet MVP-slice. Kerneflowet Hub → Talent Tree/Loadout/Workshop → to 10-floor dungeons → random draw af alle udstyrede dice → manuel combat eller Auto Combat → permanente XP/Soul-rewards → næste floor eller Defeat → permanent progression er nu spilbart. Hver besejret enemy giver permanent XP og permanente Souls med det samme.
 
 Outcome-flowet er nu incremental-first: normal Victory er en kort reward-pulse uden næste-enemy-data, Boss Victory opsummerer hele descenten, og Defeat viser floor reached, enemies defeated samt optjent XP/Souls.
 
 XP Talent Tree bruger nu canonical talent-ranks og et klassisk dice-node map. Battle-Hardened kan købes tre gange for samlet +6 Max HP; rank 1 åbner anden Attack Die, mens yderligere HP-ranks forbliver valgfrie. Shieldcraft åbner tre specialiseringsgrene, og én fremtidig frontier vises som en navnløs fog-silhuet. Nye dice er unikke permanente objekter og skal aktivt equippes.
 
-Alle 10 enemies bruger nu hver sin seks-sidede Attack Die. Resultatet precommittes og persisteres før en kompakt enemy-die ruller som synligt intent ved rundestart. Player Draw og Auto Roll venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 7 fjernede `runSouls` og flyttede gamle Run Souls til permanente Souls én gang. Save version 8 tilføjer et idempotent descent-resumé og bevarer alle tidligere migrationer.
+Dungeon 1 bruger basale enemies med én seks-sidet Attack Die. Dungeon 2 introducerer encounters med flere dice og Shield samt Heal på bossen. Resultater precommittes og persisteres før kompakte enemy dice ruller som synligt intent ved rundestart. Player Draw og Auto Combat venter på reveal; lethal player damage annullerer fortsat både intent og attack-animation. Save version 10 persisterer Auto Combat-checkpoints, tidsbudget og random-seed og migrerer den tidligere Auto Roll-setting med en idempotent XP-refund.
 
 Den gældende gameplay-retning er permanent progression fra hvert kill uden extraction eller tab af Souls ved Defeat.
 
@@ -61,7 +61,8 @@ Følgende regler er fundamentale og må ikke ændres indirekte under implementat
 - Dice genkendes på deres face-farve og ikon, ikke gennem ydre typebokse.
 - Attack-, Shield- og Heal-totaler er skjult, indtil typen faktisk bliver rullet.
 - Manuel rulning er grundsystemet.
-- Auto Roll automatiserer kun spillerens tryk og ændrer ikke combat-reglerne.
+- Auto Combat automatiserer draws, round resolution og overgangen til næste normale floor uden at ændre combat-reglerne.
+- Auto Combat stopper ved Defeat og Boss Victory og starter aldrig automatisk et nyt run.
 - Alle synlige talent nodes skal have en implementeret effekt.
 - Der må ikke eksistere demo-nodes, som kan købes uden at virke.
 
@@ -236,8 +237,7 @@ type PlayerProfile = {
   equippedDieIds: string[]
   settings: {
     rollSpeed: number
-    autoRoll: boolean
-    autoResolve: boolean
+    autoCombat: boolean
   }
 }
 ```
@@ -540,7 +540,7 @@ Tree-layoutet er et mobile-first vertikalt dice-node map. Nodes kan have én ell
 
 - **Survival:** Max HP og defensive rammer.
 - **Arsenal:** Flere dice slots og nye dice families.
-- **Control:** Auto Roll, roll speed og senere Auto Resolve.
+- **Control:** Auto Combat, roll speed og senere Auto Retry.
 - **Exploration:** Nye dungeons og encounter-information.
 - **Mastery:** Face caps og adgang til evolutions.
 - **Rewards:** Soul loot-forbedringer og senere reward-specialisering.
@@ -566,14 +566,16 @@ Tree-layoutet er et mobile-first vertikalt dice-node map. Nodes kan have én ell
 
 ---
 
-## Fase 8 — Auto Roll og combat-tempo
+## Fase 8 — Auto Combat og AFK-flow
 
 ### Arbejde
 
-- Auto Roll simulerer kun trykket på `DRAW`.
+- Auto Combat bruger den samme draw- og resolution-engine som manuel combat.
+- Auto Combat fortsætter gennem næste runde og næste normale floor.
+- Et aktivt Auto Combat-run fast-forwardes deterministisk efter suspension eller genåbning.
+- Et resume-recap viser forløbet, optjent XP/Souls og sluttilstand, før live combat fortsætter.
+- Auto Combat stopper ved Defeat og Boss Victory; Auto Retry er ikke en del af denne fase.
 - Roll speed ændrer kun animationsvarigheden.
-- Auto Resolve implementeres som en separat unlock.
-- Auto Start Next Round implementeres senere.
 - Pause ved special faces implementeres, når special faces findes.
 - Grouped rolls udskydes, indtil den sekventielle følelse er bevist.
 
@@ -581,7 +583,9 @@ Tree-layoutet er et mobile-first vertikalt dice-node map. Nodes kan have én ell
 
 - Manuel og automatisk rulning bruger samme engine.
 - Samme precommitted rolls giver samme combat-resultat i begge modes.
-- Stop af Auto Roll efterlader spillet i en gyldig manuel state.
+- Stop af Auto Combat afslutter den igangværende atomiske animation og efterlader spillet i en gyldig manuel state.
+- Resume er deterministisk og kan ikke duplikere rewards ved gentagne lifecycle-events.
+- Auto Combat fortsætter ikke forbi Defeat eller Boss Victory.
 - Ingen animation kan få en gameplay-action til at køre to gange.
 
 ---
@@ -745,7 +749,8 @@ Efter hver implementeringsfase skal relevante checks bestå:
 - Kun den valgte `face.id` opgraderes.
 - Face cap respekteres.
 - Reload skaber ikke et nyt roll-resultat.
-- Auto Roll ændrer ikke combat-resultatet.
+- Auto Combat ændrer ikke combat-resultatet.
+- Resume af Auto Combat er deterministisk og idempotent.
 - Et aktivt run genskabes korrekt efter reload.
 
 ### Visuelle checks
@@ -784,8 +789,10 @@ Den første prototype er færdig, når spilleren kan:
 17. Genindlæse spillet uden at miste progression eller ændre et aktivt run.
 18. Bruge XP på fungerende talenter og mærke den første upgrade efter run 1.
 19. Unlocke en unik anden Attack Die efter cirka run 2–3 og aktivt equippe den.
-20. Unlocke Shield, Heal, Quick Draw og en spillerstyret Auto Roll-toggle.
-21. Modtage bossens XP- og Soul-reward permanent præcis én gang.
+20. Unlocke Shield, Heal, Quick Draw og en spillerstyret Auto Combat-toggle.
+21. Lade Auto Combat fortsætte gennem normale floors og stoppe ved Defeat eller Boss Victory.
+22. Genoptage et suspenderet Auto Combat-run deterministisk og se et recap uden duplikerede rewards.
+23. Modtage bossens XP- og Soul-reward permanent præcis én gang.
 
 Først efter browser-playtest og balance-gaten går implementationen videre til flere dice families, evolutions, nye dungeons og avancerede reward-systemer.
 

@@ -70,8 +70,8 @@ export function getRollSpeed(
   )
 }
 
-export function hasAutoRollUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
-  return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_roll')
+export function hasAutoCombatUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
+  return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_combat')
 }
 
 export function areTalentPrerequisitesMet(

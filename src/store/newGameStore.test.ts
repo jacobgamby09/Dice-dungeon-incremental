@@ -406,21 +406,113 @@ describe('new game progression loop', () => {
     expect(useNewGameStore.getState().run.playerMaxHp).toBe(12)
   })
 
-  it('only enables the Auto Roll setting after the talent is unlocked', () => {
-    useNewGameStore.getState().setAutoRoll(true)
-    expect(useNewGameStore.getState().profile.settings.autoRoll).toBe(false)
+  it('only enables Auto Combat after the talent is unlocked', () => {
+    useNewGameStore.getState().setAutoCombat(true)
+    expect(useNewGameStore.getState().profile.settings.autoCombat).toBe(false)
 
     const state = useNewGameStore.getState()
     useNewGameStore.setState({
       profile: {
         ...state.profile,
-        talentRanks: { [TALENT_IDS.autoRoll]: 1 },
+        talentRanks: { [TALENT_IDS.autoCombat]: 1 },
       },
     })
-    useNewGameStore.getState().setAutoRoll(true)
-    expect(useNewGameStore.getState().profile.settings.autoRoll).toBe(true)
-    useNewGameStore.getState().setAutoRoll(false)
-    expect(useNewGameStore.getState().profile.settings.autoRoll).toBe(false)
+    useNewGameStore.getState().setAutoCombat(true)
+    expect(useNewGameStore.getState().profile.settings.autoCombat).toBe(true)
+    useNewGameStore.getState().setAutoCombat(false)
+    expect(useNewGameStore.getState().profile.settings.autoCombat).toBe(false)
+  })
+
+  it('fast-forwards an active Auto Combat run from a persisted checkpoint exactly once', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        talentRanks: { [TALENT_IDS.autoCombat]: 1 },
+      },
+    })
+    useNewGameStore.getState().setAutoCombat(true)
+    useNewGameStore.getState().startRun('prototype-depths')
+    useNewGameStore.getState().checkpointAutoCombat(1_000)
+
+    const active = useNewGameStore.getState()
+    useNewGameStore.setState({
+      run: {
+        ...active.run,
+        equippedDiceSnapshot: active.run.equippedDiceSnapshot.map((die) => ({
+          ...die,
+          faces: die.faces.map((face) => ({ ...face, value: 99 })) as typeof die.faces,
+        })),
+      },
+    })
+
+    const recap = useNewGameStore.getState().resumeAutoCombat(301_000)
+    const completed = useNewGameStore.getState()
+
+    expect(recap).toMatchObject({
+      enemiesDefeated: 10,
+      outcome: 'boss_victory',
+      soulsEarned: 210,
+      xpEarned: 242,
+    })
+    expect(completed.screen).toBe('post_combat')
+    expect(completed.run.lastReward?.dungeonComplete).toBe(true)
+    expect(completed.profile.xp).toBe(242)
+    expect(completed.profile.bankedSouls).toBe(210)
+    expect(completed.run.automation.lastCheckpointAt).toBeNull()
+
+    expect(useNewGameStore.getState().resumeAutoCombat(301_000)).toBeNull()
+    expect(useNewGameStore.getState().profile.xp).toBe(242)
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(210)
+  })
+
+  it('migrates the old Auto Roll purchase into early Auto Combat with a one-time XP refund', async () => {
+    const current = useNewGameStore.getState()
+    const legacyState = {
+      ...current,
+      profile: {
+        ...current.profile,
+        saveVersion: 9,
+        xp: 5,
+        talentRanks: { [TALENT_IDS.autoCombat]: 1 },
+        settings: {
+          rollSpeed: 1,
+          autoRoll: true,
+          autoResolve: false,
+        },
+      },
+    }
+    let saved: StorageValue<NewGameState> | null = {
+      state: legacyState as unknown as NewGameState,
+      version: 9,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+
+      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.xp).toBe(33)
+      expect(migrated.profile.settings).toEqual({
+        rollSpeed: 1,
+        autoCombat: true,
+      })
+      expect(migrated.profile.talentRanks[TALENT_IDS.autoCombat]).toBe(1)
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
   })
 
   it('unlocks The Iron Descent through XP after clearing Dungeon 1', () => {
@@ -665,7 +757,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.profile.bankedSouls).toBe(26)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.runStats).toEqual({
@@ -719,7 +811,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.profile.bankedSouls).toBe(12)
       expect(migrated.profile.xp).toBe(18)
       expect(migrated.run.status).toBe('active')
@@ -772,7 +864,7 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
@@ -817,7 +909,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.profile.talentRanks).toEqual({
         [TALENT_IDS.battleHardenedOne]: 1,
         [TALENT_IDS.twinArsenal]: 1,
@@ -873,7 +965,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.enemy?.intentRolls[0]).toMatchObject({
         dieId: 'slime-l1-attack',
@@ -946,7 +1038,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.profile.xp).toBe(91)
       expect(migrated.profile.bankedSouls).toBe(73)
       expect(migrated.run.status).toBe('active')
@@ -1009,7 +1101,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(9)
+      expect(migrated.profile.saveVersion).toBe(10)
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
       expect(migrated.combat.drawPileDieIds).toEqual([])

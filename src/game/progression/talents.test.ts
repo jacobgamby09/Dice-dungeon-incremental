@@ -11,7 +11,7 @@ import {
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 6,
+    saveVersion: 10,
     xp,
     bankedSouls: 0,
     talentRanks,
@@ -22,7 +22,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     },
     diceCollection: [],
     equippedDieIds: [],
-    settings: { rollSpeed: 1, autoRoll: false, autoResolve: false },
+    settings: { rollSpeed: 1, autoCombat: false },
   }
 }
 
@@ -42,6 +42,18 @@ describe('ranked talent progression', () => {
       createProfile({ [TALENT_IDS.battleHardenedOne]: 1 }, 16),
       talent.id,
     )).toBe(true)
+  })
+
+  it('makes Auto Combat available directly after Twin Arsenal for 12 XP', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.autoCombat]
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+    }
+
+    expect(talent.ranks[0].cost).toBe(12)
+    expect(getTalentPurchaseReason(createProfile(ranks, 11), talent)).toBe('xp')
+    expect(getTalentPurchaseReason(createProfile(ranks, 12), talent)).toBeNull()
   })
 
   it('caps Battle-Hardened at rank three', () => {
@@ -127,6 +139,22 @@ describe('talent fog and silhouette visibility', () => {
       ranks,
       TALENTS_BY_ID[TALENT_IDS.shieldcraft],
     )).toBe('silhouette')
+  })
+
+  it('reveals Auto Combat beside Shieldcraft after Twin Arsenal', () => {
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+    }
+
+    expect(getTalentVisibility(
+      ranks,
+      TALENTS_BY_ID[TALENT_IDS.autoCombat],
+    )).toBe('revealed')
+    expect(getTalentVisibility(
+      ranks,
+      TALENTS_BY_ID[TALENT_IDS.shieldcraft],
+    )).toBe('revealed')
   })
 
   it('reveals all three branches after Shieldcraft and silhouettes one deeper layer', () => {

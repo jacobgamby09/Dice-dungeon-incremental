@@ -43,10 +43,10 @@ Brug denne skabelon:
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
 - XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, kompakt bund-inspector, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
-- Talentforløbet giver derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige grene, Heal, fire slots, Quick Draw og Auto Roll.
+- Talentforløbet giver derefter slot 2 og en unik Striker Die. Auto Combat åbner direkte efter Twin Arsenal; senere følger Shield, tre samtidige grene, Heal, fire slots og Quick Draw.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
-- Hubben kan desuden indlæse en totrins-bekræftet post-Dungeon-1-dev-profil med realistisk talent spend, fire opgraderede permanente dice og Dungeon 2 klar til systematisk playtest.
+- Hubben kan desuden indlæse en totrins-bekræftet post-Dungeon-1-dev-profil med realistisk talent spend, tidligt Auto Combat-unlock, fire opgraderede permanente dice og Dungeon 2 klar til systematisk playtest.
 - Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
 - `The First Descent` genbruger Slime, Slime Crawler, Goblin og Skeleton som Level 1/2-varianter, har en Skeleton Elite på floor 9 og Demon-boss på floor 10. Alle har kun én Attack Die.
 - `The Iron Descent` er Dungeon 2 med Shieldbearer, Cultist, Orc og Blood Orc som Level 1/2-varianter. Normale mobs har Attack + Shield, mens Spiked Behemoth-bossen har Attack + Shield + Heal.
@@ -57,18 +57,21 @@ Brug denne skabelon:
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
-- Normal Victory viser kun encounter-reward, totals, HP, dungeon-progress og én Continue-knap; næste-enemy-data er fjernet. Boss Victory og Defeat bruger et persisteret descent-resumé med enemies defeated samt optjent XP/Souls.
-- Save-formatet er version 9 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll- og run-summary-progress sammen med aktive runs. Ældre aktive runs mappes via floor-index til det nye encounter-content uden tab af permanent progression.
-- En deterministisk simulator og 84 automatiserede tests beskytter begge balancekurver, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- Normal Victory viser kun encounter-reward, totals, HP og dungeon-progress; næste-enemy-data er fjernet. Manuel mode bruger én Continue-knap, mens Auto Combat viser en kort reward-pulse og fortsætter til næste floor med en synlig Pause-handling.
+- Auto Combat automatiserer player-rolls, Resolve Round, næste round og normale floor-transitions. Det stopper ved Defeat og Boss Victory og har endnu ingen Auto Retry.
+- Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
+- Save-formatet er version 10 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary- og automation-progress sammen med aktive runs. Version-9 Auto Roll migreres til Auto Combat med en idempotent 28-XP-refund.
+- En deterministisk simulator og 93 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#23 — Add post-Dungeon-1 dev profile](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/23), squash merge `71a18d6`.
 
 ## Næste anbefalede skridt
 
-1. Brug post-Dungeon-1-dev-profilet til at gennemspille hele Dungeon 2 ved 320 px og 384 px og verificér multi-dice reveal, inspect-panelet, level-labels, Shield/Heal-trin og Spiked Behemoths fire animationer.
-2. Mål i fresh-save playtest, om Healing Arts stadig nås naturligt sent i Dungeon 1, og om 60-XP-købet af Second Descent opleves som en belønning frem for en ekstra grind efter første clear.
-3. Tune Dungeon 2-rewards og face-priser ud fra faktisk spilleradfærd; simulatoren bekræfter en progressionstrappe, men ikke oplevet tid mellem upgrades.
-4. Beslut hvilken mechanic og hvilke genbrugte archetypes Dungeon 3 skal introducere; Marrow Bat er bevidst reserveret til senere content.
+1. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
+2. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
+3. Fresh-save-playtest, om Auto Combat til 12 XP efter Twin Arsenal rammes naturligt efter cirka 3–5 kills uden at gøre den manuelle onboarding for kort.
+4. Verificér background-resume efter telefonlås og app/browser-suspension på iOS og Android; den lokale browser-test dækker navigation væk og tilbage, men ikke alle mobile lifecycle-varianter.
+5. Beslut hvilken mechanic og hvilke genbrugte archetypes Dungeon 3 skal introducere; Marrow Bat er bevidst reserveret til senere content.
 
 ## Åbne spørgsmål og kendte risici
 
@@ -77,8 +80,9 @@ Brug denne skabelon:
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Enemy intent-rækken er dimensioneret til 1–3 dice; flere end tre kræver en ny kompakt præsentation eller sekventiel paging.
 - Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
-- Auto Roll er verificeret på state- og buildniveau, men tempoet med større manuelle loadouts skal vurderes visuelt.
-- Dev-profilets 325 XP og 255 Souls er et fast playtest-snapshot; hvis Dungeon 1-rewards, talentpriser eller face-priser tunes, skal preset og dets afledte økonomitest opdateres sammen.
+- Background-fast-forward bruger et bevidst estimeret tidsbudget per intent, die og resolution. Det skal kalibreres mod målt live-combat, så AFK-progress hverken bliver hurtigere eller langsommere end synlig automation.
+- Browserens `pagehide`, `pageshow` og `visibilitychange` er dækket af samme idempotente checkpoint-flow, men fysisk mobil kan suspendere eller dræbe processen uden alle events; sidste persisterede checkpoint begrænser datatabet.
+- Dev-profilets 337 XP og 255 Souls er et fast playtest-snapshot; hvis Dungeon 1-rewards, talentpriser eller face-priser tunes, skal preset og dets afledte økonomitest opdateres sammen.
 - Legacy-kode findes stadig i repository og må ikke blandes ind i den nye production-state.
 
 ## Bindende beslutninger
@@ -100,7 +104,8 @@ Brug denne skabelon:
 - Talent Tree viser kun den aktuelle frontier fuldt og ét kommende lag som en navnløs, ikke-interaktiv fog-silhuet.
 - Talent-køb ruller noden på stedet, tænder forbindelsen og afslører nye nodes som en kort chain reaction; Shieldcraft splitter effekten i tre.
 - Dev-reset er tilgængelig nederst på Hubben og må først udføres efter et eksplicit andet bekræftelsestryk; den nulstiller både permanent progression, dungeon-progress og et eventuelt aktivt run.
-- Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
+- Auto Combat koster 12 XP direkte efter Twin Arsenal og er én spillerstyret toggle for draw, resolve, næste round og normale floor-transitions. Den stopper ved Defeat og Boss Victory; Auto Retry er senere progression.
+- Auto Combat må fast-forwarde et aktivt run efter browser-suspension, men kun proportionalt med reel fraværstid og aldrig forbi Defeat eller Boss Victory. Rewards skal forblive idempotente ved gentagne reload/resume-events.
 - MVP-dungeonen har 10 floors; floor 10 er boss og giver sin permanente reward præcis én gang ved sejr.
 - Dungeon 1 genbruger fire basale archetypes som Level 1/2, har én Elite og er attack-only. Demon er boss og har heller ingen Shield.
 - Dungeon 2 genbruger fire nye archetypes som Level 1/2. Alle normale mobs har én Attack Die og én midlertidig Shield Die; Spiked Behemoth har desuden én Heal Die.
@@ -120,6 +125,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-27 — Tidlig Auto Combat og AFK-resume
+
+**Status:** I gang
+**Ansvarlig:** Codex
+
+- Resultat: Auto Roll er erstattet af en tidlig Auto Combat-node direkte efter Twin Arsenal. Den fælles toggle automatiserer alle player-rolls, Resolve Round, næste round, normale Victory-pulses og næste floor, men stopper ved Defeat eller Boss Victory. Et suspenderet run fast-forwardes deterministisk ved resume og viser et modal recap med tid, floor, kills, XP og Souls.
+- Beslutninger: Auto Combat koster 12 XP, har ingen Auto Retry og pauser efter et AFK-recap, indtil spilleren lukker rapporten. Quick Draw forbliver separat hastighedsprogression. Encounter-stats ændres ikke i samme pass; simulatoren måler nu rounds per floor, så automationens effekt kan playtestes før balancekurven tunes.
+- Berørte områder: Talent-content/layout, progressionstyper, save-version 10 og migration, pure Auto Combat-engine, combat-/post-combat-orkestrering, App lifecycle, AFK-recap UI, dev-profilet, simulator, tests, GDD og README.
+- Validering: Begge TypeScript-checks, 17 testfiler med 93 tests, ESLint, production-build og `git diff --check` består. Browseren verificerer 384 px shell uden overflow eller error-overlay, tidlig Auto Combat-node i dev-profilet, live draw/resolve, sikker manuel pause, automatisk floor-transition, 20/45/60-sekunders background-resume, recap-dismiss og terminalt stop på Defeat uden Auto Retry.
+- Kendte mangler: Fysisk iOS/Android-suspension og fuld Spiked Behemoth-run skal fortsat playtestes. Background-tidsbudgettet er en første kalibrering mod de nuværende animationstider.
+- Git: Branch `agent/add-auto-combat-afk-flow`; commit, PR, merge og deployment afventer.
 
 ### 2026-07-27 — Post-Dungeon-1 dev-profil
 

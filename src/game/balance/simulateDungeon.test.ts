@@ -143,6 +143,9 @@ describe('MVP dungeon balance simulator', () => {
 
     expect(earlyBuild.averageHighestFloor).toBeGreaterThan(2)
     expect(earlyBuild.averageHighestFloor).toBeLessThan(4)
+    expect(earlyBuild.averageRoundsByReachedFloor[0]).toBeGreaterThan(1)
+    expect(earlyBuild.averageRoundsByReachedFloor[0]).toBeLessThan(10)
+    expect(earlyBuild.averageRoundsPlayed).toBeGreaterThan(earlyBuild.averageHighestFloor)
     expect(midBuild.averageHighestFloor).toBeGreaterThan(earlyBuild.averageHighestFloor + 0.8)
     expect(midBuild.bossClearRate).toBe(0)
     expect(lateBuild.bossClearRate).toBeGreaterThan(0.65)
