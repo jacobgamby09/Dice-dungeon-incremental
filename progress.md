@@ -60,7 +60,7 @@ Brug denne skabelon:
 - Save-formatet er version 9 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll- og run-summary-progress sammen med aktive runs. Ældre aktive runs mappes via floor-index til det nye encounter-content uden tab af permanent progression.
 - En deterministisk simulator og 80 automatiserede tests beskytter begge balancekurver, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#19 — Build multi-dice enemy progression](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/19), squash merge `2affd9e`.
+- Seneste gameplay-merge i produktion: [#21 — Fix all enemy die orientations](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/21), squash merge `e4e12ce`.
 
 ## Næste anbefalede skridt
 
@@ -121,15 +121,15 @@ Brug denne skabelon:
 
 ### 2026-07-27 — Enemy-dice orientering rettet globalt
 
-**Status:** I gang
+**Status:** Færdig
 **Ansvarlig:** Codex
 
 - Resultat: Den fælles enemy-die renderer nulstiller nu altid 3D-rotationen, når et Attack-, Shield- eller Heal-resultat går fra rolling til landed, active eller cancelled. Rettelsen gælder alle seks faces, alle enemy-typer, alle runder og både single- og multi-dice intents.
 - Beslutninger: Den animerede 3D-cube og den flade resultat-face har separate React-identiteter. Den flade face deklarerer samtidig eksplicit `rotateX: 0`, `rotateY: 0` og `y: 0`, så en fremtidig animation ikke kan efterlade en gammel inline-transform.
 - Berørte områder: Fælles `EnemyIntentDie`, combat-browserflow og progress-log. Der er ingen ændring af combat-regler, balance, rewards eller saves.
-- Validering: Begge TypeScript-checks, alle 80 tests, ESLint og production-build består. Browseren reproducerede production-fejlen som en arvet `rotateY(630deg)`/3D-matrix. Den lokale rettelse er verificeret på flere mobs og gentagne runder; landed og cancelled ender på `transform: none`, mens active kun bruger positiv, ikke-spejlet skalering.
-- Kendte mangler: Production-verifikation afventer merge og Vercel-deployment.
-- Git: Branch `agent/fix-all-enemy-die-orientations`; commit, PR, merge og deployment afventer.
+- Validering: Begge TypeScript-checks, alle 80 tests, ESLint, production-build og `git diff --check` består. Browseren reproducerede den gamle production-fejl som en arvet `rotateY(630deg)`/3D-matrix. Rettelsen er verificeret på flere mobs og gentagne runder; landed og cancelled ender på `transform: none`, mens active kun bruger positiv, ikke-spejlet skalering. Vercel preview og production-deployment `dpl_EQKnykpjDjVShSJLBN4LEHN1BrnH` er `READY`, og den offentlige production-URL er browser-verificeret med en flad, korrekt orienteret enemy-face.
+- Kendte mangler: Ingen kendte mangler inden for rettelsens scope.
+- Git: `74d32ba` — `Fix all enemy die orientations`; PR [#21](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/21) er squash-merget til `main` som `e4e12ce` og deployet til production.
 
 ### 2026-07-27 — Dungeon 2 og multi-dice enemies
 
