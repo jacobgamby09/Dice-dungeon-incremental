@@ -1,11 +1,12 @@
-import type { EnemyIntent, RoundResolution, RoundTotals } from '../types/combat'
+import type { RoundResolution, RoundTotals } from '../types/combat'
 
 export interface ResolveRoundInput {
   playerHp: number
   playerMaxHp: number
   enemyHp: number
+  enemyMaxHp: number
   enemyShield: number
-  enemyIntent: EnemyIntent
+  enemyIntent: RoundTotals
   totals: RoundTotals
   playerRecoil?: number
 }
@@ -19,8 +20,11 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     input.enemyHp,
     Math.max(0, input.totals.attack - attackAbsorbedByEnemyShield),
   )
-  const enemyShield = Math.max(0, input.enemyShield - attackAbsorbedByEnemyShield)
-  const enemyHp = Math.max(0, input.enemyHp - attackDamageToEnemy)
+  const enemyShieldAfterPlayerPhase = Math.max(
+    0,
+    input.enemyShield - attackAbsorbedByEnemyShield,
+  )
+  const enemyHpAfterPlayerPhase = Math.max(0, input.enemyHp - attackDamageToEnemy)
 
   const recoil = Math.max(0, input.playerRecoil ?? 0)
   const hpAfterRecoil = Math.max(0, healedPlayerHp - recoil)
@@ -32,9 +36,12 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       healedPlayerHp,
       playerHpAfterPlayerPhase: 0,
       playerHp: 0,
-      enemyHp,
-      enemyShield,
+      enemyHp: enemyHpAfterPlayerPhase,
+      enemyHpAfterPlayerPhase,
+      enemyShield: enemyShieldAfterPlayerPhase,
+      enemyShieldAfterPlayerPhase,
       healApplied,
+      enemyHealApplied: 0,
       attackAbsorbedByEnemyShield,
       attackDamageToEnemy,
       enemyActed: false,
@@ -43,16 +50,19 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     }
   }
 
-  // A dead enemy never executes its intent.
-  if (enemyHp <= 0) {
+  // A dead enemy never heals or attacks.
+  if (enemyHpAfterPlayerPhase <= 0) {
     return {
       outcome: 'victory',
       healedPlayerHp,
       playerHpAfterPlayerPhase: hpAfterRecoil,
       playerHp: hpAfterRecoil,
       enemyHp: 0,
-      enemyShield,
+      enemyHpAfterPlayerPhase: 0,
+      enemyShield: enemyShieldAfterPlayerPhase,
+      enemyShieldAfterPlayerPhase,
       healApplied,
+      enemyHealApplied: 0,
       attackAbsorbedByEnemyShield,
       attackDamageToEnemy,
       enemyActed: false,
@@ -61,7 +71,12 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     }
   }
 
-  const incomingDamage = input.enemyIntent.type === 'attack' ? input.enemyIntent.value : 0
+  const enemyHp = Math.min(
+    input.enemyMaxHp,
+    enemyHpAfterPlayerPhase + Math.max(0, input.enemyIntent.heal),
+  )
+  const enemyHealApplied = enemyHp - enemyHpAfterPlayerPhase
+  const incomingDamage = Math.max(0, input.enemyIntent.attack)
   const enemyDamageBlocked = Math.min(input.totals.shield, incomingDamage)
   const unblockedDamage = incomingDamage - enemyDamageBlocked
   const playerHp = Math.max(0, hpAfterRecoil - unblockedDamage)
@@ -72,8 +87,12 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     playerHpAfterPlayerPhase: hpAfterRecoil,
     playerHp,
     enemyHp,
-    enemyShield,
+    enemyHpAfterPlayerPhase,
+    // Enemy shield is temporary and expires after the enemy phase.
+    enemyShield: 0,
+    enemyShieldAfterPlayerPhase,
     healApplied,
+    enemyHealApplied,
     attackAbsorbedByEnemyShield,
     attackDamageToEnemy,
     enemyActed: true,

@@ -8,6 +8,7 @@ export const TALENT_ICON_KEYS = [
   'battle-heart',
   'twin-dice',
   'shieldcraft',
+  'second-descent',
   'battle-heart-advanced',
   'third-grip',
   'quick-draw',
@@ -23,6 +24,13 @@ export type TalentEffect =
   | { type: 'grant_die'; dieId: string }
   | { type: 'roll_speed'; multiplier: number }
   | { type: 'unlock_auto_roll' }
+  | { type: 'unlock_dungeon'; dungeonId: DungeonId }
+
+export type TalentRequirement = {
+  type: 'dungeon_clear'
+  dungeonId: DungeonId
+  count: number
+}
 
 export interface TalentRankDefinition {
   cost: number
@@ -35,6 +43,7 @@ export interface TalentDefinition {
   description: string
   iconKey: TalentIconKey
   prerequisiteIds: string[]
+  requirements?: TalentRequirement[]
   ranks: TalentRankDefinition[]
   track: TalentTrack
 }

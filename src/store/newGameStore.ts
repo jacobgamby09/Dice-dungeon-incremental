@@ -3,12 +3,12 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
 import { shuffleDieIds } from '../game/combat/drawBag'
 import { addRollToTotals, rollDie } from '../game/combat/rollDie'
-import { findEnemyAttackRollByValue } from '../game/combat/rollEnemyAttackDie'
+import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { resolveRound } from '../game/combat/resolveRound'
 import { createDieById, createStartingDice } from '../game/content/dice'
 import { DUNGEONS } from '../game/content/dungeons'
-import { getEnemyAttackDie } from '../game/content/enemyDice'
-import { createEnemyState, ENEMIES, rollNextEnemyIntent } from '../game/content/enemies'
+import { getEnemyDie } from '../game/content/enemyDice'
+import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/content/enemies'
 import { TALENTS_BY_ID } from '../game/content/talents'
 import { BASE_FACE_CAP, getFaceUpgradeCost } from '../game/content/upgradeCosts'
 import {
@@ -28,6 +28,7 @@ import { cloneDie } from '../game/types/dice'
 import type {
   DungeonId,
   DungeonProgress,
+  EncounterId,
   EnemyState,
   RunState,
   RunStats,
@@ -71,7 +72,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 8
+const SAVE_VERSION = 9
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -101,6 +102,10 @@ function createInitialProfile(): PlayerProfile {
 function createInitialDungeonProgress(): Record<DungeonId, DungeonProgress> {
   return {
     'prototype-depths': {
+      highestFloorCleared: 0,
+      clearCount: 0,
+    },
+    'iron-depths': {
       highestFloorCleared: 0,
       clearCount: 0,
     },
@@ -148,6 +153,10 @@ function createCombatState(
 }
 
 type LegacyEnemyState = Partial<EnemyState> & {
+  attackDieId?: string
+  intentRoll?: {
+    value?: number
+  }
   intent?: { type?: 'attack'; value?: number }
 }
 
@@ -163,26 +172,34 @@ type LegacyRunState = Partial<RunState> & {
   }) | null
 }
 
-function migrateEnemyState(existingEnemy: LegacyEnemyState | null | undefined): EnemyState | null {
-  if (!existingEnemy?.definitionId) return null
-  const definition = ENEMIES[existingEnemy.definitionId]
-  if (!definition) return null
-
-  const canonicalEnemy = createEnemyState(definition.id, () => 0)
+function migrateEnemyState(
+  existingEnemy: LegacyEnemyState | null | undefined,
+  encounterId: EncounterId | null,
+): EnemyState | null {
+  if (!existingEnemy || !encounterId) return null
+  const canonicalEnemy = createEnemyState(encounterId, () => 0)
+  const existingRolls = Array.isArray(existingEnemy.intentRolls)
+    ? existingEnemy.intentRolls
+    : []
   const legacyIntentValue = existingEnemy.intentRoll?.value
     ?? existingEnemy.intent?.value
-    ?? canonicalEnemy.intentRoll.value
-  const attackDie = getEnemyAttackDie(definition.attackDieId)
+  const intentRolls = canonicalEnemy.dieIds.map((dieId, index) => {
+    const die = getEnemyDie(dieId)
+    const existingValue = existingRolls[index]?.value
+      ?? (index === 0 ? legacyIntentValue : undefined)
+      ?? canonicalEnemy.intentRolls[index].value
+    return findEnemyRollByValue(die, existingValue)
+  })
 
   return {
     ...canonicalEnemy,
-    hp: existingEnemy.hp ?? canonicalEnemy.hp,
-    maxHp: existingEnemy.maxHp ?? canonicalEnemy.maxHp,
-    shield: existingEnemy.shield ?? canonicalEnemy.shield,
-    xpReward: existingEnemy.xpReward ?? canonicalEnemy.xpReward,
-    soulReward: existingEnemy.soulReward ?? canonicalEnemy.soulReward,
+    hp: Math.min(
+      canonicalEnemy.maxHp,
+      Math.max(0, existingEnemy.hp ?? canonicalEnemy.hp),
+    ),
+    shield: totalEnemyRolls(intentRolls).shield,
     rewardClaimed: existingEnemy.rewardClaimed ?? false,
-    intentRoll: findEnemyAttackRollByValue(attackDie, legacyIntentValue),
+    intentRolls,
   }
 }
 
@@ -220,7 +237,7 @@ function reconstructRunStats(
   )
   const completedEnemies = dungeon.floors
     .slice(0, completedEncounterCount)
-    .map((floor) => ENEMIES[floor.enemyId])
+    .map((floor) => ENCOUNTERS[floor.encounterId])
 
   return {
     enemiesDefeated: completedEnemies.length,
@@ -299,19 +316,29 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     : 0
   migratedProfile.bankedSouls += legacyRunSouls
   const existingCombat = persisted.combat as Partial<CombatState> | undefined
-  const migratedEnemy = migrateEnemyState(existingRun?.enemy as LegacyEnemyState | null | undefined)
-  const mappedEncounterIndex = migratedEnemy
-    ? DUNGEONS['prototype-depths'].floors.findIndex(
-        (floor) => floor.enemyId === migratedEnemy.definitionId,
-      )
+  const migratedDungeonId = existingRun?.dungeonId && DUNGEONS[existingRun.dungeonId]
+    ? existingRun.dungeonId
+    : 'prototype-depths'
+  const requestedEncounterIndex = Number.isInteger(existingRun?.encounterIndex)
+    ? Math.max(0, existingRun?.encounterIndex ?? 0)
+    : 0
+  const mappedEncounterIndex = DUNGEONS[migratedDungeonId].floors[requestedEncounterIndex]
+    ? requestedEncounterIndex
     : -1
+  const migratedEncounterId = mappedEncounterIndex >= 0
+    ? DUNGEONS[migratedDungeonId].floors[mappedEncounterIndex].encounterId
+    : null
+  const migratedEnemy = migrateEnemyState(
+    existingRun?.enemy as LegacyEnemyState | null | undefined,
+    migratedEncounterId,
+  )
   const canPreserveRun = Boolean(
     existingRun
     && existingRun.status !== 'inactive'
+    && migratedEnemy
     && mappedEncounterIndex >= 0
     && isCompatibleCombatState(existingCombat),
   )
-  const migratedDungeonId = existingRun?.dungeonId ?? 'prototype-depths'
   const migratedRunStats = isValidRunStats(existingRun?.runStats)
     ? {
         enemiesDefeated: Math.max(0, existingRun.runStats.enemiesDefeated),
@@ -350,13 +377,32 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
       }
     : createInactiveRun()
 
+  const shouldRestartResolvingRound = Boolean(
+    canPreserveRun
+    && existingRun?.status === 'active'
+    && existingCombat?.phase === 'resolving',
+  )
+  const migratedCombat = shouldRestartResolvingRound
+    ? createCombatState(
+        migratedRun.equippedDiceSnapshot,
+        existingCombat?.roundNumber ?? 1,
+        existingCombat?.resolutionVersion ?? 0,
+        true,
+      )
+    : canPreserveRun && existingCombat
+      ? {
+          ...existingCombat,
+          resolutionStep: (existingCombat.resolutionStep as string | null | undefined) === 'enemy'
+            ? 'enemy_attack'
+            : existingCombat.resolutionStep ?? null,
+        }
+      : createCombatState()
+
   return {
     screen: canPreserveRun ? persisted.screen ?? 'combat' : 'hub',
     profile: migratedProfile,
     run: migratedRun,
-    combat: canPreserveRun && existingCombat
-      ? { ...existingCombat, resolutionStep: existingCombat.resolutionStep ?? null }
-      : createCombatState(),
+    combat: migratedCombat,
   } as NewGameState
 }
 
@@ -408,7 +454,7 @@ export const useNewGameStore = create<NewGameState>()(
         const state = get()
         if (!state.profile.unlockedDungeonIds.includes(dungeonId)) return
         const dungeon = DUNGEONS[dungeonId]
-        const firstEnemyId = dungeon.floors[0].enemyId
+        const firstEncounterId = dungeon.floors[0].encounterId
         const equippedDiceSnapshot = getEquippedDice(state.profile)
         if (equippedDiceSnapshot.length === 0) return
         const playerMaxHp = getPlayerMaxHp(state.profile.talentRanks)
@@ -423,7 +469,7 @@ export const useNewGameStore = create<NewGameState>()(
             playerMaxHp,
             runStats: createEmptyRunStats(),
             equippedDiceSnapshot,
-            enemy: createEnemyState(firstEnemyId),
+            enemy: createEnemyState(firstEncounterId),
             lastReward: null,
           },
           combat: createCombatState(
@@ -482,8 +528,9 @@ export const useNewGameStore = create<NewGameState>()(
           playerHp: state.run.playerHp,
           playerMaxHp: state.run.playerMaxHp,
           enemyHp: enemy.hp,
+          enemyMaxHp: enemy.maxHp,
           enemyShield: enemy.shield,
-          enemyIntent: enemy.intentRoll,
+          enemyIntent: totalEnemyRolls(enemy.intentRolls),
           totals: state.combat.totals,
         })
         const resolutionVersion = state.combat.resolutionVersion + 1
@@ -528,7 +575,7 @@ export const useNewGameStore = create<NewGameState>()(
               enemy: {
                 ...enemy,
                 hp: resolution.enemyHp,
-                shield: resolution.enemyShield,
+                shield: resolution.enemyShieldAfterPlayerPhase,
                 rewardClaimed: true,
               },
               lastReward: {
@@ -559,8 +606,8 @@ export const useNewGameStore = create<NewGameState>()(
               playerHp: 0,
               enemy: {
                 ...enemy,
-                hp: resolution.enemyHp,
-                shield: resolution.enemyShield,
+                hp: resolution.enemyHpAfterPlayerPhase,
+                shield: resolution.enemyShieldAfterPlayerPhase,
               },
             },
             combat: {
@@ -580,8 +627,8 @@ export const useNewGameStore = create<NewGameState>()(
             playerHp: resolution.playerHpAfterPlayerPhase,
             enemy: {
               ...enemy,
-              hp: resolution.enemyHp,
-              shield: resolution.enemyShield,
+              hp: resolution.enemyHpAfterPlayerPhase,
+              shield: resolution.enemyShieldAfterPlayerPhase,
             },
           },
           combat: {
@@ -598,19 +645,48 @@ export const useNewGameStore = create<NewGameState>()(
       advanceRoundResolution: () => {
         const state = get()
         const resolution = state.combat.lastResolution
-        if (state.combat.phase !== 'resolving' || (state.combat.resolutionStep ?? 'player') !== 'player') return
+        if (state.combat.phase !== 'resolving') return
         if (!resolution?.enemyActed) return
 
+        const currentStep = state.combat.resolutionStep ?? 'player'
+        if (currentStep === 'player' && resolution.enemyHealApplied > 0) {
+          set({
+            run: {
+              ...state.run,
+              enemy: state.run.enemy
+                ? {
+                    ...state.run.enemy,
+                    hp: resolution.enemyHp,
+                    shield: 0,
+                  }
+                : null,
+            },
+            combat: {
+              ...state.combat,
+              resolutionStep: 'enemy_heal',
+            },
+          })
+          return
+        }
+
+        if (currentStep !== 'player' && currentStep !== 'enemy_heal') return
         const playerDefeated = resolution.outcome === 'defeat'
         set({
           run: {
             ...state.run,
             status: playerDefeated ? 'defeat' : state.run.status,
             playerHp: resolution.playerHp,
+            enemy: state.run.enemy
+              ? {
+                  ...state.run.enemy,
+                  hp: resolution.enemyHp,
+                  shield: 0,
+                }
+              : null,
           },
           combat: {
             ...state.combat,
-            resolutionStep: 'enemy',
+            resolutionStep: 'enemy_attack',
           },
         })
       },
@@ -618,7 +694,7 @@ export const useNewGameStore = create<NewGameState>()(
       finishRoundResolution: () => {
         const state = get()
         if (state.combat.phase !== 'resolving' || !state.combat.lastResolution) return
-        if (state.combat.lastResolution.enemyActed && state.combat.resolutionStep !== 'enemy') return
+        if (state.combat.lastResolution.enemyActed && state.combat.resolutionStep !== 'enemy_attack') return
 
         if (state.combat.lastResolution.outcome === 'victory') {
           set({
@@ -666,7 +742,7 @@ export const useNewGameStore = create<NewGameState>()(
             ...state.run,
             status: 'active',
             encounterIndex: nextEncounterIndex,
-            enemy: createEnemyState(nextFloor.enemyId),
+            enemy: createEnemyState(nextFloor.encounterId),
             lastReward: null,
           },
           combat: createCombatState(
@@ -710,11 +786,19 @@ export const useNewGameStore = create<NewGameState>()(
         if (!nextRank) return false
 
         const diceCollection = [...state.profile.diceCollection]
+        const unlockedDungeonIds = [...state.profile.unlockedDungeonIds]
         for (const effect of nextRank.effects) {
-          if (effect.type !== 'grant_die') continue
-          if (diceCollection.some((die) => die.id === effect.dieId)) continue
-          const grantedDie = createDieById(effect.dieId)
-          if (grantedDie) diceCollection.push(grantedDie)
+          if (effect.type === 'grant_die') {
+            if (diceCollection.some((die) => die.id === effect.dieId)) continue
+            const grantedDie = createDieById(effect.dieId)
+            if (grantedDie) diceCollection.push(grantedDie)
+          }
+          if (
+            effect.type === 'unlock_dungeon'
+            && !unlockedDungeonIds.includes(effect.dungeonId)
+          ) {
+            unlockedDungeonIds.push(effect.dungeonId)
+          }
         }
 
         set({
@@ -726,6 +810,7 @@ export const useNewGameStore = create<NewGameState>()(
               [talent.id]: currentRank + 1,
             },
             diceCollection,
+            unlockedDungeonIds,
           },
         })
         return true

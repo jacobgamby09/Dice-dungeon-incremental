@@ -1,41 +1,65 @@
-export type EnemyAttackDieId =
-  | 'slime-attack-die'
-  | 'slime-crawler-attack-die'
-  | 'marrow-bat-attack-die'
-  | 'goblin-attack-die'
-  | 'shieldbearer-attack-die'
-  | 'cultist-attack-die'
-  | 'skeleton-attack-die'
-  | 'orc-attack-die'
-  | 'blood-orc-attack-die'
-  | 'demon-attack-die'
+import type { FaceType } from './dice'
 
-export interface EnemyAttackFace {
+export type EnemyDieId =
+  | 'slime-l1-attack'
+  | 'slime-crawler-l1-attack'
+  | 'goblin-l1-attack'
+  | 'skeleton-l1-attack'
+  | 'slime-l2-attack'
+  | 'slime-crawler-l2-attack'
+  | 'goblin-l2-attack'
+  | 'skeleton-l2-attack'
+  | 'skeleton-elite-attack'
+  | 'demon-attack'
+  | 'shieldbearer-l1-attack'
+  | 'shieldbearer-l1-shield'
+  | 'cultist-l1-attack'
+  | 'cultist-l1-shield'
+  | 'orc-l1-attack'
+  | 'orc-l1-shield'
+  | 'blood-orc-l1-attack'
+  | 'blood-orc-l1-shield'
+  | 'shieldbearer-l2-attack'
+  | 'shieldbearer-l2-shield'
+  | 'cultist-l2-attack'
+  | 'cultist-l2-shield'
+  | 'orc-l2-attack'
+  | 'orc-l2-shield'
+  | 'blood-orc-l2-attack'
+  | 'blood-orc-l2-shield'
+  | 'blood-orc-elite-attack'
+  | 'blood-orc-elite-shield'
+  | 'spiked-behemoth-attack'
+  | 'spiked-behemoth-shield'
+  | 'spiked-behemoth-heal'
+
+export interface EnemyFace {
   id: string
-  type: 'attack'
+  type: FaceType
   value: number
 }
 
-export type EnemyAttackFaces = [
-  EnemyAttackFace,
-  EnemyAttackFace,
-  EnemyAttackFace,
-  EnemyAttackFace,
-  EnemyAttackFace,
-  EnemyAttackFace,
+export type EnemyFaces = [
+  EnemyFace,
+  EnemyFace,
+  EnemyFace,
+  EnemyFace,
+  EnemyFace,
+  EnemyFace,
 ]
 
-export interface EnemyAttackDieDefinition {
-  id: EnemyAttackDieId
+export interface EnemyDieDefinition {
+  id: EnemyDieId
   name: string
-  faces: EnemyAttackFaces
+  type: FaceType
+  faces: EnemyFaces
 }
 
-export interface EnemyAttackRollResult {
-  dieId: EnemyAttackDieId
+export interface EnemyRollResult {
+  dieId: EnemyDieId
   dieName: string
   faceId: string
   faceIndex: number
-  type: 'attack'
+  type: FaceType
   value: number
 }

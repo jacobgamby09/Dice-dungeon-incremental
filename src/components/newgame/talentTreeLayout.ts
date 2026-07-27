@@ -30,6 +30,7 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.battleHardenedOne]: { x: 520, y: 260 },
   [TALENT_IDS.twinArsenal]: { x: 520, y: 450 },
   [TALENT_IDS.shieldcraft]: { x: 520, y: 640 },
+  [TALENT_IDS.secondDescent]: { x: 120, y: 850 },
   [TALENT_IDS.battleHardenedTwo]: { x: 320, y: 850 },
   [TALENT_IDS.thirdGrip]: { x: 520, y: 850 },
   [TALENT_IDS.quickDraw]: { x: 720, y: 850 },

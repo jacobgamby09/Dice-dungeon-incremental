@@ -18,6 +18,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
       'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
+      'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
     },
     diceCollection: [],
     equippedDieIds: [],
@@ -50,6 +51,39 @@ describe('ranked talent progression', () => {
       createProfile({ [talent.id]: 3 }, 999),
       talent,
     )).toBe('maxed')
+  })
+
+  it('gates the Second Descent behind a clear and unlocks it for exactly the boss reward', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.secondDescent]
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+      [TALENT_IDS.shieldcraft]: 1,
+    }
+    const uncleared = createProfile(ranks, 60)
+    const cleared = {
+      ...uncleared,
+      dungeonProgress: {
+        ...uncleared.dungeonProgress,
+        'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
+      },
+    }
+
+    expect(getTalentPurchaseReason(uncleared, talent)).toBe('dungeon')
+    expect(getTalentPurchaseReason(cleared, talent)).toBeNull()
+  })
+
+  it('keeps Healing Arts available before the first clear so the player learns Heal first', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.healingArts]
+    const profile = createProfile({
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+      [TALENT_IDS.shieldcraft]: 1,
+      [TALENT_IDS.thirdGrip]: 1,
+    }, 55)
+
+    expect(profile.dungeonProgress['prototype-depths'].clearCount).toBe(0)
+    expect(getTalentPurchaseReason(profile, talent)).toBeNull()
   })
 
   it('normalizes unknown, fractional, negative, and over-cap ranks', () => {

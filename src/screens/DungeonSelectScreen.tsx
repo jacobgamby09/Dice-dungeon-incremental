@@ -17,13 +17,13 @@ export function DungeonSelectScreen() {
       </header>
 
       <section className="dungeon-list">
-        {unlockedDungeonIds.map((dungeonId: DungeonId) => {
+        {unlockedDungeonIds.map((dungeonId: DungeonId, dungeonIndex) => {
           const dungeon = DUNGEONS[dungeonId]
           return (
             <article className="dungeon-card" key={dungeon.id}>
               <div className="dungeon-card__icon"><Skull aria-hidden="true" size={30} /></div>
               <div>
-                <span className="eyebrow">Prototype dungeon</span>
+                <span className="eyebrow">Dungeon {dungeonIndex + 1}</span>
                 <h2>{dungeon.name}</h2>
                 <p>{dungeon.description}</p>
                 <span className="encounter-count"><Swords aria-hidden="true" size={14} /> {dungeon.floors.length} floors</span>

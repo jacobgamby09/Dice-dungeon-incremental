@@ -1,10 +1,5 @@
 import type { RollResult } from './dice'
 
-export interface EnemyIntent {
-  type: 'attack'
-  value: number
-}
-
 export interface RoundTotals {
   attack: number
   shield: number
@@ -19,7 +14,7 @@ export type CombatPhase =
   | 'resolving'
   | 'victory'
   | 'defeat'
-export type ResolutionStep = 'player' | 'enemy' | null
+export type ResolutionStep = 'player' | 'enemy_heal' | 'enemy_attack' | null
 
 export interface RoundResolution {
   outcome: CombatOutcome
@@ -27,8 +22,11 @@ export interface RoundResolution {
   playerHpAfterPlayerPhase: number
   playerHp: number
   enemyHp: number
+  enemyHpAfterPlayerPhase: number
   enemyShield: number
+  enemyShieldAfterPlayerPhase: number
   healApplied: number
+  enemyHealApplied: number
   attackAbsorbedByEnemyShield: number
   attackDamageToEnemy: number
   enemyActed: boolean

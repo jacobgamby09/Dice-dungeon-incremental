@@ -7,6 +7,7 @@ import {
   Sparkles,
   X,
   Zap,
+  Map,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { createDieById } from '../../game/content/dice'
@@ -36,6 +37,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   grant_die: Dices,
   roll_speed: Zap,
   unlock_auto_roll: Bot,
+  unlock_dungeon: Map,
 }
 
 function getEffectLabel(effect: TalentEffect): string {
@@ -50,6 +52,8 @@ function getEffectLabel(effect: TalentEffect): string {
       return `${Math.round((effect.multiplier - 1) * 100)}% Faster Rolls`
     case 'unlock_auto_roll':
       return 'Auto Roll Toggle'
+    case 'unlock_dungeon':
+      return 'Unlock The Iron Descent'
   }
 }
 
@@ -60,7 +64,7 @@ function getPurchaseLabel(
   xp: number,
 ): string {
   if (!nextRank || state === 'maxed') return 'Maximum rank reached'
-  if (state === 'locked') return 'Complete the previous path'
+  if (state === 'locked') return 'Complete the required progression'
   if (!isAffordable) return `Need ${nextRank.cost - xp} more XP`
   return `Purchase for ${nextRank.cost} XP`
 }

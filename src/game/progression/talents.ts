@@ -9,7 +9,7 @@ import type {
 export const BASE_PLAYER_HP = 10
 export const BASE_DICE_SLOTS = 1
 
-export type TalentPurchaseReason = 'maxed' | 'prerequisite' | 'xp'
+export type TalentPurchaseReason = 'maxed' | 'prerequisite' | 'dungeon' | 'xp'
 export type TalentVisibility = 'hidden' | 'silhouette' | 'revealed'
 
 export function getTalentRank(
@@ -81,6 +81,16 @@ export function areTalentPrerequisitesMet(
   return talent.prerequisiteIds.every((id) => isTalentPurchased(talentRanks, id))
 }
 
+export function areTalentRequirementsMet(
+  profile: Pick<PlayerProfile, 'dungeonProgress'>,
+  talent: TalentDefinition,
+): boolean {
+  return (talent.requirements ?? []).every((requirement) => {
+    if (requirement.type !== 'dungeon_clear') return true
+    return (profile.dungeonProgress[requirement.dungeonId]?.clearCount ?? 0) >= requirement.count
+  })
+}
+
 export function getTalentPurchaseReason(
   profile: PlayerProfile,
   talent: TalentDefinition,
@@ -88,6 +98,7 @@ export function getTalentPurchaseReason(
   const nextRank = getNextTalentRank(profile.talentRanks, talent)
   if (!nextRank) return 'maxed'
   if (!areTalentPrerequisitesMet(profile.talentRanks, talent)) return 'prerequisite'
+  if (!areTalentRequirementsMet(profile, talent)) return 'dungeon'
   if (profile.xp < nextRank.cost) return 'xp'
   return null
 }
