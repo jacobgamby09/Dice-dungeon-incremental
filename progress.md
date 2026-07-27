@@ -51,6 +51,7 @@ Brug denne skabelon:
 - `The Iron Descent` er Dungeon 2 med Shieldbearer, Cultist, Orc og Blood Orc som Level 1/2-varianter. Normale mobs har Attack + Shield, mens Spiked Behemoth-bossen har Attack + Shield + Heal.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
 - Hver enemy har nu 1–3 data-drevne seks-sidede dice. Alle resultater fastlåses og persisteres før reveal-animationen, hvorefter spilleren får de præcise Attack-, Shield- og Heal-værdier at reagere på.
+- Enemy-intent bruger separate render-identiteter til den roterende 3D-cube og den flade resultat-face. Landed, active og cancelled nulstiller altid X/Y-rotation, så ingen enemy-die kan arve en spejlvendt roll-transform på tværs af faces, runder eller mobs.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
@@ -117,6 +118,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-27 — Enemy-dice orientering rettet globalt
+
+**Status:** I gang
+**Ansvarlig:** Codex
+
+- Resultat: Den fælles enemy-die renderer nulstiller nu altid 3D-rotationen, når et Attack-, Shield- eller Heal-resultat går fra rolling til landed, active eller cancelled. Rettelsen gælder alle seks faces, alle enemy-typer, alle runder og både single- og multi-dice intents.
+- Beslutninger: Den animerede 3D-cube og den flade resultat-face har separate React-identiteter. Den flade face deklarerer samtidig eksplicit `rotateX: 0`, `rotateY: 0` og `y: 0`, så en fremtidig animation ikke kan efterlade en gammel inline-transform.
+- Berørte områder: Fælles `EnemyIntentDie`, combat-browserflow og progress-log. Der er ingen ændring af combat-regler, balance, rewards eller saves.
+- Validering: Begge TypeScript-checks, alle 80 tests, ESLint og production-build består. Browseren reproducerede production-fejlen som en arvet `rotateY(630deg)`/3D-matrix. Den lokale rettelse er verificeret på flere mobs og gentagne runder; landed og cancelled ender på `transform: none`, mens active kun bruger positiv, ikke-spejlet skalering.
+- Kendte mangler: Production-verifikation afventer merge og Vercel-deployment.
+- Git: Branch `agent/fix-all-enemy-die-orientations`; commit, PR, merge og deployment afventer.
 
 ### 2026-07-27 — Dungeon 2 og multi-dice enemies
 
