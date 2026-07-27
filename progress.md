@@ -59,7 +59,7 @@ Brug denne skabelon:
 - Save-formatet er version 9 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll- og run-summary-progress sammen med aktive runs. Ældre aktive runs mappes via floor-index til det nye encounter-content uden tab af permanent progression.
 - En deterministisk simulator og 80 automatiserede tests beskytter begge balancekurver, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#17 — Clean enemy stage and replace demon boss](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/17), squash merge `65f846c`.
+- Seneste gameplay-merge i produktion: [#19 — Build multi-dice enemy progression](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/19), squash merge `2affd9e`.
 
 ## Næste anbefalede skridt
 
@@ -120,15 +120,15 @@ Brug denne skabelon:
 
 ### 2026-07-27 — Dungeon 2 og multi-dice enemies
 
-**Status:** I gang
+**Status:** Færdig
 **Ansvarlig:** Codex
 
 - Resultat: Dungeon 1 er blevet en ren attack-only introduktion med genbrugte Level 1/2-enemies. Dungeon 2, The Iron Descent, tilføjer Attack + Shield på normale mobs og Attack + Shield + Heal på Spiked Behemoth. Enemy-intent kan vise og inspicere 1–3 mini-dice, og Talent Tree har fået den clear-gatede Second Descent-node.
 - Beslutninger: Heal forbliver en sen Dungeon 1-player-unlock for at bevare den godkendte MVP-pace og lære mechanicen før enemies. Enemy Shield er midlertidigt; en overlevende enemy healer før Attack. Dungeon 2-balancen bruger individuelle face-køb som synlige progressionstrin.
 - Berørte områder: Dungeon-, encounter- og enemy-dice-content, pure combat-resolution, Zustand-store/save v9, Talent Tree, Combat UI, Spiked Behemoth-sprite, simulator, tests, GDD, designreference og README.
-- Validering: Begge TypeScript-checks, 80 tests, ESLint, production-build og `git diff --check` består. D1 med én die, D2 med to dice og Spiked Behemoth med tre dice samt face-inspector er browser-verificeret ved 320/384 px uden console errors, error overlay, overlap eller horisontal overflow. Produktionskontrol udføres efter merge.
+- Validering: `npx tsc --noEmit`, `npx tsc -p tsconfig.app.json --noEmit`, alle 80 tests, ESLint, production-build og `git diff --check` består. D1 med én die, D2 med to dice og Spiked Behemoth med tre dice samt face-inspector er lokalt browser-verificeret ved 320/384 px uden console errors, error overlay, overlap eller horisontal overflow. Vercel markerede production-deployment `dpl_D4hTvk9AdKjnM2rnrsYKgT5npF2A` som `READY`; den offentlige app, JavaScript-/CSS-bundles og alle fire Spiked Behemoth-sheets svarer HTTP 200, og produktionen er browser-verificeret ved 384 px uden console-fejl.
 - Kendte mangler: Dungeon 2 kræver stadig subjektiv mobil-playtest; rewards og timing er første simulerede tuning.
-- Git: Branch `agent/multi-dice-dungeons`; commit, PR, merge og deployment afventer afsluttende validering.
+- Git: `f05a69a` — `Build multi-dice enemy progression`; PR [#19](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/19) er squash-merget til `main` som `2affd9e` og deployet til production.
 
 ### 2026-07-26 — Clean enemy-stage og korrekt Demon-boss
 
