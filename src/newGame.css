@@ -1793,12 +1793,40 @@
 .hub-action strong { font-size: 0.78rem; letter-spacing: 0.09em; text-transform: uppercase; }
 .hub-action__door { color: var(--action-color); }
 
-.dev-reset {
+.dev-tools {
   margin-top: 2px;
   border-top: 2px dashed #252330;
   padding-top: 10px;
 }
 
+.dev-tools__label {
+  display: block;
+  margin-bottom: 7px;
+  color: #55515f;
+  font-size: 0.42rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dev-tools__triggers {
+  display: grid;
+  gap: 7px;
+}
+
+.dev-tools__status {
+  margin: 0 0 8px;
+  border-left: 3px solid #22c55e;
+  background: #08160d;
+  padding: 7px 9px;
+  color: #86efac;
+  font-size: 0.48rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dev-preset__trigger,
 .dev-reset__trigger {
   width: 100%;
   min-height: 44px;
@@ -1818,39 +1846,104 @@
   cursor: pointer;
 }
 
+.dev-preset__trigger {
+  border-color: #37306b;
+  background: #100e24;
+  color: #a5b4fc;
+}
+
+.dev-preset__trigger:active,
 .dev-reset__trigger:active {
   transform: translateY(3px);
   box-shadow: none;
 }
 
+.dev-preset__trigger:focus-visible,
+.dev-reset__trigger:focus-visible,
+.dev-reset__cancel:focus-visible,
+.dev-preset__confirm:focus-visible,
+.dev-reset__confirm:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 3px;
+}
+
+.dev-preset__confirmation,
 .dev-reset__confirmation {
   border: 3px solid #030308;
-  border-left-color: #ef4444;
-  background: #1b0b10;
-  box-shadow: 4px 4px 0 #030308, inset 0 2px 0 #4a1821;
   padding: 10px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 7px 9px;
+}
+
+.dev-preset__confirmation {
+  border-left-color: #818cf8;
+  background: #0f1024;
+  box-shadow: 4px 4px 0 #030308, inset 0 2px 0 #2f3168;
+  color: #a5b4fc;
+}
+
+.dev-reset__confirmation {
+  border-left-color: #ef4444;
+  background: #1b0b10;
+  box-shadow: 4px 4px 0 #030308, inset 0 2px 0 #4a1821;
   color: #f87171;
 }
 
+.dev-preset__confirmation > svg,
 .dev-reset__confirmation > svg {
   margin-top: 1px;
 }
 
+.dev-preset__confirmation strong,
 .dev-reset__confirmation strong {
-  color: #fee2e2;
   font-size: 0.57rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
+.dev-preset__confirmation strong { color: #eef2ff; }
+.dev-reset__confirmation strong { color: #fee2e2; }
+
+.dev-preset__confirmation p,
 .dev-reset__confirmation p {
   margin: 4px 0 0;
-  color: #b99098;
   font-size: 0.46rem;
   line-height: 1.4;
+}
+
+.dev-preset__confirmation p { color: #a3a5c4; }
+.dev-reset__confirmation p { color: #b99098; }
+
+.dev-preset__summary {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.dev-preset__summary div {
+  min-width: 0;
+  border: 2px solid #25264c;
+  background: #090a17;
+  padding: 6px 4px;
+  text-align: center;
+}
+
+.dev-preset__summary dt {
+  color: #777b9e;
+  font-size: 0.39rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.dev-preset__summary dd {
+  margin: 3px 0 0;
+  color: #eef2ff;
+  font-size: 0.56rem;
+  font-weight: 900;
 }
 
 .dev-reset__actions {
@@ -1861,6 +1954,7 @@
 }
 
 .dev-reset__cancel,
+.dev-preset__confirm,
 .dev-reset__confirm {
   min-height: 40px;
   border: 2px solid #030308;
@@ -1882,7 +1976,13 @@
   color: #fff1f2;
 }
 
+.dev-preset__confirm {
+  background: #4338ca;
+  color: #eef2ff;
+}
+
 .dev-reset__cancel:active,
+.dev-preset__confirm:active,
 .dev-reset__confirm:active {
   transform: translateY(3px);
   box-shadow: none;

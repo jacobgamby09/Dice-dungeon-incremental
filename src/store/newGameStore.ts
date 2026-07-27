@@ -11,6 +11,7 @@ import { getEnemyDie } from '../game/content/enemyDice'
 import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/content/enemies'
 import { TALENTS_BY_ID } from '../game/content/talents'
 import { BASE_FACE_CAP, getFaceUpgradeCost } from '../game/content/upgradeCosts'
+import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
 import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
@@ -69,6 +70,7 @@ export interface NewGameState {
   unequipDie: (dieId: string) => boolean
   setAutoRoll: (enabled: boolean) => void
   upgradeFace: (dieId: string, faceId: string) => boolean
+  loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
@@ -892,6 +894,16 @@ export const useNewGameStore = create<NewGameState>()(
           },
         })
         return true
+      },
+
+      loadPostDungeonOneDevPreset: () => {
+        const state = get()
+        set({
+          ...initialState,
+          profile: createPostDungeonOneDevProfile(createInitialProfile()),
+          run: createInactiveRun(),
+          combat: createCombatState([], 1, state.combat.resolutionVersion),
+        })
       },
 
       resetProgress: () => {

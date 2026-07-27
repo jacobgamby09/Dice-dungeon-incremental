@@ -31,6 +31,15 @@ src/
 
 Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikke påvirke prototypen.
 
+## Developer-profiler
+
+Hubben har to bevidst totrins-beskyttede developer-handlinger:
+
+- `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med den kanoniske post-Dungeon-1-profil: én clear, 15 Max HP, fire slots, fire udstyrede permanente dice, alle faces på mindst 3 og The Iron Descent ulåst. Profilen repræsenterer 325 brugt XP og 255 brugte Souls og lader Quick Draw samt Auto Roll være ukøbte.
+- `DEV · Reset game` genskaber den almindelige fresh-save-start.
+
+Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres, før Dungeon 2 startes.
+
 ## Fastlåste designregler
 
 - Spilleren starter kun med én permanent Attack Die; Shield og Heal unlockes senere.
