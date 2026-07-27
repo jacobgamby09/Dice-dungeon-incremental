@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: MVP 0.6.
+Status: gældende design for det nye spil. Version: MVP 0.7.
 
 ## High concept
 
@@ -144,6 +144,7 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 | Battle-Hardened rank 1/2/3 | 8 / 16 / 32 XP | Forrige rank | +2 Max HP per rank, maksimalt +6 |
 | Twin Arsenal | 16 XP | Battle-Hardened rank 1 | +1 dice slot og én Striker Die |
 | Shieldcraft | 32 XP | Twin Arsenal | Én Iron Guard Die og adgang til Shield-familien |
+| Second Descent | 60 XP | Shieldcraft + første clear af The First Descent | Unlock The Iron Descent |
 | Battle-Hardened II | 24 XP | Shieldcraft | +3 Max HP |
 | Third Grip | 40 XP | Shieldcraft | +1 dice slot |
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
@@ -162,10 +163,14 @@ Den tidlige tilsigtede cadence er:
 3. Twin Arsenal kan stadig købes efter højst tre floor-1 clears, hvis spilleren prioriterer den direkte vej.
 4. Den nye Striker Die findes derefter i collection, men spilleren skal selv equippe den i det nye slot.
 5. Shieldcraft åbner derefter de tre samtidige spor Survival, Arsenal og Control.
+6. Healing Arts kan nås sent i Dungeon 1, så spilleren lærer Heal, før en enemy bruger mechanicen.
+7. Første clear af The First Descent afslører adgangskravet til Second Descent; købet åbner Dungeon 2.
 
 ## Kamp
 
-Spilleren ser altid enemy HP og det præcise næste intent før første draw. Hver enemy ejer en data-drevet seks-sidet Attack Die med stabile die- og face-ID'er. Ved rundestart vælges og persisteres enemy-resultatet først; derefter ruller en mindre fysisk enemy-die automatisk og lander som det synlige intent. Player Draw er låst under reveal-animationen. Resultatet ændres aldrig bagefter, og en dræbt enemy får fortsat sit viste intent annulleret.
+Spilleren ser altid enemy HP og det præcise næste intent før første draw. En enemy ejer 1–3 data-drevne, seks-sidede dice med stabile die- og face-ID'er. Hver die er Attack, Shield eller Heal og følger samme farve- og ikonsprog som player dice. Ved rundestart vælges og persisteres alle enemy-resultater først; derefter ruller de mindre fysiske enemy dice automatisk i rækkefølge og lander som det synlige samlede intent. Player Draw er låst under reveal-animationen. Resultaterne ændres aldrig bagefter.
+
+Enemy Shield er midlertidigt. Det nye Shield-roll erstatter sidste rundes værdi, absorberer player Attack og udløber efter enemy-fasen. Enemy Heal udføres kun, hvis enemy overlever player-fasen, og ligger før dens Attack. En dræbt enemy får derfor både Heal og Attack annulleret.
 
 Efter enemy reveal blandes alle udstyrede player dice i en persisteret draw-pile. `Draw` tager den næste tilfældige terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste Attack-, Shield- eller Heal-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
 
@@ -178,31 +183,53 @@ Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er to
 3. Eventuel recoil, Thorns eller selvskade anvendes.
 4. Hvis spilleren er død, er udfaldet Defeat — også ved reel Double K.O.
 5. Hvis fjenden er død, er udfaldet Victory, og dens intent og attack-animation annulleres.
-6. Hvis fjenden lever, udfører den sit viste intent.
-7. Rundens Shield blokerer enemy damage; resten rammer HP.
-8. Ved 0 HP er udfaldet Defeat.
-9. Midlertidigt Shield nulstilles, og næste runde forberedes.
+6. Hvis fjenden lever, udfører den sit viste Heal op til max HP.
+7. Derefter udfører den sit viste Attack.
+8. Rundens player Shield blokerer enemy damage; resten rammer HP.
+9. Ved 0 HP er udfaldet Defeat.
+10. Midlertidigt player- og enemy-Shield nulstilles, og næste runde forberedes.
 
 Spilleren skal kunne føle sig overpowered. En fjende, der bliver dræbt af spillerens Attack, får derfor aldrig et sidste gratis angreb. Senere enemies skaleres i stedet op.
 
-Resolutionen vises som to faktiske state-trin: først opdateres enemy HP og spillerens Attack-animation, derefter — efter en tydelig pause — udføres og vises en overlevende fjendes tur. Player HP må ikke falde, før enemy-trinnet begynder.
+Resolutionen vises som op til tre faktiske state-trin: player impact, eventuel enemy Heal og til sidst enemy Attack. Player HP må ikke falde, før enemy Attack-trinnet begynder.
 
 ## Dungeon-flow og permanente rewards
 
-MVP-dungeonen `The First Descent` har ti floors. Floor 10 er bossen.
+Hver dungeon har ti floors, og floor 10 er boss. Genbrugte enemies får et synligt level, mens floor 9 er en Elite-variant. Nye mechanics introduceres én dungeon efter spilleren selv har fået adgang til dem.
 
-| Floor | Enemy | HP | Start Shield | Attack Die faces | XP | Souls |
+### Dungeon 1 — The First Descent
+
+Dungeon 1 er den basale læsedungeon. Alle enemies har præcis én Attack Die; ingen har Shield eller Heal. Fire archetypes gentages, så progressionen aflæses som stærkere levels frem for ti engangsmobs.
+
+| Floor | Enemy | Level | HP | Dice | XP | Souls |
 |---:|---|---:|---:|---|---:|---:|
-| 1 | Slime | 5 | 0 | 1·2·2·2·2·3 | 8 | 5 |
-| 2 | Slime Crawler | 7 | 0 | 2·2·2·3·3·3 | 10 | 7 |
-| 3 | Marrow Bat | 9 | 0 | 2·2·3·3·4·4 | 12 | 9 |
-| 4 | Goblin | 12 | 0 | 3·3·3·4·4·4 | 14 | 10 |
-| 5 | Shieldbearer | 14 | 3 | 3·3·4·4·4·4 | 18 | 15 |
-| 6 | Cultist | 17 | 0 | 3·3·3·4·4·5 | 22 | 18 |
-| 7 | Skeleton | 20 | 0 | 4·4·4·5·5·5 | 26 | 22 |
-| 8 | Orc | 24 | 0 | 4·4·5·5·6·6 | 32 | 28 |
-| 9 | Blood Orc | 29 | 0 | 5·5·5·6·6·7 | 40 | 36 |
-| 10 | Demon — Boss | 38 | 6 | 6·6·6·7·8·9 | 60 | 60 |
+| 1 | Slime | 1 | 5 | Attack | 8 | 5 |
+| 2 | Slime Crawler | 1 | 7 | Attack | 10 | 7 |
+| 3 | Goblin | 1 | 9 | Attack | 12 | 9 |
+| 4 | Skeleton | 1 | 12 | Attack | 14 | 10 |
+| 5 | Slime | 2 | 14 | Attack | 18 | 15 |
+| 6 | Slime Crawler | 2 | 17 | Attack | 22 | 18 |
+| 7 | Goblin | 2 | 20 | Attack | 26 | 22 |
+| 8 | Skeleton | 2 | 24 | Attack | 32 | 28 |
+| 9 | Skeleton Elite | 3 | 29 | Attack | 40 | 36 |
+| 10 | Demon — Boss | Boss | 38 | Attack | 60 | 60 |
+
+### Dungeon 2 — The Iron Descent
+
+Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har én Attack Die og én Shield Die. Spiked Behemoth tilføjer som boss en Heal Die, så spilleren møder den samme Heal-mechanic, som allerede kan være lært gennem Healing Arts.
+
+| Floor | Enemy | Level | HP | Dice | XP | Souls |
+|---:|---|---:|---:|---|---:|---:|
+| 1 | Shieldbearer | 1 | 22 | Attack + Shield | 48 | 44 |
+| 2 | Cultist | 1 | 26 | Attack + Shield | 52 | 48 |
+| 3 | Orc | 1 | 30 | Attack + Shield | 58 | 54 |
+| 4 | Blood Orc | 1 | 34 | Attack + Shield | 64 | 60 |
+| 5 | Shieldbearer | 2 | 39 | Attack + Shield | 72 | 68 |
+| 6 | Cultist | 2 | 44 | Attack + Shield | 80 | 76 |
+| 7 | Orc | 2 | 50 | Attack + Shield | 90 | 86 |
+| 8 | Blood Orc | 2 | 57 | Attack + Shield | 102 | 98 |
+| 9 | Blood Orc Elite | 3 | 65 | Attack + Shield | 118 | 112 |
+| 10 | Spiked Behemoth — Boss | Boss | 80 | Attack + Shield + Heal | 160 | 160 |
 
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
@@ -232,6 +259,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Profil, aktivt run, enemy, HP, combat-phase, totals samt player- og enemy-roll-resultater persisteres.
 - Save version 7 fjerner `runSouls` og flytter eventuelle version-6 Run Souls sikkert til spillerens permanente Soul-beholdning. De tidligere talent-, intent- og combat-shape-migrationer bevares.
 - Save version 8 tilføjer idempotente `runStats` for enemies defeated samt XP/Souls optjent i den aktuelle descent. Et kompatibelt version-7-run rekonstruerer statistikken fra sine allerede ryddede floors.
+- Save version 9 introducerer stabile encounter-ID'er, gentagne enemy-levels, 1–3 enemy dice og Dungeon 2. Et aktivt ældre run mappes sikkert via dungeonens floor-index, og eksisterende XP, Souls, talents, dice og faces bevares.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning
@@ -243,7 +271,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
 - Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
 - Et nyt roll-resultat må ikke tælle med i den synlige total, mens terningen ruller. Efter landing flyver face-ikonet og værdien op i scoreområdet; totalen opdateres først ved impact. Samme feedback-system skal genbruges af alle nuværende og fremtidige face-typer.
-- Enemy Attack Die bruger samme røde Attack-face, ikon og fysiske terningesprog som player dice, men vises i cirka 65–70% størrelse i enemy-zonen. Den forbliver synlig som låst intent, kan inspiceres for alle seks faces, pulserer ved enemy action og dæmpes som `Cancelled`, hvis fjenden dør.
+- Enemy dice bruger samme Attack-, Shield- og Heal-faces, ikoner og fysiske terningesprog som player dice, men vises i cirka 65–70% størrelse i en kompakt intent-række. 1–3 resultater forbliver synlige, kan hver inspiceres for alle seks faces, pulserer ved deres resolutionstrin og dæmpes som `Cancelled`, hvis fjenden dør.
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
 - Workshop skal føles som et forge-rum: dice-rack, seks fysiske face-fliser, anvil-preview og synlig Souls/impact-feedback, når præcis ét permanent face forbedres.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
@@ -258,12 +286,14 @@ Den data-drevne simulator bruges som regressionsværn, ikke som erstatning for p
 | Build | Gennemsnitligt højeste clear |
 |---|---:|
 | 1 Attack Die, 10 HP | 1,18 |
-| 1 Attack Die, 12 HP | 1,46 |
-| 2 Attack Dice, 12 HP | 2,67 |
-| 2 Attack + Shield, 15 HP | 4,41 |
-| 2 Attack + Shield + Heal, 15 HP | 6,99 |
+| 2 base Attack Dice, 12 HP | 2,66 |
+| 2 Attack ≥3 + Shield ≥2, 15 HP | 6,29 |
+| 2 Attack ≥4 + Shield ≥3, 16 HP | 8,16 |
+| 2 Attack + Shield + Heal ≥3, 15 HP | Boss-clear over 90% |
 
-Enemy dice sænker den gennemsnitlige dybde en anelse uden at flytte de tilsigtede progression walls. Startbuildet klarer floor 1 i 99,86% af 10.000 seedede runs. Faces på mindst værdi 3 giver den fulde fire-dice build en boss-clear-rate på 93,5%, så bossen er stabilt mulig uden at blive deterministisk. Det skaber en bevidst sen MVP-væg, hvor både XP-unlocks og konkrete Soul-opgraderinger er nødvendige.
+Dungeon 1 bevarer den godkendte MVP-cadence: startbuildet stopper omkring floor 1, anden Attack Die flytter væggen til cirka floor 2–3, og en fuld fire-dice build med faces på mindst værdi 3 har over 90% boss-clear-rate. Heal forbliver derfor en sen Dungeon 1-unlock i stedet for at blive låst bag første clear.
+
+Dungeon 2 starter en ny incremental kurve. Den samme fire-dice build lander i seedede regressioner omkring floor 4, et mellemtrin når cirka floor 5, og et sent build når bossen. Tre konkrete Shield-faces fra 4 → 5 løfter eksempelvis boss-clear-rate fra cirka 4% til cirka 70%; individuelle face-køb er dermed synligt meningsfulde frem for kun at virke ved fuld cap.
 
 Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 

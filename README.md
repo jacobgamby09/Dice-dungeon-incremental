@@ -2,7 +2,7 @@
 
 Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og permanente Souls; XP åbner nye muligheder, mens Souls opgraderer én konkret face på én konkret terning.
 
-Den nuværende milepæl er den første vertikale prototype: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run.
+Den nuværende milepæl rummer to fulde incremental dungeons: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run. Dungeon 1 lærer det basale Attack-loop; Dungeon 2 introducerer enemies med Attack + Shield og en Spiked Behemoth-boss med Attack + Shield + Heal.
 
 ## Kør projektet
 
@@ -46,6 +46,8 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 - Shield gælder kun den aktuelle rundes resolution.
 - Heal sker før Attack og kan ikke overstige max HP.
 - Hvis spillerens Attack dræber fjenden, angriber fjenden ikke.
+- Enemy Shield er midlertidigt og erstattes af næste rundes Shield-roll.
+- En overlevende enemy bruger Heal før Attack; en dræbt enemy får begge dele annulleret.
 - Ved en reel Double K.O. fra recoil, Thorns eller selvskade har Player Death prioritet.
 
 ## Dokumentation

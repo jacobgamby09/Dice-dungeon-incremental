@@ -1,17 +1,19 @@
-import { memo, useState } from 'react'
-import type { CSSProperties, Ref } from 'react'
+import { memo } from 'react'
+import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 import { Ban } from 'lucide-react'
-import type { EnemyAttackDieDefinition, EnemyAttackRollResult } from '../../game/types/enemyDice'
+import type { EnemyDieDefinition, EnemyRollResult } from '../../game/types/enemyDice'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 
-export type EnemyIntentDieStage = 'rolling' | 'landed' | 'attacking' | 'cancelled'
+export type EnemyIntentDieStage = 'rolling' | 'landed' | 'active' | 'cancelled'
 
 interface EnemyIntentDieProps {
-  die: EnemyAttackDieDefinition
-  inspectRef?: Ref<HTMLButtonElement>
-  result: EnemyAttackRollResult
+  die: EnemyDieDefinition
+  isInspecting: boolean
+  onInspect: () => void
+  result: EnemyRollResult
+  rollDelay: number
   rollDuration: number
   stage: EnemyIntentDieStage
 }
@@ -26,12 +28,24 @@ const LANDING_ROTATIONS = [
   { rotateX: 810, rotateY: 720 },
 ] as const
 
-function EnemyAttackFaceContent({ iconSize, value }: { iconSize: number; value: number }) {
+const FACE_SURFACES = {
+  attack: '#5f1521',
+  shield: '#173b78',
+  heal: '#14532d',
+} as const
+
+function EnemyFaceContent({
+  iconSize,
+  result,
+}: {
+  iconSize: number
+  result: Pick<EnemyRollResult, 'type' | 'value'>
+}) {
   return (
     <>
-      <strong className="enemy-intent-die__face-value">{value}</strong>
+      <strong className="enemy-intent-die__face-value">{result.value}</strong>
       <span aria-hidden="true" className="enemy-intent-die__face-icon">
-        <FaceIcon type="attack" size={iconSize} />
+        <FaceIcon type={result.type} size={iconSize} />
       </span>
     </>
   )
@@ -39,101 +53,77 @@ function EnemyAttackFaceContent({ iconSize, value }: { iconSize: number; value: 
 
 export const EnemyIntentDie = memo(function EnemyIntentDie({
   die,
-  inspectRef,
+  isInspecting,
+  onInspect,
   result,
+  rollDelay,
   rollDuration,
   stage,
 }: EnemyIntentDieProps) {
-  const [showFaces, setShowFaces] = useState(false)
   const isRolling = stage === 'rolling'
   const isCancelled = stage === 'cancelled'
   const landingRotation = LANDING_ROTATIONS[result.faceIndex]
-  const values = die.faces.map((face) => face.value)
-  const average = values.reduce((total, value) => total + value, 0) / values.length
+  const meta = FACE_META[result.type]
 
   return (
-    <div className={`enemy-intent-die enemy-intent-die--${stage}`}>
-      <span className="enemy-intent-die__label">
-        {isCancelled ? 'Intent cancelled' : isRolling ? 'Enemy rolling' : 'Incoming attack'}
-      </span>
-      <button
-        ref={inspectRef}
-        aria-expanded={showFaces}
-        aria-label={
-          isRolling
-            ? `${die.name} rolling`
-            : isCancelled
-              ? `${die.name} attack cancelled`
-              : `${die.name} rolled ${result.value} Attack. Show all faces.`
-        }
-        className="enemy-intent-die__inspect"
-        disabled={isRolling || isCancelled}
-        onClick={() => setShowFaces((visible) => !visible)}
-        type="button"
-      >
-        {isRolling ? (
-          <motion.span
-            key="rolling-cube"
-            animate={{
-              rotateX: [0, 205, 430, landingRotation.rotateX],
-              rotateY: [0, 255, 505, landingRotation.rotateY],
-              scale: [0.9, 1.04, 0.98, 1],
-              y: [2, -12, -6, 0],
-            }}
-            className="enemy-intent-die__cube"
-            transition={{
-              duration: rollDuration,
-              ease: [0.42, 0, 0.58, 1],
-              times: [0, 0.38, 0.7, 1],
-            }}
-          >
-            {die.faces.map((face, index) => (
-              <span
-                aria-hidden="true"
-                className={`roll-die__side roll-die__side--${CUBE_SIDES[index]}`}
-                key={face.id}
-                style={{
-                  '--side-color': FACE_META.attack.color,
-                  '--side-surface': '#5f1521',
-                } as CSSProperties}
-              >
-                <EnemyAttackFaceContent iconSize={14} value={face.value} />
-              </span>
-            ))}
-          </motion.span>
-        ) : (
-          <motion.span
-            key="landed-face"
-            initial={{ rotateX: 0, rotateY: 0, scale: 1, y: 0 }}
-            animate={
-              stage === 'attacking'
-                ? { rotateX: 0, rotateY: 0, scale: [1, 1.12, 0.96, 1], y: 0 }
-                : { rotateX: 0, rotateY: 0, scale: 1, y: 0 }
-            }
-            className="enemy-intent-die__face"
-            transition={{ duration: 0.42, ease: 'easeOut' }}
-          >
-            {isCancelled ? (
-              <Ban aria-hidden="true" size={22} />
-            ) : (
-              <EnemyAttackFaceContent iconSize={19} value={result.value} />
-            )}
-          </motion.span>
-        )}
-        <span className="enemy-intent-die__value">
-          {isCancelled ? 'No attack' : isRolling ? 'Revealing…' : `Attack ${result.value}`}
-        </span>
-      </button>
-
-      {showFaces && !isRolling && !isCancelled && (
-        <div className="enemy-intent-die__details" role="note">
-          <strong>{die.name}</strong>
-          <div aria-label={`Faces: ${values.join(', ')}`}>
-            {die.faces.map((face) => <span key={face.id}>{face.value}</span>)}
-          </div>
-          <small>Range {Math.min(...values)}–{Math.max(...values)} · Avg {average.toFixed(1)}</small>
-        </div>
+    <button
+      aria-expanded={isInspecting}
+      aria-label={
+        isRolling
+          ? `${die.name} rolling`
+          : isCancelled
+            ? `${die.name} cancelled`
+            : `${die.name} rolled ${result.value} ${meta.label}. Show all faces.`
+      }
+      className={`enemy-intent-die enemy-intent-die--${result.type} enemy-intent-die--${stage}`}
+      disabled={isRolling || isCancelled}
+      onClick={onInspect}
+      style={{ '--enemy-die-color': meta.color } as CSSProperties}
+      type="button"
+    >
+      {isRolling ? (
+        <motion.span
+          animate={{
+            rotateX: [0, 205, 430, landingRotation.rotateX],
+            rotateY: [0, 255, 505, landingRotation.rotateY],
+            scale: [0.9, 1.04, 0.98, 1],
+            y: [2, -10, -5, 0],
+          }}
+          className="enemy-intent-die__cube"
+          transition={{
+            delay: rollDelay,
+            duration: rollDuration,
+            ease: [0.42, 0, 0.58, 1],
+            times: [0, 0.38, 0.7, 1],
+          }}
+        >
+          {die.faces.map((face, index) => (
+            <span
+              aria-hidden="true"
+              className={`roll-die__side roll-die__side--${CUBE_SIDES[index]}`}
+              key={face.id}
+              style={{
+                '--side-color': FACE_META[face.type].color,
+                '--side-surface': FACE_SURFACES[face.type],
+              } as CSSProperties}
+            >
+              <EnemyFaceContent iconSize={12} result={face} />
+            </span>
+          ))}
+        </motion.span>
+      ) : (
+        <motion.span
+          animate={stage === 'active'
+            ? { scale: [1, 1.14, 0.96, 1] }
+            : { scale: 1 }}
+          className="enemy-intent-die__face"
+          transition={{ duration: 0.42, ease: 'easeOut' }}
+        >
+          {isCancelled
+            ? <Ban aria-hidden="true" size={20} />
+            : <EnemyFaceContent iconSize={17} result={result} />}
+        </motion.span>
       )}
-    </div>
+    </button>
   )
 })

@@ -1,5 +1,5 @@
 import type { DieInstance } from './dice'
-import type { EnemyAttackDieId, EnemyAttackRollResult } from './enemyDice'
+import type { EnemyDieId, EnemyRollResult } from './enemyDice'
 
 export type EnemyId =
   | 'slime'
@@ -12,28 +12,57 @@ export type EnemyId =
   | 'orc'
   | 'blood-orc'
   | 'demon'
-export type DungeonId = 'prototype-depths'
+  | 'spiked-behemoth'
+export type DungeonId = 'prototype-depths' | 'iron-depths'
+export type EncounterId =
+  | 'descent-1-slime-l1'
+  | 'descent-1-slime-crawler-l1'
+  | 'descent-1-goblin-l1'
+  | 'descent-1-skeleton-l1'
+  | 'descent-1-slime-l2'
+  | 'descent-1-slime-crawler-l2'
+  | 'descent-1-goblin-l2'
+  | 'descent-1-skeleton-l2'
+  | 'descent-1-skeleton-elite'
+  | 'descent-1-demon'
+  | 'descent-2-shieldbearer-l1'
+  | 'descent-2-cultist-l1'
+  | 'descent-2-orc-l1'
+  | 'descent-2-blood-orc-l1'
+  | 'descent-2-shieldbearer-l2'
+  | 'descent-2-cultist-l2'
+  | 'descent-2-orc-l2'
+  | 'descent-2-blood-orc-l2'
+  | 'descent-2-blood-orc-elite'
+  | 'descent-2-spiked-behemoth'
 
 export interface EnemyDefinition {
   id: EnemyId
   name: string
   spriteName: string
+}
+
+export interface EncounterDefinition {
+  id: EncounterId
+  enemyId: EnemyId
+  level: number
   maxHp: number
-  startingShield: number
-  attackDieId: EnemyAttackDieId
+  dieIds: EnemyDieId[]
   xpReward: number
   soulReward: number
 }
 
 export interface EnemyState {
+  encounterId: EncounterId
   definitionId: EnemyId
   name: string
   spriteName: string
+  level: number
   hp: number
   maxHp: number
   shield: number
-  attackDieId: EnemyAttackDieId
-  intentRoll: EnemyAttackRollResult
+  dieIds: EnemyDieId[]
+  intentRolls: EnemyRollResult[]
   xpReward: number
   soulReward: number
   rewardClaimed: boolean
@@ -48,7 +77,7 @@ export interface DungeonDefinition {
 
 export interface DungeonFloorDefinition {
   floor: number
-  enemyId: EnemyId
+  encounterId: EncounterId
   isBoss: boolean
 }
 

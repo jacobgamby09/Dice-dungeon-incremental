@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.7 — 2026-07-26.
+Version: 1.8 — 2026-07-27.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -312,6 +312,10 @@ Enemy intent er en advarsel, ikke en samtidig animation. Player resolution vises
 Enemy-stage og roll-flade deler den samme næsten-sorte negative plads. Murværk, bue, scenebaggrund og tom enemy-piedestal må ikke konkurrere med sprite, intent eller HP; selve sprite-silhuetten og dens mørke drop-shadow giver kontakten til fladen.
 
 Enemy-navnet bruger en ren, tung sans-serif uden outline eller display-shadow, så lange navne kan aflæses øjeblikkeligt. Enemy-sprites vælges fra deres stabile content-navn og må aldrig falde tilbage til den gamle hardcodede Slime Crawler-placeholder. Små, brede creatures som Slime Crawler må skaleres individuelt, så deres gameplay-silhuet har samme visuelle vægt som de øvrige early enemies.
+
+Enemy intent vises som en kompakt række på 1–3 mini-dice i samme visuelle familie som player dice. Attack er rød, Shield blå og Heal grøn. Mens rækken ruller, må de præcise totals ikke lække; efter landing vises kun de typer, enemy faktisk har rullet. Hver mini-die er en semantisk knap, som åbner ét fælles kompakt face-inspector med die-navn og alle seks faces. Rækken må ikke blive til tre ydre typekort.
+
+Gentagne enemies viser `Level 1`, `Level 2` eller `Elite · Level 3` tæt ved navnet. Bossen viser `Boss` og skal have større spritevægt. Spiked Behemoth er Dungeon 2-bossen og bruger sine egne Idle, Attack, Hurt og Death-sheets; den må ikke falde tilbage til Demon eller en normal mob.
 
 ### Victory / post-combat — reward stage
 

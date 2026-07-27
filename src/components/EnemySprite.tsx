@@ -96,8 +96,8 @@ const SHEET_SPRITES: Record<string, SheetConfig> = {
       death:  { src: '/sprites/enemies/marrow-bat/MarrowBat-Death.png',    frames: 6, frameMs: 145, loop: false },
     },
     crop: { x: 0, y: 0, w: 100, h: 100 },
-    unit: 21,
-    minWidth: 112,
+    unit: 17,
+    minWidth: 86,
   },
   slimecrawler: {
     sheets: {
@@ -107,8 +107,8 @@ const SHEET_SPRITES: Record<string, SheetConfig> = {
       death:  { src: '/sprites/enemies/slime-crawler/SlimeCrawler-Death.png',    frames: 4, frameMs: 150, loop: false },
     },
     crop: { x: 0, y: 0, w: 100, h: 100 },
-    unit: 17,
-    minWidth: 86,
+    unit: 21,
+    minWidth: 112,
   },
   toxiccreep: {
     sheets: {

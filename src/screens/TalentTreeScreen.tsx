@@ -11,12 +11,17 @@ import { getTalentTreeFrontierPoint } from '../components/newgame/talentTreeLayo
 import { TALENTS, TALENTS_BY_ID } from '../game/content/talents'
 import {
   areTalentPrerequisitesMet,
+  areTalentRequirementsMet,
   getNextTalentRank,
   getTalentMaxRank,
   getTalentRank,
   getTalentVisibility,
 } from '../game/progression/talents'
 import type { TalentVisibility } from '../game/progression/talents'
+import type {
+  DungeonId,
+  DungeonProgress,
+} from '../game/types/dungeon'
 import type {
   TalentDefinition,
   TalentRanks,
@@ -55,6 +60,7 @@ function getTalentDepth(
 function getNodeState(
   talent: TalentDefinition,
   talentRanks: Readonly<TalentRanks>,
+  dungeonProgress: Readonly<Record<DungeonId, DungeonProgress>>,
   visibility: TalentVisibility,
   xp: number,
 ): TalentNodeState | null {
@@ -63,7 +69,10 @@ function getNodeState(
 
   const rank = getTalentRank(talentRanks, talent.id)
   if (rank >= getTalentMaxRank(talent)) return 'maxed'
-  if (!areTalentPrerequisitesMet(talentRanks, talent)) return 'locked'
+  if (
+    !areTalentPrerequisitesMet(talentRanks, talent)
+    || !areTalentRequirementsMet({ dungeonProgress }, talent)
+  ) return 'locked'
   if (rank > 0) return 'active'
 
   const nextRank = getNextTalentRank(talentRanks, talent)
@@ -90,6 +99,7 @@ function getVisibilityChanges(
 export function TalentTreeScreen() {
   const xp = useNewGameStore((state) => state.profile.xp)
   const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
+  const dungeonProgress = useNewGameStore((state) => state.profile.dungeonProgress)
   const purchaseTalent = useNewGameStore((state) => state.purchaseTalent)
   const goToHub = useNewGameStore((state) => state.goToHub)
 
@@ -110,12 +120,13 @@ export function TalentTreeScreen() {
     ? getTalentVisibility(talentRanks, selectedTalent)
     : 'hidden'
   const selectedNodeState = selectedTalent
-    ? getNodeState(selectedTalent, talentRanks, selectedVisibility, xp)
+    ? getNodeState(selectedTalent, talentRanks, dungeonProgress, selectedVisibility, xp)
     : null
   const selectedIsAffordable = Boolean(
     selectedTalent
     && selectedNextRank
     && areTalentPrerequisitesMet(talentRanks, selectedTalent)
+    && areTalentRequirementsMet({ dungeonProgress }, selectedTalent)
     && xp >= selectedNextRank.cost,
   )
 
@@ -156,7 +167,7 @@ export function TalentTreeScreen() {
       ? ceremony.changes.find((change) => change.talentId === talent.id)?.before
         ?? actualVisibility
       : actualVisibility
-    const state = getNodeState(talent, talentRanks, visibility, xp)
+    const state = getNodeState(talent, talentRanks, dungeonProgress, visibility, xp)
     if (!state) return []
 
     const rank = getTalentRank(talentRanks, talent.id)
@@ -170,6 +181,7 @@ export function TalentTreeScreen() {
       isAffordable: Boolean(
         nextRank
         && areTalentPrerequisitesMet(talentRanks, talent)
+        && areTalentRequirementsMet({ dungeonProgress }, talent)
         && xp >= nextRank.cost,
       ),
       isNew: Boolean(ceremony && ceremonyStage === 'revealing' && revealIndex >= 0),
@@ -179,7 +191,7 @@ export function TalentTreeScreen() {
       state,
       talent,
     }]
-  }), [ceremony, ceremonyStage, talentRanks, xp])
+  }), [ceremony, ceremonyStage, dungeonProgress, talentRanks, xp])
 
   const chargingTalentIds = useMemo(
     () => ceremony && ceremonyStage !== 'rolling'

@@ -1,4 +1,5 @@
 import { addRollToTotals, rollDie } from '../combat/rollDie'
+import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
 import { DUNGEONS } from '../content/dungeons'
 import { createEnemyState, rollNextEnemyIntent } from '../content/enemies'
@@ -54,7 +55,7 @@ export function simulateDungeonRun(
   let xpEarned = 0
 
   for (const floor of dungeon.floors) {
-    let enemy = createEnemyState(floor.enemyId, random)
+    let enemy = createEnemyState(floor.encounterId, random)
     let floorCleared = false
 
     for (let round = 0; round < 100; round += 1) {
@@ -68,8 +69,9 @@ export function simulateDungeonRun(
         playerHp,
         playerMaxHp: build.playerMaxHp,
         enemyHp: enemy.hp,
+        enemyMaxHp: enemy.maxHp,
         enemyShield: enemy.shield,
-        enemyIntent: enemy.intentRoll,
+        enemyIntent: totalEnemyRolls(enemy.intentRolls),
         totals,
       })
       playerHp = resolution.playerHp

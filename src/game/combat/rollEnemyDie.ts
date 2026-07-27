@@ -1,9 +1,11 @@
-import type { EnemyAttackDieDefinition, EnemyAttackRollResult } from '../types/enemyDice'
+import type { RoundTotals } from '../types/combat'
+import { EMPTY_TOTALS } from '../types/combat'
+import type { EnemyDieDefinition, EnemyRollResult } from '../types/enemyDice'
 
 function createRollResult(
-  die: EnemyAttackDieDefinition,
+  die: EnemyDieDefinition,
   faceIndex: number,
-): EnemyAttackRollResult {
+): EnemyRollResult {
   const face = die.faces[faceIndex]
   return {
     dieId: die.id,
@@ -15,18 +17,18 @@ function createRollResult(
   }
 }
 
-export function rollEnemyAttackDie(
-  die: EnemyAttackDieDefinition,
+export function rollEnemyDie(
+  die: EnemyDieDefinition,
   rng: () => number = Math.random,
-): EnemyAttackRollResult {
+): EnemyRollResult {
   const boundedRoll = Math.min(0.999999999, Math.max(0, rng()))
   return createRollResult(die, Math.floor(boundedRoll * die.faces.length))
 }
 
-export function findEnemyAttackRollByValue(
-  die: EnemyAttackDieDefinition,
+export function findEnemyRollByValue(
+  die: EnemyDieDefinition,
   value: number,
-): EnemyAttackRollResult {
+): EnemyRollResult {
   const exactFaceIndex = die.faces.findIndex((face) => face.value === value)
   if (exactFaceIndex >= 0) return createRollResult(die, exactFaceIndex)
 
@@ -36,4 +38,13 @@ export function findEnemyAttackRollByValue(
       : closestIndex
   ), 0)
   return createRollResult(die, closestFaceIndex)
+}
+
+export function totalEnemyRolls(
+  rolls: readonly EnemyRollResult[],
+): RoundTotals {
+  return rolls.reduce<RoundTotals>((totals, roll) => ({
+    ...totals,
+    [roll.type]: totals[roll.type] + roll.value,
+  }), { ...EMPTY_TOTALS })
 }

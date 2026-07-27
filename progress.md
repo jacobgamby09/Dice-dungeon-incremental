@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-26.
+Senest opdateret: 2026-07-27.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -47,35 +47,34 @@ Brug denne skabelon:
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
 - Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
-- `The First Descent` har 10 floors med Demon-boss på floor 10.
+- `The First Descent` genbruger Slime, Slime Crawler, Goblin og Skeleton som Level 1/2-varianter, har en Skeleton Elite på floor 9 og Demon-boss på floor 10. Alle har kun én Attack Die.
+- `The Iron Descent` er Dungeon 2 med Shieldbearer, Cultist, Orc og Blood Orc som Level 1/2-varianter. Normale mobs har Attack + Shield, mens Spiked Behemoth-bossen har Attack + Shield + Heal.
 - Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
-- Hver enemy har nu sin egen seks-sidede Attack Die. Resultatet fastlåses og persisteres før reveal-animationen, hvorefter spilleren får den præcise værdi at reagere på.
+- Hver enemy har nu 1–3 data-drevne seks-sidede dice. Alle resultater fastlåses og persisteres før reveal-animationen, hvorefter spilleren får de præcise Attack-, Shield- og Heal-værdier at reagere på.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Normal Victory viser kun encounter-reward, totals, HP, dungeon-progress og én Continue-knap; næste-enemy-data er fjernet. Boss Victory og Defeat bruger et persisteret descent-resumé med enemies defeated samt optjent XP/Souls.
-- Save-formatet er version 8 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, enemy-roll- og run-summary-progress sammen med aktive runs; version-6 Run Souls flyttes én gang til permanente Souls, version-7 descent-statistik rekonstrueres, og de tidligere migrationer bevares.
-- En deterministisk simulator og 67 automatiserede tests beskytter den første balancekurve, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, fuld dev-reset, progressive reveals, enemy dice, sprite-mapping og de atomiske transitions.
+- Save-formatet er version 9 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll- og run-summary-progress sammen med aktive runs. Ældre aktive runs mappes via floor-index til det nye encounter-content uden tab af permanent progression.
+- En deterministisk simulator og 80 automatiserede tests beskytter begge balancekurver, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#17 — Clean enemy stage and replace demon boss](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/17), squash merge `65f846c`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil et fresh save ved 320 px og 384 px og verificér den rene enemy-stage, den større Slime Crawler, Marrow Bat- og Demon-animationerne, den ryddede roll-flade, normal Victory, Boss Victory og Defeat-resuméet samt at første kill giver 8 XP + 5 Souls.
-2. Gennemspil spatial-canvas Talent Tree-previewet og kontrollér især startcentrering, drag kontra tap, sideværts pan, recenter, bund-inspector, fog-læsbarhed og Shieldcrafts trevejs chain reaction.
-3. Mål i rigtig playtest, om Battle-Hardened rank 1 købes efter run 1, og om spillere forstår valget mellem rank 2/3 og Twin Arsenal.
-4. Tune permanent Soul-indtjening, enemy scaling, XP rewards og face-priser samlet ud fra faktisk spilleradfærd; simulatoren er kun baseline.
-5. Vurdér om floor-10-væggen fra face-værdi 2 til 3 føles motiverende eller for abrupt.
+1. Gennemspil Dungeon 1 og Dungeon 2 ved 320 px og 384 px og verificér multi-dice reveal, inspect-panelet, level-labels, Shield/Heal-trin og Spiked Behemoths fire animationer.
+2. Mål i fresh-save playtest, om Healing Arts stadig nås naturligt sent i Dungeon 1, og om 60-XP-købet af Second Descent opleves som en belønning frem for en ekstra grind efter første clear.
+3. Tune Dungeon 2-rewards og face-priser ud fra faktisk spilleradfærd; simulatoren bekræfter en progressionstrappe, men ikke oplevet tid mellem upgrades.
+4. Beslut hvilken mechanic og hvilke genbrugte archetypes Dungeon 3 skal introducere; Marrow Bat er bevidst reserveret til senere content.
 
 ## Åbne spørgsmål og kendte risici
 
-- Browserlaget havde ingen tilgængelig browser i spatial-canvas-sessionen. Vite-root, SSR, viewport-matematik og production-build er verificeret, men det nye pan, nodeplacering, inspector og købsceremoni mangler stadig den obligatoriske subjektive 320/384 px-browserkontrol.
-- Det nye outcome-layout er dækket semantisk og via SSR, men reward-timing, sticky CTA og den visuelle tæthed ved 320/384 px skal stadig godkendes i en rigtig mobilbrowser.
-- Det ryddede combat-layout, den større Slime Crawler og den nye Demon-atlas består build-, dimensions- og mappingkontrol, men størrelse, baseline, chroma-edges og visuel ro skal stadig godkendes ved 320/384 px.
+- Det nye multi-dice-layout, Spiked Behemoth og face-inspector er lokalt browser-verificeret ved 320 px og 384 px uden overlap eller horisontal overflow. Den fulde Dungeon 2-progression skal stadig gennemspilles på en fysisk mobil.
 - Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
-- Flere face-typer skal kunne opstå dynamisk i combat uden nye faste UI-slots.
+- Enemy intent-rækken er dimensioneret til 1–3 dice; flere end tre kræver en ny kompakt præsentation eller sekventiel paging.
+- Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
 - Auto Roll er verificeret på state- og buildniveau, men tempoet med større manuelle loadouts skal vurderes visuelt.
 - Legacy-kode findes stadig i repository og må ikke blandes ind i den nye production-state.
 
@@ -100,8 +99,12 @@ Brug denne skabelon:
 - Dev-reset er tilgængelig nederst på Hubben og må først udføres efter et eksplicit andet bekræftelsestryk; den nulstiller både permanent progression, dungeon-progress og et eventuelt aktivt run.
 - Auto Roll er en spillerstyret toggle med 300 ms pause efter et færdigscoret roll og udfører ikke Auto Resolve.
 - MVP-dungeonen har 10 floors; floor 10 er boss og giver sin permanente reward præcis én gang ved sejr.
+- Dungeon 1 genbruger fire basale archetypes som Level 1/2, har én Elite og er attack-only. Demon er boss og har heller ingen Shield.
+- Dungeon 2 genbruger fire nye archetypes som Level 1/2. Alle normale mobs har én Attack Die og én midlertidig Shield Die; Spiked Behemoth har desuden én Heal Die.
+- Healing Arts forbliver tilgængelig sent i Dungeon 1, så player lærer Heal før enemies. Second Descent kræver første Dungeon 1-clear og 60 XP.
 - Alle udstyrede dice skal trækkes hver runde i tilfældig rækkefølge.
-- Hver enemy har præcis én data-driven Attack Die med seks stabile faces; dens resultat fastlåses ved rundestart og gemmes før animationen.
+- Hver enemy har 1–3 data-driven dice med seks stabile faces; alle resultater fastlåses ved rundestart og gemmes før animationen.
+- Enemy Shield erstattes ved hver rundestart, absorberer player Attack og udløber efter enemy-fasen. Enemy Heal udføres før Attack, men kun hvis enemy overlever player-fasen.
 - Enemy intent vises som den præcise landede værdi efter et kort reveal. Spilleren kan inspicere alle seks faces, men kan ikke rulle egne dice, mens intent ruller.
 - Dice og totals vises først, når deres roll/resultat er afsløret.
 - Player resolution sker før enemy resolution.
@@ -114,6 +117,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-27 — Dungeon 2 og multi-dice enemies
+
+**Status:** I gang
+**Ansvarlig:** Codex
+
+- Resultat: Dungeon 1 er blevet en ren attack-only introduktion med genbrugte Level 1/2-enemies. Dungeon 2, The Iron Descent, tilføjer Attack + Shield på normale mobs og Attack + Shield + Heal på Spiked Behemoth. Enemy-intent kan vise og inspicere 1–3 mini-dice, og Talent Tree har fået den clear-gatede Second Descent-node.
+- Beslutninger: Heal forbliver en sen Dungeon 1-player-unlock for at bevare den godkendte MVP-pace og lære mechanicen før enemies. Enemy Shield er midlertidigt; en overlevende enemy healer før Attack. Dungeon 2-balancen bruger individuelle face-køb som synlige progressionstrin.
+- Berørte områder: Dungeon-, encounter- og enemy-dice-content, pure combat-resolution, Zustand-store/save v9, Talent Tree, Combat UI, Spiked Behemoth-sprite, simulator, tests, GDD, designreference og README.
+- Validering: Begge TypeScript-checks, 80 tests, ESLint, production-build og `git diff --check` består. D1 med én die, D2 med to dice og Spiked Behemoth med tre dice samt face-inspector er browser-verificeret ved 320/384 px uden console errors, error overlay, overlap eller horisontal overflow. Produktionskontrol udføres efter merge.
+- Kendte mangler: Dungeon 2 kræver stadig subjektiv mobil-playtest; rewards og timing er første simulerede tuning.
+- Git: Branch `agent/multi-dice-dungeons`; commit, PR, merge og deployment afventer afsluttende validering.
 
 ### 2026-07-26 — Clean enemy-stage og korrekt Demon-boss
 

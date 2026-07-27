@@ -4,6 +4,7 @@ export const TALENT_IDS = {
   battleHardenedOne: 'battle-hardened-1',
   twinArsenal: 'twin-arsenal',
   shieldcraft: 'shieldcraft',
+  secondDescent: 'second-descent',
   battleHardenedTwo: 'battle-hardened-2',
   thirdGrip: 'third-grip',
   quickDraw: 'quick-draw',
@@ -50,6 +51,23 @@ export const TALENTS: TalentDefinition[] = [
     ranks: [{
       cost: 32,
       effects: [{ type: 'grant_die', dieId: 'shield-die-1' }],
+    }],
+    track: 'core',
+  },
+  {
+    id: TALENT_IDS.secondDescent,
+    name: 'Second Descent',
+    description: 'Open the path to The Iron Descent.',
+    iconKey: 'second-descent',
+    prerequisiteIds: [TALENT_IDS.shieldcraft],
+    requirements: [{
+      type: 'dungeon_clear',
+      dungeonId: 'prototype-depths',
+      count: 1,
+    }],
+    ranks: [{
+      cost: 60,
+      effects: [{ type: 'unlock_dungeon', dungeonId: 'iron-depths' }],
     }],
     track: 'core',
   },
