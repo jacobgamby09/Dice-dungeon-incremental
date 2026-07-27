@@ -36,7 +36,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   dice_slots: Backpack,
   grant_die: Dices,
   roll_speed: Zap,
-  unlock_auto_roll: Bot,
+  unlock_auto_combat: Bot,
   unlock_dungeon: Map,
 }
 
@@ -50,8 +50,8 @@ function getEffectLabel(effect: TalentEffect): string {
       return createDieById(effect.dieId)?.name ?? 'Permanent Die'
     case 'roll_speed':
       return `${Math.round((effect.multiplier - 1) * 100)}% Faster Rolls`
-    case 'unlock_auto_roll':
-      return 'Auto Roll Toggle'
+    case 'unlock_auto_combat':
+      return 'Auto Combat Toggle'
     case 'unlock_dungeon':
       return 'Unlock The Iron Descent'
   }

@@ -12,7 +12,7 @@ import {
 function createBaseProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 9,
+    saveVersion: 10,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {},
@@ -25,8 +25,7 @@ function createBaseProfile(): PlayerProfile {
     equippedDieIds: diceCollection.map((die) => die.id),
     settings: {
       rollSpeed: 1,
-      autoRoll: false,
-      autoResolve: false,
+      autoCombat: false,
     },
   }
 }
@@ -45,11 +44,10 @@ describe('post-Dungeon-1 developer preset', () => {
     expect(getPlayerMaxHp(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.maxHp)
     expect(getDiceCapacity(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.diceSlots)
     expect(profile.talentRanks[TALENT_IDS.quickDraw]).toBeUndefined()
-    expect(profile.talentRanks[TALENT_IDS.autoRoll]).toBeUndefined()
+    expect(profile.talentRanks[TALENT_IDS.autoCombat]).toBe(1)
     expect(profile.settings).toEqual({
       rollSpeed: 1,
-      autoRoll: false,
-      autoResolve: false,
+      autoCombat: false,
     })
   })
 

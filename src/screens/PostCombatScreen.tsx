@@ -1,8 +1,10 @@
+import { useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { DoorOpen, Heart, Swords, Trophy } from 'lucide-react'
+import { Bot, DoorOpen, Heart, Pause, Swords, Trophy } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { OutcomeRewards } from '../components/newgame/OutcomeRewards'
+import { AUTO_COMBAT_VICTORY_PAUSE_MS } from '../game/automation/autoCombat'
 import { DUNGEONS } from '../game/content/dungeons'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -27,17 +29,43 @@ export function PostCombatScreen() {
     runStats: state.run.runStats,
   })))
   const profile = useNewGameStore(useShallow((state) => ({
+    automationPaused: state.awayRecap !== null,
     bankedSouls: state.profile.bankedSouls,
+    autoCombat: state.profile.settings.autoCombat,
     xp: state.profile.xp,
   })))
   const advanceToNextFloor = useNewGameStore((state) => state.advanceToNextFloor)
   const returnToHubAfterVictory = useNewGameStore((state) => state.returnToHubAfterVictory)
+  const setAutoCombat = useNewGameStore((state) => state.setAutoCombat)
+  const checkpointAutoCombat = useNewGameStore((state) => state.checkpointAutoCombat)
   const prefersReducedMotion = useReducedMotion()
+  const dungeonComplete = Boolean(run.lastReward?.dungeonComplete)
+  const rewardFloor = run.lastReward?.floor ?? 0
+
+  useEffect(() => {
+    if (
+      !profile.autoCombat
+      || profile.automationPaused
+      || dungeonComplete
+      || rewardFloor <= 0
+    ) return
+    const timer = window.setTimeout(() => {
+      advanceToNextFloor()
+      checkpointAutoCombat()
+    }, AUTO_COMBAT_VICTORY_PAUSE_MS)
+    return () => window.clearTimeout(timer)
+  }, [
+    advanceToNextFloor,
+    checkpointAutoCombat,
+    dungeonComplete,
+    profile.autoCombat,
+    profile.automationPaused,
+    rewardFloor,
+  ])
 
   if (!run.lastReward || !run.dungeonId || !run.enemy) return null
 
   const dungeon = DUNGEONS[run.dungeonId]
-  const dungeonComplete = run.lastReward.dungeonComplete
   const rewardXp = dungeonComplete ? run.runStats.xpEarned : run.lastReward.xp
   const rewardSouls = dungeonComplete ? run.runStats.soulsEarned : run.lastReward.souls
   const nextFloorNumber = run.lastReward.floor + 1
@@ -123,16 +151,30 @@ export function PostCombatScreen() {
         animate={CTA_ANIMATE}
         className="pixel-button pixel-button--primary outcome-cta"
         initial={prefersReducedMotion ? false : CTA_INITIAL}
-        onClick={dungeonComplete ? returnToHubAfterVictory : advanceToNextFloor}
+        onClick={
+          dungeonComplete
+            ? returnToHubAfterVictory
+            : profile.autoCombat
+              ? () => setAutoCombat(false)
+              : advanceToNextFloor
+        }
         transition={buttonTransition}
         type="button"
       >
         {dungeonComplete ? (
           <><DoorOpen aria-hidden="true" size={18} /> Return to Hub</>
+        ) : profile.autoCombat ? (
+          <><Pause aria-hidden="true" size={18} /> Pause Auto Combat</>
         ) : (
           <><Swords aria-hidden="true" size={18} /> Continue to Floor {nextFloorNumber}</>
         )}
       </motion.button>
+      {profile.autoCombat && !dungeonComplete && (
+        <p aria-live="polite" className="auto-combat-continuing">
+          <Bot aria-hidden="true" size={15} />
+          Auto · continuing to Floor {nextFloorNumber}
+        </p>
+      )}
     </main>
   )
 }

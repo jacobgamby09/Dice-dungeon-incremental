@@ -9,7 +9,7 @@ export const TALENT_IDS = {
   thirdGrip: 'third-grip',
   quickDraw: 'quick-draw',
   healingArts: 'healing-arts',
-  autoRoll: 'auto-roll',
+  autoCombat: 'auto-roll',
   fourthGrip: 'fourth-grip',
 } as const
 
@@ -120,14 +120,14 @@ export const TALENTS: TalentDefinition[] = [
     track: 'arsenal',
   },
   {
-    id: TALENT_IDS.autoRoll,
-    name: 'Auto Roll',
-    description: 'Unlock a player-controlled Auto Roll toggle in combat.',
+    id: TALENT_IDS.autoCombat,
+    name: 'Auto Combat',
+    description: 'Automatically roll, resolve and continue through normal encounters.',
     iconKey: 'auto-roll',
-    prerequisiteIds: [TALENT_IDS.quickDraw],
+    prerequisiteIds: [TALENT_IDS.twinArsenal],
     ranks: [{
-      cost: 40,
-      effects: [{ type: 'unlock_auto_roll' }],
+      cost: 12,
+      effects: [{ type: 'unlock_auto_combat' }],
     }],
     track: 'control',
   },

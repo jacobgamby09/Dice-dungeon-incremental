@@ -10,10 +10,14 @@ import { RollDieTile } from '../components/newgame/RollDieTile'
 import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
 import { ScoreTransfer } from '../components/newgame/ScoreTransfer'
 import type { ScoreTransferPath } from '../components/newgame/ScoreTransfer'
+import {
+  AUTO_COMBAT_DRAW_PAUSE_MS,
+  AUTO_COMBAT_RESOLVE_PAUSE_MS,
+} from '../game/automation/autoCombat'
 import { DUNGEONS } from '../game/content/dungeons'
 import { totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { getEnemyDie } from '../game/content/enemyDice'
-import { getRollSpeed, hasAutoRollUnlocked } from '../game/progression/talents'
+import { getRollSpeed, hasAutoCombatUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 interface ActiveRoll {
@@ -21,13 +25,13 @@ interface ActiveRoll {
   stage: 'rolling' | 'landed'
 }
 
-const AUTO_ROLL_PAUSE_MS = 300
 const ENEMY_INTENT_ROLL_MS = 480
 const ENEMY_INTENT_LANDING_PAUSE_MS = 200
 const ENEMY_INTENT_STAGGER_MS = 90
 
 export function CombatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
+    automationPaused: state.awayRecap !== null,
     bankedSouls: state.profile.bankedSouls,
     settings: state.profile.settings,
     talentRanks: state.profile.talentRanks,
@@ -55,7 +59,8 @@ export function CombatScreen() {
   const beginRoundResolution = useNewGameStore((state) => state.beginRoundResolution)
   const advanceRoundResolution = useNewGameStore((state) => state.advanceRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
-  const setAutoRoll = useNewGameStore((state) => state.setAutoRoll)
+  const setAutoCombat = useNewGameStore((state) => state.setAutoCombat)
+  const checkpointAutoCombat = useNewGameStore((state) => state.checkpointAutoCombat)
 
   const [activeRoll, setActiveRoll] = useState<ActiveRoll | null>(null)
   const [scoreTransfer, setScoreTransfer] = useState<ScoreTransferPath | null>(null)
@@ -94,9 +99,15 @@ export function CombatScreen() {
       }, 0))
     }
     if (resolutionStep === 'player' && resolution.enemyActed) {
-      timers.push(window.setTimeout(advanceRoundResolution, 720))
+      timers.push(window.setTimeout(() => {
+        advanceRoundResolution()
+        checkpointAutoCombat()
+      }, 720))
     } else if (resolutionStep === 'enemy_heal') {
-      timers.push(window.setTimeout(advanceRoundResolution, 620))
+      timers.push(window.setTimeout(() => {
+        advanceRoundResolution()
+        checkpointAutoCombat()
+      }, 620))
     } else if (resolutionStep === 'enemy_attack') {
       timers.push(window.setTimeout(() => {
         setEnemyAttackVersion((version) => version + 1)
@@ -114,14 +125,21 @@ export function CombatScreen() {
           })
         }
       }, 0))
-      timers.push(window.setTimeout(finishRoundResolution, 860))
+      timers.push(window.setTimeout(() => {
+        finishRoundResolution()
+        checkpointAutoCombat()
+      }, 860))
     } else {
-      timers.push(window.setTimeout(finishRoundResolution, 900))
+      timers.push(window.setTimeout(() => {
+        finishRoundResolution()
+        checkpointAutoCombat()
+      }, 900))
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
   }, [
     advanceRoundResolution,
+    checkpointAutoCombat,
     combat.lastResolution,
     combat.phase,
     combat.resolutionStep,
@@ -141,9 +159,18 @@ export function CombatScreen() {
       + ENEMY_INTENT_STAGGER_MS * Math.max(0, (run.enemy?.intentRolls.length ?? 1) - 1)
       + ENEMY_INTENT_LANDING_PAUSE_MS
     ) / rollSpeed
-    const timer = window.setTimeout(finishEnemyIntentReveal, revealDuration)
+    const timer = window.setTimeout(() => {
+      finishEnemyIntentReveal()
+      checkpointAutoCombat()
+    }, revealDuration)
     return () => window.clearTimeout(timer)
-  }, [combat.phase, finishEnemyIntentReveal, rollSpeed, run.enemy?.intentRolls.length])
+  }, [
+    checkpointAutoCombat,
+    combat.phase,
+    finishEnemyIntentReveal,
+    rollSpeed,
+    run.enemy?.intentRolls.length,
+  ])
 
   const diceLeft = combat.drawPileDieIds.length
   const pendingFaceId = activeRoll?.faceId ?? scoreTransfer?.faceId ?? null
@@ -159,7 +186,7 @@ export function CombatScreen() {
         [pendingResult.type]: Math.max(0, combat.totals[pendingResult.type] - pendingResult.value),
       }
     : combat.totals
-  const autoRollUnlocked = hasAutoRollUnlocked(profile.talentRanks)
+  const autoCombatUnlocked = hasAutoCombatUnlocked(profile.talentRanks)
   const rollDurationMilliseconds = 620 / rollSpeed
   const rollDurationSeconds = rollDurationMilliseconds / 1000
   const isScoreAnimating = pendingFaceId !== null
@@ -173,6 +200,7 @@ export function CombatScreen() {
     if (isScoreAnimating) return
     const result = drawNextDie()
     if (!result) return
+    checkpointAutoCombat()
     setActiveRoll({ faceId: result.faceId, stage: 'rolling' })
 
     const landingTimer = window.setTimeout(() => {
@@ -213,14 +241,44 @@ export function CombatScreen() {
     }, rollDurationMilliseconds)
 
     rollTimers.current = [landingTimer]
-  }, [drawNextDie, isScoreAnimating, rollDurationMilliseconds, rollSpeed])
+  }, [
+    checkpointAutoCombat,
+    drawNextDie,
+    isScoreAnimating,
+    rollDurationMilliseconds,
+    rollSpeed,
+  ])
 
   useEffect(() => {
-    if (!profile.settings.autoRoll) return
+    if (!profile.settings.autoCombat || profile.automationPaused) return
     if (combat.phase !== 'awaiting_roll' || diceLeft <= 0 || isScoreAnimating) return
-    const timer = window.setTimeout(handleDraw, AUTO_ROLL_PAUSE_MS)
+    const timer = window.setTimeout(handleDraw, AUTO_COMBAT_DRAW_PAUSE_MS)
     return () => window.clearTimeout(timer)
-  }, [combat.phase, diceLeft, handleDraw, isScoreAnimating, profile.settings.autoRoll])
+  }, [
+    combat.phase,
+    diceLeft,
+    handleDraw,
+    isScoreAnimating,
+    profile.automationPaused,
+    profile.settings.autoCombat,
+  ])
+
+  useEffect(() => {
+    if (!profile.settings.autoCombat || profile.automationPaused) return
+    if (combat.phase !== 'awaiting_resolve' || isScoreAnimating) return
+    const timer = window.setTimeout(() => {
+      beginRoundResolution()
+      checkpointAutoCombat()
+    }, AUTO_COMBAT_RESOLVE_PAUSE_MS)
+    return () => window.clearTimeout(timer)
+  }, [
+    beginRoundResolution,
+    checkpointAutoCombat,
+    combat.phase,
+    isScoreAnimating,
+    profile.automationPaused,
+    profile.settings.autoCombat,
+  ])
 
   const enemy = run.enemy
   if (!enemy || !run.dungeonId) return null
@@ -370,31 +428,40 @@ export function CombatScreen() {
       </section>
 
       <footer className="combat-actions">
-        {autoRollUnlocked && combat.phase === 'awaiting_roll' && (
+        {autoCombatUnlocked && (
           <button
-            aria-pressed={profile.settings.autoRoll}
-            className={`auto-roll-toggle${profile.settings.autoRoll ? ' auto-roll-toggle--active' : ''}`}
-            onClick={() => setAutoRoll(!profile.settings.autoRoll)}
+            aria-pressed={profile.settings.autoCombat}
+            className={`auto-combat-toggle${profile.settings.autoCombat ? ' auto-combat-toggle--active' : ''}`}
+            onClick={() => setAutoCombat(!profile.settings.autoCombat)}
             type="button"
           >
-            Auto Roll {profile.settings.autoRoll ? 'On' : 'Off'}
+            Auto Combat {profile.settings.autoCombat ? 'On' : 'Off'}
           </button>
         )}
         {combat.phase === 'awaiting_resolve' ? (
-          <button className="pixel-button pixel-button--resolve" disabled={isScoreAnimating} onClick={beginRoundResolution} type="button">
+          <button
+            className="pixel-button pixel-button--resolve"
+            disabled={isScoreAnimating || profile.settings.autoCombat}
+            onClick={beginRoundResolution}
+            type="button"
+          >
             <Swords aria-hidden="true" size={18} />
-            {isScoreAnimating ? animationLabel : 'Resolve Round'}
+            {profile.settings.autoCombat
+              ? 'Auto resolving...'
+              : isScoreAnimating
+                ? animationLabel
+                : 'Resolve Round'}
           </button>
         ) : (
           <button
             className="pixel-button pixel-button--primary"
-            disabled={combat.phase !== 'awaiting_roll' || isScoreAnimating || profile.settings.autoRoll}
+            disabled={combat.phase !== 'awaiting_roll' || isScoreAnimating || profile.settings.autoCombat}
             onClick={handleDraw}
             type="button"
           >
             <Dices aria-hidden="true" size={18} />
-            {profile.settings.autoRoll
-              ? 'Auto rolling...'
+            {profile.settings.autoCombat
+              ? 'Auto combat running...'
               : combat.phase === 'revealing_enemy_intent'
                 ? 'Enemy rolling...'
               : isScoreAnimating

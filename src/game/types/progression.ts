@@ -23,7 +23,7 @@ export type TalentEffect =
   | { type: 'dice_slots'; amount: number }
   | { type: 'grant_die'; dieId: string }
   | { type: 'roll_speed'; multiplier: number }
-  | { type: 'unlock_auto_roll' }
+  | { type: 'unlock_auto_combat' }
   | { type: 'unlock_dungeon'; dungeonId: DungeonId }
 
 export type TalentRequirement = {
@@ -52,8 +52,7 @@ export type TalentRanks = Record<string, number>
 
 export interface PlayerSettings {
   rollSpeed: number
-  autoRoll: boolean
-  autoResolve: boolean
+  autoCombat: boolean
 }
 
 export interface PlayerProfile {

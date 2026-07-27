@@ -6,6 +6,9 @@ const mockedStore = vi.hoisted(() => ({
   state: {
     profile: {
       bankedSouls: 5,
+      settings: {
+        autoCombat: false,
+      },
       xp: 8,
     },
     run: {
@@ -30,7 +33,9 @@ const mockedStore = vi.hoisted(() => ({
       },
     },
     advanceToNextFloor: () => undefined,
+    checkpointAutoCombat: () => undefined,
     returnToHubAfterVictory: () => undefined,
+    setAutoCombat: () => undefined,
   },
 }))
 
@@ -43,6 +48,7 @@ vi.mock('../store/newGameStore', () => ({
 describe('PostCombatScreen incremental reward flow', () => {
   beforeEach(() => {
     mockedStore.state.profile.bankedSouls = 5
+    mockedStore.state.profile.settings.autoCombat = false
     mockedStore.state.profile.xp = 8
     Object.assign(mockedStore.state.run.lastReward, {
       enemyName: 'Slime',
@@ -102,5 +108,15 @@ describe('PostCombatScreen incremental reward flow', () => {
     expect(markup).toContain('10 enemies defeated')
     expect(markup).toContain('Return to Hub')
     expect(markup).not.toContain('Continue to Floor 11')
+  })
+
+  it('offers a pause action while Auto Combat prepares the next floor', () => {
+    mockedStore.state.profile.settings.autoCombat = true
+
+    const markup = renderToStaticMarkup(<PostCombatScreen />)
+
+    expect(markup).toContain('Pause Auto Combat')
+    expect(markup).toContain('Auto · continuing to Floor 2')
+    expect(markup).not.toContain('Continue to Floor 2')
   })
 })

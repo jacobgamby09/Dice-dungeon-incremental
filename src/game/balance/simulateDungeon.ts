@@ -17,6 +17,7 @@ export interface DungeonRunSimulation {
   defeatedAtFloor: number | null
   highestFloorCleared: number
   hpRemaining: number
+  roundsByFloor: number[]
   roundsPlayed: number
   soulsCollected: number
   xpEarned: number
@@ -25,6 +26,8 @@ export interface DungeonRunSimulation {
 export interface DungeonSimulationSummary {
   attempts: number
   averageHighestFloor: number
+  averageRoundsByReachedFloor: number[]
+  averageRoundsPlayed: number
   averageSouls: number
   averageXp: number
   bossClearRate: number
@@ -51,6 +54,7 @@ export function simulateDungeonRun(
   let playerHp = build.playerMaxHp
   let highestFloorCleared = 0
   let roundsPlayed = 0
+  const roundsByFloor = DUNGEONS[dungeonId].floors.map(() => 0)
   let soulsCollected = 0
   let xpEarned = 0
 
@@ -65,6 +69,7 @@ export function simulateDungeonRun(
       }
 
       roundsPlayed += 1
+      roundsByFloor[floor.floor - 1] += 1
       const resolution = resolveRound({
         playerHp,
         playerMaxHp: build.playerMaxHp,
@@ -95,6 +100,7 @@ export function simulateDungeonRun(
           defeatedAtFloor: floor.floor,
           highestFloorCleared,
           hpRemaining: 0,
+          roundsByFloor,
           roundsPlayed,
           soulsCollected,
           xpEarned,
@@ -110,6 +116,7 @@ export function simulateDungeonRun(
         defeatedAtFloor: floor.floor,
         highestFloorCleared,
         hpRemaining: playerHp,
+        roundsByFloor,
         roundsPlayed,
         soulsCollected,
         xpEarned,
@@ -123,6 +130,7 @@ export function simulateDungeonRun(
     defeatedAtFloor: null,
     highestFloorCleared,
     hpRemaining: playerHp,
+    roundsByFloor,
     roundsPlayed,
     soulsCollected,
     xpEarned,
@@ -137,9 +145,12 @@ export function summarizeDungeonSimulations(
 ): DungeonSimulationSummary {
   const dungeon = DUNGEONS[dungeonId]
   const floorReachCounts = dungeon.floors.map(() => 0)
+  const floorRoundTotals = dungeon.floors.map(() => 0)
+  const floorRoundSampleCounts = dungeon.floors.map(() => 0)
   let totalHighestFloor = 0
   let totalSouls = 0
   let totalXp = 0
+  let totalRounds = 0
   let bossClears = 0
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -147,15 +158,24 @@ export function summarizeDungeonSimulations(
     totalHighestFloor += result.highestFloorCleared
     totalSouls += result.soulsCollected
     totalXp += result.xpEarned
+    totalRounds += result.roundsPlayed
     if (result.completedDungeon) bossClears += 1
     for (let floorIndex = 0; floorIndex < dungeon.floors.length; floorIndex += 1) {
       if (result.highestFloorCleared >= floorIndex + 1) floorReachCounts[floorIndex] += 1
+      if (result.roundsByFloor[floorIndex] > 0) {
+        floorRoundTotals[floorIndex] += result.roundsByFloor[floorIndex]
+        floorRoundSampleCounts[floorIndex] += 1
+      }
     }
   }
 
   return {
     attempts,
     averageHighestFloor: totalHighestFloor / attempts,
+    averageRoundsByReachedFloor: floorRoundTotals.map((rounds, index) => (
+      floorRoundSampleCounts[index] > 0 ? rounds / floorRoundSampleCounts[index] : 0
+    )),
+    averageRoundsPlayed: totalRounds / attempts,
     averageSouls: totalSouls / attempts,
     averageXp: totalXp / attempts,
     bossClearRate: bossClears / attempts,

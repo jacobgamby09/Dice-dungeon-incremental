@@ -1,7 +1,11 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
-import { shuffleDieIds } from '../game/combat/drawBag'
+import {
+  fastForwardAutoCombat,
+  type AutomationScreen,
+} from '../game/automation/autoCombat'
+import { createCombatState } from '../game/combat/combatState'
 import { addRollToTotals, rollDie } from '../game/combat/rollDie'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { resolveRound } from '../game/combat/resolveRound'
@@ -9,7 +13,7 @@ import { createDieById, createStartingDice } from '../game/content/dice'
 import { DUNGEONS } from '../game/content/dungeons'
 import { getEnemyDie } from '../game/content/enemyDice'
 import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/content/enemies'
-import { TALENTS_BY_ID } from '../game/content/talents'
+import { TALENT_IDS, TALENTS_BY_ID } from '../game/content/talents'
 import { BASE_FACE_CAP, getFaceUpgradeCost } from '../game/content/upgradeCosts'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
 import {
@@ -19,11 +23,10 @@ import {
   getNextTalentRank,
   getPlayerMaxHp,
   getTalentRank,
-  hasAutoRollUnlocked,
+  hasAutoCombatUnlocked,
   normalizeTalentRanks,
 } from '../game/progression/talents'
 import type { CombatState, RoundResolution } from '../game/types/combat'
-import { EMPTY_TOTALS } from '../game/types/combat'
 import type { DieFaces, DieInstance, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
 import type {
@@ -31,6 +34,7 @@ import type {
   DungeonProgress,
   EncounterId,
   EnemyState,
+  AwayRecap,
   RunState,
   RunStats,
 } from '../game/types/dungeon'
@@ -51,6 +55,7 @@ export interface NewGameState {
   profile: PlayerProfile
   run: RunState
   combat: CombatState
+  awayRecap: AwayRecap | null
   openDungeonSelect: () => void
   openWorkshop: () => void
   openTalentTree: () => void
@@ -68,13 +73,16 @@ export interface NewGameState {
   purchaseTalent: (talentId: string) => boolean
   equipDie: (dieId: string) => boolean
   unequipDie: (dieId: string) => boolean
-  setAutoRoll: (enabled: boolean) => void
+  setAutoCombat: (enabled: boolean) => void
+  checkpointAutoCombat: (now?: number) => void
+  resumeAutoCombat: (now?: number) => AwayRecap | null
+  dismissAwayRecap: () => void
   upgradeFace: (dieId: string, faceId: string) => boolean
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 9
+const SAVE_VERSION = 10
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -95,8 +103,7 @@ function createInitialProfile(): PlayerProfile {
     equippedDieIds: diceCollection.map((die) => die.id),
     settings: {
       rollSpeed: 1,
-      autoRoll: false,
-      autoResolve: false,
+      autoCombat: false,
     },
   }
 }
@@ -122,6 +129,14 @@ function createEmptyRunStats(): RunStats {
   }
 }
 
+function createRunAutomation() {
+  return {
+    bankedMilliseconds: 0,
+    lastCheckpointAt: null,
+    randomSeed: 0x9E3779B9,
+  }
+}
+
 function createInactiveRun(): RunState {
   return {
     status: 'inactive',
@@ -130,27 +145,10 @@ function createInactiveRun(): RunState {
     playerHp: BASE_PLAYER_HP,
     playerMaxHp: BASE_PLAYER_HP,
     runStats: createEmptyRunStats(),
+    automation: createRunAutomation(),
     equippedDiceSnapshot: [],
     enemy: null,
     lastReward: null,
-  }
-}
-
-function createCombatState(
-  equippedDice: readonly DieInstance[] = [],
-  roundNumber = 1,
-  resolutionVersion = 0,
-  revealEnemyIntent = false,
-): CombatState {
-  return {
-    phase: revealEnemyIntent ? 'revealing_enemy_intent' : 'awaiting_roll',
-    roundNumber,
-    drawPileDieIds: shuffleDieIds(equippedDice.map((die) => die.id)),
-    results: [],
-    totals: { ...EMPTY_TOTALS },
-    lastResolution: null,
-    resolutionVersion,
-    resolutionStep: null,
   }
 }
 
@@ -162,7 +160,15 @@ type LegacyEnemyState = Partial<EnemyState> & {
   intent?: { type?: 'attack'; value?: number }
 }
 
-type LegacyPlayerProfile = Partial<PlayerProfile> & {
+type LegacyPlayerSettings = {
+  autoCombat?: boolean
+  autoResolve?: boolean
+  autoRoll?: boolean
+  rollSpeed?: number
+}
+
+type LegacyPlayerProfile = Omit<Partial<PlayerProfile>, 'settings'> & {
+  settings?: LegacyPlayerSettings
   unlockedTalentIds?: string[]
 }
 
@@ -282,6 +288,10 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
       .map((talentId) => [talentId, 1]),
   )
   const talentRanks = normalizeTalentRanks(existingProfile?.talentRanks ?? legacyTalentRanks)
+  const legacyAutoCombatRefund = version < 10
+    && getTalentRank(talentRanks, TALENT_IDS.autoCombat) > 0
+    ? 28
+    : 0
   const capacity = getDiceCapacity(talentRanks)
   const equippedDieIds = (existingProfile?.equippedDieIds ?? ['attack-die-1'])
     .filter((dieId, index, ids) => (
@@ -293,7 +303,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
   const migratedProfile: PlayerProfile = {
     ...freshProfile,
     saveVersion: SAVE_VERSION,
-    xp: existingProfile?.xp ?? freshProfile.xp,
+    xp: (existingProfile?.xp ?? freshProfile.xp) + legacyAutoCombatRefund,
     bankedSouls: existingProfile?.bankedSouls ?? freshProfile.bankedSouls,
     talentRanks,
     unlockedDungeonIds: existingProfile?.unlockedDungeonIds ?? freshProfile.unlockedDungeonIds,
@@ -304,10 +314,15 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     diceCollection,
     equippedDieIds,
     settings: {
-      ...freshProfile.settings,
-      ...existingProfile?.settings,
-      autoRoll: hasAutoRollUnlocked(talentRanks)
-        ? Boolean(existingProfile?.settings?.autoRoll)
+      rollSpeed: Math.max(
+        0.25,
+        existingProfile?.settings?.rollSpeed ?? freshProfile.settings.rollSpeed,
+      ),
+      autoCombat: hasAutoCombatUnlocked(talentRanks)
+        ? Boolean(
+            existingProfile?.settings?.autoCombat
+            ?? existingProfile?.settings?.autoRoll,
+          )
         : false,
     },
   }
@@ -361,6 +376,20 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         playerHp: existingRun.playerHp ?? BASE_PLAYER_HP,
         playerMaxHp: existingRun.playerMaxHp ?? BASE_PLAYER_HP,
         runStats: migratedRunStats,
+        automation: existingRun.automation
+          ? {
+              bankedMilliseconds: Math.max(
+                0,
+                existingRun.automation.bankedMilliseconds ?? 0,
+              ),
+              lastCheckpointAt: Number.isFinite(existingRun.automation.lastCheckpointAt)
+                ? existingRun.automation.lastCheckpointAt
+                : null,
+              randomSeed: Number.isFinite(existingRun.automation.randomSeed)
+                ? existingRun.automation.randomSeed >>> 0
+                : createRunAutomation().randomSeed,
+            }
+          : createRunAutomation(),
         equippedDiceSnapshot: existingRun.equippedDiceSnapshot ?? [],
         enemy: migratedEnemy,
         lastReward: existingRun.lastReward
@@ -405,6 +434,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     profile: migratedProfile,
     run: migratedRun,
     combat: migratedCombat,
+    awayRecap: null,
   } as NewGameState
 }
 
@@ -420,6 +450,7 @@ const initialState = {
   profile: createInitialProfile(),
   run: createInactiveRun(),
   combat: createCombatState(),
+  awayRecap: null,
 }
 
 export const useNewGameStore = create<NewGameState>()(
@@ -460,9 +491,11 @@ export const useNewGameStore = create<NewGameState>()(
         const equippedDiceSnapshot = getEquippedDice(state.profile)
         if (equippedDiceSnapshot.length === 0) return
         const playerMaxHp = getPlayerMaxHp(state.profile.talentRanks)
+        const startedAt = Date.now()
 
         set({
           screen: 'combat',
+          awayRecap: null,
           run: {
             status: 'active',
             dungeonId,
@@ -470,6 +503,11 @@ export const useNewGameStore = create<NewGameState>()(
             playerHp: playerMaxHp,
             playerMaxHp,
             runStats: createEmptyRunStats(),
+            automation: {
+              bankedMilliseconds: 0,
+              lastCheckpointAt: state.profile.settings.autoCombat ? startedAt : null,
+              randomSeed: (startedAt ^ state.combat.resolutionVersion ^ 0x9E3779B9) >>> 0,
+            },
             equippedDiceSnapshot,
             enemy: createEnemyState(firstEncounterId),
             lastReward: null,
@@ -849,18 +887,103 @@ export const useNewGameStore = create<NewGameState>()(
         return true
       },
 
-      setAutoRoll: (enabled) => {
+      setAutoCombat: (enabled) => {
         const state = get()
-        const autoRoll = enabled && hasAutoRollUnlocked(state.profile.talentRanks)
+        const autoCombat = enabled && hasAutoCombatUnlocked(state.profile.talentRanks)
+        const canContinueRun = state.run.status === 'active'
+          || (
+            state.run.status === 'victory'
+            && !state.run.lastReward?.dungeonComplete
+          )
         set({
           profile: {
             ...state.profile,
             settings: {
               ...state.profile.settings,
-              autoRoll,
+              autoCombat,
+            },
+          },
+          run: {
+            ...state.run,
+            automation: {
+              ...state.run.automation,
+              bankedMilliseconds: 0,
+              lastCheckpointAt: autoCombat && canContinueRun ? Date.now() : null,
             },
           },
         })
+      },
+
+      checkpointAutoCombat: (now = Date.now()) => {
+        const state = get()
+        if (
+          !state.profile.settings.autoCombat
+          || !hasAutoCombatUnlocked(state.profile.talentRanks)
+          || (
+            state.run.status !== 'active'
+            && !(
+              state.run.status === 'victory'
+              && !state.run.lastReward?.dungeonComplete
+            )
+          )
+        ) {
+          return
+        }
+        set({
+          run: {
+            ...state.run,
+            automation: {
+            ...state.run.automation,
+              bankedMilliseconds: 0,
+              lastCheckpointAt: Math.max(0, now),
+            },
+          },
+        })
+      },
+
+      resumeAutoCombat: (now = Date.now()) => {
+        const state = get()
+        const checkpointAt = state.run.automation.lastCheckpointAt
+        if (
+          !state.profile.settings.autoCombat
+          || !hasAutoCombatUnlocked(state.profile.talentRanks)
+          || state.run.status === 'inactive'
+          || checkpointAt === null
+          || !(['combat', 'post_combat', 'defeat'] as AppScreen[]).includes(state.screen)
+        ) {
+          return null
+        }
+
+        const elapsedMilliseconds = Math.max(0, now - checkpointAt)
+        if (elapsedMilliseconds <= 0) return null
+        const result = fastForwardAutoCombat({
+          screen: state.screen as AutomationScreen,
+          profile: state.profile,
+          run: state.run,
+          combat: state.combat,
+        }, elapsedMilliseconds)
+        const terminal = result.screen === 'defeat'
+          || (result.screen === 'post_combat' && result.run.lastReward?.dungeonComplete)
+
+        set({
+          screen: result.screen,
+          profile: result.profile,
+          run: {
+            ...result.run,
+            automation: {
+              bankedMilliseconds: terminal ? 0 : result.bankedMilliseconds,
+              lastCheckpointAt: terminal ? null : Math.max(0, now),
+              randomSeed: result.randomSeed,
+            },
+          },
+          combat: result.combat,
+          awayRecap: result.recap ?? state.awayRecap,
+        })
+        return result.recap
+      },
+
+      dismissAwayRecap: () => {
+        set({ awayRecap: null })
       },
 
       upgradeFace: (dieId, faceId) => {
@@ -903,6 +1026,7 @@ export const useNewGameStore = create<NewGameState>()(
           profile: createPostDungeonOneDevProfile(createInitialProfile()),
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
+          awayRecap: null,
         })
       },
 
@@ -912,6 +1036,7 @@ export const useNewGameStore = create<NewGameState>()(
           profile: createInitialProfile(),
           run: createInactiveRun(),
           combat: createCombatState(),
+          awayRecap: null,
         })
       },
     }),
@@ -927,6 +1052,7 @@ export const useNewGameStore = create<NewGameState>()(
         profile: state.profile,
         run: state.run,
         combat: state.combat,
+        awayRecap: state.awayRecap,
       }) as NewGameState,
     },
   ),
