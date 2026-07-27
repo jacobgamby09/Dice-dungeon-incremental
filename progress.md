@@ -63,7 +63,7 @@ Brug denne skabelon:
 - Save-formatet er version 10 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary- og automation-progress sammen med aktive runs. Version-9 Auto Roll migreres til Auto Combat med en idempotent 28-XP-refund.
 - En deterministisk simulator og 93 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#23 — Add post-Dungeon-1 dev profile](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/23), squash merge `71a18d6`.
+- Seneste gameplay-merge i produktion: [#25 — Add early Auto Combat and AFK resume](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/25), squash merge `79c3429`.
 
 ## Næste anbefalede skridt
 
@@ -128,7 +128,7 @@ Brug denne skabelon:
 
 ### 2026-07-27 — Tidlig Auto Combat og AFK-resume
 
-**Status:** I gang
+**Status:** Færdig
 **Ansvarlig:** Codex
 
 - Resultat: Auto Roll er erstattet af en tidlig Auto Combat-node direkte efter Twin Arsenal. Den fælles toggle automatiserer alle player-rolls, Resolve Round, næste round, normale Victory-pulses og næste floor, men stopper ved Defeat eller Boss Victory. Et suspenderet run fast-forwardes deterministisk ved resume og viser et modal recap med tid, floor, kills, XP og Souls.
@@ -136,7 +136,7 @@ Brug denne skabelon:
 - Berørte områder: Talent-content/layout, progressionstyper, save-version 10 og migration, pure Auto Combat-engine, combat-/post-combat-orkestrering, App lifecycle, AFK-recap UI, dev-profilet, simulator, tests, GDD og README.
 - Validering: Begge TypeScript-checks, 17 testfiler med 93 tests, ESLint, production-build og `git diff --check` består. Browseren verificerer 384 px shell uden overflow eller error-overlay, tidlig Auto Combat-node i dev-profilet, live draw/resolve, sikker manuel pause, automatisk floor-transition, 20/45/60-sekunders background-resume, recap-dismiss og terminalt stop på Defeat uden Auto Retry.
 - Kendte mangler: Fysisk iOS/Android-suspension og fuld Spiked Behemoth-run skal fortsat playtestes. Background-tidsbudgettet er en første kalibrering mod de nuværende animationstider.
-- Git: Branch `agent/add-auto-combat-afk-flow`; commit, PR, merge og deployment afventer.
+- Git: `fbb896c` — `Add early Auto Combat and AFK resume`; PR [#25](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/25) er squash-merget til `main` som `79c3429`. Vercel preview `dpl_EyZMXfbNQbeBWKrs87aKauCfkSJa` og production-deployment `dpl_5sWWPUtE8ivsWowdA8d1AkvLAgCZ` er `READY`; den friske production-artifact er browser-verificeret med købt Auto Combat-node og synlig `Auto Combat Off`-toggle i Dungeon 2.
 
 ### 2026-07-27 — Post-Dungeon-1 dev-profil
 
