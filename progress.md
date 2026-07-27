@@ -59,13 +59,13 @@ Brug denne skabelon:
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Normal Victory viser kun encounter-reward, totals, HP, dungeon-progress og én Continue-knap; næste-enemy-data er fjernet. Boss Victory og Defeat bruger et persisteret descent-resumé med enemies defeated samt optjent XP/Souls.
 - Save-formatet er version 9 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll- og run-summary-progress sammen med aktive runs. Ældre aktive runs mappes via floor-index til det nye encounter-content uden tab af permanent progression.
-- En deterministisk simulator og 80 automatiserede tests beskytter begge balancekurver, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- En deterministisk simulator og 84 automatiserede tests beskytter begge balancekurver, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#21 — Fix all enemy die orientations](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/21), squash merge `e4e12ce`.
+- Seneste gameplay-merge i produktion: [#23 — Add post-Dungeon-1 dev profile](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/23), squash merge `71a18d6`.
 
 ## Næste anbefalede skridt
 
-1. Gennemspil Dungeon 1 og Dungeon 2 ved 320 px og 384 px og verificér multi-dice reveal, inspect-panelet, level-labels, Shield/Heal-trin og Spiked Behemoths fire animationer.
+1. Brug post-Dungeon-1-dev-profilet til at gennemspille hele Dungeon 2 ved 320 px og 384 px og verificér multi-dice reveal, inspect-panelet, level-labels, Shield/Heal-trin og Spiked Behemoths fire animationer.
 2. Mål i fresh-save playtest, om Healing Arts stadig nås naturligt sent i Dungeon 1, og om 60-XP-købet af Second Descent opleves som en belønning frem for en ekstra grind efter første clear.
 3. Tune Dungeon 2-rewards og face-priser ud fra faktisk spilleradfærd; simulatoren bekræfter en progressionstrappe, men ikke oplevet tid mellem upgrades.
 4. Beslut hvilken mechanic og hvilke genbrugte archetypes Dungeon 3 skal introducere; Marrow Bat er bevidst reserveret til senere content.
@@ -78,6 +78,7 @@ Brug denne skabelon:
 - Enemy intent-rækken er dimensioneret til 1–3 dice; flere end tre kræver en ny kompakt præsentation eller sekventiel paging.
 - Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
 - Auto Roll er verificeret på state- og buildniveau, men tempoet med større manuelle loadouts skal vurderes visuelt.
+- Dev-profilets 325 XP og 255 Souls er et fast playtest-snapshot; hvis Dungeon 1-rewards, talentpriser eller face-priser tunes, skal preset og dets afledte økonomitest opdateres sammen.
 - Legacy-kode findes stadig i repository og må ikke blandes ind i den nye production-state.
 
 ## Bindende beslutninger
@@ -122,15 +123,15 @@ Brug denne skabelon:
 
 ### 2026-07-27 — Post-Dungeon-1 dev-profil
 
-**Status:** I gang
+**Status:** Færdig
 **Ansvarlig:** Codex
 
 - Resultat: Hub-startskærmen har fået en beskyttet `DEV · Load Dungeon 2 profile`-handling. Efter bekræftelse erstattes save atomisk med én Dungeon 1-clear, 15 Max HP, fire slots, Worn Blade/Striker/Iron Guard/Vitality udstyret, alle faces på mindst 3 og The Iron Descent ulåst men urørt.
 - Beslutninger: Preset’et repræsenterer 325 brugt XP og 255 brugte Souls fra et realistisk repeat-run-forløb frem til første boss-clear. Quick Draw og Auto Roll købes ikke, så Dungeon 2’s manuelle grundtempo kan vurderes. Profilen lander i Hubben frem for direkte combat, så Talent Tree, Workshop og loadout kan inspiceres først.
 - Berørte områder: Nyt pure dev-profile-modul, atomisk Zustand-action, Hub developer tools og confirmation-UI, responsive/focus-styles, tests, README og progress-log. Save-format og gameplayøkonomi ændres ikke.
-- Validering: Begge TypeScript-checks, 16 testfiler med 84 tests, ESLint, production-build og `git diff --check` består. Hele UI-flowet er browser-verificeret i den 384 px brede game-shell uden overflow: gammel profil → confirmation → indlæst 4/4-loadout → Talent Tree → Workshop → Dungeon Select → Shieldbearer på Dungeon 2 floor 1 med 15 HP og fire dice i baggen.
-- Kendte mangler: Preview- og production-verifikation afventer commit, merge og deployment.
-- Git: Branch `agent/add-post-dungeon-one-dev-preset`; commit, PR, merge og deployment afventer.
+- Validering: Begge TypeScript-checks, 16 testfiler med 84 tests, ESLint, production-build og `git diff --check` består. Hele UI-flowet er browser-verificeret i den 384 px brede game-shell uden overflow: gammel profil → confirmation → indlæst 4/4-loadout → Talent Tree → Workshop → Dungeon Select → Shieldbearer på Dungeon 2 floor 1 med 15 HP og fire dice i baggen. Vercel production-deployment `dpl_BpwVEKNkfWEirbt5ChBey5jFbwRs` er `READY`, og samme flow er verificeret direkte på den offentlige production-URL.
+- Kendte mangler: Ingen kendte implementeringsmangler inden for preset-scope; balanceantagelserne skal holdes synkroniseret med fremtidig tuning af Dungeon 1.
+- Git: `c496a11` — `Add post-Dungeon-1 dev profile`; PR [#23](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/23) er squash-merget til `main` som `71a18d6` og deployet til production.
 
 ### 2026-07-27 — Enemy-dice orientering rettet globalt
 
