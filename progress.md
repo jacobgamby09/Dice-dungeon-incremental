@@ -46,6 +46,7 @@ Brug denne skabelon:
 - Talentforløbet giver derefter slot 2 og en unik Striker Die; senere følger Shield, tre samtidige grene, Heal, fire slots, Quick Draw og Auto Roll.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
+- Hubben kan desuden indlæse en totrins-bekræftet post-Dungeon-1-dev-profil med realistisk talent spend, fire opgraderede permanente dice og Dungeon 2 klar til systematisk playtest.
 - Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
 - `The First Descent` genbruger Slime, Slime Crawler, Goblin og Skeleton som Level 1/2-varianter, har en Skeleton Elite på floor 9 og Demon-boss på floor 10. Alle har kun én Attack Die.
 - `The Iron Descent` er Dungeon 2 med Shieldbearer, Cultist, Orc og Blood Orc som Level 1/2-varianter. Normale mobs har Attack + Shield, mens Spiked Behemoth-bossen har Attack + Shield + Heal.
@@ -118,6 +119,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-27 — Post-Dungeon-1 dev-profil
+
+**Status:** I gang
+**Ansvarlig:** Codex
+
+- Resultat: Hub-startskærmen har fået en beskyttet `DEV · Load Dungeon 2 profile`-handling. Efter bekræftelse erstattes save atomisk med én Dungeon 1-clear, 15 Max HP, fire slots, Worn Blade/Striker/Iron Guard/Vitality udstyret, alle faces på mindst 3 og The Iron Descent ulåst men urørt.
+- Beslutninger: Preset’et repræsenterer 325 brugt XP og 255 brugte Souls fra et realistisk repeat-run-forløb frem til første boss-clear. Quick Draw og Auto Roll købes ikke, så Dungeon 2’s manuelle grundtempo kan vurderes. Profilen lander i Hubben frem for direkte combat, så Talent Tree, Workshop og loadout kan inspiceres først.
+- Berørte områder: Nyt pure dev-profile-modul, atomisk Zustand-action, Hub developer tools og confirmation-UI, responsive/focus-styles, tests, README og progress-log. Save-format og gameplayøkonomi ændres ikke.
+- Validering: Begge TypeScript-checks, 16 testfiler med 84 tests, ESLint, production-build og `git diff --check` består. Hele UI-flowet er browser-verificeret i den 384 px brede game-shell uden overflow: gammel profil → confirmation → indlæst 4/4-loadout → Talent Tree → Workshop → Dungeon Select → Shieldbearer på Dungeon 2 floor 1 med 15 HP og fire dice i baggen.
+- Kendte mangler: Preview- og production-verifikation afventer commit, merge og deployment.
+- Git: Branch `agent/add-post-dungeon-one-dev-preset`; commit, PR, merge og deployment afventer.
 
 ### 2026-07-27 — Enemy-dice orientering rettet globalt
 

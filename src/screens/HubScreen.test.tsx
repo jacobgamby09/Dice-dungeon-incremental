@@ -3,18 +3,20 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { useNewGameStore } from '../store/newGameStore'
 import { HubScreen } from './HubScreen'
 
-describe('HubScreen developer reset', () => {
+describe('HubScreen developer tools', () => {
   beforeEach(() => {
     useNewGameStore.getState().resetProgress()
   })
 
-  it('shows the dev reset trigger without exposing the destructive confirmation', () => {
+  it('shows both dev triggers without exposing destructive confirmations', () => {
     const markup = renderToStaticMarkup(<HubScreen />)
 
     expect(markup).toContain('Developer tools')
+    expect(markup).toContain('DEV · Load Dungeon 2 profile')
     expect(markup).toContain('DEV · Reset game')
     expect(markup).toContain('Incremental dice combat')
     expect(markup).not.toContain('Extraction runner')
+    expect(markup).not.toContain('Load test profile')
     expect(markup).not.toContain('Reset everything')
   })
 })

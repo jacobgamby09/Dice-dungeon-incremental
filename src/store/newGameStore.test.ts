@@ -74,6 +74,55 @@ describe('new game progression loop', () => {
     expect('runSouls' in resetState.run).toBe(false)
   })
 
+  it('loads the post-Dungeon-1 dev profile atomically and starts Dungeon 2', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        xp: 999,
+        bankedSouls: 999,
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+
+    useNewGameStore.getState().loadPostDungeonOneDevPreset()
+    const presetState = useNewGameStore.getState()
+
+    expect(presetState.screen).toBe('hub')
+    expect(presetState.run.status).toBe('inactive')
+    expect(presetState.run.enemy).toBeNull()
+    expect(presetState.profile.xp).toBe(0)
+    expect(presetState.profile.bankedSouls).toBe(0)
+    expect(presetState.profile.dungeonProgress['prototype-depths']).toEqual({
+      highestFloorCleared: 10,
+      clearCount: 1,
+    })
+    expect(presetState.profile.unlockedDungeonIds).toContain('iron-depths')
+    expect(presetState.profile.equippedDieIds).toEqual([
+      'attack-die-1',
+      'attack-die-2',
+      'shield-die-1',
+      'heal-die-1',
+    ])
+    expect(getPlayerMaxHp(presetState.profile.talentRanks)).toBe(15)
+    expect(getDiceCapacity(presetState.profile.talentRanks)).toBe(4)
+
+    const canonicalProfile = structuredClone(presetState.profile)
+    useNewGameStore.getState().loadPostDungeonOneDevPreset()
+    expect(useNewGameStore.getState().profile).toEqual(canonicalProfile)
+
+    presetState.startRun('iron-depths')
+    const ironRun = useNewGameStore.getState()
+    expect(ironRun.screen).toBe('combat')
+    expect(ironRun.run.dungeonId).toBe('iron-depths')
+    expect(ironRun.run.playerHp).toBe(15)
+    expect(ironRun.run.equippedDiceSnapshot).toEqual(presetState.profile.diceCollection)
+    expect(ironRun.run.enemy?.intentRolls.map((roll) => roll.type)).toEqual([
+      'attack',
+      'shield',
+    ])
+  })
+
   it('draws every equipped die once in the persisted shuffled-bag order', () => {
     const state = useNewGameStore.getState()
     const diceCollection = createDiceCatalog()
