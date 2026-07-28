@@ -42,6 +42,8 @@ Hubben har to bevidst totrins-beskyttede developer-handlinger:
 
 Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres, før Dungeon 2 startes.
 
+Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + wheel. Et nodeklik åbner et stort detail-overlay; købte, åbne, købsklare og låste nodes har hver sin tydelige visuelle state.
+
 ## Fastlåste designregler
 
 - Spilleren starter kun med én permanent Attack Die; Shield og Heal unlockes senere.

@@ -16,6 +16,9 @@ describe('TalentTreeScreen progressive presentation', () => {
     const markup = renderTree()
 
     expect(markup).toContain('data-testid="talent-tree-canvas"')
+    expect(markup).toContain('Zoom out Talent Tree')
+    expect(markup).toContain('100% zoom')
+    expect(markup).toContain('Zoom in Talent Tree')
     expect(markup).toContain('Battle-Hardened')
     expect(markup).toContain('data-talent-silhouette="true"')
     expect(markup).not.toContain('Twin Arsenal')

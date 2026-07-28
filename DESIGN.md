@@ -282,10 +282,12 @@ Talent Tree er en bevidst undtagelse fra de øvrige fysiske dungeon-rum: det er 
 - Battle-Hardened står alene i viewportens centrum på et fresh save. Twin Arsenal anes kun som en meget svag, navnløs silhuet længere nede i mørket.
 - Spilleren trækker direkte i den tomme baggrund for at panorere i begge akser. Træet beholder sin faste nodeafstand og må aldrig komprimeres for at passe ind i mobilbredden.
 - Canvaset er begrænset nok til, at spilleren ikke kan miste træet permanent. En kompakt recenter-knap fører kameraet til den aktuelle frontier.
-- Den eneste permanente chrome er tilbageknap, tilgængelig XP og recenter. Safe areas respekteres, og almindelig body-scroll er slået fra på skærmen.
+- Den permanente chrome er tilbageknap, tilgængelig XP, recenter og en kompakt `− / zoom% / +`-kontrol. Safe areas respekteres, og almindelig body-scroll nulstilles ved indgang til skærmen.
 - Nodes og forbindelser bruger semantiske HTML-knapper og SVG i en fælles transformeret world. Et rasteriseret `<canvas>` bruges ikke, fordi skarphed, keyboardfokus og stabil aflæsning skal bevares.
 - En talent-node bruger samme face-størrelse, hårde outline og fysiske dybde som player dice. Talent dice er cyan/neutral XP-magi og må ikke ligne en Attack-, Shield- eller Heal Die.
-- Kun ikon og rank-markører vises på selve canvaset. Navn, næste effekt og pris vises i et kompakt, bundforankret inspector-panel efter valg.
+- Canvaset kan zoomes fra 65% til 140%. Mobil bruger pinch eller `− / +`; desktop kan desuden bruge Ctrl/Cmd + wheel. Zoom skal bevare punktet under pinch/cursor eller viewportens centrum som anker.
+- Nodes viser ikon, rank og en kort state-markør. Købte nodes er massivt cyan-udfyldte med checkmark og `Owned/Max`; købsklare nodes er lyse outline-nodes med `Buy`; åbne men for dyre nodes viser `Open`; låste nodes er mørke og bærer låseikon.
+- Et nodeklik åbner et stort, centreret modal-overlay over en mørk scrim. Overlayet viser navn, tydelig status, læsbar beskrivelse, rank, effekter og købsknap i væsentligt større typografi end canvas-labels. Det lukkes med X, Escape eller klik på scrim.
 - Træet viser højst ét fremtidigt lag som svage, ikke-interaktive silhuetter. Silhuetter viser intet navn, ikon eller pris, og dybere nodes renderes slet ikke.
 - Battle-Hardeneds tre ranks vises som tre små markører på samme die. Rank 1 åbner Twin Arsenal; rank 2 og 3 forbliver valgfrie.
 - XP er altid cyan på priser, aktiverede nodes og forbindelser. Survival, Arsenal og Control bruger ikon og rumlig placering som identitet uden at ligne separate valutaer.

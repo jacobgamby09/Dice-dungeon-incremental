@@ -62,6 +62,7 @@ export function getTalentTreePoint(talentId: string): TalentTreePoint {
 export function clampTalentCanvasOffset(
   offset: TalentTreePoint,
   viewport: TalentTreeViewport,
+  scale = 1,
 ): TalentTreePoint {
   const horizontalOverscan = Math.min(96, viewport.width * 0.24)
   const verticalOverscan = Math.min(112, viewport.height * 0.16)
@@ -71,13 +72,13 @@ export function clampTalentCanvasOffset(
   return {
     x: clamp(
       offset.x,
-      horizontalCenter - TALENT_TREE_BOUNDS.maxX - horizontalOverscan,
-      horizontalCenter - TALENT_TREE_BOUNDS.minX + horizontalOverscan,
+      horizontalCenter - TALENT_TREE_BOUNDS.maxX * scale - horizontalOverscan,
+      horizontalCenter - TALENT_TREE_BOUNDS.minX * scale + horizontalOverscan,
     ),
     y: clamp(
       offset.y,
-      verticalCenter - TALENT_TREE_BOUNDS.maxY - verticalOverscan,
-      verticalCenter - TALENT_TREE_BOUNDS.minY + verticalOverscan,
+      verticalCenter - TALENT_TREE_BOUNDS.maxY * scale - verticalOverscan,
+      verticalCenter - TALENT_TREE_BOUNDS.minY * scale + verticalOverscan,
     ),
   }
 }
@@ -85,11 +86,26 @@ export function clampTalentCanvasOffset(
 export function getCenteredTalentCanvasOffset(
   point: TalentTreePoint,
   viewport: TalentTreeViewport,
+  scale = 1,
 ): TalentTreePoint {
   return clampTalentCanvasOffset({
-    x: viewport.width / 2 - point.x,
-    y: viewport.height / 2 - point.y,
-  }, viewport)
+    x: viewport.width / 2 - point.x * scale,
+    y: viewport.height / 2 - point.y * scale,
+  }, viewport, scale)
+}
+
+export function getZoomedTalentCanvasOffset(
+  offset: TalentTreePoint,
+  anchor: TalentTreePoint,
+  currentScale: number,
+  nextScale: number,
+  viewport: TalentTreeViewport,
+): TalentTreePoint {
+  const scaleRatio = nextScale / currentScale
+  return clampTalentCanvasOffset({
+    x: anchor.x - (anchor.x - offset.x) * scaleRatio,
+    y: anchor.y - (anchor.y - offset.y) * scaleRatio,
+  }, viewport, nextScale)
 }
 
 export function getTalentTreeFrontierPoint(
