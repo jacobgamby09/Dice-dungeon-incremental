@@ -6,6 +6,7 @@ import {
   FastForward,
   Hammer,
   RotateCcw,
+  Rocket,
   Sparkles,
   TriangleAlert,
 } from 'lucide-react'
@@ -14,12 +15,13 @@ import { useShallow } from 'zustand/react/shallow'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { POST_DUNGEON_ONE_DEV_PRESET } from '../game/dev/postDungeonOnePreset'
+import { EARLY_QOL_TEST_XP } from '../game/dev/earlyQolPreset'
 import { getDiceCapacity } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function HubScreen() {
-  const [devAction, setDevAction] = useState<'preset' | 'reset' | null>(null)
-  const [presetLoaded, setPresetLoaded] = useState(false)
+  const [devAction, setDevAction] = useState<'early-qol' | 'preset' | 'reset' | null>(null)
+  const [loadedPreset, setLoadedPreset] = useState<'early-qol' | 'dungeon-two' | null>(null)
   const profile = useNewGameStore(useShallow((state) => ({
     bankedSouls: state.profile.bankedSouls,
     diceCollection: state.profile.diceCollection,
@@ -34,19 +36,26 @@ export function HubScreen() {
   const loadPostDungeonOneDevPreset = useNewGameStore(
     (state) => state.loadPostDungeonOneDevPreset,
   )
+  const loadEarlyQolDevPreset = useNewGameStore((state) => state.loadEarlyQolDevPreset)
   const resetProgress = useNewGameStore((state) => state.resetProgress)
   const diceCapacity = getDiceCapacity(profile.talentRanks)
 
   const confirmReset = () => {
     resetProgress()
     setDevAction(null)
-    setPresetLoaded(false)
+    setLoadedPreset(null)
   }
 
   const confirmPostDungeonOnePreset = () => {
     loadPostDungeonOneDevPreset()
     setDevAction(null)
-    setPresetLoaded(true)
+    setLoadedPreset('dungeon-two')
+  }
+
+  const confirmEarlyQolPreset = () => {
+    loadEarlyQolDevPreset()
+    setDevAction(null)
+    setLoadedPreset('early-qol')
   }
 
   return (
@@ -106,13 +115,40 @@ export function HubScreen() {
         className="dev-tools"
       >
         <span className="dev-tools__label">Developer tools</span>
-        {presetLoaded && (
+        {loadedPreset ? (
           <p aria-live="polite" className="dev-tools__status">
-            Dungeon 2 test profile loaded.
+            {loadedPreset === 'early-qol'
+              ? `Fresh QoL test save loaded with ${EARLY_QOL_TEST_XP} XP.`
+              : 'Dungeon 2 test profile loaded.'}
           </p>
-        )}
+        ) : null}
 
-        {devAction === 'preset' ? (
+        {devAction === 'early-qol' ? (
+          <div className="dev-preset__confirmation">
+            <Rocket aria-hidden="true" size={19} />
+            <div>
+              <strong>Start a fresh QoL test?</strong>
+              <p>
+                Replaces the current save with the normal starting die and exactly
+                enough XP to buy the path to Auto Combat and Quick Draw.
+              </p>
+            </div>
+            <dl className="dev-preset__summary">
+              <div><dt>Starting XP</dt><dd>{EARLY_QOL_TEST_XP}</dd></div>
+              <div><dt>Starting die</dt><dd>1 Attack</dd></div>
+              <div><dt>Talents</dt><dd>Unspent</dd></div>
+              <div><dt>Dungeon 1</dt><dd>Fresh</dd></div>
+            </dl>
+            <div className="dev-reset__actions">
+              <button className="dev-reset__cancel" onClick={() => setDevAction(null)} type="button">
+                Cancel
+              </button>
+              <button className="dev-preset__confirm" onClick={confirmEarlyQolPreset} type="button">
+                Start QoL test
+              </button>
+            </div>
+          </div>
+        ) : devAction === 'preset' ? (
           <div className="dev-preset__confirmation">
             <FastForward aria-hidden="true" size={19} />
             <div>
@@ -173,6 +209,14 @@ export function HubScreen() {
           </div>
         ) : (
           <div className="dev-tools__triggers">
+            <button
+              className="dev-preset__trigger"
+              onClick={() => setDevAction('early-qol')}
+              type="button"
+            >
+              <Rocket aria-hidden="true" size={15} />
+              DEV · Fresh QoL test · {EARLY_QOL_TEST_XP} XP
+            </button>
             <button
               className="dev-preset__trigger"
               onClick={() => setDevAction('preset')}

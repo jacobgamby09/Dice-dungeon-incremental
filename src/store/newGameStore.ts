@@ -22,6 +22,7 @@ import {
   type ForgeResult,
 } from '../game/forge/forge'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
+import { createEarlyQolTestProfile } from '../game/dev/earlyQolPreset'
 import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
@@ -90,6 +91,7 @@ export interface NewGameState {
   chaosForgeDie: (dieId: string, operationId: string, random?: () => number) => ForgeResult | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
   evolveFace: (dieId: string, faceId: string, evolutionId: AttackEvolutionId) => boolean
+  loadEarlyQolDevPreset: () => void
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
@@ -1143,6 +1145,18 @@ export const useNewGameStore = create<NewGameState>()(
           },
         })
         return true
+      },
+
+      loadEarlyQolDevPreset: () => {
+        const state = get()
+        set({
+          ...initialState,
+          profile: createEarlyQolTestProfile(createInitialProfile()),
+          run: createInactiveRun(),
+          combat: createCombatState([], 1, state.combat.resolutionVersion),
+          awayRecap: null,
+          runMenuOpen: false,
+        })
       },
 
       loadPostDungeonOneDevPreset: () => {

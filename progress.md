@@ -46,6 +46,7 @@ Brug denne skabelon:
 - Talentforløbet giver derefter slot 2 og en unik Striker Die. Auto Combat åbner direkte efter Twin Arsenal; senere følger Shield, tre samtidige grene, Heal, fire slots og Quick Draw.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
+- Hubben har en separat fresh QoL-teststart med 88 uspente XP — præcis nok til den direkte vej gennem Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw.
 - Hubben kan desuden indlæse en totrins-bekræftet post-Dungeon-1-dev-profil med realistisk talent spend, tidligt Auto Combat-unlock, fire opgraderede permanente dice og Dungeon 2 klar til systematisk playtest.
 - Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
 - `The First Descent` genbruger Slime, Slime Crawler, Goblin og Skeleton som Level 1/2-varianter, har en Skeleton Elite på floor 9 og Demon-boss på floor 10. Alle har kun én Attack Die.
@@ -64,7 +65,7 @@ Brug denne skabelon:
 - Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
 - Combat-headeren har en diskret Run Menu før floor-informationen. Menuen pauser live- og background-Auto Combat; et totrinsbekræftet leave returnerer til Hub med XP, Souls og permanent progression intakt.
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
-- En deterministisk simulator og 108 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- En deterministisk simulator og 110 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#29 — Add controlled Forge and face evolutions](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/29), squash merge `c63d7ad`.
 
@@ -134,6 +135,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Fresh QoL-teststart med 88 XP
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hubben har en ny totrinsbekræftet `DEV · Fresh QoL test · 88 XP`. Den erstatter det aktuelle save med den normale starttilstand og 88 uspente XP, så spilleren selv kan købe hele vejen til både Auto Combat og Quick Draw.
+- Beslutninger: Den kanoniske `DEV · Reset game` forbliver 0-XP fresh save. Testpuljen beregnes data-driven fra de fem aktuelle talentpriser og er præcis 0 efter Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw; ingen talents er forudkøbt.
+- Berørte områder: Nyt early-QoL dev-preset, Zustand-action, Hub developer tools, tests, README og progress-log.
+- Validering: `npx tsc --noEmit`, 20 testfiler med 110 tests, ESLint, production-build og `git diff --check` består. Lokal browsertest verificerer totrinsbekræftelsen, canonical fresh-save med 88 XP/0 Souls/én Worn Blade Die samt første 8-XP-køb og det efterfølgende Twin Arsenal-reveal.
+- Kendte mangler: Dev-starten er et testværktøj og må ikke bruges som reference for den rigtige fresh-save XP-balance.
+- Git: Ikke committed.
 
 ### 2026-07-28 — Controlled Soul Forge og Attack-evolutioner
 

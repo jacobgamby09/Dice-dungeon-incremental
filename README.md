@@ -37,6 +37,7 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 Hubben har to bevidst totrins-beskyttede developer-handlinger:
 
 - `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med den kanoniske post-Dungeon-1-profil: én clear, 15 Max HP, fire slots, fire udstyrede permanente dice, alle faces på mindst 3 og The Iron Descent ulåst. Profilen repræsenterer 337 brugt XP og 255 brugte Souls. Auto Combat er købt men starter slået fra; Quick Draw er fortsat ukøbt.
+- `DEV · Fresh QoL test · 88 XP` erstatter det aktuelle save med den normale fresh-start, men giver præcis 88 uspente XP. Det finansierer Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw uden rest-XP, så den tidlige automation og hastighed kan testes uden at springe Talent Tree-købene over.
 - `DEV · Reset game` genskaber den almindelige fresh-save-start.
 
 Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres, før Dungeon 2 startes.
