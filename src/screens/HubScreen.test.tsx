@@ -8,10 +8,11 @@ describe('HubScreen developer tools', () => {
     useNewGameStore.getState().resetProgress()
   })
 
-  it('shows both dev triggers without exposing destructive confirmations', () => {
+  it('shows all dev triggers without exposing destructive confirmations', () => {
     const markup = renderToStaticMarkup(<HubScreen />)
 
     expect(markup).toContain('Developer tools')
+    expect(markup).toContain('DEV · Fresh QoL test · 88 XP')
     expect(markup).toContain('DEV · Load Dungeon 2 profile')
     expect(markup).toContain('DEV · Reset game')
     expect(markup).toContain('Incremental dice combat')

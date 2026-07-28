@@ -189,6 +189,44 @@ describe('new game progression loop', () => {
     ])
   })
 
+  it('loads a fresh 88-XP test save that can buy Auto Combat and Quick Draw exactly', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        xp: 999,
+        bankedSouls: 999,
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+
+    useNewGameStore.getState().loadEarlyQolDevPreset()
+    const freshTestState = useNewGameStore.getState()
+
+    expect(freshTestState.screen).toBe('hub')
+    expect(freshTestState.run.status).toBe('inactive')
+    expect(freshTestState.profile.xp).toBe(88)
+    expect(freshTestState.profile.bankedSouls).toBe(0)
+    expect(freshTestState.profile.talentRanks).toEqual({})
+    expect(freshTestState.profile.diceCollection).toHaveLength(1)
+
+    for (const talentId of [
+      TALENT_IDS.battleHardenedOne,
+      TALENT_IDS.twinArsenal,
+      TALENT_IDS.autoCombat,
+      TALENT_IDS.shieldcraft,
+      TALENT_IDS.quickDraw,
+    ]) {
+      expect(useNewGameStore.getState().purchaseTalent(talentId)).toBe(true)
+    }
+
+    expect(useNewGameStore.getState().profile.xp).toBe(0)
+    expect(useNewGameStore.getState().profile.talentRanks).toMatchObject({
+      [TALENT_IDS.autoCombat]: 1,
+      [TALENT_IDS.quickDraw]: 1,
+    })
+  })
+
   it('draws every equipped die once in the persisted shuffled-bag order', () => {
     const state = useNewGameStore.getState()
     const diceCollection = createDiceCatalog()
