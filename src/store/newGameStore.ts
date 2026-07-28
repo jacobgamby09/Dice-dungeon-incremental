@@ -16,8 +16,9 @@ import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/conte
 import { TALENT_IDS, TALENTS_BY_ID } from '../game/content/talents'
 import {
   chaosForge,
-  evolveAttackFace,
-  migrateLegacyAttackEvolution,
+  EVOLUTION_DEFINITIONS,
+  evolveFaceOnDie,
+  migrateLegacyFaceEvolution,
   precisionForge,
   type ForgeResult,
 } from '../game/forge/forge'
@@ -34,7 +35,7 @@ import {
   normalizeTalentRanks,
 } from '../game/progression/talents'
 import type { CombatState, RoundResolution } from '../game/types/combat'
-import type { AttackEvolutionId, DieFaces, DieInstance, RollResult } from '../game/types/dice'
+import type { DieFaces, DieInstance, FaceEvolutionId, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
 import type {
   DungeonId,
@@ -90,13 +91,13 @@ export interface NewGameState {
   leaveDungeonRun: () => void
   chaosForgeDie: (dieId: string, operationId: string, random?: () => number) => ForgeResult | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
-  evolveFace: (dieId: string, faceId: string, evolutionId: AttackEvolutionId) => boolean
+  evolveFace: (dieId: string, faceId: string, evolutionId: FaceEvolutionId) => boolean
   loadEarlyQolDevPreset: () => void
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 11
+const SAVE_VERSION = 12
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -272,6 +273,38 @@ function reconstructRunStats(
   }
 }
 
+function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
+  const canonicalDie = createDieById(existingDie.id)
+  if (!canonicalDie) return null
+
+  return {
+    ...canonicalDie,
+    faces: canonicalDie.faces.map((canonicalFace, index) => {
+      const existingFace = existingDie.faces.find((face) => face.id === canonicalFace.id)
+        ?? existingDie.faces[index]
+      if (canonicalFace.signature || !existingFace) return canonicalFace
+
+      const storedEvolution = existingFace.evolution
+      const validEvolution = storedEvolution
+        && EVOLUTION_DEFINITIONS[storedEvolution.id]?.family === canonicalFace.type
+        ? {
+            id: storedEvolution.id,
+            name: EVOLUTION_DEFINITIONS[storedEvolution.id].name,
+          }
+        : undefined
+
+      return migrateLegacyFaceEvolution({
+        ...canonicalFace,
+        value: Math.max(canonicalFace.value, existingFace.value),
+        evolutionReady: validEvolution
+          ? undefined
+          : existingFace.evolutionReady ?? undefined,
+        evolution: validEvolution,
+      })
+    }) as DieFaces,
+  }
+}
+
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
 
@@ -282,18 +315,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     ? existingProfile?.diceCollection?.filter((die) => die.id === 'attack-die-1') ?? []
     : existingProfile?.diceCollection ?? []
   const diceCollection = allowedExistingDice
-    .map((existingDie) => {
-      const canonicalDie = createDieById(existingDie.id)
-      if (!canonicalDie) return null
-      return {
-        ...canonicalDie,
-        faces: existingDie.faces.map((face) => migrateLegacyAttackEvolution({
-          ...face,
-          evolutionReady: face.evolutionReady ?? undefined,
-          evolution: face.evolution ? { ...face.evolution } : undefined,
-        })) as DieFaces,
-      }
-    })
+    .map(migrateDieInstance)
     .filter((die): die is DieInstance => die !== null)
   if (!diceCollection.some((die) => die.id === 'attack-die-1')) {
     diceCollection.unshift(cloneDie(freshProfile.diceCollection[0]))
@@ -408,14 +430,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
                 : createRunAutomation().randomSeed,
             }
           : createRunAutomation(),
-        equippedDiceSnapshot: (existingRun.equippedDiceSnapshot ?? []).map((die) => ({
-          ...die,
-          faces: die.faces.map((face) => migrateLegacyAttackEvolution({
-            ...face,
-            evolutionReady: face.evolutionReady ?? undefined,
-            evolution: face.evolution ? { ...face.evolution } : undefined,
-          })) as DieFaces,
-        })),
+        equippedDiceSnapshot: (existingRun.equippedDiceSnapshot ?? [])
+          .map(migrateDieInstance)
+          .filter((die): die is DieInstance => die !== null),
         enemy: migratedEnemy,
         lastReward: existingRun.lastReward
           ? {
@@ -452,6 +469,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
             ? 'enemy_attack'
             : existingCombat.resolutionStep ?? null,
           pendingMomentum: Math.max(0, existingCombat.pendingMomentum ?? 0),
+          pendingFortify: Math.max(0, existingCombat.pendingFortify ?? 0),
+          carriedShield: Math.max(0, existingCombat.carriedShield ?? 0),
+          carriedHeal: Math.max(0, existingCombat.carriedHeal ?? 0),
         }
       : createCombatState()
 
@@ -578,6 +598,11 @@ export const useNewGameStore = create<NewGameState>()(
           state.combat.pendingMomentum,
           result,
           allDiceDrawn,
+          state.combat.pendingFortify,
+          {
+            enemyHp: state.run.enemy?.hp,
+            enemyMaxHp: state.run.enemy?.maxHp,
+          },
         )
 
         set({
@@ -588,6 +613,7 @@ export const useNewGameStore = create<NewGameState>()(
             results: [...state.combat.results, result],
             totals: rollEffects.totals,
             pendingMomentum: rollEffects.pendingMomentum,
+            pendingFortify: rollEffects.pendingFortify,
           },
         })
         return result
@@ -609,6 +635,8 @@ export const useNewGameStore = create<NewGameState>()(
           enemyBleed: enemy.bleed,
           enemyIntent: totalEnemyRolls(enemy.intentRolls),
           totals: state.combat.totals,
+          carriedShield: state.combat.carriedShield,
+          carriedHeal: state.combat.carriedHeal,
         })
         const resolutionVersion = state.combat.resolutionVersion + 1
 
@@ -806,6 +834,11 @@ export const useNewGameStore = create<NewGameState>()(
             state.combat.roundNumber + 1,
             state.combat.resolutionVersion,
             true,
+            Math.random,
+            {
+              shield: state.combat.lastResolution.nextRoundShield,
+              heal: state.combat.lastResolution.nextRoundHeal,
+            },
           ),
         })
       },
@@ -1134,7 +1167,7 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive') return false
         const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
         if (!die) return false
-        const evolvedDie = evolveAttackFace(die, faceId, evolutionId)
+        const evolvedDie = evolveFaceOnDie(die, faceId, evolutionId)
         if (!evolvedDie) return false
         set({
           profile: {

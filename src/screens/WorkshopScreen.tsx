@@ -14,13 +14,17 @@ import { getEvolutionVisualStyle } from '../components/newgame/evolutionVisuals'
 import { FaceIcon } from '../components/newgame/FaceIcon'
 import { FACE_META } from '../components/newgame/faceVisuals'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
+import { SignatureIcon } from '../components/newgame/SignatureIcon'
+import { getSignatureVisualStyle } from '../components/newgame/signatureVisuals'
+import { SIGNATURE_DEFINITIONS } from '../game/content/faceEffects'
 import {
-  ATTACK_EVOLUTIONS,
+  EVOLUTION_DEFINITIONS,
+  EVOLUTIONS_BY_FAMILY,
   getChaosEligibleFaces,
   getChaosForgeCost,
   getPrecisionForgeCost,
 } from '../game/forge/forge'
-import type { AttackEvolutionId, FaceType } from '../game/types/dice'
+import type { FaceEvolutionId, FaceType } from '../game/types/dice'
 import { useNewGameStore } from '../store/newGameStore'
 
 type ForgeMode = 'chaos' | 'precision'
@@ -50,7 +54,7 @@ export function WorkshopScreen() {
   const [selectedFaceId, setSelectedFaceId] = useState(diceCollection[0]?.faces[0]?.id ?? '')
   const [forgeMode, setForgeMode] = useState<ForgeMode>('chaos')
   const [forgeImpact, setForgeImpact] = useState<ForgeImpact | null>(null)
-  const [pendingEvolutionId, setPendingEvolutionId] = useState<AttackEvolutionId | null>(null)
+  const [pendingEvolutionId, setPendingEvolutionId] = useState<FaceEvolutionId | null>(null)
   const forgeLock = useRef(false)
 
   const selectedDie = diceCollection.find((die) => die.id === selectedDieId) ?? diceCollection[0]
@@ -90,7 +94,7 @@ export function WorkshopScreen() {
     }))
   }
 
-  function handleEvolution(evolutionId: AttackEvolutionId) {
+  function handleEvolution(evolutionId: FaceEvolutionId) {
     if (!selectedDie || !selectedFace) return
     if (!evolveFace(selectedDie.id, selectedFace.id, evolutionId)) return
     setForgeImpact(null)
@@ -127,7 +131,13 @@ export function WorkshopScreen() {
               type="button"
             >
               <span className="die-tab__icon"><FaceIcon type={die.family} size={18} /></span>
-              <span><strong>{die.name}</strong><small>6 permanent faces</small></span>
+              <span>
+                <strong>{die.name}</strong>
+                <small>
+                  {die.family} family
+                  {die.faces.some((face) => face.signature) ? ' · signature die' : ''}
+                </small>
+              </span>
             </button>
           ))}
         </div>
@@ -164,15 +174,21 @@ export function WorkshopScreen() {
               const isEligible = getPrecisionForgeCost(face) !== null
               return (
                 <button
-                  aria-label={`${face.value} ${FACE_META[face.type].label}, face ${faceIndex + 1}${face.evolution ? `, ${face.evolution.name}` : ''}`}
+                  aria-label={`${face.value} ${FACE_META[face.type].label}, face ${faceIndex + 1}${face.evolution ? `, ${face.evolution.name}` : ''}${face.signature ? `, ${face.signature.name} signature` : ''}`}
                   aria-pressed={face.id === selectedFace.id}
-                  className={`workshop-face workshop-face--${face.type}${face.evolutionReady ? ' workshop-face--ready' : ''}${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}`}
+                  className={`workshop-face workshop-face--${face.type}${face.evolutionReady ? ' workshop-face--ready' : ''}${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`}
                   key={face.id}
                   onClick={() => {
                     setSelectedFaceId(face.id)
                     setPendingEvolutionId(null)
                   }}
-                  style={face.evolution ? getEvolutionVisualStyle(face.evolution.id) : undefined}
+                  style={
+                    face.evolution
+                      ? getEvolutionVisualStyle(face.evolution.id)
+                      : face.signature
+                        ? getSignatureVisualStyle(face.signature.id)
+                        : undefined
+                  }
                   type="button"
                 >
                   <small>Face {faceIndex + 1}</small>
@@ -185,13 +201,42 @@ export function WorkshopScreen() {
                   </motion.strong>
                   {face.evolution
                     ? <EvolutionIcon evolutionId={face.evolution.id} size={18} />
+                    : face.signature
+                      ? <SignatureIcon signatureId={face.signature.id} size={18} />
                     : <FaceIcon type={face.type} size={18} />}
                   {face.evolutionReady ? <em><Sparkles size={11} /> Evolve</em> : null}
                   {face.evolution ? <em className="workshop-face__evolution-name">{face.evolution.name}</em> : null}
+                  {face.signature ? <em className="workshop-face__signature-name">{face.signature.name}</em> : null}
                   {!isEligible && !face.evolutionReady && !face.evolution ? <em>Max</em> : null}
                 </button>
               )
             })}
+          </div>
+          <div
+            aria-live="polite"
+            className={`face-effect-readout face-effect-readout--${selectedFace.type}`}
+          >
+            <span>
+              {selectedFace.signature
+                ? 'Signature face'
+                : selectedFace.evolution
+                  ? `${selectedDie.family} evolution`
+                  : 'Family face'}
+            </span>
+            <strong>
+              {selectedFace.signature?.name
+                ?? selectedFace.evolution?.name
+                ?? `${selectedFace.value} ${FACE_META[selectedFace.type].label}`}
+            </strong>
+            <p>
+              {selectedFace.signature
+                ? SIGNATURE_DEFINITIONS[selectedFace.signature.id].description
+                : selectedFace.evolution
+                  ? EVOLUTION_DEFINITIONS[selectedFace.evolution.id].description
+                  : selectedFace.evolutionReady
+                    ? `Choose one of the ${selectedDie.family} family's three permanent evolutions.`
+                    : `Forge this permanent face toward value 3, then choose a ${selectedDie.family} evolution.`}
+            </p>
           </div>
           {forgeImpact?.mode === 'chaos' ? (
             <motion.div
@@ -214,8 +259,7 @@ export function WorkshopScreen() {
               </header>
               <p>This choice is permanent and costs no additional Souls.</p>
               <div className="evolution-choices">
-                {(Object.keys(ATTACK_EVOLUTIONS) as AttackEvolutionId[]).map((evolutionId) => {
-                  const evolution = ATTACK_EVOLUTIONS[evolutionId]
+                {EVOLUTIONS_BY_FAMILY[selectedFace.type].map((evolution) => {
                   return (
                     <button
                       aria-pressed={pendingEvolutionId === evolution.id}
@@ -233,7 +277,7 @@ export function WorkshopScreen() {
               </div>
               {pendingEvolutionId ? (
                 <div className="evolution-confirm">
-                  <span>Bind {ATTACK_EVOLUTIONS[pendingEvolutionId].name} to this face?</span>
+                  <span>Bind {EVOLUTION_DEFINITIONS[pendingEvolutionId].name} to this face?</span>
                   <button onClick={() => setPendingEvolutionId(null)} type="button">Cancel</button>
                   <button onClick={() => handleEvolution(pendingEvolutionId)} type="button">Confirm</button>
                 </div>
@@ -255,7 +299,15 @@ export function WorkshopScreen() {
                 </div>
                 <div className="forge-anvil__face forge-anvil__face--next">
                   <span>Result</span>
-                  <strong>{forgeMode === 'chaos' ? '?' : selectedFace.value === 3 && selectedFace.type === 'attack' ? '✦' : selectedFace.value + 1}</strong>
+                  <strong>
+                    {forgeMode === 'chaos'
+                      ? '?'
+                      : selectedFace.signature
+                        ? 'SIG'
+                        : selectedFace.value === 3
+                          ? '✦'
+                          : selectedFace.value + 1}
+                  </strong>
                   <FaceIcon type={selectedFace.type} size={20} />
                 </div>
                 {forgeImpact?.mode === 'precision' ? (
@@ -273,12 +325,16 @@ export function WorkshopScreen() {
 
               <div aria-live="polite" className="forge-message">
                 {activeCost === null
-                  ? 'This die has no faces available for this forge method.'
+                  ? selectedFace.signature && forgeMode === 'precision'
+                    ? 'Signature faces already carry a unique effect. Their next upgrade path arrives with Face Mastery.'
+                    : 'This die has no faces available for this forge method.'
                   : canForge
                     ? forgeMode === 'chaos'
                       ? `One of ${eligibleChaosFaces} eligible faces will be rolled and improved. The discount shrinks as the pool gets smaller.`
-                      : selectedFace.type === 'attack' && selectedFace.value === 3
-                        ? 'Awaken this face, then choose Power, Momentum or Rend for free.'
+                      : selectedFace.signature
+                        ? 'Signature faces keep their unique effect and unlock later Mastery instead of a family evolution.'
+                      : selectedFace.value === 3
+                        ? `Awaken this face, then choose one of the ${selectedFace.type} family evolutions for free.`
                         : `Face ${selectedDie.faces.findIndex((face) => face.id === selectedFace.id) + 1} will improve. No other face changes.`
                     : `Collect ${activeCost - bankedSouls} more Souls to use this forge.`}
               </div>

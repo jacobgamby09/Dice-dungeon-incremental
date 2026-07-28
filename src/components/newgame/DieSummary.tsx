@@ -5,6 +5,8 @@ import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 import { EvolutionIcon } from './EvolutionIcon'
 import { getEvolutionVisualStyle } from './evolutionVisuals'
+import { SignatureIcon } from './SignatureIcon'
+import { getSignatureVisualStyle } from './signatureVisuals'
 
 interface DieSummaryProps {
   die: DieInstance
@@ -24,18 +26,21 @@ export const DieSummary = memo(function DieSummary({ die, compact = false }: Die
       <div className="die-summary__faces" aria-label={`${die.name} faces`}>
         {die.faces.map((face) => (
           <span
-            aria-label={`${face.value} ${FACE_META[face.type].label}${face.evolution ? `, ${face.evolution.name} evolution` : ''}`}
-            className={`face-cell${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}`}
+            aria-label={`${face.value} ${FACE_META[face.type].label}${face.evolution ? `, ${face.evolution.name} evolution` : ''}${face.signature ? `, ${face.signature.name} signature` : ''}`}
+            className={`face-cell${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`}
             key={face.id}
             style={{
               '--face-color': FACE_META[face.type].color,
-              color: face.evolution ? undefined : meta.color,
+              color: face.evolution || face.signature ? undefined : meta.color,
               ...(face.evolution ? getEvolutionVisualStyle(face.evolution.id) : {}),
+              ...(face.signature ? getSignatureVisualStyle(face.signature.id) : {}),
             } as CSSProperties}
           >
             <strong>{face.value}</strong>
             {face.evolution
               ? <EvolutionIcon evolutionId={face.evolution.id} size={compact ? 10 : 12} />
+              : face.signature
+                ? <SignatureIcon signatureId={face.signature.id} size={compact ? 10 : 12} />
               : <FaceIcon type={face.type} size={compact ? 10 : 12} />}
           </span>
         ))}

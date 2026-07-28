@@ -1,12 +1,29 @@
-import type { DieFaces, DieFamily, DieInstance } from '../types/dice'
+import { SIGNATURE_DEFINITIONS } from './faceEffects'
+import type {
+  DieFaces,
+  DieFamily,
+  DieInstance,
+  SignatureFaceId,
+} from '../types/dice'
 import { cloneDie } from '../types/dice'
 
-function createFaces(dieId: string, family: DieFamily, values: number[]): DieFaces {
+function createFaces(
+  dieId: string,
+  family: DieFamily,
+  values: number[],
+  signatures: Partial<Record<number, SignatureFaceId>> = {},
+): DieFaces {
   if (values.length !== 6) throw new Error(`Die ${dieId} must have exactly six faces.`)
   return values.map((value, index) => ({
     id: `${dieId}-face-${index + 1}`,
     type: family,
     value,
+    signature: signatures[index]
+      ? {
+          id: signatures[index],
+          name: SIGNATURE_DEFINITIONS[signatures[index]].name,
+        }
+      : undefined,
   })) as DieFaces
 }
 
@@ -42,14 +59,24 @@ const EXECUTIONER_DIE: DieInstance = {
   id: 'attack-die-executioner',
   name: 'Executioner Die',
   family: 'attack',
-  faces: createFaces('attack-die-executioner', 'attack', [1, 1, 1, 3, 3, 3]),
+  faces: createFaces(
+    'attack-die-executioner',
+    'attack',
+    [1, 2, 3, 3, 3, 3],
+    { 4: 'execute', 5: 'execute' },
+  ),
 }
 
 const TOWER_DIE: DieInstance = {
   id: 'shield-die-tower',
   name: 'Tower Die',
   family: 'shield',
-  faces: createFaces('shield-die-tower', 'shield', [1, 1, 1, 1, 3, 4]),
+  faces: createFaces(
+    'shield-die-tower',
+    'shield',
+    [1, 2, 3, 3, 3, 3],
+    { 4: 'fortify', 5: 'fortify' },
+  ),
 }
 
 const DICE_CATALOG: DieInstance[] = [

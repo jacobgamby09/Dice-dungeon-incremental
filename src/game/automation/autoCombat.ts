@@ -211,6 +211,10 @@ function finishResolvingState(
       state.combat.resolutionVersion,
       true,
       random,
+      {
+        shield: resolution.nextRoundShield,
+        heal: resolution.nextRoundHeal,
+      },
     ),
   }
 }
@@ -228,6 +232,7 @@ function completeCurrentRound(
 
   let totals = { ...state.combat.totals }
   let pendingMomentum = state.combat.pendingMomentum
+  let pendingFortify = state.combat.pendingFortify
   const results = [...state.combat.results]
   for (const [index, dieId] of state.combat.drawPileDieIds.entries()) {
     const die = state.run.equippedDiceSnapshot.find((candidate) => candidate.id === dieId)
@@ -239,9 +244,15 @@ function completeCurrentRound(
       pendingMomentum,
       result,
       index === state.combat.drawPileDieIds.length - 1,
+      pendingFortify,
+      {
+        enemyHp: enemy.hp,
+        enemyMaxHp: enemy.maxHp,
+      },
     )
     totals = effects.totals
     pendingMomentum = effects.pendingMomentum
+    pendingFortify = effects.pendingFortify
   }
 
   const resolution = resolveRound({
@@ -253,6 +264,8 @@ function completeCurrentRound(
     enemyBleed: enemy.bleed,
     enemyIntent: totalEnemyRolls(enemy.intentRolls),
     totals,
+    carriedShield: state.combat.carriedShield,
+    carriedHeal: state.combat.carriedHeal,
   })
   const resolvedState: AutoCombatGameState = {
     ...state,
@@ -263,6 +276,7 @@ function completeCurrentRound(
       results,
       totals,
       pendingMomentum,
+      pendingFortify,
       lastResolution: resolution,
       resolutionVersion: state.combat.resolutionVersion + 1,
       resolutionStep: 'player',

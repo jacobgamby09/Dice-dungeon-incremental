@@ -148,7 +148,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.executionerDoctrine,
     name: 'Executioner Doctrine',
-    description: 'Receive the permanent high-variance Executioner Die.',
+    description: 'Receive an Attack-family Signature Die with two Execute faces.',
     iconKey: 'executioner-die',
     prerequisiteIds: [TALENT_IDS.secondDescent],
     ranks: [{
@@ -160,7 +160,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.towerDiscipline,
     name: 'Tower Discipline',
-    description: 'Receive the permanent high-variance Tower Die.',
+    description: 'Receive a Shield-family Signature Die with two Fortify faces.',
     iconKey: 'tower-die',
     prerequisiteIds: [TALENT_IDS.secondDescent],
     ranks: [{

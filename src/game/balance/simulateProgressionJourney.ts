@@ -2,7 +2,8 @@ import { createDieById, createStartingDice } from '../content/dice'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
 import {
   chaosForge,
-  evolveAttackFace,
+  evolveFaceOnDie,
+  EVOLUTIONS_BY_FAMILY,
   getChaosForgeCost,
   getPrecisionForgeCost,
   precisionForge,
@@ -92,7 +93,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 11,
+    saveVersion: 12,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {},
@@ -185,8 +186,13 @@ function evolveReadyFaces(
     let nextDie = die
     for (const face of die.faces) {
       if (!face.evolutionReady || face.evolution) continue
-      const evolutionId = evolutionOrder[evolutionIndex % evolutionOrder.length] ?? 'power'
-      nextDie = evolveAttackFace(nextDie, face.id, evolutionId) ?? nextDie
+      const familyEvolutions = face.type === 'attack'
+        ? evolutionOrder
+        : EVOLUTIONS_BY_FAMILY[face.type].map((evolution) => evolution.id)
+      const evolutionId = familyEvolutions[evolutionIndex % familyEvolutions.length]
+      nextDie = evolutionId
+        ? evolveFaceOnDie(nextDie, face.id, evolutionId) ?? nextDie
+        : nextDie
       evolutionIndex += 1
     }
     return nextDie

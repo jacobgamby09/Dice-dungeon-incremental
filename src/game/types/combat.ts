@@ -5,7 +5,13 @@ export interface RoundTotals {
   shield: number
   heal: number
   bleed: number
+  ward: number
+  regrowth: number
+  overflow: number
 }
+
+export type RoundTotalsInput = Pick<RoundTotals, 'attack' | 'shield' | 'heal' | 'bleed'>
+  & Partial<Pick<RoundTotals, 'ward' | 'regrowth' | 'overflow'>>
 
 export type CombatOutcome = 'ongoing' | 'victory' | 'defeat'
 export type CombatPhase =
@@ -28,6 +34,9 @@ export interface RoundResolution {
   enemyShieldAfterPlayerPhase: number
   enemyBleed: number
   healApplied: number
+  overflowShield: number
+  nextRoundShield: number
+  nextRoundHeal: number
   bleedDamageToEnemy: number
   enemyHealApplied: number
   attackAbsorbedByEnemyShield: number
@@ -44,6 +53,9 @@ export interface CombatState {
   results: RollResult[]
   totals: RoundTotals
   pendingMomentum: number
+  pendingFortify: number
+  carriedShield: number
+  carriedHeal: number
   lastResolution: RoundResolution | null
   resolutionVersion: number
   resolutionStep: ResolutionStep
@@ -54,4 +66,19 @@ export const EMPTY_TOTALS: RoundTotals = {
   shield: 0,
   heal: 0,
   bleed: 0,
+  ward: 0,
+  regrowth: 0,
+  overflow: 0,
+}
+
+export function normalizeRoundTotals(totals: RoundTotalsInput): RoundTotals {
+  return {
+    attack: totals.attack,
+    shield: totals.shield,
+    heal: totals.heal,
+    bleed: totals.bleed,
+    ward: totals.ward ?? 0,
+    regrowth: totals.regrowth ?? 0,
+    overflow: totals.overflow ?? 0,
+  }
 }

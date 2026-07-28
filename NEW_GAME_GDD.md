@@ -116,7 +116,7 @@ Denne opdeling er bindende. Talent Tree og Die Workshop må aldrig konkurrere om
 ## Permanente terninger
 
 - En `DieInstance` har stabilt ID, navn, family og seks faces.
-- En `FaceInstance` har stabilt ID, type, værdi og senere eventuel evolution.
+- En `FaceInstance` har stabilt ID, type, værdi og senere eventuel family-evolution eller medfødt signature.
 - Faces med samme type og værdi er stadig forskellige objekter og kan opgraderes uafhængigt.
 - Hver unlock giver præcis én navngiven permanent terning. Unlocks giver aldrig uendelige kopier.
 - Spilleren vælger selv sit loadout i Hub og begrænses af sine unlockede dice slots.
@@ -124,14 +124,22 @@ Denne opdeling er bindende. Talent Tree og Die Workshop må aldrig konkurrere om
 - Mindst én terning skal være equipped, og loadout kan ikke ændres under et aktivt run.
 - Udstyrede terninger snapshots ved run-start. Et aktivt run ændres derfor ikke af senere Hub-data.
 
+Dice Architecture v1 skelner mellem tre lag:
+
+- `Family` er Attack, Shield eller Heal og bestemmer farvesprog, basisoutput og de tre evolutioner, som et normalt face kan vælge.
+- `Die model` er den konkrete permanente terning og bestemmer navn, startfordeling og eventuelle signature-faces.
+- `Face` er den individuelle side. Normale family-faces er frie Forge-lærreder; signature-faces har allerede en unik mechanic og kan derfor ikke stable en family-evolution ovenpå.
+
+Standard Dice har seks normale family-faces. Signature Dice har i første model fire normale family-faces og to signature-faces. To af seks giver en reel identitet gennem korte encounters uden at fjerne størstedelen af spillerens Forge-valg. Signature-faces får senere deres egen Face Mastery-kurve; Mastery unlockes med XP og betales på konkrete faces med Souls, men er endnu ikke implementeret.
+
 MVP-katalog:
 
 - `attack-die-1`, Worn Blade Die: `1, 1, 2, 2, 2, 3 Attack`.
 - `attack-die-2`, Striker Die: `1, 1, 1, 2, 3, 3 Attack`.
 - `shield-die-1`, Iron Guard Die: `1, 1, 2, 2, 2, 3 Shield`.
 - `heal-die-1`, Vitality Die: `1, 1, 1, 1, 2, 2 Heal`.
-- `attack-die-executioner`, Executioner Die: `1, 1, 1, 3, 3, 3 Attack`. En offensiv sidegrade med lav bund og tre faces tæt på evolution.
-- `shield-die-tower`, Tower Die: `1, 1, 1, 1, 3, 4 Shield`. En defensiv sidegrade med lav bund og store spikes.
+- `attack-die-executioner`, Executioner Die: `1, 2, 3, 3 Attack + 2 Execute`. Execute giver 3 Attack og bliver til 5 Attack, når enemy begyndte roll-sekvensen på højst 50% HP.
+- `shield-die-tower`, Tower Die: `1, 2, 3, 3 Shield + 2 Fortify`. Fortify giver 3 Shield og +2 til næste Shield-face; hvis ingen Shield-face følger, falder bonussen straks tilbage til Shield.
 
 Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete terninger kommer fra XP-talenter.
 
@@ -190,14 +198,14 @@ Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er to
 
 1. Heal spilleren op til max HP.
 2. Attack reducerer først enemy Shield og derefter enemy HP.
-3. Eventuel recoil, Thorns eller selvskade anvendes.
+3. Eventuel recoil eller selvskade anvendes.
 4. Hvis spilleren er død, er udfaldet Defeat — også ved reel Double K.O.
 5. Hvis fjenden er død, er udfaldet Victory, og dens intent og attack-animation annulleres.
 6. Hvis fjenden lever, udfører den sit viste Heal op til max HP.
 7. Derefter udfører den sit viste Attack.
 8. Rundens player Shield blokerer enemy damage; resten rammer HP.
 9. Ved 0 HP er udfaldet Defeat.
-10. Midlertidigt player- og enemy-Shield nulstilles, og næste runde forberedes.
+10. Midlertidigt player- og enemy-Shield nulstilles. Reserve-Ward og Regrowth-healing flyttes præcis én runde frem.
 
 Spilleren skal kunne føle sig overpowered. En fjende, der bliver dræbt af spillerens Attack, får derfor aldrig et sidste gratis angreb. Senere enemies skaleres i stedet op.
 
@@ -261,19 +269,31 @@ Spilleren vælger først én permanent terning og derefter en forge-metode:
 |---|---:|
 | 1 → 2 | 10 |
 | 2 → 3 | 20 |
-| Attack 3 → Evolution Ready | 80 |
-| Shield/Heal 3 → 4 | 80 |
-| Shield/Heal 4 → 5 | 200 |
+| Family face 3 → Evolution Ready | 80 |
 
 En Chaos-operation beregnes ud fra den billigste nuværende Precision-opgradering på terningen og får op til 35% rabat ved seks eligible faces. Forge-køb bruger et persisteret operation-ID, så reload, retry eller gentaget event ikke kan betale samme køb to gange.
 
-Attack-faces bliver ikke numerisk fladet ud over 3. Et Attack-face på 3 skal først vækkes til `Evolution Ready`, hvorefter spilleren vælger én gratis, permanent identitet med et separat bekræftelsestrin:
+Normale family-faces bliver ikke numerisk fladet ud over 3. Et normalt face på 3 skal først vækkes til `Evolution Ready`, hvorefter spilleren vælger én gratis, permanent identitet fra sin egen family med et separat bekræftelsestrin.
+
+Attack:
 
 - `Power`: 5 Attack med det samme.
 - `Momentum`: 3 Attack og +2 til den næste rullede face uanset type. Hvis Momentum rulles sidst, bliver bonus i stedet +2 Attack med det samme.
 - `Rend`: 2 Attack og 2 Bleed. Nyt Bleed skader ikke i samme round. Ved starten af næste player resolution giver eksisterende Bleed direkte HP-skade gennem Shield og falder derefter med 1.
 
-Alle tre evolutioner har fem samlet potentiel output, men forskellig timing og funktion: Power er øjeblikkelig, Momentum kan flytte styrke til Shield/Heal, og Rend er forsinket men omgår enemy Shield. Flere faces på samme die må vælge samme evolution; dette skal fortsat balance-playtestes mod blandede builds.
+Shield:
+
+- `Bastion`: 5 Shield med det samme.
+- `Reserve`: 3 Shield og 2 Ward i næste round. Ward forbruges eller udløber i den round.
+- `Spikes`: 3 Shield og 2 Attack i samme round.
+
+Heal:
+
+- `Restoration`: 5 Heal med det samme op til Max HP.
+- `Regrowth`: 3 Heal og 2 yderligere Heal i næste round.
+- `Overflow`: 3 Heal; op til 2 faktisk overheal bliver til Shield i samme round.
+
+Hver evolution ligger omkring et første output-budget på 5, men timing, Shield-bypass og konvertering har forskellig reel værdi. Flere normale faces på samme die må vælge samme evolution. Signature-faces er allerede specialiserede, vises separat i Workshop og er ikke eligible til Chaos eller Precision Forge i denne Mastery-fase.
 
 Evolutioner skal kunne identificeres på selve face-fladen uden at læse et tooltip. Den visuelle identitet er bindende på tværs af Workshop, dice summaries, den aktive combat-die, draw order og score-transfer:
 
@@ -295,6 +315,7 @@ Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face l
 - Save version 9 introducerer stabile encounter-ID'er, gentagne enemy-levels, 1–3 enemy dice og Dungeon 2. Et aktivt ældre run mappes sikkert via dungeonens floor-index, og eksisterende XP, Souls, talents, dice og faces bevares.
 - Save version 10 erstatter den gamle Auto Roll-setting med Auto Combat, flytter talentet direkte efter Twin Arsenal, refunderer den gamle prisforskel én gang og persisterer automationens checkpoint, tidsbudget og random-seed.
 - Save version 11 tilføjer controlled Forge-operationer, idempotente operation-ID'er, Attack-evolutioner, Momentum-state og enemy Bleed. Eksisterende Attack-faces over 3 migreres til Power uden at miste investeret styrke.
+- Save version 12 tilføjer family-evolutioner til Shield/Heal, Execute/Fortify-signatures, Fortify-charge samt én-rundes Ward/Regrowth. Version-11 Executioner/Tower normaliseres til deres canonical fire normale og to signature-faces, mens kompatible normale face-investeringer bevares.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning
@@ -306,7 +327,7 @@ Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face l
 - En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
 - Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
 - Et nyt roll-resultat må ikke tælle med i den synlige total, mens terningen ruller. Efter landing flyver face-ikonet og værdien op i scoreområdet; totalen opdateres først ved impact. Samme feedback-system skal genbruges af alle nuværende og fremtidige face-typer.
-- Evolved Attack-faces bryder bevidst den almindelige røde Attack-overflade med deres egen ramme, baggrundsmønster og silhuet. Et lille Attack-mærke bevarer typeaflæsningen, og landing samt score-transfer bruger evolutionens accent og navn.
+- Alle evolved family-faces bryder bevidst den almindelige family-overflade med egen ramme, baggrundsmønster og silhuet. Signature-faces har et separat orange Execute- eller blåt Fortify-motiv. Landing og score-transfer bruger altid effektens accent, ikon og navn.
 - Enemy dice bruger samme Attack-, Shield- og Heal-faces, ikoner og fysiske terningesprog som player dice, men vises i cirka 65–70% størrelse i en kompakt intent-række. 1–3 resultater forbliver synlige, kan hver inspiceres for alle seks faces, pulserer ved deres resolutionstrin og dæmpes som `Cancelled`, hvis fjenden dør.
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
 - Workshop skal føles som et forge-rum: dice-rack, tydeligt Chaos/Precision-valg, seks fysiske face-fliser, anvil-preview, synlig Souls/impact-feedback og et særskilt evolution-kammer.

@@ -1,4 +1,6 @@
-import { Backpack, Check, ChevronLeft, LockKeyhole } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import { Backpack, Check, ChevronLeft, Info, LockKeyhole } from 'lucide-react'
+import { DieDetailsPanel } from '../components/newgame/DieDetailsPanel'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { getDiceCapacity } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
@@ -11,6 +13,9 @@ export function LoadoutScreen() {
   const unequipDie = useNewGameStore((state) => state.unequipDie)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const capacity = getDiceCapacity(talentRanks)
+  const [inspectedDieId, setInspectedDieId] = useState<string | null>(null)
+  const inspectedDie = diceCollection.find((die) => die.id === inspectedDieId) ?? null
+  const closeDieDetails = useCallback(() => setInspectedDieId(null), [])
 
   return (
     <main className="game-shell loadout-screen">
@@ -38,16 +43,25 @@ export function LoadoutScreen() {
           return (
             <article className={`collection-die${equipped ? ' collection-die--equipped' : ''}`} key={die.id}>
               <DieSummary die={die} compact />
-              <button
-                aria-pressed={equipped}
-                className="collection-toggle"
-                disabled={equipped ? lastEquippedDie : loadoutFull}
-                onClick={() => (equipped ? unequipDie(die.id) : equipDie(die.id))}
-                type="button"
-              >
-                {equipped ? <Check aria-hidden="true" size={16} /> : <Backpack aria-hidden="true" size={16} />}
-                {equipped ? (lastEquippedDie ? 'Required' : 'Unequip') : loadoutFull ? 'Slots Full' : 'Equip'}
-              </button>
+              <div className="collection-die__actions">
+                <button
+                  className="collection-details"
+                  onClick={() => setInspectedDieId(die.id)}
+                  type="button"
+                >
+                  <Info aria-hidden="true" size={15} /> Details
+                </button>
+                <button
+                  aria-pressed={equipped}
+                  className="collection-toggle"
+                  disabled={equipped ? lastEquippedDie : loadoutFull}
+                  onClick={() => (equipped ? unequipDie(die.id) : equipDie(die.id))}
+                  type="button"
+                >
+                  {equipped ? <Check aria-hidden="true" size={16} /> : <Backpack aria-hidden="true" size={16} />}
+                  {equipped ? (lastEquippedDie ? 'Required' : 'Unequip') : loadoutFull ? 'Slots Full' : 'Equip'}
+                </button>
+              </div>
             </article>
           )
         })}
@@ -57,6 +71,7 @@ export function LoadoutScreen() {
         <LockKeyhole aria-hidden="true" size={18} />
         <p>Each die is a unique permanent object. Unlocks add one concrete die—never infinite copies.</p>
       </aside>
+      <DieDetailsPanel die={inspectedDie} onClose={closeDieDetails} />
     </main>
   )
 }

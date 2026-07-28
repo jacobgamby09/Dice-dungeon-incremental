@@ -1,24 +1,32 @@
 import { memo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
-import { Droplets } from 'lucide-react'
-import type { RoundTotals } from '../../game/types/combat'
+import { Droplets, HeartPulse, ShieldPlus, Sparkles } from 'lucide-react'
+import { normalizeRoundTotals } from '../../game/types/combat'
+import type { RoundTotalsInput } from '../../game/types/combat'
 import type { FaceType, RollResult } from '../../game/types/dice'
 import { EvolutionIcon } from './EvolutionIcon'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 
 interface RoundTotalsPanelProps {
+  carriedHeal?: number
+  carriedShield?: number
+  pendingFortify?: number
   pendingMomentum?: number
   results: readonly RollResult[]
-  totals: RoundTotals
+  totals: RoundTotalsInput
 }
 
 export const RoundTotalsPanel = memo(function RoundTotalsPanel({
+  carriedHeal = 0,
+  carriedShield = 0,
+  pendingFortify = 0,
   pendingMomentum = 0,
   results,
   totals,
 }: RoundTotalsPanelProps) {
+  const normalizedTotals = normalizeRoundTotals(totals)
   const railElement = useRef<HTMLElement | null>(null)
   const revealedTypes = results.reduce<FaceType[]>((types, result) => (
     types.includes(result.type) ? types : [...types, result.type]
@@ -37,7 +45,15 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
     )
   }, [latestRevealedType])
 
-  if (revealedTypes.length === 0) return null
+  const hasEffects = carriedHeal > 0
+    || carriedShield > 0
+    || normalizedTotals.bleed > 0
+    || normalizedTotals.ward > 0
+    || normalizedTotals.regrowth > 0
+    || normalizedTotals.overflow > 0
+    || pendingMomentum > 0
+    || pendingFortify > 0
+  if (revealedTypes.length === 0 && !hasEffects) return null
 
   return (
     <section
@@ -48,7 +64,7 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
     >
       {revealedTypes.map((type) => (
         <motion.div
-          aria-label={`${FACE_META[type].label} total ${totals[type]}`}
+          aria-label={`${FACE_META[type].label} total ${normalizedTotals[type]}`}
           className="round-total"
           data-total-type={type}
           initial={{ opacity: 0, scale: 0.65, y: 6 }}
@@ -64,29 +80,69 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
           <motion.strong
             animate={{ filter: ['brightness(1.8)', 'brightness(1)'], scale: [1.75, 0.88, 1] }}
             initial={{ scale: 0.6 }}
-            key={`${type}-${totals[type]}`}
+            key={`${type}-${normalizedTotals[type]}`}
             transition={{ duration: 0.28, ease: 'easeOut' }}
           >
-            {totals[type]}
+            {normalizedTotals[type]}
           </motion.strong>
           <span className="round-total__label">{FACE_META[type].label}</span>
         </motion.div>
       ))}
-      {totals.bleed > 0 ? (
+      {normalizedTotals.bleed > 0 ? (
         <motion.div
-          aria-label={`Bleed applied ${totals.bleed}`}
+          aria-label={`Bleed applied ${normalizedTotals.bleed}`}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className="round-total round-total--bleed"
           initial={{ opacity: 0, scale: 0.65, y: 6 }}
-          key={`bleed-${totals.bleed}`}
+          key={`bleed-${normalizedTotals.bleed}`}
           style={{
             '--total-color': '#fb7185',
             '--total-surface': '#4c0519',
           } as CSSProperties}
         >
           <Droplets aria-hidden="true" size={20} />
-          <strong>{totals.bleed}</strong>
+          <strong>{normalizedTotals.bleed}</strong>
           <span className="round-total__label">Bleed</span>
+        </motion.div>
+      ) : null}
+      {carriedShield > 0 || normalizedTotals.ward > 0 ? (
+        <motion.div
+          aria-label={`${carriedShield} Ward active, ${normalizedTotals.ward} Ward prepared`}
+          className="round-total round-total--ward"
+          initial={{ opacity: 0, scale: 0.65, y: 6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+        >
+          <ShieldPlus aria-hidden="true" size={20} />
+          <strong>{carriedShield > 0 ? carriedShield : normalizedTotals.ward}</strong>
+          <span className="round-total__label">
+            {carriedShield > 0 ? 'Ward active' : 'Next round'}
+          </span>
+        </motion.div>
+      ) : null}
+      {carriedHeal > 0 || normalizedTotals.regrowth > 0 ? (
+        <motion.div
+          aria-label={`${carriedHeal} Regrowth active, ${normalizedTotals.regrowth} Regrowth prepared`}
+          className="round-total round-total--regrowth"
+          initial={{ opacity: 0, scale: 0.65, y: 6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+        >
+          <HeartPulse aria-hidden="true" size={20} />
+          <strong>{carriedHeal > 0 ? carriedHeal : normalizedTotals.regrowth}</strong>
+          <span className="round-total__label">
+            {carriedHeal > 0 ? 'Healing now' : 'Next round'}
+          </span>
+        </motion.div>
+      ) : null}
+      {normalizedTotals.overflow > 0 ? (
+        <motion.div
+          aria-label={`Up to ${normalizedTotals.overflow} excess healing becomes Shield`}
+          className="round-total round-total--overflow"
+          initial={{ opacity: 0, scale: 0.65, y: 6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+        >
+          <Sparkles aria-hidden="true" size={20} />
+          <strong>{normalizedTotals.overflow}</strong>
+          <span className="round-total__label">Overflow</span>
         </motion.div>
       ) : null}
       {pendingMomentum > 0 ? (
@@ -101,6 +157,20 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
           <EvolutionIcon evolutionId="momentum" size={20} />
           <strong>+{pendingMomentum}</strong>
           <span className="round-total__label">Next die</span>
+        </motion.div>
+      ) : null}
+      {pendingFortify > 0 ? (
+        <motion.div
+          aria-label={`Fortify charged. Next Shield face gains ${pendingFortify}.`}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          className="round-total round-total--fortify"
+          initial={{ opacity: 0, scale: 0.72, x: -8 }}
+          key={`fortify-${pendingFortify}`}
+          role="status"
+        >
+          <ShieldPlus aria-hidden="true" size={20} />
+          <strong>+{pendingFortify}</strong>
+          <span className="round-total__label">Next Shield</span>
         </motion.div>
       ) : null}
     </section>

@@ -12,6 +12,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
+import { getDieProfile } from '../../game/content/diceProfiles'
 import type {
   TalentDefinition,
   TalentEffect,
@@ -19,6 +20,7 @@ import type {
 } from '../../game/types/progression'
 import type { TalentNodeState } from './TalentNode'
 import { TalentIcon } from './TalentIcon'
+import { DieSummary } from './DieSummary'
 
 interface TalentDetailPanelProps {
   isAnimating: boolean
@@ -90,6 +92,11 @@ export function TalentDetailPanel({
   xp,
 }: TalentDetailPanelProps) {
   const dialogRef = useRef<HTMLElement>(null)
+  const displayedEffects = nextRank?.effects ?? talent?.ranks.at(-1)?.effects ?? []
+  const grantedDieEffect = displayedEffects.find((effect) => effect.type === 'grant_die')
+  const grantedDie = grantedDieEffect?.type === 'grant_die'
+    ? createDieById(grantedDieEffect.dieId)
+    : null
 
   useEffect(() => {
     if (!talent) return
@@ -161,7 +168,7 @@ export function TalentDetailPanel({
 
             <div className="talent-canvas-inspector__effects" aria-label="Next rank effects">
               <small>{nextRank ? 'Next rank grants' : 'Permanent effects'}</small>
-              {(nextRank?.effects ?? talent.ranks.at(-1)?.effects ?? []).map((effect, index) => {
+              {displayedEffects.map((effect, index) => {
                 const EffectIcon = EFFECT_ICONS[effect.type]
                 return (
                   <span key={`${effect.type}-${index}`}>
@@ -171,6 +178,14 @@ export function TalentDetailPanel({
                 )
               })}
             </div>
+
+            {grantedDie ? (
+              <section className="talent-canvas-inspector__die-preview">
+                <small>Permanent die preview</small>
+                <DieSummary die={grantedDie} compact />
+                <p>{getDieProfile(grantedDie).description}</p>
+              </section>
+            ) : null}
 
             <button
               className="talent-canvas-inspector__purchase"

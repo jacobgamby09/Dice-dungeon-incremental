@@ -1,4 +1,5 @@
-import type { RoundResolution, RoundTotals } from '../types/combat'
+import { normalizeRoundTotals } from '../types/combat'
+import type { RoundResolution, RoundTotalsInput } from '../types/combat'
 
 export interface ResolveRoundInput {
   playerHp: number
@@ -7,23 +8,32 @@ export interface ResolveRoundInput {
   enemyMaxHp: number
   enemyShield: number
   enemyBleed?: number
-  enemyIntent: RoundTotals
-  totals: RoundTotals
+  enemyIntent: RoundTotalsInput
+  totals: RoundTotalsInput
   playerRecoil?: number
+  carriedShield?: number
+  carriedHeal?: number
 }
 
 export function resolveRound(input: ResolveRoundInput): RoundResolution {
-  const healedPlayerHp = Math.min(input.playerMaxHp, input.playerHp + input.totals.heal)
+  const totals = normalizeRoundTotals(input.totals)
+  const enemyIntent = normalizeRoundTotals(input.enemyIntent)
+  const carriedHeal = Math.max(0, input.carriedHeal ?? 0)
+  const carriedShield = Math.max(0, input.carriedShield ?? 0)
+  const totalHealing = totals.heal + carriedHeal
+  const healedPlayerHp = Math.min(input.playerMaxHp, input.playerHp + totalHealing)
   const healApplied = healedPlayerHp - input.playerHp
+  const excessHealing = Math.max(0, input.playerHp + totalHealing - input.playerMaxHp)
+  const overflowShield = Math.min(Math.max(0, totals.overflow), excessHealing)
 
   const existingBleed = Math.max(0, input.enemyBleed ?? 0)
   const bleedDamageToEnemy = Math.min(input.enemyHp, existingBleed)
   const enemyHpAfterBleed = Math.max(0, input.enemyHp - bleedDamageToEnemy)
   const decayedBleed = Math.max(0, existingBleed - 1)
-  const attackAbsorbedByEnemyShield = Math.min(input.enemyShield, input.totals.attack)
+  const attackAbsorbedByEnemyShield = Math.min(input.enemyShield, totals.attack)
   const attackDamageToEnemy = Math.min(
     enemyHpAfterBleed,
-    Math.max(0, input.totals.attack - attackAbsorbedByEnemyShield),
+    Math.max(0, totals.attack - attackAbsorbedByEnemyShield),
   )
   const enemyShieldAfterPlayerPhase = Math.max(
     0,
@@ -31,7 +41,7 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
   )
   const enemyHpAfterPlayerPhase = Math.max(0, enemyHpAfterBleed - attackDamageToEnemy)
   const enemyBleed = enemyHpAfterPlayerPhase > 0
-    ? decayedBleed + Math.max(0, input.totals.bleed ?? 0)
+    ? decayedBleed + Math.max(0, totals.bleed)
     : 0
 
   const recoil = Math.max(0, input.playerRecoil ?? 0)
@@ -50,6 +60,9 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       enemyShieldAfterPlayerPhase,
       enemyBleed,
       healApplied,
+      overflowShield,
+      nextRoundShield: 0,
+      nextRoundHeal: 0,
       bleedDamageToEnemy,
       enemyHealApplied: 0,
       attackAbsorbedByEnemyShield,
@@ -73,6 +86,9 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       enemyShieldAfterPlayerPhase,
       enemyBleed: 0,
       healApplied,
+      overflowShield,
+      nextRoundShield: 0,
+      nextRoundHeal: 0,
       bleedDamageToEnemy,
       enemyHealApplied: 0,
       attackAbsorbedByEnemyShield,
@@ -85,11 +101,12 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
 
   const enemyHp = Math.min(
     input.enemyMaxHp,
-    enemyHpAfterPlayerPhase + Math.max(0, input.enemyIntent.heal),
+    enemyHpAfterPlayerPhase + Math.max(0, enemyIntent.heal),
   )
   const enemyHealApplied = enemyHp - enemyHpAfterPlayerPhase
-  const incomingDamage = Math.max(0, input.enemyIntent.attack)
-  const enemyDamageBlocked = Math.min(input.totals.shield, incomingDamage)
+  const incomingDamage = Math.max(0, enemyIntent.attack)
+  const availableShield = totals.shield + carriedShield + overflowShield
+  const enemyDamageBlocked = Math.min(availableShield, incomingDamage)
   const unblockedDamage = incomingDamage - enemyDamageBlocked
   const playerHp = Math.max(0, hpAfterRecoil - unblockedDamage)
 
@@ -105,6 +122,9 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     enemyShieldAfterPlayerPhase,
     enemyBleed,
     healApplied,
+    overflowShield,
+    nextRoundShield: Math.max(0, totals.ward),
+    nextRoundHeal: Math.max(0, totals.regrowth),
     bleedDamageToEnemy,
     enemyHealApplied,
     attackAbsorbedByEnemyShield,

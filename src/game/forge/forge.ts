@@ -1,34 +1,24 @@
 import { getFaceUpgradeCost } from '../content/upgradeCosts'
+import {
+  ATTACK_EVOLUTIONS,
+  EVOLUTION_DEFINITIONS,
+  EVOLUTIONS_BY_FAMILY,
+  HEAL_EVOLUTIONS,
+  SHIELD_EVOLUTIONS,
+} from '../content/faceEffects'
 import type {
-  AttackEvolutionId,
   DieFaces,
   DieInstance,
-  FaceEvolution,
+  FaceEvolutionId,
   FaceInstance,
 } from '../types/dice'
 
-export const ATTACK_EVOLUTIONS: Record<AttackEvolutionId, FaceEvolution & {
-  description: string
-  resultValue: number
-}> = {
-  power: {
-    id: 'power',
-    name: 'Power',
-    description: 'Deal 5 Attack immediately.',
-    resultValue: 5,
-  },
-  momentum: {
-    id: 'momentum',
-    name: 'Momentum',
-    description: 'Deal 3 Attack and add +2 to the next rolled face. If last, gain +2 Attack.',
-    resultValue: 3,
-  },
-  rend: {
-    id: 'rend',
-    name: 'Rend',
-    description: 'Deal 2 Attack and apply 2 Bleed. Bleed starts next round and ignores Shield.',
-    resultValue: 2,
-  },
+export {
+  ATTACK_EVOLUTIONS,
+  EVOLUTION_DEFINITIONS,
+  EVOLUTIONS_BY_FAMILY,
+  HEAL_EVOLUTIONS,
+  SHIELD_EVOLUTIONS,
 }
 
 export interface ForgeResult {
@@ -39,9 +29,8 @@ export interface ForgeResult {
 }
 
 export function canForgeFace(face: FaceInstance): boolean {
-  if (face.evolution || face.evolutionReady) return false
-  if (face.type === 'attack') return face.value <= 3
-  return getFaceUpgradeCost(face.value) !== null
+  if (face.signature || face.evolution || face.evolutionReady) return false
+  return face.value <= 3
 }
 
 export function getPrecisionForgeCost(face: FaceInstance): number | null {
@@ -73,7 +62,7 @@ export function forgeFaceOnDie(die: DieInstance, faceId: string): {
 } | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
   if (!face || !canForgeFace(face)) return null
-  const becameEvolutionReady = face.type === 'attack' && face.value === 3
+  const becameEvolutionReady = face.value === 3
 
   return {
     becameEvolutionReady,
@@ -134,24 +123,31 @@ export function chaosForge(
   }
 }
 
-export function evolveAttackFace(
+export function evolveFaceOnDie(
   die: DieInstance,
   faceId: string,
-  evolutionId: AttackEvolutionId,
+  evolutionId: FaceEvolutionId,
 ): DieInstance | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
-  if (!face || face.type !== 'attack' || !face.evolutionReady || face.evolution) return null
+  const evolution = EVOLUTION_DEFINITIONS[evolutionId]
+  if (
+    !face
+    || face.signature
+    || !face.evolutionReady
+    || face.evolution
+    || evolution.family !== face.type
+  ) return null
   return {
     ...die,
     faces: die.faces.map((candidate) => (
       candidate.id === faceId
         ? {
             ...candidate,
-            value: ATTACK_EVOLUTIONS[evolutionId].resultValue,
+            value: evolution.resultValue,
             evolutionReady: undefined,
             evolution: {
-              id: ATTACK_EVOLUTIONS[evolutionId].id,
-              name: ATTACK_EVOLUTIONS[evolutionId].name,
+              id: evolution.id,
+              name: evolution.name,
             },
           }
         : candidate
@@ -159,15 +155,19 @@ export function evolveAttackFace(
   }
 }
 
-export function migrateLegacyAttackEvolution(face: FaceInstance): FaceInstance {
-  if (face.type !== 'attack' || face.evolution || face.value <= 3) return face
+export function migrateLegacyFaceEvolution(face: FaceInstance): FaceInstance {
+  if (face.signature || face.evolution || face.value <= 3) return face
+  const evolution = EVOLUTIONS_BY_FAMILY[face.type][0]
   return {
     ...face,
-    value: ATTACK_EVOLUTIONS.power.resultValue,
+    value: evolution.resultValue,
     evolutionReady: undefined,
     evolution: {
-      id: ATTACK_EVOLUTIONS.power.id,
-      name: ATTACK_EVOLUTIONS.power.name,
+      id: evolution.id,
+      name: evolution.name,
     },
   }
 }
+
+export const evolveAttackFace = evolveFaceOnDie
+export const migrateLegacyAttackEvolution = migrateLegacyFaceEvolution
