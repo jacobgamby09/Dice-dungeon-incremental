@@ -67,7 +67,7 @@ Brug denne skabelon:
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
 - En deterministisk simulator og 110 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#29 — Add controlled Forge and face evolutions](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/29), squash merge `c63d7ad`.
+- Seneste gameplay-merge i produktion: [#31 — Add early QoL test start](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/31), squash merge `eaf698c`.
 
 ## Næste anbefalede skridt
 
@@ -146,7 +146,7 @@ Brug denne skabelon:
 - Berørte områder: Nyt early-QoL dev-preset, Zustand-action, Hub developer tools, tests, README og progress-log.
 - Validering: `npx tsc --noEmit`, 20 testfiler med 110 tests, ESLint, production-build og `git diff --check` består. Lokal browsertest verificerer totrinsbekræftelsen, canonical fresh-save med 88 XP/0 Souls/én Worn Blade Die samt første 8-XP-køb og det efterfølgende Twin Arsenal-reveal.
 - Kendte mangler: Dev-starten er et testværktøj og må ikke bruges som reference for den rigtige fresh-save XP-balance.
-- Git: Ikke committed.
+- Git: `2cdfb9d` — `Add early QoL test start`; PR [#31](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/31) er squash-merget til `main` som `eaf698c`. Vercel production-deployment `dpl_FLfR9SZPNbvjHyPEqBF62Qjwa1pz` er `READY`; den offentlige Hub er browser-verificeret med den nye 88-XP-trigger, og error-scannet for deploymentet er rent.
 
 ### 2026-07-28 — Controlled Soul Forge og Attack-evolutioner
 
