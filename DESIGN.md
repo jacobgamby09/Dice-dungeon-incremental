@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.9 — 2026-07-28.
+Version: 1.10 — 2026-07-28.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -298,7 +298,7 @@ Talent Tree er en bevidst undtagelse fra de øvrige fysiske dungeon-rum: det er 
 - Nodes og forbindelser bruger semantiske HTML-knapper og SVG i en fælles transformeret world. Et rasteriseret `<canvas>` bruges ikke, fordi skarphed, keyboardfokus og stabil aflæsning skal bevares.
 - En talent-node bruger samme face-størrelse, hårde outline og fysiske dybde som player dice. Talent dice er cyan/neutral XP-magi og må ikke ligne en Attack-, Shield- eller Heal Die.
 - Canvaset kan zoomes fra 65% til 140%. Mobil bruger pinch eller `− / +`; desktop kan desuden bruge Ctrl/Cmd + wheel. Zoom skal bevare punktet under pinch/cursor eller viewportens centrum som anker.
-- Nodes viser ikon, rank og en kort state-markør. Købte nodes er massivt cyan-udfyldte med checkmark og `Owned/Max`; købsklare nodes er lyse outline-nodes med `Buy`; åbne men for dyre nodes viser `Open`; låste nodes er mørke og bærer låseikon.
+- Canvas-noder viser kun ikon og eventuelle rank-pips. De må ikke bære små tekst-tags som `Owned`, `Max`, `Buy` eller `Open`: købte nodes er massivt cyan-udfyldte med checkmark, købsklare nodes bruger lys outline og puls, åbne men for dyre nodes bruger en dæmpet teal-outline uden puls, og låste nodes er mørke med låseikon. Den fulde tekststatus vises i node-popup'en.
 - Et nodeklik åbner et stort, centreret modal-overlay over en mørk scrim. Overlayet viser navn, tydelig status, læsbar beskrivelse, rank, effekter og købsknap i væsentligt større typografi end canvas-labels. Det lukkes med X, Escape eller klik på scrim.
 - Træet viser højst ét fremtidigt lag som svage, ikke-interaktive silhuetter. Silhuetter viser intet navn, ikon eller pris, og dybere nodes renderes slet ikke.
 - Battle-Hardeneds tre ranks vises som tre små markører på samme die. Rank 1 åbner Twin Arsenal; rank 2 og 3 forbliver valgfrie.

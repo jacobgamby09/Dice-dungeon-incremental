@@ -34,13 +34,6 @@ const STATE_LABELS: Record<Exclude<TalentNodeState, 'silhouette'>, string> = {
   unaffordable: 'Unlocked, not enough XP',
 }
 
-const NODE_TAGS: Partial<Record<Exclude<TalentNodeState, 'silhouette'>, string>> = {
-  active: 'Owned',
-  maxed: 'Max',
-  ready: 'Buy',
-  unaffordable: 'Open',
-}
-
 export function TalentNode({
   disabled = false,
   isActivating = false,
@@ -157,14 +150,6 @@ export function TalentNode({
         )}
       </motion.span>
 
-      {NODE_TAGS[state] && (
-        <span
-          aria-hidden="true"
-          className={`talent-canvas-node__state-tag talent-canvas-node__state-tag--${state}`}
-        >
-          {NODE_TAGS[state]}
-        </span>
-      )}
     </motion.button>
   )
 }

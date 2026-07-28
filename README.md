@@ -42,7 +42,7 @@ Hubben har to bevidst totrins-beskyttede developer-handlinger:
 
 Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres, før Dungeon 2 startes.
 
-Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + wheel. Et nodeklik åbner et stort detail-overlay; købte, åbne, købsklare og låste nodes har hver sin tydelige visuelle state.
+Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + wheel. Et nodeklik åbner et stort detail-overlay; købte, åbne, købsklare og låste nodes aflæses gennem fyldning, checkmark, rank-pips, outline og puls uden små status-tags på canvas.
 
 ## Fastlåste designregler
 

@@ -41,7 +41,7 @@ Brug denne skabelon:
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, kompakt Victory/Boss Victory og descent-resumé ved Defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
-- XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, 65–140% pinch/knap/Ctrl-wheel-zoom, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, stort modal-overlay, tydelige `Owned/Max/Buy/Open/Locked`-states, fog-silhuetter og chain-reaction reveals.
+- XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, 65–140% pinch/knap/Ctrl-wheel-zoom, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, stort modal-overlay, tekstfri canvas-states gennem fyldning/checkmark/rank-pips/outline/puls/lås, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
 - Talentforløbet giver derefter slot 2 og en unik Striker Die. Auto Combat åbner direkte efter Twin Arsenal; senere følger Shield, tre samtidige grene, Heal, fire slots og Quick Draw.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
@@ -72,7 +72,7 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Verificér Talent Tree-pinch, modalens læsbarhed og state-kontrast på en fysisk iPhone ved både 320 px og 384 px.
+1. Verificér Talent Tree-pinch, modalens læsbarhed og de tekstfri node-states på en fysisk iPhone ved både 320 px og 384 px.
 2. Fresh-save-playtest hvor ofte Chaos Forge opleves spændende frem for tilfældig, og om Precision-premium er en reel safety valve frem for et ikke-valg.
 3. Verificér de tre evolution-identiteter og deres landingseffekter på en fysisk 384 px-telefon, og sammenlign derefter rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2.
 4. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
@@ -139,6 +139,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Rene tekstfri Talent Tree-noder
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: De små `Owned`, `Max`, `Buy` og `Open`-tags er fjernet helt fra Talent Tree-canvas. Købte nodes aflæses nu gennem cyan fyldning og checkmark, gentagelige talents gennem rank-pips, købsklare nodes gennem lys outline/puls, åbne men for dyre nodes gennem dæmpet outline og låste nodes gennem mørk flade/låseikon.
+- Beslutninger: Canvas skal kommunikere state gennem form, kontrast og symboler, aldrig gennem mikrotekst. Den fulde tekststatus bevares i aria-labels og det store node-overlay.
+- Berørte områder: TalentNode, spatial canvas-styles, præsentationstests, GDD, DESIGN, README og progress-log.
+- Validering: Målrettet TypeScript, Talent Tree-præsentationstest, ESLint og `git diff --check` består. Lokal browser ved 100% zoom verificerer fresh 88-XP-state, fog-silhuet, købsklar node, stort status-overlay samt Battle-Hardened rank 1 med checkmark og 1/3 rank-pips i en 384 px bred game-shell uden horisontal overflow.
+- Kendte mangler: Den endelige kontrast skal stadig godkendes på en fysisk iPhone ved 320 px og 384 px.
+- Git: Ikke committed.
 
 ### 2026-07-28 — Tydelige evolution hero-faces
 
