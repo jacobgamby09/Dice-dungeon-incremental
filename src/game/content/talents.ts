@@ -11,6 +11,8 @@ export const TALENT_IDS = {
   healingArts: 'healing-arts',
   autoCombat: 'auto-roll',
   fourthGrip: 'fourth-grip',
+  executionerDoctrine: 'executioner-doctrine',
+  towerDiscipline: 'tower-discipline',
 } as const
 
 export const TALENTS: TalentDefinition[] = [
@@ -142,6 +144,30 @@ export const TALENTS: TalentDefinition[] = [
       effects: [{ type: 'dice_slots', amount: 1 }],
     }],
     track: 'arsenal',
+  },
+  {
+    id: TALENT_IDS.executionerDoctrine,
+    name: 'Executioner Doctrine',
+    description: 'Receive the permanent high-variance Executioner Die.',
+    iconKey: 'executioner-die',
+    prerequisiteIds: [TALENT_IDS.secondDescent],
+    ranks: [{
+      cost: 45,
+      effects: [{ type: 'grant_die', dieId: 'attack-die-executioner' }],
+    }],
+    track: 'arsenal',
+  },
+  {
+    id: TALENT_IDS.towerDiscipline,
+    name: 'Tower Discipline',
+    description: 'Receive the permanent high-variance Tower Die.',
+    iconKey: 'tower-die',
+    prerequisiteIds: [TALENT_IDS.secondDescent],
+    ranks: [{
+      cost: 45,
+      effects: [{ type: 'grant_die', dieId: 'shield-die-tower' }],
+    }],
+    track: 'survival',
   },
 ]
 

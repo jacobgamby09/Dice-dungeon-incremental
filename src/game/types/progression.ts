@@ -15,6 +15,8 @@ export const TALENT_ICON_KEYS = [
   'healing-arts',
   'auto-roll',
   'fourth-grip',
+  'executioner-die',
+  'tower-die',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 

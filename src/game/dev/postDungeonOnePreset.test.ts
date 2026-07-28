@@ -56,8 +56,15 @@ describe('post-Dungeon-1 developer preset', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
     const catalog = createDiceCatalog()
 
-    expect(profile.diceCollection).toHaveLength(POST_DUNGEON_ONE_DEV_PRESET.diceCount)
-    expect(profile.equippedDieIds).toEqual(profile.diceCollection.map((die) => die.id))
+    expect(profile.diceCollection).toHaveLength(POST_DUNGEON_ONE_DEV_PRESET.collectionCount)
+    expect(profile.equippedDieIds).toHaveLength(POST_DUNGEON_ONE_DEV_PRESET.equippedCount)
+    expect(profile.diceCollection.length).toBeGreaterThan(profile.equippedDieIds.length)
+    expect(profile.equippedDieIds).toEqual([
+      'attack-die-executioner',
+      'attack-die-1',
+      'shield-die-1',
+      'heal-die-1',
+    ])
     expect(new Set(profile.diceCollection.map((die) => die.family))).toEqual(
       new Set(['attack', 'shield', 'heal']),
     )
@@ -68,9 +75,13 @@ describe('post-Dungeon-1 developer preset', () => {
         original.faces.map((face) => face.id),
       )
       expect(die.faces.every(
-        (face) => face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
+        (face) => face.evolution
+          || face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
       )).toBe(true)
     }
+    expect(profile.diceCollection.flatMap((die) => die.faces)
+      .filter((face) => face.evolution)
+      .map((face) => face.evolution?.id)).toEqual(['power', 'momentum', 'rend'])
   })
 
   it('keeps the displayed XP and Soul spend derived from actual content costs', () => {
@@ -84,13 +95,19 @@ describe('post-Dungeon-1 developer preset', () => {
     const soulsSpent = profile.diceCollection.reduce((total, die) => {
       const original = originalDice.find((candidate) => candidate.id === die.id)!
       return total + die.faces.reduce((dieTotal, face, faceIndex) => {
+        const targetBaseValue = face.evolution
+          ? POST_DUNGEON_ONE_DEV_PRESET.faceMinimum
+          : face.value
         let faceTotal = 0
         for (
           let value = original.faces[faceIndex].value;
-          value < face.value;
+          value < targetBaseValue;
           value += 1
         ) {
           faceTotal += getFaceUpgradeCost(value) ?? 0
+        }
+        if (face.evolution) {
+          faceTotal += (getFaceUpgradeCost(POST_DUNGEON_ONE_DEV_PRESET.faceMinimum) ?? 0) * 2
         }
         return dieTotal + faceTotal
       }, 0)

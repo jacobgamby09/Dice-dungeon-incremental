@@ -38,11 +38,27 @@ const VITALITY_DIE: DieInstance = {
   faces: createFaces('heal-die-1', 'heal', [1, 1, 1, 1, 2, 2]),
 }
 
+const EXECUTIONER_DIE: DieInstance = {
+  id: 'attack-die-executioner',
+  name: 'Executioner Die',
+  family: 'attack',
+  faces: createFaces('attack-die-executioner', 'attack', [1, 1, 1, 3, 3, 3]),
+}
+
+const TOWER_DIE: DieInstance = {
+  id: 'shield-die-tower',
+  name: 'Tower Die',
+  family: 'shield',
+  faces: createFaces('shield-die-tower', 'shield', [1, 1, 1, 1, 3, 4]),
+}
+
 const DICE_CATALOG: DieInstance[] = [
   WORN_BLADE_DIE,
   STRIKER_DIE,
   IRON_GUARD_DIE,
   VITALITY_DIE,
+  EXECUTIONER_DIE,
+  TOWER_DIE,
 ]
 
 export function createDiceCatalog(): DieInstance[] {

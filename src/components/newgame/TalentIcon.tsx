@@ -6,7 +6,9 @@ import {
   HeartPulse,
   Layers3,
   Map,
+  Skull,
   Shield,
+  ShieldCheck,
   ShieldPlus,
   Zap,
 } from 'lucide-react'
@@ -24,6 +26,8 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'healing-arts': Cross,
   'auto-roll': Bot,
   'fourth-grip': Layers3,
+  'executioner-die': Skull,
+  'tower-die': ShieldCheck,
 }
 
 interface TalentIconProps {

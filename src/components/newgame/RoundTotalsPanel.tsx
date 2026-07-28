@@ -4,15 +4,21 @@ import { motion } from 'framer-motion'
 import { Droplets } from 'lucide-react'
 import type { RoundTotals } from '../../game/types/combat'
 import type { FaceType, RollResult } from '../../game/types/dice'
+import { EvolutionIcon } from './EvolutionIcon'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 
 interface RoundTotalsPanelProps {
+  pendingMomentum?: number
   results: readonly RollResult[]
   totals: RoundTotals
 }
 
-export const RoundTotalsPanel = memo(function RoundTotalsPanel({ results, totals }: RoundTotalsPanelProps) {
+export const RoundTotalsPanel = memo(function RoundTotalsPanel({
+  pendingMomentum = 0,
+  results,
+  totals,
+}: RoundTotalsPanelProps) {
   const railElement = useRef<HTMLElement | null>(null)
   const revealedTypes = results.reduce<FaceType[]>((types, result) => (
     types.includes(result.type) ? types : [...types, result.type]
@@ -81,6 +87,20 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({ results, totals
           <Droplets aria-hidden="true" size={20} />
           <strong>{totals.bleed}</strong>
           <span className="round-total__label">Bleed</span>
+        </motion.div>
+      ) : null}
+      {pendingMomentum > 0 ? (
+        <motion.div
+          aria-label={`Momentum charged. Next die gains ${pendingMomentum}.`}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          className="round-total round-total--momentum"
+          initial={{ opacity: 0, scale: 0.72, x: -8 }}
+          key={`momentum-${pendingMomentum}`}
+          role="status"
+        >
+          <EvolutionIcon evolutionId="momentum" size={20} />
+          <strong>+{pendingMomentum}</strong>
+          <span className="round-total__label">Next die</span>
         </motion.div>
       ) : null}
     </section>

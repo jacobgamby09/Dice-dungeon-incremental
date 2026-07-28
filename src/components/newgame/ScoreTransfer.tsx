@@ -8,7 +8,10 @@ import { FACE_META } from './faceVisuals'
 import { EVOLUTION_VISUALS } from './evolutionVisuals'
 
 export interface ScoreTransferPath {
+  bleedValue?: number
   faceId: string
+  momentumArmed?: number
+  momentumBonus?: number
   type: FaceType
   value: number
   evolution?: FaceEvolution
@@ -26,6 +29,11 @@ interface ScoreTransferProps {
 
 export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: ScoreTransferProps) {
   const evolutionVisual = path.evolution ? EVOLUTION_VISUALS[path.evolution.id] : null
+  const effectLabels = [
+    path.momentumBonus ? `Momentum +${path.momentumBonus}` : null,
+    path.bleedValue ? `+${path.bleedValue} Bleed` : null,
+    path.momentumArmed ? `Next +${path.momentumArmed}` : null,
+  ].filter((label): label is string => label !== null)
   const scoreStyle = {
     '--score-color': evolutionVisual?.accent ?? FACE_META[path.type].color,
     '--score-dark': evolutionVisual?.surface ?? FACE_META[path.type].shadow,
@@ -62,6 +70,11 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
           : <FaceIcon type={path.type} size={20} />}
         <strong>+{path.value}</strong>
         {path.evolution ? <small>{path.evolution.name}</small> : null}
+        {effectLabels.length > 0 ? (
+          <span className="score-transfer__effects">
+            {effectLabels.join(' · ')}
+          </span>
+        ) : null}
         <span className="score-transfer__spark score-transfer__spark--one" />
         <span className="score-transfer__spark score-transfer__spark--two" />
         <span className="score-transfer__spark score-transfer__spark--three" />

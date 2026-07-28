@@ -4,6 +4,7 @@ import { createDieById } from '../../game/content/dice'
 import type { AttackEvolutionId, RollResult } from '../../game/types/dice'
 import { DieSummary } from './DieSummary'
 import { RollDieTile } from './RollDieTile'
+import { RoundTotalsPanel } from './RoundTotalsPanel'
 import { ScoreTransfer } from './ScoreTransfer'
 
 const EVOLUTIONS = [
@@ -66,9 +67,12 @@ describe('evolution face visuals', () => {
         path={{
           duration: 0.4,
           evolution: { id: 'momentum', name: 'Momentum' },
+          bleedValue: 2,
           faceId: 'attack-die-1-face-2',
           fromX: 100,
           fromY: 300,
+          momentumArmed: 2,
+          momentumBonus: 2,
           toX: 60,
           toY: 150,
           type: 'attack',
@@ -81,5 +85,31 @@ describe('evolution face visuals', () => {
     expect(markup).toContain('score-transfer-origin--momentum')
     expect(markup).toContain('data-evolution-icon="momentum"')
     expect(markup).toContain('Momentum')
+    expect(markup).toContain('Momentum +2')
+    expect(markup).toContain('+2 Bleed')
+    expect(markup).toContain('Next +2')
+  })
+
+  it('keeps an armed Momentum bonus visible between rolls', () => {
+    const result: RollResult = {
+      dieId: 'attack-die-1',
+      dieName: 'Worn Blade Die',
+      evolution: { id: 'momentum', name: 'Momentum' },
+      faceId: 'attack-die-1-face-2',
+      faceIndex: 1,
+      type: 'attack',
+      value: 3,
+    }
+    const markup = renderToStaticMarkup(
+      <RoundTotalsPanel
+        pendingMomentum={2}
+        results={[result]}
+        totals={{ attack: 3, bleed: 0, heal: 0, shield: 0 }}
+      />,
+    )
+
+    expect(markup).toContain('Momentum charged. Next die gains 2.')
+    expect(markup).toContain('round-total--momentum')
+    expect(markup).toContain('Next die')
   })
 })
