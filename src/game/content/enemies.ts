@@ -254,6 +254,7 @@ export function createEnemyState(
     hp: encounter.maxHp,
     maxHp: encounter.maxHp,
     shield: totalEnemyRolls(intentRolls).shield,
+    bleed: 0,
     dieIds: [...encounter.dieIds],
     intentRolls,
     xpReward: encounter.xpReward,

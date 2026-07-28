@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import type { DieInstance } from '../../game/types/dice'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
+import { EvolutionIcon } from './EvolutionIcon'
 
 interface DieSummaryProps {
   die: DieInstance
@@ -27,7 +28,9 @@ export const DieSummary = memo(function DieSummary({ die, compact = false }: Die
             style={{ '--face-color': FACE_META[face.type].color, color: meta.color } as CSSProperties}
           >
             <strong>{face.value}</strong>
-            <FaceIcon type={face.type} size={compact ? 10 : 12} />
+            {face.evolution
+              ? <EvolutionIcon evolutionId={face.evolution.id} size={compact ? 10 : 12} />
+              : <FaceIcon type={face.type} size={compact ? 10 : 12} />}
           </span>
         ))}
       </div>

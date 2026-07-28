@@ -12,7 +12,7 @@ import {
 function createBaseProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 10,
+    saveVersion: 11,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {},
@@ -23,6 +23,7 @@ function createBaseProfile(): PlayerProfile {
     },
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
+    recentForgeOperationIds: [],
     settings: {
       rollSpeed: 1,
       autoCombat: false,

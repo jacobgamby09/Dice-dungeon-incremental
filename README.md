@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental
 
-Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og permanente Souls; XP åbner nye muligheder, mens Souls opgraderer én konkret face på én konkret terning.
+Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og permanente Souls; XP åbner nye muligheder, mens Souls former konkrete dice gennem en billig tilfældig Chaos Forge eller en dyr præcis Forge.
 
 Den nuværende milepæl rummer to fulde incremental dungeons: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run. Dungeon 1 lærer det basale Attack-loop; Dungeon 2 introducerer enemies med Attack + Shield og en Spiked Behemoth-boss med Attack + Shield + Heal.
 
@@ -54,6 +54,8 @@ Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres
 - Spillede dice genkendes på face-farve og ikon frem for ydre typekort.
 - XP er permanent og mistes aldrig.
 - Hvert mob giver et fast permanent Soul-drop; Souls mistes aldrig og bruges i Workshop.
+- Workshop tilbyder controlled RNG: Chaos Forge forbedrer en tilfældig eligible face billigere, mens Precision Forge vælger den konkrete face til en premium.
+- Attack-faces kan udvikles fra værdi 3 til Power, Momentum eller Rend; evolutionens identitet følger face-ID'et permanent og virker i manuel, automatisk og suspenderet combat.
 - Der findes ingen Gold, Coins eller Materials.
 - HP fortsætter mellem encounters i samme run.
 - Shield gælder kun den aktuelle rundes resolution.

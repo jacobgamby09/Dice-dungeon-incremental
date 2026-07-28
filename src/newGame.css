@@ -2159,6 +2159,161 @@
 .workshop-screen .workshop-face small { position: absolute; top: 6px; left: 7px; color: #77738a; font-size: 0.46rem; text-transform: uppercase; }
 .workshop-screen .workshop-face strong { color: #fff; font-size: 1.35rem; text-shadow: 2px 2px 0 #030308; }
 .workshop-screen .workshop-face[aria-pressed="true"] { border-color: var(--face-color); box-shadow: 0 7px 0 #030308, 0 0 14px color-mix(in srgb, var(--face-color) 46%, transparent), inset 0 3px 0 color-mix(in srgb, var(--face-color) 42%, transparent); transform: translateY(-4px); }
+.workshop-screen .workshop-face em {
+  position: absolute;
+  right: 5px;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #f0abfc;
+  font-size: 0.42rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.enemy-bleed {
+  margin-left: auto;
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #fb7185;
+  font-weight: 900;
+}
+
+.workshop-screen .workshop-face--ready {
+  animation: evolution-ready-pulse 1.15s steps(4, end) infinite;
+}
+
+.forge-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.forge-mode-switch button {
+  min-height: 66px;
+  border: 3px solid #030308;
+  border-bottom-width: 5px;
+  background: #171522;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 23px 1fr;
+  align-items: center;
+  gap: 6px;
+  color: #77738b;
+  text-align: left;
+}
+
+.forge-mode-switch button[aria-pressed="true"] {
+  border-bottom-color: #f97316;
+  background: #2b1a19;
+  color: #fb923c;
+  box-shadow: inset 0 2px 0 #7c2d12;
+}
+
+.forge-mode-switch span { display: grid; gap: 3px; }
+.forge-mode-switch strong { color: #fff7ed; font-size: 0.57rem; text-transform: uppercase; }
+.forge-mode-switch small { color: #8e899b; font-size: 0.43rem; line-height: 1.25; }
+
+.evolution-panel {
+  margin-top: 17px;
+  border: 3px solid #030308;
+  background: #160d20;
+  box-shadow: 0 7px 0 #030308, inset 0 3px 0 #6b217b;
+  padding: 11px;
+}
+
+.evolution-panel > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e879f9;
+}
+
+.evolution-panel h3 {
+  margin: 2px 0 0;
+  color: #fff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.evolution-panel > p {
+  margin: 8px 0 10px;
+  color: #aaa5b9;
+  font-size: 0.52rem;
+  line-height: 1.45;
+}
+
+.evolution-choices { display: grid; gap: 7px; }
+
+.evolution-choices button {
+  min-height: 60px;
+  border: 3px solid #030308;
+  border-left-color: #d946ef;
+  background: #21132b;
+  padding: 8px 9px;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 8px;
+  color: #f0abfc;
+  text-align: left;
+}
+
+.evolution-choices button:active { transform: translateY(2px); }
+.evolution-choices button[aria-pressed="true"] {
+  border-color: #e879f9;
+  background: #35133f;
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.34);
+}
+.evolution-choices span { display: grid; gap: 3px; }
+.evolution-choices strong { color: #fff; font-size: 0.63rem; text-transform: uppercase; }
+.evolution-choices small { color: #b7afc3; font-size: 0.49rem; line-height: 1.35; }
+
+.evolution-confirm {
+  margin-top: 9px;
+  border-top: 2px solid #3b2444;
+  padding-top: 9px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.evolution-confirm span { color: #e9d5ff; font-size: 0.49rem; line-height: 1.35; }
+
+.evolution-confirm button {
+  min-height: 32px;
+  border: 2px solid #030308;
+  background: #292333;
+  padding: 5px 7px;
+  color: #d8d2e2;
+  font-size: 0.47rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.evolution-confirm button:last-child { background: #7e22ce; color: #fff; }
+
+.roll-die__evolution {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  color: #f0abfc;
+  font-size: 0.42rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.round-total--bleed {
+  border-color: #4c0519;
+}
 
 .forge-anvil {
   --forge-color: #f87171;
@@ -3339,6 +3494,46 @@
 @keyframes forge-glow {
   0%, 100% { opacity: 0.72; transform: scaleX(0.96); }
   50% { opacity: 1; transform: scaleX(1.04); }
+}
+
+.forge-chaos-result {
+  margin-top: 12px;
+  border: 3px solid #030308;
+  background: #7c2d12;
+  box-shadow: 4px 5px 0 #030308, inset 0 3px 0 #fb923c;
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #fdba74;
+}
+
+.forge-chaos-result > span {
+  width: 39px;
+  height: 39px;
+  border: 2px solid #030308;
+  background: rgba(0, 0, 0, 0.22);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  place-items: center;
+  padding: 4px;
+}
+
+.forge-chaos-result > span strong {
+  color: #fff;
+  font-size: 0.9rem;
+  text-shadow: 2px 2px 0 #030308;
+}
+
+.forge-chaos-result > div { display: grid; gap: 3px; }
+.forge-chaos-result small { color: #fed7aa; font-size: 0.43rem; font-weight: 900; text-transform: uppercase; }
+.forge-chaos-result > div strong { color: #fff; font-size: 0.58rem; text-transform: uppercase; }
+.forge-chaos-result--shield { background: #1e3a8a; box-shadow: 4px 5px 0 #030308, inset 0 3px 0 #60a5fa; color: #93c5fd; }
+.forge-chaos-result--heal { background: #14532d; box-shadow: 4px 5px 0 #030308, inset 0 3px 0 #4ade80; color: #86efac; }
+
+@keyframes evolution-ready-pulse {
+  0%, 100% { box-shadow: 0 5px 0 #030308, inset 0 3px 0 rgba(232, 121, 249, 0.22); }
+  50% { box-shadow: 0 5px 0 #030308, 0 0 15px rgba(232, 121, 249, 0.55), inset 0 3px 0 rgba(232, 121, 249, 0.5); }
 }
 
 @media (max-width: 340px) {

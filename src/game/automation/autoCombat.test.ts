@@ -13,7 +13,7 @@ import {
 
 function createProfile(): PlayerProfile {
   return {
-    saveVersion: 10,
+    saveVersion: 11,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {
@@ -26,6 +26,7 @@ function createProfile(): PlayerProfile {
     },
     diceCollection: createStartingDice(),
     equippedDieIds: ['attack-die-1'],
+    recentForgeOperationIds: [],
     settings: {
       rollSpeed: 1,
       autoCombat: true,

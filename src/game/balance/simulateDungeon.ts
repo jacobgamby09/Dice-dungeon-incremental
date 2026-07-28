@@ -1,4 +1,4 @@
-import { addRollToTotals, rollDie } from '../combat/rollDie'
+import { addRollEffects, rollDie } from '../combat/rollDie'
 import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
 import { DUNGEONS } from '../content/dungeons'
@@ -64,8 +64,16 @@ export function simulateDungeonRun(
 
     for (let round = 0; round < 100; round += 1) {
       let totals = { ...EMPTY_TOTALS }
-      for (const die of build.dice) {
-        totals = addRollToTotals(totals, rollDie(die, random))
+      let pendingMomentum = 0
+      for (const [index, die] of build.dice.entries()) {
+        const effects = addRollEffects(
+          totals,
+          pendingMomentum,
+          rollDie(die, random),
+          index === build.dice.length - 1,
+        )
+        totals = effects.totals
+        pendingMomentum = effects.pendingMomentum
       }
 
       roundsPlayed += 1
@@ -76,6 +84,7 @@ export function simulateDungeonRun(
         enemyHp: enemy.hp,
         enemyMaxHp: enemy.maxHp,
         enemyShield: enemy.shield,
+        enemyBleed: enemy.bleed,
         enemyIntent: totalEnemyRolls(enemy.intentRolls),
         totals,
       })
@@ -84,6 +93,7 @@ export function simulateDungeonRun(
         ...enemy,
         hp: resolution.enemyHp,
         shield: resolution.enemyShield,
+        bleed: resolution.enemyBleed,
       }
 
       if (resolution.outcome === 'victory') {

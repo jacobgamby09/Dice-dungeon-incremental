@@ -9,8 +9,8 @@ describe('resolveRound', () => {
       enemyHp: 12,
       enemyMaxHp: 12,
       enemyShield: 0,
-      enemyIntent: { attack: 6, shield: 0, heal: 0 },
-      totals: { attack: 5, shield: 2, heal: 1 },
+      enemyIntent: { attack: 6, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 5, shield: 2, heal: 1, bleed: 0 },
     })
 
     expect(result.outcome).toBe('ongoing')
@@ -29,8 +29,8 @@ describe('resolveRound', () => {
       enemyHp: 20,
       enemyMaxHp: 20,
       enemyShield: 0,
-      enemyIntent: { attack: 0, shield: 0, heal: 0 },
-      totals: { attack: 1, shield: 0, heal: 5 },
+      enemyIntent: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 1, shield: 0, heal: 5, bleed: 0 },
     })
 
     expect(result.healedPlayerHp).toBe(10)
@@ -44,8 +44,8 @@ describe('resolveRound', () => {
       enemyHp: 5,
       enemyMaxHp: 20,
       enemyShield: 0,
-      enemyIntent: { attack: 99, shield: 0, heal: 10 },
-      totals: { attack: 5, shield: 0, heal: 0 },
+      enemyIntent: { attack: 99, shield: 0, heal: 10, bleed: 0 },
+      totals: { attack: 5, shield: 0, heal: 0, bleed: 0 },
     })
 
     expect(result.outcome).toBe('victory')
@@ -62,8 +62,8 @@ describe('resolveRound', () => {
       enemyHp: 10,
       enemyMaxHp: 10,
       enemyShield: 3,
-      enemyIntent: { attack: 0, shield: 3, heal: 0 },
-      totals: { attack: 5, shield: 0, heal: 0 },
+      enemyIntent: { attack: 0, shield: 3, heal: 0, bleed: 0 },
+      totals: { attack: 5, shield: 0, heal: 0, bleed: 0 },
     })
 
     expect(result.attackAbsorbedByEnemyShield).toBe(3)
@@ -79,8 +79,8 @@ describe('resolveRound', () => {
       enemyHp: 8,
       enemyMaxHp: 10,
       enemyShield: 0,
-      enemyIntent: { attack: 2, shield: 0, heal: 5 },
-      totals: { attack: 1, shield: 0, heal: 0 },
+      enemyIntent: { attack: 2, shield: 0, heal: 5, bleed: 0 },
+      totals: { attack: 1, shield: 0, heal: 0, bleed: 0 },
     })
 
     expect(result.enemyHpAfterPlayerPhase).toBe(7)
@@ -96,8 +96,8 @@ describe('resolveRound', () => {
       enemyHp: 2,
       enemyMaxHp: 2,
       enemyShield: 0,
-      enemyIntent: { attack: 10, shield: 0, heal: 0 },
-      totals: { attack: 2, shield: 0, heal: 0 },
+      enemyIntent: { attack: 10, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 2, shield: 0, heal: 0, bleed: 0 },
       playerRecoil: 2,
     })
 
@@ -105,5 +105,51 @@ describe('resolveRound', () => {
     expect(result.playerHp).toBe(0)
     expect(result.outcome).toBe('defeat')
     expect(result.enemyActed).toBe(false)
+  })
+
+  it('delays new Bleed, then ticks it through Shield on the next round', () => {
+    const applied = resolveRound({
+      playerHp: 10,
+      playerMaxHp: 10,
+      enemyHp: 10,
+      enemyMaxHp: 10,
+      enemyShield: 5,
+      enemyIntent: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 2, shield: 0, heal: 0, bleed: 2 },
+    })
+    const ticked = resolveRound({
+      playerHp: 10,
+      playerMaxHp: 10,
+      enemyHp: applied.enemyHp,
+      enemyMaxHp: 10,
+      enemyShield: 5,
+      enemyBleed: applied.enemyBleed,
+      enemyIntent: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+    })
+
+    expect(applied.enemyHp).toBe(10)
+    expect(applied.enemyBleed).toBe(2)
+    expect(ticked.bleedDamageToEnemy).toBe(2)
+    expect(ticked.enemyHp).toBe(8)
+    expect(ticked.enemyShieldAfterPlayerPhase).toBe(5)
+    expect(ticked.enemyBleed).toBe(1)
+  })
+
+  it('cancels enemy intent when an existing Bleed tick is lethal', () => {
+    const result = resolveRound({
+      playerHp: 1,
+      playerMaxHp: 10,
+      enemyHp: 2,
+      enemyMaxHp: 10,
+      enemyShield: 9,
+      enemyBleed: 2,
+      enemyIntent: { attack: 99, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+    })
+
+    expect(result.outcome).toBe('victory')
+    expect(result.enemyActed).toBe(false)
+    expect(result.playerHp).toBe(1)
   })
 })

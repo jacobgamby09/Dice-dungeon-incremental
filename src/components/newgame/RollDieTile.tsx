@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import type { DieInstance, RollResult } from '../../game/types/dice'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
+import { EvolutionIcon } from './EvolutionIcon'
 
 interface RollDieTileProps {
   die: DieInstance
@@ -79,7 +80,9 @@ export const RollDieTile = memo(function RollDieTile({
                 } as CSSProperties}
               >
                 <strong>{face.value}</strong>
-                <FaceIcon type={face.type} size={20} />
+                {face.evolution
+                  ? <EvolutionIcon evolutionId={face.evolution.id} size={20} />
+                  : <FaceIcon type={face.type} size={20} />}
               </span>
             )
           })}
@@ -88,8 +91,11 @@ export const RollDieTile = memo(function RollDieTile({
         <div className="roll-die__body">
           <span className="roll-die__result">
             {result.value}
-            <FaceIcon type={result.type} size={22} />
+            {result.evolution
+              ? <EvolutionIcon evolutionId={result.evolution.id} size={22} />
+              : <FaceIcon type={result.type} size={22} />}
           </span>
+          {result.evolution ? <small className="roll-die__evolution">{result.evolution.name}</small> : null}
         </div>
       )}
     </article>

@@ -19,6 +19,7 @@ export function createCombatState(
     ),
     results: [],
     totals: { ...EMPTY_TOTALS },
+    pendingMomentum: 0,
     lastResolution: null,
     resolutionVersion,
     resolutionStep: null,

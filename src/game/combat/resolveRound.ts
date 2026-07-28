@@ -6,6 +6,7 @@ export interface ResolveRoundInput {
   enemyHp: number
   enemyMaxHp: number
   enemyShield: number
+  enemyBleed?: number
   enemyIntent: RoundTotals
   totals: RoundTotals
   playerRecoil?: number
@@ -15,16 +16,23 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
   const healedPlayerHp = Math.min(input.playerMaxHp, input.playerHp + input.totals.heal)
   const healApplied = healedPlayerHp - input.playerHp
 
+  const existingBleed = Math.max(0, input.enemyBleed ?? 0)
+  const bleedDamageToEnemy = Math.min(input.enemyHp, existingBleed)
+  const enemyHpAfterBleed = Math.max(0, input.enemyHp - bleedDamageToEnemy)
+  const decayedBleed = Math.max(0, existingBleed - 1)
   const attackAbsorbedByEnemyShield = Math.min(input.enemyShield, input.totals.attack)
   const attackDamageToEnemy = Math.min(
-    input.enemyHp,
+    enemyHpAfterBleed,
     Math.max(0, input.totals.attack - attackAbsorbedByEnemyShield),
   )
   const enemyShieldAfterPlayerPhase = Math.max(
     0,
     input.enemyShield - attackAbsorbedByEnemyShield,
   )
-  const enemyHpAfterPlayerPhase = Math.max(0, input.enemyHp - attackDamageToEnemy)
+  const enemyHpAfterPlayerPhase = Math.max(0, enemyHpAfterBleed - attackDamageToEnemy)
+  const enemyBleed = enemyHpAfterPlayerPhase > 0
+    ? decayedBleed + Math.max(0, input.totals.bleed ?? 0)
+    : 0
 
   const recoil = Math.max(0, input.playerRecoil ?? 0)
   const hpAfterRecoil = Math.max(0, healedPlayerHp - recoil)
@@ -40,7 +48,9 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       enemyHpAfterPlayerPhase,
       enemyShield: enemyShieldAfterPlayerPhase,
       enemyShieldAfterPlayerPhase,
+      enemyBleed,
       healApplied,
+      bleedDamageToEnemy,
       enemyHealApplied: 0,
       attackAbsorbedByEnemyShield,
       attackDamageToEnemy,
@@ -61,7 +71,9 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       enemyHpAfterPlayerPhase: 0,
       enemyShield: enemyShieldAfterPlayerPhase,
       enemyShieldAfterPlayerPhase,
+      enemyBleed: 0,
       healApplied,
+      bleedDamageToEnemy,
       enemyHealApplied: 0,
       attackAbsorbedByEnemyShield,
       attackDamageToEnemy,
@@ -91,7 +103,9 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     // Enemy shield is temporary and expires after the enemy phase.
     enemyShield: 0,
     enemyShieldAfterPlayerPhase,
+    enemyBleed,
     healApplied,
+    bleedDamageToEnemy,
     enemyHealApplied,
     attackAbsorbedByEnemyShield,
     attackDamageToEnemy,

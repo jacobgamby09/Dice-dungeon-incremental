@@ -64,5 +64,6 @@ export interface PlayerProfile {
   dungeonProgress: Record<DungeonId, DungeonProgress>
   diceCollection: DieInstance[]
   equippedDieIds: string[]
+  recentForgeOperationIds: string[]
   settings: PlayerSettings
 }

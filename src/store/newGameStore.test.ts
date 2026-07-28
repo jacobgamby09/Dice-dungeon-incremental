@@ -8,14 +8,14 @@ import { getDiceCapacity, getPlayerMaxHp } from '../game/progression/talents'
 import type { NewGameState } from './newGameStore'
 import { useNewGameStore } from './newGameStore'
 
-function prepareResolvedRound(totals: { attack: number; shield: number; heal: number }) {
+function prepareResolvedRound(totals: { attack: number; shield: number; heal: number; bleed?: number }) {
   const state = useNewGameStore.getState()
   useNewGameStore.setState({
     combat: {
       ...state.combat,
       phase: 'awaiting_resolve',
       drawPileDieIds: [],
-      totals,
+      totals: { ...totals, bleed: totals.bleed ?? 0 },
     },
   })
 }
@@ -568,7 +568,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.profile.xp).toBe(33)
       expect(migrated.profile.settings).toEqual({
         rollSpeed: 1,
@@ -704,26 +704,47 @@ describe('new game progression loop', () => {
     expect(useNewGameStore.getState().screen).toBe('hub')
   })
 
-  it('upgrades exactly the selected permanent face and charges its cost', () => {
+  it('precision-forges exactly the selected permanent face and charges its premium', () => {
     const state = useNewGameStore.getState()
     const die = state.profile.diceCollection[0]
     const selectedFace = die.faces[0]
     const untouchedValues = die.faces.slice(1).map((face) => face.value)
     useNewGameStore.setState({
-      profile: { ...state.profile, bankedSouls: 5 },
+      profile: { ...state.profile, bankedSouls: 10 },
     })
 
-    const upgraded = useNewGameStore.getState().upgradeFace(die.id, selectedFace.id)
+    const upgraded = useNewGameStore.getState().precisionForgeFace(
+      die.id,
+      selectedFace.id,
+      'precision-test-1',
+    )
     const profile = useNewGameStore.getState().profile
     const upgradedDie = profile.diceCollection.find((candidate) => candidate.id === die.id)!
 
-    expect(upgraded).toBe(true)
+    expect(upgraded?.cost).toBe(10)
     expect(profile.bankedSouls).toBe(0)
     expect(upgradedDie.faces[0].value).toBe(selectedFace.value + 1)
     expect(upgradedDie.faces.slice(1).map((face) => face.value)).toEqual(untouchedValues)
   })
 
-  it('rejects an upgrade at the base face cap without charging Souls', () => {
+  it('charges a Forge operation id at most once across repeated calls', () => {
+    const state = useNewGameStore.getState()
+    const die = state.profile.diceCollection[0]
+    useNewGameStore.setState({
+      profile: { ...state.profile, bankedSouls: 100 },
+    })
+
+    const first = useNewGameStore.getState().chaosForgeDie(die.id, 'same-forge-op', () => 0)
+    const second = useNewGameStore.getState().chaosForgeDie(die.id, 'same-forge-op', () => 0.99)
+    const profile = useNewGameStore.getState().profile
+
+    expect(first?.cost).toBe(7)
+    expect(second).toBeNull()
+    expect(profile.bankedSouls).toBe(93)
+    expect(profile.recentForgeOperationIds).toEqual(['same-forge-op'])
+  })
+
+  it('rejects precision forging an unavailable face without charging Souls', () => {
     const state = useNewGameStore.getState()
     const die = state.profile.diceCollection[0]
     const cappedFace = die.faces[0]
@@ -741,7 +762,11 @@ describe('new game progression loop', () => {
       profile: { ...state.profile, bankedSouls: 1000, diceCollection: cappedDiceCollection },
     })
 
-    expect(useNewGameStore.getState().upgradeFace(die.id, cappedFace.id)).toBe(false)
+    expect(useNewGameStore.getState().precisionForgeFace(
+      die.id,
+      cappedFace.id,
+      'precision-test-2',
+    )).toBeNull()
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(1000)
     expect(useNewGameStore.getState().profile.diceCollection[0].faces[0].value).toBe(5)
   })
@@ -823,7 +848,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.profile.bankedSouls).toBe(26)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.runStats).toEqual({
@@ -877,7 +902,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.profile.bankedSouls).toBe(12)
       expect(migrated.profile.xp).toBe(18)
       expect(migrated.run.status).toBe('active')
@@ -930,7 +955,7 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
@@ -975,7 +1000,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.profile.talentRanks).toEqual({
         [TALENT_IDS.battleHardenedOne]: 1,
         [TALENT_IDS.twinArsenal]: 1,
@@ -1031,7 +1056,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.enemy?.intentRolls[0]).toMatchObject({
         dieId: 'slime-l1-attack',
@@ -1104,7 +1129,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.profile.xp).toBe(91)
       expect(migrated.profile.bankedSouls).toBe(73)
       expect(migrated.run.status).toBe('active')
@@ -1167,7 +1192,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(10)
+      expect(migrated.profile.saveVersion).toBe(11)
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
       expect(migrated.combat.drawPileDieIds).toEqual([])

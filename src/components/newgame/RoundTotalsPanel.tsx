@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
+import { Droplets } from 'lucide-react'
 import type { RoundTotals } from '../../game/types/combat'
 import type { FaceType, RollResult } from '../../game/types/dice'
 import { FaceIcon } from './FaceIcon'
@@ -65,6 +66,23 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({ results, totals
           <span className="round-total__label">{FACE_META[type].label}</span>
         </motion.div>
       ))}
+      {totals.bleed > 0 ? (
+        <motion.div
+          aria-label={`Bleed applied ${totals.bleed}`}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="round-total round-total--bleed"
+          initial={{ opacity: 0, scale: 0.65, y: 6 }}
+          key={`bleed-${totals.bleed}`}
+          style={{
+            '--total-color': '#fb7185',
+            '--total-surface': '#4c0519',
+          } as CSSProperties}
+        >
+          <Droplets aria-hidden="true" size={20} />
+          <strong>{totals.bleed}</strong>
+          <span className="round-total__label">Bleed</span>
+        </motion.div>
+      ) : null}
     </section>
   )
 })

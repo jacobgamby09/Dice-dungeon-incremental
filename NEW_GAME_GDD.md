@@ -6,7 +6,7 @@ Status: gældende design for det nye spil. Version: MVP 0.7.
 
 Dice Dungeon Incremental er først og fremmest et mobile-first incremental combat-spil. Spilleren begynder med få muligheder og korte dungeon-runs, men opbygger permanent styrke, større systemadgang og gradvist mere automation. Dungeon-dybde er et resultat af spillerens langsigtede progression.
 
-Spillerens terninger er permanente genstande. Hver terning har seks individuelle faces med stabile IDs. Spilleren mærker progressionen direkte ved at opgradere én konkret face og senere se netop den face lande i kamp.
+Spillerens terninger er permanente genstande. Hver terning har seks individuelle faces med stabile IDs. Spilleren mærker progressionen direkte ved at forbedre og udvikle konkrete faces og senere se netop de identiteter lande i kamp.
 
 Hver besejret fjende giver både permanent XP og permanente Souls. Defeat afslutter det aktuelle dungeon-forsøg og nulstiller dybden, men fjerner aldrig allerede optjente rewards.
 
@@ -44,7 +44,7 @@ Hub
 → vind permanent XP og permanente Souls fra hver enemy
 → fortsæt lineært til næste floor eller returnér efter Defeat/boss
 → brug XP på karakter-, system- og content-unlocks
-→ brug Souls på én bestemt face på én eksisterende terning
+→ brug Souls i Chaos Forge eller Precision Forge på én eksisterende terning
 → start et nyt run med større kapacitet og stærkere personlige dice
 → nå dybere, tjene hurtigere og unlock mere automation
 ```
@@ -247,16 +247,28 @@ Et Defeat er derfor ikke et tabt run i incremental forstand. Spilleren mister ku
 
 ## Die Workshop
 
-Spilleren vælger først én permanent terning og derefter én af dens seks konkrete faces. UI viser face-ID, nuværende værdi, næste værdi og pris.
+Spilleren vælger først én permanent terning og derefter en forge-metode:
 
-| Upgrade | Souls |
+- `Chaos Forge` ruller blandt alle eligible faces på den valgte die. Resultatet fastlåses før animationen, og prisen er lavere, mens flere mulige faces er tilbage. Rabatten falder gradvist; med kun én eligible face koster Chaos det samme som Precision.
+- `Precision Forge` lader spilleren vælge præcis `face.id` og koster det dobbelte af den oprindelige numeriske face-pris. Det er den dyre sikkerhedsventil mod uønsket RNG.
+
+| Precision upgrade | Souls |
 |---|---:|
-| 1 → 2 | 5 |
-| 2 → 3 | 10 |
-| 3 → 4 | 40 |
-| 4 → 5 | 100 |
+| 1 → 2 | 10 |
+| 2 → 3 | 20 |
+| Attack 3 → Evolution Ready | 80 |
+| Shield/Heal 3 → 4 | 80 |
+| Shield/Heal 4 → 5 | 200 |
 
-Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres atomisk.
+En Chaos-operation beregnes ud fra den billigste nuværende Precision-opgradering på terningen og får op til 35% rabat ved seks eligible faces. Forge-køb bruger et persisteret operation-ID, så reload, retry eller gentaget event ikke kan betale samme køb to gange.
+
+Attack-faces bliver ikke numerisk fladet ud over 3. Et Attack-face på 3 skal først vækkes til `Evolution Ready`, hvorefter spilleren vælger én gratis, permanent identitet med et separat bekræftelsestrin:
+
+- `Power`: 5 Attack med det samme.
+- `Momentum`: 3 Attack og +2 til den næste rullede face uanset type. Hvis Momentum rulles sidst, bliver bonus i stedet +2 Attack med det samme.
+- `Rend`: 2 Attack og 2 Bleed. Nyt Bleed skader ikke i samme round. Ved starten af næste player resolution giver eksisterende Bleed direkte HP-skade gennem Shield og falder derefter med 1.
+
+Alle tre evolutioner har fem samlet potentiel output, men forskellig timing og funktion: Power er øjeblikkelig, Momentum kan flytte styrke til Shield/Heal, og Rend er forsinket men omgår enemy Shield. Flere faces på samme die må vælge samme evolution; dette skal fortsat balance-playtestes mod blandede builds.
 
 ## Persistence
 
@@ -267,6 +279,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Save version 8 tilføjer idempotente `runStats` for enemies defeated samt XP/Souls optjent i den aktuelle descent. Et kompatibelt version-7-run rekonstruerer statistikken fra sine allerede ryddede floors.
 - Save version 9 introducerer stabile encounter-ID'er, gentagne enemy-levels, 1–3 enemy dice og Dungeon 2. Et aktivt ældre run mappes sikkert via dungeonens floor-index, og eksisterende XP, Souls, talents, dice og faces bevares.
 - Save version 10 erstatter den gamle Auto Roll-setting med Auto Combat, flytter talentet direkte efter Twin Arsenal, refunderer den gamle prisforskel én gang og persisterer automationens checkpoint, tidsbudget og random-seed.
+- Save version 11 tilføjer controlled Forge-operationer, idempotente operation-ID'er, Attack-evolutioner, Momentum-state og enemy Bleed. Eksisterende Attack-faces over 3 migreres til Power uden at miste investeret styrke.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning
@@ -280,7 +293,7 @@ Prototype-cap er 5. Kun den valgte `face.id` ændres, og betalingen udføres ato
 - Et nyt roll-resultat må ikke tælle med i den synlige total, mens terningen ruller. Efter landing flyver face-ikonet og værdien op i scoreområdet; totalen opdateres først ved impact. Samme feedback-system skal genbruges af alle nuværende og fremtidige face-typer.
 - Enemy dice bruger samme Attack-, Shield- og Heal-faces, ikoner og fysiske terningesprog som player dice, men vises i cirka 65–70% størrelse i en kompakt intent-række. 1–3 resultater forbliver synlige, kan hver inspiceres for alle seks faces, pulserer ved deres resolutionstrin og dæmpes som `Cancelled`, hvis fjenden dør.
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
-- Workshop skal føles som et forge-rum: dice-rack, seks fysiske face-fliser, anvil-preview og synlig Souls/impact-feedback, når præcis ét permanent face forbedres.
+- Workshop skal føles som et forge-rum: dice-rack, tydeligt Chaos/Precision-valg, seks fysiske face-fliser, anvil-preview, synlig Souls/impact-feedback og et særskilt evolution-kammer.
 - Enemy sprites fra legacy-projektet kan genbruges, hvis animationens baseline er stabil.
 - Victory skal føles som en kort pixel-game reward-pulse frem for et dashboard: fysisk banner, besejret enemy på en dungeon-platform, tydelige `XP`/`Souls`-drops og én knap videre. Detaljer om næste enemy hører først til på Combat-skærmen.
 - Defeat skal afslutte med et descent-resumé, så spillerens incremental fremgang er synlig uden at forklare, at rewards er “permanent”, “kept” eller “secured”.

@@ -1,5 +1,5 @@
 import { createCombatState } from '../combat/combatState'
-import { addRollToTotals, rollDie } from '../combat/rollDie'
+import { addRollEffects, rollDie } from '../combat/rollDie'
 import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
 import { DUNGEONS } from '../content/dungeons'
@@ -124,6 +124,7 @@ function claimVictory(
         ...enemy,
         hp: resolution.enemyHp,
         shield: resolution.enemyShieldAfterPlayerPhase,
+        bleed: resolution.enemyBleed,
         rewardClaimed: true,
       },
       lastReward: {
@@ -178,6 +179,7 @@ function finishResolvingState(
           ...enemy,
           hp: resolution.enemyHp,
           shield: 0,
+          bleed: resolution.enemyBleed,
         },
       },
       combat: {
@@ -192,6 +194,7 @@ function finishResolvingState(
     ...enemy,
     hp: resolution.enemyHp,
     shield: 0,
+    bleed: resolution.enemyBleed,
   }, random)
   return {
     ...state,
@@ -224,13 +227,21 @@ function completeCurrentRound(
   if (!enemy || !state.run.dungeonId) return state
 
   let totals = { ...state.combat.totals }
+  let pendingMomentum = state.combat.pendingMomentum
   const results = [...state.combat.results]
-  for (const dieId of state.combat.drawPileDieIds) {
+  for (const [index, dieId] of state.combat.drawPileDieIds.entries()) {
     const die = state.run.equippedDiceSnapshot.find((candidate) => candidate.id === dieId)
     if (!die) continue
     const result = rollDie(die, random)
     results.push(result)
-    totals = addRollToTotals(totals, result)
+    const effects = addRollEffects(
+      totals,
+      pendingMomentum,
+      result,
+      index === state.combat.drawPileDieIds.length - 1,
+    )
+    totals = effects.totals
+    pendingMomentum = effects.pendingMomentum
   }
 
   const resolution = resolveRound({
@@ -239,6 +250,7 @@ function completeCurrentRound(
     enemyHp: enemy.hp,
     enemyMaxHp: enemy.maxHp,
     enemyShield: enemy.shield,
+    enemyBleed: enemy.bleed,
     enemyIntent: totalEnemyRolls(enemy.intentRolls),
     totals,
   })
@@ -250,6 +262,7 @@ function completeCurrentRound(
       drawPileDieIds: [],
       results,
       totals,
+      pendingMomentum,
       lastResolution: resolution,
       resolutionVersion: state.combat.resolutionVersion + 1,
       resolutionStep: 'player',
