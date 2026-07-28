@@ -145,7 +145,7 @@ Brug denne skabelon:
 - Berørte områder: Nyt pure Forge-domæne, dice/combat/dungeon/progression-typer, save v11 og migration, manuel/automatisk/background combat, simulator, Workshop/Combat/dice UI, styles, GDD, README og testpakke.
 - Validering: `npx tsc --noEmit`, 19 testfiler med 108 tests, ESLint, production-build og `git diff --check` består. Lokal browser verificerer Soul Forge, 4-dice/all-3-profilet, 52-Soul Chaos-awakening, Evolution Ready-reveal, permanent Rend-confirmation og faldende eligible pool i den 384 px brede game-shell uden error-overlay.
 - Kendte mangler: Den fulde købskurve og all-Power kontra mixed builds skal subjektivt playtestes; ingen respec findes endnu. Expedition Board og nye dice families er bevidst ikke implementeret.
-- Git: Ikke committed.
+- Git: `8999168` — `Add controlled Forge and face evolutions` på `codex/controlled-forge-evolutions`; PR og production-status opdateres efter push/merge.
 
 ### 2026-07-28 — Beskyttet Run Menu og mid-run leave
 
