@@ -236,6 +236,7 @@ export function CombatScreen() {
           faceId: result.faceId,
           type: result.type,
           value: result.value,
+          evolution: result.evolution,
           fromX,
           fromY,
           toX,
@@ -243,7 +244,7 @@ export function CombatScreen() {
           duration: Math.max(0.34, 0.46 / rollSpeed),
         })
         setActiveRoll(null)
-      }, 260 / rollSpeed)
+      }, result.evolution ? Math.max(360, 260 / rollSpeed) : 260 / rollSpeed)
 
       rollTimers.current.push(collectionTimer)
     }, rollDurationMilliseconds)

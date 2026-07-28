@@ -59,6 +59,7 @@ Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + w
 - Hvert mob giver et fast permanent Soul-drop; Souls mistes aldrig og bruges i Workshop.
 - Workshop tilbyder controlled RNG: Chaos Forge forbedrer en tilfældig eligible face billigere, mens Precision Forge vælger den konkrete face til en premium.
 - Attack-faces kan udvikles fra værdi 3 til Power, Momentum eller Rend; evolutionens identitet følger face-ID'et permanent og virker i manuel, automatisk og suspenderet combat.
+- Evolution-faces har konsekvente hero-identiteter på tværs af Workshop, dice summaries, combat og score-transfer: Power bruger et stjerne-burst, Momentum bruger chevrons/fartstriber, og Rend bruger flænsespor.
 - Der findes ingen Gold, Coins eller Materials.
 - HP fortsætter mellem encounters i samme run.
 - Shield gælder kun den aktuelle rundes resolution.

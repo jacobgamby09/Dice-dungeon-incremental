@@ -1,14 +1,17 @@
 import { memo } from 'react'
 import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
-import type { FaceType } from '../../game/types/dice'
+import type { FaceEvolution, FaceType } from '../../game/types/dice'
+import { EvolutionIcon } from './EvolutionIcon'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
+import { EVOLUTION_VISUALS } from './evolutionVisuals'
 
 export interface ScoreTransferPath {
   faceId: string
   type: FaceType
   value: number
+  evolution?: FaceEvolution
   fromX: number
   fromY: number
   toX: number
@@ -22,9 +25,11 @@ interface ScoreTransferProps {
 }
 
 export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: ScoreTransferProps) {
+  const evolutionVisual = path.evolution ? EVOLUTION_VISUALS[path.evolution.id] : null
   const scoreStyle = {
-    '--score-color': FACE_META[path.type].color,
-    '--score-dark': FACE_META[path.type].shadow,
+    '--score-color': evolutionVisual?.accent ?? FACE_META[path.type].color,
+    '--score-dark': evolutionVisual?.surface ?? FACE_META[path.type].shadow,
+    '--score-highlight': evolutionVisual?.highlight ?? '#ffffff',
     left: path.fromX,
     top: path.fromY,
   } as CSSProperties
@@ -32,7 +37,7 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
   return (
     <div
       aria-hidden="true"
-      className={`score-transfer-origin score-transfer-origin--${path.type}`}
+      className={`score-transfer-origin score-transfer-origin--${path.type}${path.evolution ? ` score-transfer-origin--evolution score-transfer-origin--${path.evolution.id}` : ''}`}
       style={scoreStyle}
     >
       <motion.div
@@ -52,8 +57,11 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
           y: { duration: path.duration, ease: 'easeInOut', times: [0, 0.3, 1] },
         }}
       >
-        <FaceIcon type={path.type} size={20} />
+        {path.evolution
+          ? <EvolutionIcon evolutionId={path.evolution.id} size={21} />
+          : <FaceIcon type={path.type} size={20} />}
         <strong>+{path.value}</strong>
+        {path.evolution ? <small>{path.evolution.name}</small> : null}
         <span className="score-transfer__spark score-transfer__spark--one" />
         <span className="score-transfer__spark score-transfer__spark--two" />
         <span className="score-transfer__spark score-transfer__spark--three" />

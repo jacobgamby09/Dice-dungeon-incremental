@@ -270,6 +270,14 @@ Attack-faces bliver ikke numerisk fladet ud over 3. Et Attack-face på 3 skal f�
 
 Alle tre evolutioner har fem samlet potentiel output, men forskellig timing og funktion: Power er øjeblikkelig, Momentum kan flytte styrke til Shield/Heal, og Rend er forsinket men omgår enemy Shield. Flere faces på samme die må vælge samme evolution; dette skal fortsat balance-playtestes mod blandede builds.
 
+Evolutioner skal kunne identificeres på selve face-fladen uden at læse et tooltip. Den visuelle identitet er bindende på tværs af Workshop, dice summaries, den aktive combat-die, draw order og score-transfer:
+
+- `Power` bruger et lyst eksplosions-/stjernemotiv og en hvidgylden accent.
+- `Momentum` bruger tre fremadgående chevrons, fartstriber og en cyan accent.
+- `Rend` bruger tre flænsende spor, en mørk blodrød overflade og en crimson accent.
+
+Farven må ikke stå alene. Hver evolution beholder sin egen silhuet og sit mønster, mens et lille Attack-mærke fastholder, at den stadig bidrager til Attack. Når en evolution lander, får den en kort unik impact-puls og viser evolutionens navn, før værdien flyver til round-totalen. Den efterfølgende settled state skal fortsat være fuldt læsbar uden animation.
+
 ## Persistence
 
 - Save-formatet er versionsstyret.
@@ -291,6 +299,7 @@ Alle tre evolutioner har fem samlet potentiel output, men forskellig timing og f
 - En spillet die genkendes på selve face-fladens farve og det rullede ikon, ikke på en type-label eller omgivende boks.
 - Attack-, Shield- og Heal-totaler er skjult, indtil den pågældende type faktisk bliver rullet. Derefter vises kun ikon og værdi.
 - Et nyt roll-resultat må ikke tælle med i den synlige total, mens terningen ruller. Efter landing flyver face-ikonet og værdien op i scoreområdet; totalen opdateres først ved impact. Samme feedback-system skal genbruges af alle nuværende og fremtidige face-typer.
+- Evolved Attack-faces bryder bevidst den almindelige røde Attack-overflade med deres egen ramme, baggrundsmønster og silhuet. Et lille Attack-mærke bevarer typeaflæsningen, og landing samt score-transfer bruger evolutionens accent og navn.
 - Enemy dice bruger samme Attack-, Shield- og Heal-faces, ikoner og fysiske terningesprog som player dice, men vises i cirka 65–70% størrelse i en kompakt intent-række. 1–3 resultater forbliver synlige, kan hver inspiceres for alle seks faces, pulserer ved deres resolutionstrin og dæmpes som `Cancelled`, hvis fjenden dør.
 - Hub skal føles som spillerens fysiske base: dungeon-port, kompakt permanent resource-HUD, udstyrede dice på en pedestal og tydeligt adskilte ruter til Workshop eller en ny run.
 - Workshop skal føles som et forge-rum: dice-rack, tydeligt Chaos/Precision-valg, seks fysiske face-fliser, anvil-preview, synlig Souls/impact-feedback og et særskilt evolution-kammer.

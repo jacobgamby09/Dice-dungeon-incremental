@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { EvolutionIcon } from '../components/newgame/EvolutionIcon'
+import { getEvolutionVisualStyle } from '../components/newgame/evolutionVisuals'
 import { FaceIcon } from '../components/newgame/FaceIcon'
 import { FACE_META } from '../components/newgame/faceVisuals'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
@@ -165,12 +166,13 @@ export function WorkshopScreen() {
                 <button
                   aria-label={`${face.value} ${FACE_META[face.type].label}, face ${faceIndex + 1}${face.evolution ? `, ${face.evolution.name}` : ''}`}
                   aria-pressed={face.id === selectedFace.id}
-                  className={`workshop-face workshop-face--${face.type}${face.evolutionReady ? ' workshop-face--ready' : ''}`}
+                  className={`workshop-face workshop-face--${face.type}${face.evolutionReady ? ' workshop-face--ready' : ''}${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}`}
                   key={face.id}
                   onClick={() => {
                     setSelectedFaceId(face.id)
                     setPendingEvolutionId(null)
                   }}
+                  style={face.evolution ? getEvolutionVisualStyle(face.evolution.id) : undefined}
                   type="button"
                 >
                   <small>Face {faceIndex + 1}</small>
@@ -185,6 +187,7 @@ export function WorkshopScreen() {
                     ? <EvolutionIcon evolutionId={face.evolution.id} size={18} />
                     : <FaceIcon type={face.type} size={18} />}
                   {face.evolutionReady ? <em><Sparkles size={11} /> Evolve</em> : null}
+                  {face.evolution ? <em className="workshop-face__evolution-name">{face.evolution.name}</em> : null}
                   {!isEligible && !face.evolutionReady && !face.evolution ? <em>Max</em> : null}
                 </button>
               )
@@ -216,8 +219,10 @@ export function WorkshopScreen() {
                   return (
                     <button
                       aria-pressed={pendingEvolutionId === evolution.id}
+                      className={`evolution-choice evolution-choice--${evolution.id}`}
                       key={evolution.id}
                       onClick={() => setPendingEvolutionId(evolution.id)}
+                      style={getEvolutionVisualStyle(evolution.id)}
                       type="button"
                     >
                       <EvolutionIcon evolutionId={evolution.id} size={21} />
