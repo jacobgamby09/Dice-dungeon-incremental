@@ -154,7 +154,7 @@ Brug denne skabelon:
 - Berørte områder: Permanent dice-catalog, Talent Tree-data/layout/ikoner, pure roll-contribution feedback, Combat/Round Totals/Score Transfer, post-Dungeon-1-devprofil, progression journey-simulator, balance-/store-/UI-tests, README, GDD, DESIGN og progress-log.
 - Validering: TypeScript, 23 testfiler med 129 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384 px verificerer seks ejede dice, fire aktive slots, de to nye Talent Tree-noder, Power/Momentum/Rend i devprofilen, et faktisk Momentum-roll der løfter næste Heal fra 3 til 5 samt ingen horisontal overflow i Hub, Talent Tree, Loadout eller Combat.
 - Kendte mangler: Den subjektive balance mellem de seks dice, første evolution omkring run 2–5 og de to 45-XP-priser skal stadig fysisk playtestes. Journey-simulatoren måler matematik og køb, ikke oplevet tid eller forståelse.
-- Git: Ikke committed endnu; branch `codex/build-diversity-v1`.
+- Git: `f40d901` — `Build first diverse dice loadouts`; branch `codex/build-diversity-v1`, PR oprettes efter push.
 
 ### 2026-07-28 — Rene tekstfri Talent Tree-noder
 
