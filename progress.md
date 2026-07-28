@@ -64,7 +64,7 @@ Brug denne skabelon:
 - Save-formatet er version 10 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary- og automation-progress sammen med aktive runs. Version-9 Auto Roll migreres til Auto Combat med en idempotent 28-XP-refund.
 - En deterministisk simulator og 96 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#25 — Add early Auto Combat and AFK resume](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/25), squash merge `79c3429`.
+- Seneste gameplay-merge i produktion: [#27 — Add protected mid-run menu](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/27), squash merge `28f02ac`.
 
 ## Næste anbefalede skridt
 
@@ -130,7 +130,7 @@ Brug denne skabelon:
 
 ### 2026-07-28 — Beskyttet Run Menu og mid-run leave
 
-**Status:** I gang
+**Status:** Færdig
 **Ansvarlig:** Codex
 
 - Resultat: Combat-headeren har fået en diskret dørknap, som åbner en mobil bottom sheet med Resume Run og en totrinsbeskyttet Leave Dungeon-handling. Menuen pauser live Auto Combat og AFK-fast-forward; et bekræftet leave returnerer atomisk til Hub.
@@ -138,7 +138,7 @@ Brug denne skabelon:
 - Berørte områder: Combat-header, ny Run Menu-komponent, Auto Combat lifecycle, Zustand-store, tests, mobile styles, GDD, README og progress-log.
 - Validering: Begge TypeScript-checks, 18 testfiler med 96 tests, ESLint, production-build og `git diff --check` består. Browseren verificerer hele flowet ved 384 px uden overflow, error-overlay eller console errors: åbning/fokus, Resume, første leave-trin, advarsel, Confirm Leave, Hub-retur med uændrede Souls samt Auto Combat-pause efter det igangværende atomiske roll og korrekt fortsættelse efter Resume.
 - Kendte mangler: Ingen kendte inden for det implementerede scope.
-- Git: Branch `agent/add-mid-run-menu`; commit, PR, merge og deployment afventer.
+- Git: `d8f791b` — `Add protected mid-run menu`; PR [#27](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/27) er squash-merget til `main` som `28f02ac`. Vercel preview `dpl_6VJkf77dDJZYCG5eSWTLo9vp3Zrf` og production-deployment `dpl_7hWamfVLJ9bdwKk3K7cBVm9oEMG5` er `READY`; den friske production-artifact er browser-verificeret ved 384 px med dørknap, fokuseret Resume Run og korrekt pause-dialog uden console errors eller overflow.
 
 ### 2026-07-27 — Tidlig Auto Combat og AFK-resume
 
