@@ -73,7 +73,7 @@ Brug denne skabelon:
 - Save-formatet er version 12 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge-, signatur- og automation-progress sammen med aktive runs. Version-11 Executioner/Tower migreres til de nye canonical signaturfaces uden tab af kompatible normale faces.
 - Den deterministiske balance-suite modellerer nu både enkelte dungeons og en hel progression journey med XP-køb, Soul-forges, evolutioner, loadout-skift, gentagne runs og dungeon-clears. Regressionen holder første face-køb inden run 2, anden die/Auto Combat omkring run 2–5, første evolution omkring run 2–5, Dungeon 1-clear omkring run 7–12 og Dungeon 2-clear senest omkring run 18 for blandede samt rene Power/Momentum/Rend-strategier.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#39 — Build first diverse dice loadouts](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/39), squash merge `9faa30c`.
+- Seneste gameplay-merge i produktion: [#41 — Build dice family architecture](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/41), squash merge `301783f`.
 
 ## Næste anbefalede skridt
 
@@ -165,7 +165,7 @@ Brug denne skabelon:
 - Berørte områder: Dice-/combat-typer, centralt effect-catalog, permanent dice-content, Forge, resolution og automation, save-version 12/migration, simulator, devprofil, Loadout/Talent/Workshop/Combat UI, tests, README, GDD, DESIGN og progress-log.
 - Validering: `npx tsc --noEmit`, 24 testfiler med 142 tests, ESLint og production-build består. Pure combat-, Forge-, migration-, automation-, balance- og UI-tests dækker de ni evolutioner samt Execute/Fortify. Lokal browser ved 384 px verificerer Executioners `2/6`-signatur, alle tre Attack-evolutioner og signatur-readout i Workshop; 320 px verificerer det scrollbare Die Details-overlay og ingen horisontal overflow.
 - Kendte mangler: Den subjektive balance mellem direkte output, utility og 2/6-signaturfrekvens skal stadig gennemspilles på fysisk mobil. Face Mastery II og næste output-band er bevidst ikke implementeret.
-- Git: `ad705e2` — `Build dice family architecture` på `codex/dice-architecture-v1`; PR og production-deployment afventer.
+- Git: `ad705e2` — `Build dice family architecture` og `066e821` — `Record dice architecture validation`; PR [#41](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/41) er squash-merget til `main` som `301783f`. Vercel production-check `BcUww8QJas6jDiuuXxENuUzjVh7S` er `success`; den offentlige URL svarer HTTP 200 med `index-DKtodUqm.js`, `index-B-UMOaGY.css`, 545-Souls-devprofilen og Executioners nye `2/6` Execute-preview.
 
 ### 2026-07-28 — Build Diversity v1
 
