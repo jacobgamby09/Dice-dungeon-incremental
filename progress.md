@@ -66,7 +66,7 @@ Brug denne skabelon:
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
 - En deterministisk simulator og 108 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#27 — Add protected mid-run menu](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/27), squash merge `28f02ac`.
+- Seneste gameplay-merge i produktion: [#29 — Add controlled Forge and face evolutions](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/29), squash merge `c63d7ad`.
 
 ## Næste anbefalede skridt
 
@@ -145,7 +145,7 @@ Brug denne skabelon:
 - Berørte områder: Nyt pure Forge-domæne, dice/combat/dungeon/progression-typer, save v11 og migration, manuel/automatisk/background combat, simulator, Workshop/Combat/dice UI, styles, GDD, README og testpakke.
 - Validering: `npx tsc --noEmit`, 19 testfiler med 108 tests, ESLint, production-build og `git diff --check` består. Lokal browser verificerer Soul Forge, 4-dice/all-3-profilet, 52-Soul Chaos-awakening, Evolution Ready-reveal, permanent Rend-confirmation og faldende eligible pool i den 384 px brede game-shell uden error-overlay.
 - Kendte mangler: Den fulde købskurve og all-Power kontra mixed builds skal subjektivt playtestes; ingen respec findes endnu. Expedition Board og nye dice families er bevidst ikke implementeret.
-- Git: `8999168` — `Add controlled Forge and face evolutions` på `codex/controlled-forge-evolutions`; PR og production-status opdateres efter push/merge.
+- Git: `8999168` — `Add controlled Forge and face evolutions`; PR [#29](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/29) er squash-merget til `main` som `c63d7ad`. Vercel production-deployment `dpl_FcjUMDK9ikw43uNhpShmCpJLLp2g` er `READY`, og den offentlige URL er browser-verificeret med save-v11 migration samt Soul Forge/Chaos/Precision UI.
 
 ### 2026-07-28 — Beskyttet Run Menu og mid-run leave
 
