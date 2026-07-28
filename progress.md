@@ -165,7 +165,7 @@ Brug denne skabelon:
 - Berørte områder: Dice-/combat-typer, centralt effect-catalog, permanent dice-content, Forge, resolution og automation, save-version 12/migration, simulator, devprofil, Loadout/Talent/Workshop/Combat UI, tests, README, GDD, DESIGN og progress-log.
 - Validering: `npx tsc --noEmit`, 24 testfiler med 142 tests, ESLint og production-build består. Pure combat-, Forge-, migration-, automation-, balance- og UI-tests dækker de ni evolutioner samt Execute/Fortify. Lokal browser ved 384 px verificerer Executioners `2/6`-signatur, alle tre Attack-evolutioner og signatur-readout i Workshop; 320 px verificerer det scrollbare Die Details-overlay og ingen horisontal overflow.
 - Kendte mangler: Den subjektive balance mellem direkte output, utility og 2/6-signaturfrekvens skal stadig gennemspilles på fysisk mobil. Face Mastery II og næste output-band er bevidst ikke implementeret.
-- Git: Ikke committed.
+- Git: `ad705e2` — `Build dice family architecture` på `codex/dice-architecture-v1`; PR og production-deployment afventer.
 
 ### 2026-07-28 — Build Diversity v1
 
