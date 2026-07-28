@@ -67,7 +67,7 @@ Brug denne skabelon:
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
 - En deterministisk simulator og 114 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#31 — Add early QoL test start](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/31), squash merge `eaf698c`.
+- Seneste gameplay-merge i produktion: [#33 — Redesign Talent Tree interactions](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/33), squash merge `f98ee86`.
 
 ## Næste anbefalede skridt
 
@@ -147,7 +147,7 @@ Brug denne skabelon:
 - Berørte områder: Talent Tree canvas, zoom-/viewport-matematik, node-præsentation, detail-overlay, mobile styles, tests, GDD, DESIGN, README og progress-log.
 - Validering: `npx tsc --noEmit`, 21 testfiler med 114 tests, ESLint, production-build og `git diff --check` består. Lokal 384 px game-shell-browsertest verificerer 100→85% zoom, stabil recenter ved skala, scroll-reset, stort modal-overlay, disabled baggrundskontroller, større copy/effects/købsknap samt synlige `Owned`, `Max` og `Buy`-states gennem et rigtigt talentkøb og reveal.
 - Kendte mangler: Native pinch skal stadig godkendes på en fysisk iPhone; browserkontrollen verificerer zoomknapper og anker-matematik, men kan ikke konstruere native `PointerEvent` i den tilsluttede runtime.
-- Git: Ikke committed.
+- Git: `9cfcb1a` — `Redesign Talent Tree interactions`; PR [#33](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/33) er squash-merget til `main` som `f98ee86`. Vercel production-deployment `dpl_3xikchDQagpzAhbAU2EyRo6xkq22` er `READY`; den offentlige URL er browser-verificeret med fresh 88-XP-save, 100→85% zoom, Battle-Hardened-modal og disabled baggrundskontroller, og deploymentets error-scan er rent.
 
 ### 2026-07-28 — Fresh QoL-teststart med 88 XP
 
