@@ -11,7 +11,7 @@ import {
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 10,
+    saveVersion: 11,
     xp,
     bankedSouls: 0,
     talentRanks,
@@ -22,6 +22,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     },
     diceCollection: [],
     equippedDieIds: [],
+    recentForgeOperationIds: [],
     settings: { rollSpeed: 1, autoCombat: false },
   }
 }

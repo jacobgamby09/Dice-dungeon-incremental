@@ -61,6 +61,7 @@ export interface EnemyState {
   hp: number
   maxHp: number
   shield: number
+  bleed: number
   dieIds: EnemyDieId[]
   intentRolls: EnemyRollResult[]
   xpReward: number

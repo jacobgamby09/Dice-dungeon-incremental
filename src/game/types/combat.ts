@@ -4,6 +4,7 @@ export interface RoundTotals {
   attack: number
   shield: number
   heal: number
+  bleed: number
 }
 
 export type CombatOutcome = 'ongoing' | 'victory' | 'defeat'
@@ -25,7 +26,9 @@ export interface RoundResolution {
   enemyHpAfterPlayerPhase: number
   enemyShield: number
   enemyShieldAfterPlayerPhase: number
+  enemyBleed: number
   healApplied: number
+  bleedDamageToEnemy: number
   enemyHealApplied: number
   attackAbsorbedByEnemyShield: number
   attackDamageToEnemy: number
@@ -40,6 +43,7 @@ export interface CombatState {
   drawPileDieIds: string[]
   results: RollResult[]
   totals: RoundTotals
+  pendingMomentum: number
   lastResolution: RoundResolution | null
   resolutionVersion: number
   resolutionStep: ResolutionStep
@@ -49,4 +53,5 @@ export const EMPTY_TOTALS: RoundTotals = {
   attack: 0,
   shield: 0,
   heal: 0,
+  bleed: 0,
 }

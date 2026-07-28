@@ -57,27 +57,31 @@ Brug denne skabelon:
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
 - Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
+- Workshop har nu to atomiske Soul-forges: billig Chaos Forge med controlled RNG og faldende rabat samt dyr Precision Forge til en valgt face. Attack-faces vækkes fra værdi 3 og udvikles permanent til Power, Momentum eller Rend.
+- Power giver 5 direkte Attack, Momentum flytter +2 til næste face med Attack-fallback, og Rend giver 2 Attack + 2 forsinket Bleed gennem Shield. Effekterne deles af manuel combat, Auto Combat, background fast-forward og simulatoren.
 - Normal Victory viser kun encounter-reward, totals, HP og dungeon-progress; næste-enemy-data er fjernet. Manuel mode bruger én Continue-knap, mens Auto Combat viser en kort reward-pulse og fortsætter til næste floor med en synlig Pause-handling.
 - Auto Combat automatiserer player-rolls, Resolve Round, næste round og normale floor-transitions. Det stopper ved Defeat og Boss Victory og har endnu ingen Auto Retry.
 - Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
 - Combat-headeren har en diskret Run Menu før floor-informationen. Menuen pauser live- og background-Auto Combat; et totrinsbekræftet leave returnerer til Hub med XP, Souls og permanent progression intakt.
-- Save-formatet er version 10 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary- og automation-progress sammen med aktive runs. Version-9 Auto Roll migreres til Auto Combat med en idempotent 28-XP-refund.
-- En deterministisk simulator og 96 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
+- En deterministisk simulator og 108 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#27 — Add protected mid-run menu](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/27), squash merge `28f02ac`.
 
 ## Næste anbefalede skridt
 
-1. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
-2. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
-3. Fresh-save-playtest, om Auto Combat til 12 XP efter Twin Arsenal rammes naturligt efter cirka 3–5 kills uden at gøre den manuelle onboarding for kort.
-4. Verificér background-resume efter telefonlås og app/browser-suspension på iOS og Android; den lokale browser-test dækker navigation væk og tilbage, men ikke alle mobile lifecycle-varianter.
-5. Beslut hvilken mechanic og hvilke genbrugte archetypes Dungeon 3 skal introducere; Marrow Bat er bevidst reserveret til senere content.
+1. Fresh-save-playtest hvor ofte Chaos Forge opleves spændende frem for tilfældig, og om Precision-premium er en reel safety valve frem for et ikke-valg.
+2. Sammenlign rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2; retune evolution-output, hvis all-Power bliver den dominerende løsning.
+3. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
+4. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
+5. Brainstorm Expedition Board videre uden at implementere det, og afvent stadig nye dice families.
 
 ## Åbne spørgsmål og kendte risici
 
 - Det nye multi-dice-layout, Spiked Behemoth og face-inspector er lokalt browser-verificeret ved 320 px og 384 px uden overlap eller horisontal overflow. Den fulde Dungeon 2-progression skal stadig gennemspilles på en fysisk mobil.
 - Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
+- Mixed-evolution regressionen går materielt længere end flade værdi-3 Attack Dice, men økonomien er endnu ikke simuleret som en fuld sekvens af konkrete Chaos/Precision-køb. Særligt 80-Soul-awakening og faldende Chaos-rabat skal playtestes mod faktiske rewards.
+- Flere faces må foreløbig vælge samme evolution. Det er bevidst for første playtest, men all-Power kan blive en ny løst strategi og skal sammenlignes mod Momentum/Rend, før systemet betragtes som balanceret.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Enemy intent-rækken er dimensioneret til 1–3 dice; flere end tre kræver en ny kompakt præsentation eller sekventiel paging.
 - Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
@@ -92,6 +96,9 @@ Brug denne skabelon:
 - Normal Victory er en kort reward-pulse uden information om næste enemy; Combat introducerer først enemy-data på det nye floor.
 - Boss Victory og Defeat viser descentens `enemiesDefeated`, `xpEarned` og `soulsEarned`; player-facing hedder valutaerne kun `XP` og `Souls`, aldrig `Permanent`, `Kept` eller `Secured` på outcome-skærmene.
 - XP giver permanent adgang og kapacitet; Souls forbedrer konkrete permanente dice/faces.
+- Soul Forge har to komplementære metoder: Chaos forbedrer en tilfældig eligible face billigere, mens Precision vælger den konkrete face til 2× basisprisen. Chaos-rabatten falder med antallet af eligible faces og er nul ved én mulighed.
+- Attack-faces stopper ved værdi 3, vækkes via Forge og vælger derefter gratis Power, Momentum eller Rend permanent. Power er 5 direkte Attack; Momentum er 3 Attack +2 til næste face med Attack-fallback; Rend er 2 Attack +2 forsinket Bleed.
+- Nyt Bleed skader først fra næste player resolution, ignorerer enemy Shield, falder med 1 efter hvert tick og annullerer enemy intent ved lethal damage.
 - Kun permanent `bankedSouls` (player-facing `Souls`) og `xp` findes som valuta/progression; `runSouls` findes kun som version-6 migrationsfelt.
 - Spilleren starter med én Attack Die.
 - Et dice-unlock giver én navngiven permanent die, aldrig uendelige kopier; spilleren equipper den selv.
@@ -127,6 +134,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Controlled Soul Forge og Attack-evolutioner
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Workshop er ombygget til Chaos Forge og Precision Forge. Attack-faces vækkes ved værdi 3 og får efter bekræftelse én permanent identitet: Power, Momentum eller Rend. Evolutioner vises på Workshop-faces, dice summaries, landede combat-dice og Bleed-status.
+- Beslutninger: Chaos ruller kun blandt eligible faces, får op til 35% rabat og mister rabatten, når puljen krymper; én eligible face koster det samme som Precision. Precision koster 2× den oprindelige numeriske pris. Evolution-valget er gratis efter awakening og irreversibelt i denne version. Nyt Bleed starter næste round, går gennem Shield og falder med 1 efter hvert tick.
+- Berørte områder: Nyt pure Forge-domæne, dice/combat/dungeon/progression-typer, save v11 og migration, manuel/automatisk/background combat, simulator, Workshop/Combat/dice UI, styles, GDD, README og testpakke.
+- Validering: `npx tsc --noEmit`, 19 testfiler med 108 tests, ESLint, production-build og `git diff --check` består. Lokal browser verificerer Soul Forge, 4-dice/all-3-profilet, 52-Soul Chaos-awakening, Evolution Ready-reveal, permanent Rend-confirmation og faldende eligible pool i den 384 px brede game-shell uden error-overlay.
+- Kendte mangler: Den fulde købskurve og all-Power kontra mixed builds skal subjektivt playtestes; ingen respec findes endnu. Expedition Board og nye dice families er bevidst ikke implementeret.
+- Git: Ikke committed.
 
 ### 2026-07-28 — Beskyttet Run Menu og mid-run leave
 

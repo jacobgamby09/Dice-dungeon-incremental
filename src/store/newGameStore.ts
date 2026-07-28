@@ -6,7 +6,7 @@ import {
   type AutomationScreen,
 } from '../game/automation/autoCombat'
 import { createCombatState } from '../game/combat/combatState'
-import { addRollToTotals, rollDie } from '../game/combat/rollDie'
+import { addRollEffects, rollDie } from '../game/combat/rollDie'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { resolveRound } from '../game/combat/resolveRound'
 import { createDieById, createStartingDice } from '../game/content/dice'
@@ -14,7 +14,13 @@ import { DUNGEONS } from '../game/content/dungeons'
 import { getEnemyDie } from '../game/content/enemyDice'
 import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/content/enemies'
 import { TALENT_IDS, TALENTS_BY_ID } from '../game/content/talents'
-import { BASE_FACE_CAP, getFaceUpgradeCost } from '../game/content/upgradeCosts'
+import {
+  chaosForge,
+  evolveAttackFace,
+  migrateLegacyAttackEvolution,
+  precisionForge,
+  type ForgeResult,
+} from '../game/forge/forge'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
 import {
   BASE_PLAYER_HP,
@@ -27,7 +33,7 @@ import {
   normalizeTalentRanks,
 } from '../game/progression/talents'
 import type { CombatState, RoundResolution } from '../game/types/combat'
-import type { DieFaces, DieInstance, RollResult } from '../game/types/dice'
+import type { AttackEvolutionId, DieFaces, DieInstance, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
 import type {
   DungeonId,
@@ -81,12 +87,14 @@ export interface NewGameState {
   openRunMenu: () => void
   closeRunMenu: () => void
   leaveDungeonRun: () => void
-  upgradeFace: (dieId: string, faceId: string) => boolean
+  chaosForgeDie: (dieId: string, operationId: string, random?: () => number) => ForgeResult | null
+  precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
+  evolveFace: (dieId: string, faceId: string, evolutionId: AttackEvolutionId) => boolean
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 10
+const SAVE_VERSION = 11
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -105,6 +113,7 @@ function createInitialProfile(): PlayerProfile {
     dungeonProgress: createInitialDungeonProgress(),
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
+    recentForgeOperationIds: [],
     settings: {
       rollSpeed: 1,
       autoCombat: false,
@@ -210,6 +219,7 @@ function migrateEnemyState(
       Math.max(0, existingEnemy.hp ?? canonicalEnemy.hp),
     ),
     shield: totalEnemyRolls(intentRolls).shield,
+    bleed: Math.max(0, existingEnemy.bleed ?? 0),
     rewardClaimed: existingEnemy.rewardClaimed ?? false,
     intentRolls,
   }
@@ -275,8 +285,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
       if (!canonicalDie) return null
       return {
         ...canonicalDie,
-        faces: existingDie.faces.map((face) => ({
+        faces: existingDie.faces.map((face) => migrateLegacyAttackEvolution({
           ...face,
+          evolutionReady: face.evolutionReady ?? undefined,
           evolution: face.evolution ? { ...face.evolution } : undefined,
         })) as DieFaces,
       }
@@ -317,6 +328,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     },
     diceCollection,
     equippedDieIds,
+    recentForgeOperationIds: existingProfile?.recentForgeOperationIds?.slice(-20) ?? [],
     settings: {
       rollSpeed: Math.max(
         0.25,
@@ -394,7 +406,14 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
                 : createRunAutomation().randomSeed,
             }
           : createRunAutomation(),
-        equippedDiceSnapshot: existingRun.equippedDiceSnapshot ?? [],
+        equippedDiceSnapshot: (existingRun.equippedDiceSnapshot ?? []).map((die) => ({
+          ...die,
+          faces: die.faces.map((face) => migrateLegacyAttackEvolution({
+            ...face,
+            evolutionReady: face.evolutionReady ?? undefined,
+            evolution: face.evolution ? { ...face.evolution } : undefined,
+          })) as DieFaces,
+        })),
         enemy: migratedEnemy,
         lastReward: existingRun.lastReward
           ? {
@@ -430,6 +449,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
           resolutionStep: (existingCombat.resolutionStep as string | null | undefined) === 'enemy'
             ? 'enemy_attack'
             : existingCombat.resolutionStep ?? null,
+          pendingMomentum: Math.max(0, existingCombat.pendingMomentum ?? 0),
         }
       : createCombatState()
 
@@ -551,6 +571,12 @@ export const useNewGameStore = create<NewGameState>()(
 
         const result = rollDie(die)
         const allDiceDrawn = remainingDieIds.length === 0
+        const rollEffects = addRollEffects(
+          state.combat.totals,
+          state.combat.pendingMomentum,
+          result,
+          allDiceDrawn,
+        )
 
         set({
           combat: {
@@ -558,7 +584,8 @@ export const useNewGameStore = create<NewGameState>()(
             phase: allDiceDrawn ? 'awaiting_resolve' : 'awaiting_roll',
             drawPileDieIds: remainingDieIds,
             results: [...state.combat.results, result],
-            totals: addRollToTotals(state.combat.totals, result),
+            totals: rollEffects.totals,
+            pendingMomentum: rollEffects.pendingMomentum,
           },
         })
         return result
@@ -577,6 +604,7 @@ export const useNewGameStore = create<NewGameState>()(
           enemyHp: enemy.hp,
           enemyMaxHp: enemy.maxHp,
           enemyShield: enemy.shield,
+          enemyBleed: enemy.bleed,
           enemyIntent: totalEnemyRolls(enemy.intentRolls),
           totals: state.combat.totals,
         })
@@ -623,6 +651,7 @@ export const useNewGameStore = create<NewGameState>()(
                 ...enemy,
                 hp: resolution.enemyHp,
                 shield: resolution.enemyShieldAfterPlayerPhase,
+                bleed: resolution.enemyBleed,
                 rewardClaimed: true,
               },
               lastReward: {
@@ -655,6 +684,7 @@ export const useNewGameStore = create<NewGameState>()(
                 ...enemy,
                 hp: resolution.enemyHpAfterPlayerPhase,
                 shield: resolution.enemyShieldAfterPlayerPhase,
+                bleed: resolution.enemyBleed,
               },
             },
             combat: {
@@ -676,6 +706,7 @@ export const useNewGameStore = create<NewGameState>()(
               ...enemy,
               hp: resolution.enemyHpAfterPlayerPhase,
               shield: resolution.enemyShieldAfterPlayerPhase,
+              bleed: resolution.enemyBleed,
             },
           },
           combat: {
@@ -705,6 +736,7 @@ export const useNewGameStore = create<NewGameState>()(
                     ...state.run.enemy,
                     hp: resolution.enemyHp,
                     shield: 0,
+                    bleed: resolution.enemyBleed,
                   }
                 : null,
             },
@@ -728,6 +760,7 @@ export const useNewGameStore = create<NewGameState>()(
                   ...state.run.enemy,
                   hp: resolution.enemyHp,
                   shield: 0,
+                  bleed: resolution.enemyBleed,
                 }
               : null,
           },
@@ -1046,34 +1079,67 @@ export const useNewGameStore = create<NewGameState>()(
         })
       },
 
-      upgradeFace: (dieId, faceId) => {
+      chaosForgeDie: (dieId, operationId, random = Math.random) => {
         const state = get()
-        if (state.run.status !== 'inactive') return false
-
+        if (state.run.status !== 'inactive') return null
+        if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
         const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
-        const face = die?.faces.find((candidate) => candidate.id === faceId)
-        if (!die || !face) return false
-
-        const cost = getFaceUpgradeCost(face.value)
-        if (cost === null || face.value >= BASE_FACE_CAP || state.profile.bankedSouls < cost) return false
-
-        const diceCollection = state.profile.diceCollection.map((candidate) => {
-          if (candidate.id !== dieId) return candidate
-          return {
-            ...candidate,
-            faces: candidate.faces.map((candidateFace) => (
-              candidateFace.id === faceId
-                ? { ...candidateFace, value: candidateFace.value + 1 }
-                : candidateFace
-            )) as DieFaces,
-          }
-        })
-
+        if (!die) return null
+        const forged = chaosForge(die, random)
+        if (!forged || state.profile.bankedSouls < forged.result.cost) return null
         set({
           profile: {
             ...state.profile,
-            bankedSouls: state.profile.bankedSouls - cost,
-            diceCollection,
+            bankedSouls: state.profile.bankedSouls - forged.result.cost,
+            diceCollection: state.profile.diceCollection.map((candidate) => (
+              candidate.id === dieId ? forged.die : candidate
+            )),
+            recentForgeOperationIds: [
+              ...state.profile.recentForgeOperationIds,
+              operationId,
+            ].slice(-20),
+          },
+        })
+        return forged.result
+      },
+
+      precisionForgeFace: (dieId, faceId, operationId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return null
+        if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
+        const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
+        if (!die) return null
+        const forged = precisionForge(die, faceId)
+        if (!forged || state.profile.bankedSouls < forged.result.cost) return null
+        set({
+          profile: {
+            ...state.profile,
+            bankedSouls: state.profile.bankedSouls - forged.result.cost,
+            diceCollection: state.profile.diceCollection.map((candidate) => (
+              candidate.id === dieId ? forged.die : candidate
+            )),
+            recentForgeOperationIds: [
+              ...state.profile.recentForgeOperationIds,
+              operationId,
+            ].slice(-20),
+          },
+        })
+        return forged.result
+      },
+
+      evolveFace: (dieId, faceId, evolutionId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return false
+        const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
+        if (!die) return false
+        const evolvedDie = evolveAttackFace(die, faceId, evolutionId)
+        if (!evolvedDie) return false
+        set({
+          profile: {
+            ...state.profile,
+            diceCollection: state.profile.diceCollection.map((candidate) => (
+              candidate.id === dieId ? evolvedDie : candidate
+            )),
           },
         })
         return true

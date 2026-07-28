@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDieById } from '../content/dice'
 import { DUNGEONS } from '../content/dungeons'
 import { ENCOUNTERS } from '../content/enemies'
+import { ATTACK_EVOLUTIONS } from '../forge/forge'
 import { createSeededRandom, simulateDungeonRun, summarizeDungeonSimulations } from './simulateDungeon'
 
 function getDice(...dieIds: string[]) {
@@ -27,6 +28,22 @@ function setFaceValues(dieId: string, values: number[]) {
       ...face,
       value: values[index],
     })) as typeof die.faces,
+  }
+}
+
+function createMixedEvolutionDie(dieId: string) {
+  const die = createDieById(dieId)!
+  const evolutionIds = ['power', 'momentum', 'rend', 'power', 'momentum', 'rend'] as const
+  return {
+    ...die,
+    faces: die.faces.map((face, index) => {
+      const evolution = ATTACK_EVOLUTIONS[evolutionIds[index]]
+      return {
+        ...face,
+        value: evolution.resultValue,
+        evolution: { id: evolution.id, name: evolution.name },
+      }
+    }) as typeof die.faces,
   }
 }
 
@@ -150,6 +167,36 @@ describe('MVP dungeon balance simulator', () => {
     expect(midBuild.bossClearRate).toBe(0)
     expect(lateBuild.bossClearRate).toBeGreaterThan(0.65)
     expect(lateBuild.bossClearRate).toBeLessThan(0.8)
+  })
+
+  it('makes mixed Attack evolutions a material step beyond flat value-three dice', () => {
+    const flat = summarizeDungeonSimulations(
+      'iron-depths',
+      {
+        dice: ['attack-die-1', 'attack-die-2', 'shield-die-1', 'heal-die-1']
+          .map((dieId) => raiseFacesTo(dieId, 3)),
+        playerMaxHp: 15,
+      },
+      750,
+      700,
+    )
+    const evolved = summarizeDungeonSimulations(
+      'iron-depths',
+      {
+        dice: [
+          createMixedEvolutionDie('attack-die-1'),
+          createMixedEvolutionDie('attack-die-2'),
+          raiseFacesTo('shield-die-1', 3),
+          raiseFacesTo('heal-die-1', 3),
+        ],
+        playerMaxHp: 15,
+      },
+      750,
+      700,
+    )
+
+    expect(evolved.averageHighestFloor).toBeGreaterThan(flat.averageHighestFloor + 1)
+    expect(evolved.averageRoundsPlayed).toBeGreaterThan(evolved.averageHighestFloor)
   })
 
 })

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Dices, DoorOpen, Flame, Heart, Swords } from 'lucide-react'
+import { Dices, DoorOpen, Droplets, Flame, Heart, Swords } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { EnemyDamageTransfer } from '../components/newgame/EnemyDamageTransfer'
@@ -98,7 +98,10 @@ export function CombatScreen() {
     const resolutionStep = combat.resolutionStep ?? 'player'
 
     const timers: number[] = []
-    if (resolutionStep === 'player' && resolution.attackDamageToEnemy > 0) {
+    if (
+      resolutionStep === 'player'
+      && resolution.attackDamageToEnemy + resolution.bleedDamageToEnemy > 0
+    ) {
       timers.push(window.setTimeout(() => {
         setEnemyHitVersion((version) => version + 1)
       }, 0))
@@ -358,7 +361,15 @@ export function CombatScreen() {
           />
         </div>
         <div className="enemy-zone__vitals">
-          <div className="hp-label"><span>HP</span><strong>{enemy.hp}/{enemy.maxHp}</strong></div>
+          <div className="hp-label">
+            <span>HP</span>
+            {enemy.bleed > 0 ? (
+              <span className="enemy-bleed" aria-label={`${enemy.bleed} Bleed`}>
+                <Droplets aria-hidden="true" size={11} /> {enemy.bleed}
+              </span>
+            ) : null}
+            <strong>{enemy.hp}/{enemy.maxHp}</strong>
+          </div>
           <HpBar current={enemy.hp} max={enemy.maxHp} tone="enemy" />
         </div>
       </section>
@@ -388,7 +399,9 @@ export function CombatScreen() {
                 ? `${enemy.name} heals ${combat.lastResolution.enemyHealApplied}`
                 : combat.resolutionStep === 'enemy_attack'
                 ? `${combat.lastResolution.enemyDamageBlocked} blocked · ${combat.lastResolution.playerDamageTaken} damage taken`
-                : `Your attack lands for ${combat.lastResolution.attackDamageToEnemy}`}
+                : combat.lastResolution.bleedDamageToEnemy > 0
+                  ? `Bleed ${combat.lastResolution.bleedDamageToEnemy} · Attack ${combat.lastResolution.attackDamageToEnemy}`
+                  : `Your attack lands for ${combat.lastResolution.attackDamageToEnemy}`}
           </div>
         )}
       </section>

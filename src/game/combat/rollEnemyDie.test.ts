@@ -31,7 +31,7 @@ describe('enemy dice', () => {
       rollEnemyDie(getEnemyDie('spiked-behemoth-heal'), () => 0.999),
     ]
 
-    expect(totalEnemyRolls(results)).toEqual({ attack: 8, shield: 3, heal: 3 })
+    expect(totalEnemyRolls(results)).toEqual({ attack: 8, shield: 3, heal: 3, bleed: 0 })
   })
 
   it('replaces temporary enemy Shield with the next round roll instead of stacking it', () => {
