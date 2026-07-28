@@ -159,11 +159,13 @@ En evolution er et hero face og skal læses før den almindelige Attack-type. Id
 
 | Evolution | Silhuet | Overflade | Landing |
 |---|---|---|---|
-| Power | Eksplosiv stjerne med centralt kryds | Hvidgylden burst over mørk okker | Kort hvid flash og gylden impact |
-| Momentum | Tre fremadgående chevrons | Cyan fartstriber over mørk teal | Cyan trail og fremadrettet puls |
-| Rend | Tre kantede flænsespor | Crimson ridser over mørk blodrød | Blodrød slash-puls |
+| Power | Eksplosiv stjerne med centralt kryds | Hvidgylden burst over mørk okker | Kort hvid flash og direkte gylden transfer |
+| Momentum | Tre fremadgående chevrons | Cyan fartstriber over mørk teal | Cyan trail, `Next die +2`-charge og navngivet bonus på modtageren |
+| Rend | Tre kantede flænsespor | Crimson ridser over mørk blodrød | Blodrød slash-puls, `+2 Bleed` og pulserende stack ved enemy HP |
 
 Evolutionens værdi og hovedsilhuet er primære. Et lille sværdmærke er sekundært og viser, at facen stadig er Attack. Farve er støtte, ikke eneste identifikation. Landingen må kort vise `POWER`, `MOMENTUM` eller `REND`, men draw-order-resultatet skal bagefter kunne genkendes alene på ramme, mønster og ikon.
+
+En evolution må ikke kun være tydelig på selve facen. Dens kausale effekt skal kunne følges til sit mål: Momentum bliver stående som en charge indtil næste roll og navngives på den modtagende score-transfer; Rend følger med fra roll til Bleed-total og videre til enemy HP/tick. Effekten skal stadig kunne aflæses under Auto Combat.
 
 ### 5. Vis information, når den er sand
 

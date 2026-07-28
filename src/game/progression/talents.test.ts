@@ -99,6 +99,25 @@ describe('ranked talent progression', () => {
     expect(getTalentPurchaseReason(profile, talent)).toBeNull()
   })
 
+  it('opens both sidegrade dice together after Second Descent without branch exclusion', () => {
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+      [TALENT_IDS.shieldcraft]: 1,
+      [TALENT_IDS.secondDescent]: 1,
+    }
+    const profile = createProfile(ranks, 90)
+
+    expect(getTalentPurchaseReason(
+      profile,
+      TALENTS_BY_ID[TALENT_IDS.executionerDoctrine],
+    )).toBeNull()
+    expect(getTalentPurchaseReason(
+      profile,
+      TALENTS_BY_ID[TALENT_IDS.towerDiscipline],
+    )).toBeNull()
+  })
+
   it('normalizes unknown, fractional, negative, and over-cap ranks', () => {
     expect(normalizeTalentRanks({
       [TALENT_IDS.battleHardenedOne]: 99,
@@ -180,5 +199,31 @@ describe('talent fog and silhouette visibility', () => {
       ranks,
       TALENTS_BY_ID[TALENT_IDS.fourthGrip],
     )).toBe('hidden')
+  })
+
+  it('reveals both post-Dungeon-1 sidegrades together after Second Descent', () => {
+    const beforeSecondDescent = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+      [TALENT_IDS.shieldcraft]: 1,
+    }
+    const afterSecondDescent = {
+      ...beforeSecondDescent,
+      [TALENT_IDS.secondDescent]: 1,
+    }
+
+    for (const talentId of [
+      TALENT_IDS.executionerDoctrine,
+      TALENT_IDS.towerDiscipline,
+    ]) {
+      expect(getTalentVisibility(
+        beforeSecondDescent,
+        TALENTS_BY_ID[talentId],
+      )).toBe('silhouette')
+      expect(getTalentVisibility(
+        afterSecondDescent,
+        TALENTS_BY_ID[talentId],
+      )).toBe('revealed')
+    }
   })
 })

@@ -130,6 +130,8 @@ MVP-katalog:
 - `attack-die-2`, Striker Die: `1, 1, 1, 2, 3, 3 Attack`.
 - `shield-die-1`, Iron Guard Die: `1, 1, 2, 2, 2, 3 Shield`.
 - `heal-die-1`, Vitality Die: `1, 1, 1, 1, 2, 2 Heal`.
+- `attack-die-executioner`, Executioner Die: `1, 1, 1, 3, 3, 3 Attack`. En offensiv sidegrade med lav bund og tre faces tæt på evolution.
+- `shield-die-tower`, Tower Die: `1, 1, 1, 1, 3, 4 Shield`. En defensiv sidegrade med lav bund og store spikes.
 
 Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete terninger kommer fra XP-talenter.
 
@@ -151,6 +153,8 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
 | Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
 | Fourth Grip | 90 XP | Healing Arts | +1 dice slot |
+| Executioner Doctrine | 45 XP | Second Descent | Én Executioner Die |
+| Tower Discipline | 45 XP | Second Descent | Én Tower Die |
 
 Auto Combat er én spillerstyret toggle. Når den er aktiv, ruller den alle player dice, resolver runden, starter næste runde og fortsætter automatisk gennem normale Victory-pulses til næste floor. Den stopper altid ved Defeat og Boss Victory; Auto Retry findes ikke i denne fase. Spilleren kan slå automationen fra under combat, hvorefter det nuværende atomiske animations-/resolutionstrin færdiggøres, før manuel styring overtager.
 
@@ -170,6 +174,7 @@ Den tidlige tilsigtede cadence er:
 6. Shieldcraft åbner derefter Survival, Arsenal og den senere hastighedsprogression.
 7. Healing Arts kan nås sent i Dungeon 1, så spilleren lærer Heal, før en enemy bruger mechanicen.
 8. Første clear af The First Descent afslører adgangskravet til Second Descent; købet åbner Dungeon 2.
+9. Second Descent åbner både Executioner Doctrine og Tower Discipline uden branch lockout. Spilleren må eje begge, men deres værdi opstår gennem et aktivt loadout-valg inden for fire slots.
 
 ## Kamp
 
@@ -278,6 +283,8 @@ Evolutioner skal kunne identificeres på selve face-fladen uden at læse et tool
 
 Farven må ikke stå alene. Hver evolution beholder sin egen silhuet og sit mønster, mens et lille Attack-mærke fastholder, at den stadig bidrager til Attack. Når en evolution lander, får den en kort unik impact-puls og viser evolutionens navn, før værdien flyver til round-totalen. Den efterfølgende settled state skal fortsat være fuldt læsbar uden animation.
 
+Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face lander, skal score-transferen navngive den modtagne Momentum-bonus, også når den løfter Shield eller Heal. Rend viser både `+2 Bleed` i sin score-transfer og den aktive, pulserende Bleed-stack ved enemy HP; et tick skal være synligt i player-resolutionen. Power forbliver den rene, direkte impact-reference.
+
 ## Persistence
 
 - Save-formatet er versionsstyret.
@@ -323,6 +330,8 @@ Den data-drevne simulator bruges som regressionsværn, ikke som erstatning for p
 Dungeon 1 bevarer den godkendte MVP-cadence: startbuildet stopper omkring floor 1, anden Attack Die flytter væggen til cirka floor 2–3, og en fuld fire-dice build med faces på mindst værdi 3 har over 90% boss-clear-rate. Heal forbliver derfor en sen Dungeon 1-unlock i stedet for at blive låst bag første clear.
 
 Dungeon 2 starter en ny incremental kurve. Den samme fire-dice build lander i seedede regressioner omkring floor 4, et mellemtrin når cirka floor 5, og et sent build når bossen. Tre konkrete Shield-faces fra 4 → 5 løfter eksempelvis boss-clear-rate fra cirka 4% til cirka 70%; individuelle face-køb er dermed synligt meningsfulde frem for kun at virke ved fuld cap.
+
+En separat progression journey-simulator modellerer nu XP-køb, Soul-forges, loadout, gentagne runs og dungeon-clears samlet. Den bindende første regression er: første face-køb inden run 2, Twin Arsenal og Auto Combat omkring run 2–5, første evolution omkring run 2–5, første Dungeon 1-clear omkring run 7–12 og en senere Dungeon 2-clear senest omkring run 18 med et balanceret build. Tallene er balance-guards, ikke player-facing løfter.
 
 Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 

@@ -21,6 +21,17 @@ describe('MVP content integrity', () => {
     }
   })
 
+  it('adds two post-Dungeon-1 sidegrades without replacing the starting dice', () => {
+    const dice = createDiceCatalog()
+    const executioner = dice.find((die) => die.id === 'attack-die-executioner')
+    const tower = dice.find((die) => die.id === 'shield-die-tower')
+
+    expect(executioner?.name).toBe('Executioner Die')
+    expect(executioner?.faces.map((face) => face.value)).toEqual([1, 1, 1, 3, 3, 3])
+    expect(tower?.name).toBe('Tower Die')
+    expect(tower?.faces.map((face) => face.value)).toEqual([1, 1, 1, 1, 3, 4])
+  })
+
   it('defines six stable same-type faces for every enemy die', () => {
     const enemyDice = Object.values(ENEMY_DICE)
     const faceIds = enemyDice.flatMap((die) => die.faces.map((face) => face.id))

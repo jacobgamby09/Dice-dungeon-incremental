@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { createDiceCatalog, createStartingDice } from '../content/dice'
-import { addRollEffects, addRollToTotals, rollDie } from './rollDie'
+import {
+  addRollEffects,
+  addRollToTotals,
+  getRollContributions,
+  rollDie,
+} from './rollDie'
 
 describe('rollDie', () => {
   it('returns the exact persistent face id selected by the RNG', () => {
@@ -67,5 +72,43 @@ describe('rollDie', () => {
     )
 
     expect(applied.totals).toEqual({ attack: 2, shield: 0, heal: 0, bleed: 2 })
+  })
+
+  it('describes Momentum boosts and Rend payloads for readable combat feedback', () => {
+    const baseResult = rollDie(createStartingDice()[0], () => 0)
+    const momentum = {
+      ...baseResult,
+      faceId: 'momentum-face',
+      value: 3,
+      evolution: { id: 'momentum', name: 'Momentum' } as const,
+    }
+    const shield = {
+      ...rollDie(createDiceCatalog().find((die) => die.family === 'shield')!, () => 0),
+      faceId: 'shield-face',
+    }
+    const rend = {
+      ...baseResult,
+      faceId: 'rend-face',
+      value: 2,
+      evolution: { id: 'rend', name: 'Rend' } as const,
+    }
+
+    const contributions = getRollContributions([momentum, shield, rend], 0)
+
+    expect(contributions[0]).toMatchObject({
+      momentumArmed: 2,
+      momentumBonus: 0,
+      totalValue: 3,
+    })
+    expect(contributions[1]).toMatchObject({
+      momentumArmed: 0,
+      momentumBonus: 2,
+      totalValue: 3,
+    })
+    expect(contributions[2]).toMatchObject({
+      bleedValue: 2,
+      momentumBonus: 0,
+      totalValue: 2,
+    })
   })
 })

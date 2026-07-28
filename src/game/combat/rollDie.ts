@@ -60,3 +60,49 @@ export function addRollEffects(
 
   return { totals: nextTotals, pendingMomentum: 2 }
 }
+
+export interface RollContribution {
+  bleedValue: number
+  momentumArmed: number
+  momentumBonus: number
+  result: RollResult
+  totalValue: number
+}
+
+export function getRollContributions(
+  results: readonly RollResult[],
+  remainingDice: number,
+): RollContribution[] {
+  let totals: RoundTotals = {
+    attack: 0,
+    shield: 0,
+    heal: 0,
+    bleed: 0,
+  }
+  let pendingMomentum = 0
+
+  return results.map((result, index) => {
+    const beforeTotals = totals
+    const appliedMomentum = pendingMomentum
+    const isLastRoll = remainingDice === 0 && index === results.length - 1
+    const effects = addRollEffects(
+      totals,
+      pendingMomentum,
+      result,
+      isLastRoll,
+    )
+    totals = effects.totals
+    pendingMomentum = effects.pendingMomentum
+
+    return {
+      bleedValue: totals.bleed - beforeTotals.bleed,
+      momentumArmed: result.evolution?.id === 'momentum'
+        ? effects.pendingMomentum
+        : 0,
+      momentumBonus: appliedMomentum
+        + (result.evolution?.id === 'momentum' && isLastRoll ? 2 : 0),
+      result,
+      totalValue: totals[result.type] - beforeTotals[result.type],
+    }
+  })
+}

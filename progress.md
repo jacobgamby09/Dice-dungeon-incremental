@@ -44,10 +44,11 @@ Brug denne skabelon:
 - XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, 65–140% pinch/knap/Ctrl-wheel-zoom, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, stort modal-overlay, tekstfri canvas-states gennem fyldning/checkmark/rank-pips/outline/puls/lås, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
 - Talentforløbet giver derefter slot 2 og en unik Striker Die. Auto Combat åbner direkte efter Twin Arsenal; senere følger Shield, tre samtidige grene, Heal, fire slots og Quick Draw.
+- Second Descent åbner nu Executioner Doctrine og Tower Discipline samtidigt. De giver hver én unik post-Dungeon-1-sidegrade uden auto-equip: Executioner Die (`1,1,1,3,3,3 Attack`) og Tower Die (`1,1,1,1,3,4 Shield`).
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
 - Hubben har en diskret dev-reset med et separat bekræftelsestrin, som kan genskabe hele fresh-save-tilstanden uden manuel localStorage-rydning.
 - Hubben har en separat fresh QoL-teststart med 88 uspente XP — præcis nok til den direkte vej gennem Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw.
-- Hubben kan desuden indlæse en totrins-bekræftet post-Dungeon-1-dev-profil med realistisk talent spend, tidligt Auto Combat-unlock, fire opgraderede permanente dice og Dungeon 2 klar til systematisk playtest.
+- Hubben kan desuden indlæse en totrins-bekræftet Build Diversity-profil med realistisk post-Dungeon-1-talent spend, seks opgraderede permanente dice, fire aktive slots, Power/Momentum/Rend på Executioner Die og Dungeon 2 klar til systematisk playtest.
 - Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
 - `The First Descent` genbruger Slime, Slime Crawler, Goblin og Skeleton som Level 1/2-varianter, har en Skeleton Elite på floor 9 og Demon-boss på floor 10. Alle har kun én Attack Die.
 - `The Iron Descent` er Dungeon 2 med Shieldbearer, Cultist, Orc og Blood Orc som Level 1/2-varianter. Normale mobs har Attack + Shield, mens Spiked Behemoth-bossen har Attack + Shield + Heal.
@@ -61,29 +62,30 @@ Brug denne skabelon:
 - Workshop har nu to atomiske Soul-forges: billig Chaos Forge med controlled RNG og faldende rabat samt dyr Precision Forge til en valgt face. Attack-faces vækkes fra værdi 3 og udvikles permanent til Power, Momentum eller Rend.
 - Power giver 5 direkte Attack, Momentum flytter +2 til næste face med Attack-fallback, og Rend giver 2 Attack + 2 forsinket Bleed gennem Shield. Effekterne deles af manuel combat, Auto Combat, background fast-forward og simulatoren.
 - Evolution-faces har nu tre gennemgående hero-identiteter i Workshop, dice summaries, 3D-roll, settled draw order og score-transfer: Power bruger et hvidgyldent stjerne-burst, Momentum bruger cyan chevrons/fartstriber, og Rend bruger crimson flænsespor. Et landet evolution-roll får desuden en kort farvet impact med sit navn.
+- Momentum viser nu en vedvarende `Next die +2`-charge mellem rolls og navngiver bonus på den modtagende score-transfer. Rend viser `+2 Bleed` under transferen og genstarter en kort puls på den aktive stack ved enemy HP/tick.
 - Normal Victory viser kun encounter-reward, totals, HP og dungeon-progress; næste-enemy-data er fjernet. Manuel mode bruger én Continue-knap, mens Auto Combat viser en kort reward-pulse og fortsætter til næste floor med en synlig Pause-handling.
 - Auto Combat automatiserer player-rolls, Resolve Round, næste round og normale floor-transitions. Det stopper ved Defeat og Boss Victory og har endnu ingen Auto Retry.
 - Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
 - Combat-headeren har en diskret Run Menu før floor-informationen. Menuen pauser live- og background-Auto Combat; et totrinsbekræftet leave returnerer til Hub med XP, Souls og permanent progression intakt.
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
-- En deterministisk simulator og 117 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum og deres visuelle identiteter, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- Den deterministiske balance-suite modellerer nu både enkelte dungeons og en hel progression journey med XP-køb, Soul-forges, evolutioner, loadout-skift, gentagne runs og dungeon-clears. Regressionen holder første face-køb inden run 2, anden die/Auto Combat omkring run 2–5, første evolution omkring run 2–5, Dungeon 1-clear omkring run 7–12 og Dungeon 2-clear senest omkring run 18 for blandede samt rene Power/Momentum/Rend-strategier.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#37 — Clean up Talent Tree node states](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/37), squash merge `6193f61`.
 
 ## Næste anbefalede skridt
 
-1. Verificér Talent Tree-pinch, modalens læsbarhed og de tekstfri node-states på en fysisk iPhone ved både 320 px og 384 px.
-2. Fresh-save-playtest hvor ofte Chaos Forge opleves spændende frem for tilfældig, og om Precision-premium er en reel safety valve frem for et ikke-valg.
-3. Verificér de tre evolution-identiteter og deres landingseffekter på en fysisk 384 px-telefon, og sammenlign derefter rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2.
-4. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
-5. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
-6. Brainstorm Expedition Board videre uden at implementere det, og afvent stadig nye dice families.
+1. Gennemspil Build Diversity-devprofilen på en fysisk 384 px-telefon og vurder, om seks ejede dice mod fire slots føles som et reelt valg.
+2. Sammenlign Executioner Die mod Striker Die og Tower Die mod Iron Guard Die i faktiske Dungeon 2-runs; justér distributionskurver eller 45-XP-priser før nye mechanics tilføjes.
+3. Fresh-save-playtest om journey-regressionens run 2–5-evolution føles som fornyelse eller kommer for tidligt, og om Chaos Forge opleves spændende frem for tilfældig.
+4. Sammenlign rene Power-, Momentum-, Rend- og blandede builds med Auto Combat On/Off og mål faktisk tid per round, encounter og descent.
+5. Tune kun enemy HP, Shield og Heal, hvis de faktiske runs afviger fra målet om 2–4 rounds for normale mobs, 4–6 for elites og 6–9 for bosses.
+6. Brainstorm Expedition Board videre uden at implementere det, og afvent en helt ny face-type indtil de nuværende seks dice er playtestet.
 
 ## Åbne spørgsmål og kendte risici
 
 - Det nye multi-dice-layout, Spiked Behemoth og face-inspector er lokalt browser-verificeret ved 320 px og 384 px uden overlap eller horisontal overflow. Den fulde Dungeon 2-progression skal stadig gennemspilles på en fysisk mobil.
-- Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
-- Mixed-evolution regressionen går materielt længere end flade værdi-3 Attack Dice, men økonomien er endnu ikke simuleret som en fuld sekvens af konkrete Chaos/Precision-køb. Særligt 80-Soul-awakening og faldende Chaos-rabat skal playtestes mod faktiske rewards.
+- Journey-simulatoren modellerer konkrete XP-køb, Chaos/Precision-forges, evolutioner og loadout mellem runs, men dens automatiske købsstrategi kan ikke måle spillerens forståelse, tøven eller oplevede combat-tempo.
+- Første evolution opstår i seedede journey-regressioner omkring run 2–5, tidligere end den første Dungeon 1-clear. Det giver tidlig variation, men skal fysisk fresh-save-playtestes, før timingen betragtes som endeligt balanceret.
 - Flere faces må foreløbig vælge samme evolution. Det er bevidst for første playtest, men all-Power kan blive en ny løst strategi og skal sammenlignes mod Momentum/Rend, før systemet betragtes som balanceret.
 - Power/Momentum/Rend er browser-verificeret som separate mønstre, silhuetter og farver i den 384 px brede game-shell. Den subjektive aflæsning under hurtigt Auto Combat skal stadig godkendes på en fysisk mobil.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
@@ -91,7 +93,7 @@ Brug denne skabelon:
 - Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
 - Background-fast-forward bruger et bevidst estimeret tidsbudget per intent, die og resolution. Det skal kalibreres mod målt live-combat, så AFK-progress hverken bliver hurtigere eller langsommere end synlig automation.
 - Browserens `pagehide`, `pageshow` og `visibilitychange` er dækket af samme idempotente checkpoint-flow, men fysisk mobil kan suspendere eller dræbe processen uden alle events; sidste persisterede checkpoint begrænser datatabet.
-- Dev-profilets 337 XP og 255 Souls er et fast playtest-snapshot; hvis Dungeon 1-rewards, talentpriser eller face-priser tunes, skal preset og dets afledte økonomitest opdateres sammen.
+- Build Diversity-devprofilets 427 XP og 600 Souls er et fast playtest-snapshot med seks dice og tre evolutioner; hvis Dungeon 1-rewards, talentpriser eller face-priser tunes, skal preset og dets afledte økonomitest opdateres sammen.
 - Legacy-kode findes stadig i repository og må ikke blandes ind i den nye production-state.
 
 ## Bindende beslutninger
@@ -103,10 +105,12 @@ Brug denne skabelon:
 - Soul Forge har to komplementære metoder: Chaos forbedrer en tilfældig eligible face billigere, mens Precision vælger den konkrete face til 2× basisprisen. Chaos-rabatten falder med antallet af eligible faces og er nul ved én mulighed.
 - Attack-faces stopper ved værdi 3, vækkes via Forge og vælger derefter gratis Power, Momentum eller Rend permanent. Power er 5 direkte Attack; Momentum er 3 Attack +2 til næste face med Attack-fallback; Rend er 2 Attack +2 forsinket Bleed.
 - Evolved Attack-faces er hero faces: Power bruger stjerne-burst, Momentum bruger chevrons/fartstriber, og Rend bruger flænsespor. Identiteten skal være den samme i Workshop, summaries, combat, draw order og score-transfer og må aldrig bero på farve alene.
+- Momentum-charge skal være synlig mellem rolls og på den modtagende face; Rend skal kunne følges fra roll til Bleed-total og videre til pulserende stack/tick ved enemy HP.
 - Nyt Bleed skader først fra næste player resolution, ignorerer enemy Shield, falder med 1 efter hvert tick og annullerer enemy intent ved lethal damage.
 - Kun permanent `bankedSouls` (player-facing `Souls`) og `xp` findes som valuta/progression; `runSouls` findes kun som version-6 migrationsfelt.
 - Spilleren starter med én Attack Die.
 - Et dice-unlock giver én navngiven permanent die, aldrig uendelige kopier; spilleren equipper den selv.
+- Executioner Doctrine og Tower Discipline koster 45 XP hver, åbner samtidigt efter Second Descent og giver henholdsvis én Executioner Die og én Tower Die. De udelukker ikke hinanden og tilføjer ikke slots.
 - Battle-Hardened har tre ranks til 8/16/32 XP og giver +2 Max HP per rank, maksimalt +6.
 - Battle-Hardened rank 1 er eneste HP-krav for Twin Arsenal; rank 2 og 3 er valgfrie og må ikke blokere videre progression.
 - Twin Arsenal koster 16 XP efter rank 1, så terning nummer to stadig kan nås efter højst tre floor-1 clears via den direkte vej.
@@ -139,6 +143,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Build Diversity v1
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Second Descent åbner nu Executioner Doctrine og Tower Discipline samtidigt. Spilleren kan eje seks permanente dice med kun fire slots og må aktivt vælge mellem Executioner/Striker samt Tower/Iron Guard. Combat viser Momentum-charge og modtaget bonus gennem score-transferen, mens Rend viser Bleed fra roll til aktiv stack/tick.
+- Beslutninger: Første build-lag genbruger Attack/Shield/Heal frem for at introducere en ny face-type. Executioner Die er `1,1,1,3,3,3 Attack`; Tower Die er `1,1,1,1,3,4 Shield`; hvert unlock koster 45 XP efter Second Descent og auto-equipper aldrig.
+- Berørte områder: Permanent dice-catalog, Talent Tree-data/layout/ikoner, pure roll-contribution feedback, Combat/Round Totals/Score Transfer, post-Dungeon-1-devprofil, progression journey-simulator, balance-/store-/UI-tests, README, GDD, DESIGN og progress-log.
+- Validering: TypeScript, 23 testfiler med 129 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384 px verificerer seks ejede dice, fire aktive slots, de to nye Talent Tree-noder, Power/Momentum/Rend i devprofilen, et faktisk Momentum-roll der løfter næste Heal fra 3 til 5 samt ingen horisontal overflow i Hub, Talent Tree, Loadout eller Combat.
+- Kendte mangler: Den subjektive balance mellem de seks dice, første evolution omkring run 2–5 og de to 45-XP-priser skal stadig fysisk playtestes. Journey-simulatoren måler matematik og køb, ikke oplevet tid eller forståelse.
+- Git: Ikke committed endnu; branch `codex/build-diversity-v1`.
 
 ### 2026-07-28 — Rene tekstfri Talent Tree-noder
 

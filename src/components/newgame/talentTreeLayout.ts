@@ -37,6 +37,8 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.quickDraw]: { x: 720, y: 850 },
   [TALENT_IDS.healingArts]: { x: 520, y: 1060 },
   [TALENT_IDS.fourthGrip]: { x: 520, y: 1270 },
+  [TALENT_IDS.executionerDoctrine]: { x: 120, y: 1060 },
+  [TALENT_IDS.towerDiscipline]: { x: 300, y: 1060 },
 }
 
 const TALENT_LAYOUT_VALUES = Object.values(TALENT_TREE_LAYOUT)

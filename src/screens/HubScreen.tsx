@@ -160,8 +160,20 @@ export function HubScreen() {
             </div>
             <dl className="dev-preset__summary">
               <div><dt>Max HP</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.maxHp}</dd></div>
-              <div><dt>Loadout</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.diceCount}/{POST_DUNGEON_ONE_DEV_PRESET.diceSlots}</dd></div>
-              <div><dt>Faces</dt><dd>Min {POST_DUNGEON_ONE_DEV_PRESET.faceMinimum}</dd></div>
+              <div>
+                <dt>Dice</dt>
+                <dd>
+                  {POST_DUNGEON_ONE_DEV_PRESET.collectionCount} owned ·{' '}
+                  {POST_DUNGEON_ONE_DEV_PRESET.equippedCount}/{POST_DUNGEON_ONE_DEV_PRESET.diceSlots} equipped
+                </dd>
+              </div>
+              <div>
+                <dt>Faces</dt>
+                <dd>
+                  Min {POST_DUNGEON_ONE_DEV_PRESET.faceMinimum} ·{' '}
+                  {POST_DUNGEON_ONE_DEV_PRESET.evolutionCount} evolutions
+                </dd>
+              </div>
               <div><dt>Dungeon 1</dt><dd>Cleared</dd></div>
               <div><dt>XP spent</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.xpSpent}</dd></div>
               <div><dt>Souls spent</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.soulsSpent}</dd></div>

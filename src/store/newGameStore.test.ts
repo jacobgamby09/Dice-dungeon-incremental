@@ -165,8 +165,8 @@ describe('new game progression loop', () => {
     })
     expect(presetState.profile.unlockedDungeonIds).toContain('iron-depths')
     expect(presetState.profile.equippedDieIds).toEqual([
+      'attack-die-executioner',
       'attack-die-1',
-      'attack-die-2',
       'shield-die-1',
       'heal-die-1',
     ])
@@ -182,7 +182,9 @@ describe('new game progression loop', () => {
     expect(ironRun.screen).toBe('combat')
     expect(ironRun.run.dungeonId).toBe('iron-depths')
     expect(ironRun.run.playerHp).toBe(15)
-    expect(ironRun.run.equippedDiceSnapshot).toEqual(presetState.profile.diceCollection)
+    expect(ironRun.run.equippedDiceSnapshot.map((die) => die.id)).toEqual(
+      presetState.profile.equippedDieIds,
+    )
     expect(ironRun.run.enemy?.intentRolls.map((roll) => roll.type)).toEqual([
       'attack',
       'shield',
@@ -649,6 +651,42 @@ describe('new game progression loop', () => {
     ])
     expect(ironRun.combat.phase).toBe('revealing_enemy_intent')
     expect(ironRun.run.enemy?.shield).toBeGreaterThanOrEqual(0)
+  })
+
+  it('grants both post-Dungeon-1 sidegrades as unique unequipped dice', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        xp: 90,
+        talentRanks: {
+          [TALENT_IDS.battleHardenedOne]: 1,
+          [TALENT_IDS.twinArsenal]: 1,
+          [TALENT_IDS.shieldcraft]: 1,
+          [TALENT_IDS.secondDescent]: 1,
+        },
+        dungeonProgress: {
+          ...state.profile.dungeonProgress,
+          'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
+        },
+      },
+    })
+
+    expect(useNewGameStore.getState().purchaseTalent(
+      TALENT_IDS.executionerDoctrine,
+    )).toBe(true)
+    expect(useNewGameStore.getState().purchaseTalent(
+      TALENT_IDS.towerDiscipline,
+    )).toBe(true)
+
+    const profile = useNewGameStore.getState().profile
+    expect(profile.xp).toBe(0)
+    expect(profile.diceCollection.map((die) => die.id)).toEqual([
+      'attack-die-1',
+      'attack-die-executioner',
+      'shield-die-tower',
+    ])
+    expect(profile.equippedDieIds).toEqual(['attack-die-1'])
   })
 
   it('separates a surviving boss heal from its later attack step', () => {

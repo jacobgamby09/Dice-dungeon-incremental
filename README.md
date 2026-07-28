@@ -36,7 +36,7 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 
 Hubben har to bevidst totrins-beskyttede developer-handlinger:
 
-- `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med den kanoniske post-Dungeon-1-profil: én clear, 15 Max HP, fire slots, fire udstyrede permanente dice, alle faces på mindst 3 og The Iron Descent ulåst. Profilen repræsenterer 337 brugt XP og 255 brugte Souls. Auto Combat er købt men starter slået fra; Quick Draw er fortsat ukøbt.
+- `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med Build Diversity-profilen efter første clear: 15 Max HP, fire slots, seks ejede permanente dice, fire aktivt udstyrede dice, numeriske faces på mindst 3, én Power-, én Momentum- og én Rend-face samt The Iron Descent ulåst. Profilen repræsenterer 427 brugt XP og 600 brugte Souls. Auto Combat er købt men starter slået fra; Quick Draw er fortsat ukøbt.
 - `DEV · Fresh QoL test · 88 XP` erstatter det aktuelle save med den normale fresh-start, men giver præcis 88 uspente XP. Det finansierer Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw uden rest-XP, så den tidlige automation og hastighed kan testes uden at springe Talent Tree-købene over.
 - `DEV · Reset game` genskaber den almindelige fresh-save-start.
 
@@ -60,6 +60,8 @@ Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + w
 - Workshop tilbyder controlled RNG: Chaos Forge forbedrer en tilfældig eligible face billigere, mens Precision Forge vælger den konkrete face til en premium.
 - Attack-faces kan udvikles fra værdi 3 til Power, Momentum eller Rend; evolutionens identitet følger face-ID'et permanent og virker i manuel, automatisk og suspenderet combat.
 - Evolution-faces har konsekvente hero-identiteter på tværs af Workshop, dice summaries, combat og score-transfer: Power bruger et stjerne-burst, Momentum bruger chevrons/fartstriber, og Rend bruger flænsespor.
+- Second Descent åbner to valgfrie sidegrades: den offensive Executioner Die og den defensive Tower Die. Begge er unikke objekter og skal aktivt vælges inden for de fire slots.
+- Momentum viser sin ventende `+2` mellem rolls og markerer den modtagende face; Rend viser både den kommende Bleed og den aktive Bleed-stack ved enemy HP.
 - Der findes ingen Gold, Coins eller Materials.
 - HP fortsætter mellem encounters i samme run.
 - Shield gælder kun den aktuelle rundes resolution.

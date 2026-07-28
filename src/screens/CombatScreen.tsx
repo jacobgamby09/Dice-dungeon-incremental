@@ -17,6 +17,7 @@ import {
 } from '../game/automation/autoCombat'
 import { DUNGEONS } from '../game/content/dungeons'
 import { totalEnemyRolls } from '../game/combat/rollEnemyDie'
+import { getRollContributions } from '../game/combat/rollDie'
 import { getEnemyDie } from '../game/content/enemyDice'
 import { getRollSpeed, hasAutoCombatUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
@@ -51,6 +52,7 @@ export function CombatScreen() {
     drawPileDieIds: state.combat.drawPileDieIds,
     results: state.combat.results,
     totals: state.combat.totals,
+    pendingMomentum: state.combat.pendingMomentum,
     lastResolution: state.combat.lastResolution,
     resolutionVersion: state.combat.resolutionVersion,
     resolutionStep: state.combat.resolutionStep,
@@ -188,12 +190,24 @@ export function CombatScreen() {
   const scoredResults = pendingFaceId
     ? combat.results.filter((result) => result.faceId !== pendingFaceId)
     : combat.results
+  const rollContributions = getRollContributions(combat.results, diceLeft)
+  const pendingContribution = pendingFaceId
+    ? rollContributions.find(({ result }) => result.faceId === pendingFaceId)
+    : undefined
   const displayedTotals = pendingResult
     ? {
         ...combat.totals,
-        [pendingResult.type]: Math.max(0, combat.totals[pendingResult.type] - pendingResult.value),
+        [pendingResult.type]: Math.max(
+          0,
+          combat.totals[pendingResult.type] - (pendingContribution?.totalValue ?? pendingResult.value),
+        ),
+        bleed: Math.max(
+          0,
+          combat.totals.bleed - (pendingContribution?.bleedValue ?? 0),
+        ),
       }
     : combat.totals
+  const displayedMomentum = pendingFaceId ? 0 : combat.pendingMomentum
   const autoCombatUnlocked = hasAutoCombatUnlocked(profile.talentRanks)
   const rollDurationMilliseconds = 620 / rollSpeed
   const rollDurationSeconds = rollDurationMilliseconds / 1000
@@ -208,6 +222,10 @@ export function CombatScreen() {
     if (isScoreAnimating) return
     const result = drawNextDie()
     if (!result) return
+    const resultContribution = getRollContributions(
+      [...combat.results, result],
+      Math.max(0, diceLeft - 1),
+    ).at(-1)
     checkpointAutoCombat()
     setActiveRoll({ faceId: result.faceId, stage: 'rolling' })
 
@@ -233,9 +251,12 @@ export function CombatScreen() {
         const toY = targetRect ? targetRect.top + targetRect.height / 2 : fromY - 100
 
         setScoreTransfer({
+          bleedValue: resultContribution?.bleedValue,
           faceId: result.faceId,
+          momentumArmed: resultContribution?.momentumArmed,
+          momentumBonus: resultContribution?.momentumBonus,
           type: result.type,
-          value: result.value,
+          value: resultContribution?.totalValue ?? result.value,
           evolution: result.evolution,
           fromX,
           fromY,
@@ -252,6 +273,8 @@ export function CombatScreen() {
     rollTimers.current = [landingTimer]
   }, [
     checkpointAutoCombat,
+    combat.results,
+    diceLeft,
     drawNextDie,
     isScoreAnimating,
     rollDurationMilliseconds,
@@ -365,7 +388,11 @@ export function CombatScreen() {
           <div className="hp-label">
             <span>HP</span>
             {enemy.bleed > 0 ? (
-              <span className="enemy-bleed" aria-label={`${enemy.bleed} Bleed`}>
+              <span
+                aria-label={`${enemy.bleed} Bleed`}
+                className="enemy-bleed"
+                key={`bleed-${enemy.bleed}-${combat.resolutionVersion}`}
+              >
                 <Droplets aria-hidden="true" size={11} /> {enemy.bleed}
               </span>
             ) : null}
@@ -389,7 +416,11 @@ export function CombatScreen() {
         </div>
         <HpBar current={run.playerHp} max={run.playerMaxHp} />
         <div className="round-totals-stage" ref={scoreStageElement}>
-          <RoundTotalsPanel results={scoredResults} totals={displayedTotals} />
+          <RoundTotalsPanel
+            pendingMomentum={displayedMomentum}
+            results={scoredResults}
+            totals={displayedTotals}
+          />
           <div aria-hidden="true" className="score-target-anchor" ref={scoreTargetElement} />
         </div>
         {combat.phase === 'resolving' && combat.lastResolution && (

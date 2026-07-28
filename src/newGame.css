@@ -861,6 +861,25 @@
   text-transform: uppercase;
 }
 
+.score-transfer__effects {
+  position: absolute;
+  left: 50%;
+  bottom: -15px;
+  width: max-content;
+  max-width: 150px;
+  transform: translateX(-50%);
+  border: 2px solid #05050b;
+  background: #111827;
+  padding: 2px 4px;
+  color: var(--score-highlight, #fff);
+  font-size: 0.38rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #05050b;
+  text-transform: uppercase;
+}
+
 .score-transfer__spark {
   position: absolute;
   width: 5px;
@@ -2371,6 +2390,13 @@
   gap: 2px;
   color: #fb7185;
   font-weight: 900;
+  animation: enemy-bleed-pulse 0.48s steps(4, end);
+}
+
+@keyframes enemy-bleed-pulse {
+  0% { filter: brightness(1); transform: translateY(0) scale(1); }
+  35% { filter: brightness(1.9); transform: translateY(-2px) scale(1.18); }
+  100% { filter: brightness(1); transform: translateY(0) scale(1); }
 }
 
 .workshop-screen .workshop-face--ready {
@@ -2520,6 +2546,27 @@
 
 .round-total--bleed {
   border-color: #4c0519;
+}
+
+.round-total--momentum {
+  --total-color: #4ee8ff;
+  --total-surface: #12394c;
+  border-color: #1a6f86;
+  animation: momentum-charge-pulse 0.7s steps(3, end) infinite alternate;
+}
+
+@keyframes momentum-charge-pulse {
+  from {
+    box-shadow: 0 3px 0 #05050b, inset 0 1px 0 rgba(78, 232, 255, 0.16);
+    filter: brightness(0.9);
+  }
+  to {
+    box-shadow:
+      0 3px 0 #05050b,
+      0 0 10px rgba(78, 232, 255, 0.5),
+      inset 0 1px 0 rgba(216, 250, 255, 0.42);
+    filter: brightness(1.2);
+  }
 }
 
 .forge-anvil {
