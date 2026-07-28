@@ -70,7 +70,7 @@ Brug denne skabelon:
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
 - Den deterministiske balance-suite modellerer nu både enkelte dungeons og en hel progression journey med XP-køb, Soul-forges, evolutioner, loadout-skift, gentagne runs og dungeon-clears. Regressionen holder første face-køb inden run 2, anden die/Auto Combat omkring run 2–5, første evolution omkring run 2–5, Dungeon 1-clear omkring run 7–12 og Dungeon 2-clear senest omkring run 18 for blandede samt rene Power/Momentum/Rend-strategier.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#37 — Clean up Talent Tree node states](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/37), squash merge `6193f61`.
+- Seneste gameplay-merge i produktion: [#39 — Build first diverse dice loadouts](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/39), squash merge `9faa30c`.
 
 ## Næste anbefalede skridt
 
@@ -154,7 +154,7 @@ Brug denne skabelon:
 - Berørte områder: Permanent dice-catalog, Talent Tree-data/layout/ikoner, pure roll-contribution feedback, Combat/Round Totals/Score Transfer, post-Dungeon-1-devprofil, progression journey-simulator, balance-/store-/UI-tests, README, GDD, DESIGN og progress-log.
 - Validering: TypeScript, 23 testfiler med 129 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384 px verificerer seks ejede dice, fire aktive slots, de to nye Talent Tree-noder, Power/Momentum/Rend i devprofilen, et faktisk Momentum-roll der løfter næste Heal fra 3 til 5 samt ingen horisontal overflow i Hub, Talent Tree, Loadout eller Combat.
 - Kendte mangler: Den subjektive balance mellem de seks dice, første evolution omkring run 2–5 og de to 45-XP-priser skal stadig fysisk playtestes. Journey-simulatoren måler matematik og køb, ikke oplevet tid eller forståelse.
-- Git: `f40d901` — `Build first diverse dice loadouts`; branch `codex/build-diversity-v1`, PR oprettes efter push.
+- Git: `f40d901` — `Build first diverse dice loadouts` og `7b29073` — `Record Build Diversity validation`; PR [#39](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/39) er squash-merget til `main` som `9faa30c`. Vercel production-deployment `dpl_FmMHSNos5CFjkuDEX2JtLYbGXpSb` er `READY`; den offentlige URL svarer HTTP 200 med `index-BodO7ffB.js`, Executioner/Tower-unlocks og Momentum-charge.
 
 ### 2026-07-28 — Rene tekstfri Talent Tree-noder
 
