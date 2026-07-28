@@ -4941,41 +4941,6 @@
   color: #f4ffff;
 }
 
-.talent-canvas-node__state-tag {
-  position: absolute;
-  top: -7px;
-  left: 50%;
-  z-index: 5;
-  min-width: 36px;
-  border: 1px solid #315c65;
-  background: #071116;
-  box-shadow: 2px 2px 0 #000;
-  padding: 3px 5px;
-  color: #81c8d1;
-  font-size: 0.3rem;
-  font-weight: 1000;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-align: center;
-  text-transform: uppercase;
-  transform: translateX(-50%);
-}
-
-.talent-canvas-node__state-tag--ready {
-  border-color: #d8fcff;
-  background: #d8fcff;
-  color: #06262d;
-}
-
-.talent-canvas-node__state-tag--active,
-.talent-canvas-node__state-tag--maxed {
-  left: 8px;
-  border-color: #62dce8;
-  background: #0c5360;
-  color: #e9feff;
-  transform: none;
-}
-
 .talent-canvas-node[aria-pressed="true"] .talent-canvas-node__face {
   outline: 2px solid #f6fdff;
   outline-offset: 4px;
