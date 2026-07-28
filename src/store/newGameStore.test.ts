@@ -74,6 +74,72 @@ describe('new game progression loop', () => {
     expect('runSouls' in resetState.run).toBe(false)
   })
 
+  it('leaves an active dungeon without changing already-earned XP or Souls', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 37,
+        xp: 52,
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+    revealEnemyIntent()
+    useNewGameStore.getState().drawNextDie()
+
+    useNewGameStore.getState().openRunMenu()
+    expect(useNewGameStore.getState().runMenuOpen).toBe(true)
+    expect(useNewGameStore.getState().run.status).toBe('active')
+
+    useNewGameStore.getState().leaveDungeonRun()
+    const leftState = useNewGameStore.getState()
+
+    expect(leftState.screen).toBe('hub')
+    expect(leftState.runMenuOpen).toBe(false)
+    expect(leftState.profile.xp).toBe(52)
+    expect(leftState.profile.bankedSouls).toBe(37)
+    expect(leftState.run).toMatchObject({
+      status: 'inactive',
+      dungeonId: null,
+      enemy: null,
+      runStats: {
+        enemiesDefeated: 0,
+        soulsEarned: 0,
+        xpEarned: 0,
+      },
+    })
+    expect(leftState.combat).toMatchObject({
+      phase: 'awaiting_roll',
+      drawPileDieIds: [],
+      results: [],
+    })
+
+    useNewGameStore.getState().leaveDungeonRun()
+    expect(useNewGameStore.getState()).toEqual(leftState)
+  })
+
+  it('pauses Auto Combat and background progress while the run menu is open', () => {
+    useNewGameStore.getState().loadPostDungeonOneDevPreset()
+    useNewGameStore.getState().setAutoCombat(true)
+    useNewGameStore.getState().startRun('iron-depths')
+
+    expect(useNewGameStore.getState().run.automation.lastCheckpointAt).not.toBeNull()
+
+    useNewGameStore.getState().openRunMenu()
+    const pausedState = useNewGameStore.getState()
+    expect(pausedState.runMenuOpen).toBe(true)
+    expect(pausedState.run.automation.lastCheckpointAt).toBeNull()
+    expect(pausedState.resumeAutoCombat(Date.now() + 60_000)).toBeNull()
+    expect(useNewGameStore.getState().run.encounterIndex).toBe(0)
+
+    useNewGameStore.getState().closeRunMenu()
+    const resumedState = useNewGameStore.getState()
+    expect(resumedState.runMenuOpen).toBe(false)
+    expect(resumedState.run.automation.lastCheckpointAt).not.toBeNull()
+    expect(resumedState.screen).toBe('combat')
+    expect(resumedState.run.status).toBe('active')
+  })
+
   it('loads the post-Dungeon-1 dev profile atomically and starts Dungeon 2', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({

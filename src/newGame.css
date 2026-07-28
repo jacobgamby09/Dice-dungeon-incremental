@@ -289,11 +289,34 @@
   border-bottom: 3px solid #030308;
   background: #11101d;
   box-shadow: inset 0 -2px 0 #29253d;
-  padding: 6px 13px;
+  padding: 6px 10px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1.5fr;
+  grid-template-columns: 32px 1fr 1fr 1.5fr;
   align-items: center;
   gap: 8px;
+}
+
+.run-menu-trigger {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #28243b;
+  border-radius: 0;
+  background: #0a0912;
+  box-shadow: 0 3px 0 #030308, inset 0 2px 0 #343047;
+  color: #aaa4bd;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.run-menu-trigger:active {
+  box-shadow: 0 1px 0 #030308;
+  transform: translateY(2px);
+}
+
+.run-menu-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.36;
 }
 
 .combat-meta div {
@@ -3216,8 +3239,88 @@
 
 .away-recap > .pixel-button { width: 100%; min-height: 44px; }
 
+.run-menu-backdrop {
+  position: fixed;
+  z-index: 300;
+  inset: 0;
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  background: rgba(2, 3, 8, 0.82);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.run-menu {
+  width: min(100%, 384px);
+  border: 4px solid #030308;
+  border-radius: 0;
+  background: #11101b;
+  box-shadow:
+    7px 7px 0 #030308,
+    inset 0 3px 0 #4f46e5;
+  padding: 14px;
+  color: #f4f1fb;
+}
+
+.run-menu header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.run-menu header > svg { color: #a5b4fc; }
+
+.run-menu header span {
+  display: block;
+  color: #77738b;
+  font-size: 0.44rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.run-menu h2 {
+  margin: 2px 0 0;
+  color: #fff;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+}
+
+.run-menu > p {
+  margin: 12px 0 14px;
+  color: #aaa6b8;
+  font-size: 0.59rem;
+  line-height: 1.5;
+}
+
+.run-menu__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.run-menu__actions .pixel-button {
+  min-height: 46px;
+  font-size: 0.65rem;
+}
+
+.run-menu__leave {
+  background: #292535;
+  color: #fca5a5;
+}
+
+.run-menu__keep-fighting { background: #3730a3; }
+
+.run-menu__leave-confirm {
+  background: #991b1b;
+  box-shadow: 0 6px 0 #030308, inset 0 3px 0 #ef4444;
+}
+
 .auto-combat-toggle:focus-visible,
-.away-recap button:focus-visible {
+.away-recap button:focus-visible,
+.run-menu-trigger:focus-visible,
+.run-menu button:focus-visible {
   outline: 3px solid #fef08a;
   outline-offset: 2px;
 }

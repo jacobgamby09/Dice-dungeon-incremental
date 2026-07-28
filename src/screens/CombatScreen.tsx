@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Dices, Flame, Heart, Swords } from 'lucide-react'
+import { Dices, DoorOpen, Flame, Heart, Swords } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { EnemyDamageTransfer } from '../components/newgame/EnemyDamageTransfer'
@@ -8,6 +8,7 @@ import { EnemyIntentTray } from '../components/newgame/EnemyIntentTray'
 import { HpBar } from '../components/newgame/HpBar'
 import { RollDieTile } from '../components/newgame/RollDieTile'
 import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
+import { RunMenu } from '../components/newgame/RunMenu'
 import { ScoreTransfer } from '../components/newgame/ScoreTransfer'
 import type { ScoreTransferPath } from '../components/newgame/ScoreTransfer'
 import {
@@ -31,7 +32,7 @@ const ENEMY_INTENT_STAGGER_MS = 90
 
 export function CombatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
-    automationPaused: state.awayRecap !== null,
+    automationPaused: state.awayRecap !== null || state.runMenuOpen,
     bankedSouls: state.profile.bankedSouls,
     settings: state.profile.settings,
     talentRanks: state.profile.talentRanks,
@@ -61,6 +62,10 @@ export function CombatScreen() {
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
   const setAutoCombat = useNewGameStore((state) => state.setAutoCombat)
   const checkpointAutoCombat = useNewGameStore((state) => state.checkpointAutoCombat)
+  const runMenuOpen = useNewGameStore((state) => state.runMenuOpen)
+  const openRunMenu = useNewGameStore((state) => state.openRunMenu)
+  const closeRunMenu = useNewGameStore((state) => state.closeRunMenu)
+  const leaveDungeonRun = useNewGameStore((state) => state.leaveDungeonRun)
 
   const [activeRoll, setActiveRoll] = useState<ActiveRoll | null>(null)
   const [scoreTransfer, setScoreTransfer] = useState<ScoreTransferPath | null>(null)
@@ -300,6 +305,16 @@ export function CombatScreen() {
   return (
     <main className="game-shell combat-screen">
       <header className="combat-meta">
+        <button
+          aria-label="Open run menu"
+          className="run-menu-trigger"
+          disabled={combat.phase === 'resolving'}
+          onClick={openRunMenu}
+          title="Run menu"
+          type="button"
+        >
+          <DoorOpen aria-hidden="true" size={17} />
+        </button>
         <div><span>Floor</span><strong>{run.encounterIndex + 1}/{dungeon.floors.length}</strong></div>
         <div><span>Round</span><strong>{combat.roundNumber}</strong></div>
         <div className="permanent-souls"><Flame aria-hidden="true" size={15} /><strong>{profile.bankedSouls}</strong><span>souls</span></div>
@@ -480,6 +495,9 @@ export function CombatScreen() {
           onComplete={completeEnemyDamageTransfer}
           path={enemyDamageTransfer}
         />
+      )}
+      {runMenuOpen && (
+        <RunMenu onClose={closeRunMenu} onLeave={leaveDungeonRun} />
       )}
     </main>
   )
