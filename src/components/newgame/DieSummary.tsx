@@ -4,6 +4,7 @@ import type { DieInstance } from '../../game/types/dice'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 import { EvolutionIcon } from './EvolutionIcon'
+import { getEvolutionVisualStyle } from './evolutionVisuals'
 
 interface DieSummaryProps {
   die: DieInstance
@@ -23,9 +24,14 @@ export const DieSummary = memo(function DieSummary({ die, compact = false }: Die
       <div className="die-summary__faces" aria-label={`${die.name} faces`}>
         {die.faces.map((face) => (
           <span
-            className="face-cell"
+            aria-label={`${face.value} ${FACE_META[face.type].label}${face.evolution ? `, ${face.evolution.name} evolution` : ''}`}
+            className={`face-cell${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}`}
             key={face.id}
-            style={{ '--face-color': FACE_META[face.type].color, color: meta.color } as CSSProperties}
+            style={{
+              '--face-color': FACE_META[face.type].color,
+              color: face.evolution ? undefined : meta.color,
+              ...(face.evolution ? getEvolutionVisualStyle(face.evolution.id) : {}),
+            } as CSSProperties}
           >
             <strong>{face.value}</strong>
             {face.evolution

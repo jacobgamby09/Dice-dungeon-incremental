@@ -1,7 +1,7 @@
 # Dice Dungeon — Visual Design System
 
 Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
-Version: 1.8 — 2026-07-27.
+Version: 1.9 — 2026-07-28.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
 
@@ -152,6 +152,18 @@ Faste regler:
 - Nye face-typer skal få deres egen semantiske farve, ikon og mørke overflade.
 - Et navn beskriver den konkrete die (`die.name`); det må ikke udledes af typen.
 - Permanente faces skal opleves som individuelle objekter, især i Workshop.
+
+#### Evolution-faces
+
+En evolution er et hero face og skal læses før den almindelige Attack-type. Identiteten er den samme i Workshop, dice summaries, combat-roll, draw order og score-transfer:
+
+| Evolution | Silhuet | Overflade | Landing |
+|---|---|---|---|
+| Power | Eksplosiv stjerne med centralt kryds | Hvidgylden burst over mørk okker | Kort hvid flash og gylden impact |
+| Momentum | Tre fremadgående chevrons | Cyan fartstriber over mørk teal | Cyan trail og fremadrettet puls |
+| Rend | Tre kantede flænsespor | Crimson ridser over mørk blodrød | Blodrød slash-puls |
+
+Evolutionens værdi og hovedsilhuet er primære. Et lille sværdmærke er sekundært og viser, at facen stadig er Attack. Farve er støtte, ikke eneste identifikation. Landingen må kort vise `POWER`, `MOMENTUM` eller `REND`, men draw-order-resultatet skal bagefter kunne genkendes alene på ramme, mønster og ikon.
 
 ### 5. Vis information, når den er sand
 

@@ -60,12 +60,13 @@ Brug denne skabelon:
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Workshop har nu to atomiske Soul-forges: billig Chaos Forge med controlled RNG og faldende rabat samt dyr Precision Forge til en valgt face. Attack-faces vækkes fra værdi 3 og udvikles permanent til Power, Momentum eller Rend.
 - Power giver 5 direkte Attack, Momentum flytter +2 til næste face med Attack-fallback, og Rend giver 2 Attack + 2 forsinket Bleed gennem Shield. Effekterne deles af manuel combat, Auto Combat, background fast-forward og simulatoren.
+- Evolution-faces har nu tre gennemgående hero-identiteter i Workshop, dice summaries, 3D-roll, settled draw order og score-transfer: Power bruger et hvidgyldent stjerne-burst, Momentum bruger cyan chevrons/fartstriber, og Rend bruger crimson flænsespor. Et landet evolution-roll får desuden en kort farvet impact med sit navn.
 - Normal Victory viser kun encounter-reward, totals, HP og dungeon-progress; næste-enemy-data er fjernet. Manuel mode bruger én Continue-knap, mens Auto Combat viser en kort reward-pulse og fortsætter til næste floor med en synlig Pause-handling.
 - Auto Combat automatiserer player-rolls, Resolve Round, næste round og normale floor-transitions. Det stopper ved Defeat og Boss Victory og har endnu ingen Auto Retry.
 - Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
 - Combat-headeren har en diskret Run Menu før floor-informationen. Menuen pauser live- og background-Auto Combat; et totrinsbekræftet leave returnerer til Hub med XP, Souls og permanent progression intakt.
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
-- En deterministisk simulator og 114 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- En deterministisk simulator og 117 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum og deres visuelle identiteter, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#33 — Redesign Talent Tree interactions](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/33), squash merge `f98ee86`.
 
@@ -73,7 +74,7 @@ Brug denne skabelon:
 
 1. Verificér Talent Tree-pinch, modalens læsbarhed og state-kontrast på en fysisk iPhone ved både 320 px og 384 px.
 2. Fresh-save-playtest hvor ofte Chaos Forge opleves spændende frem for tilfældig, og om Precision-premium er en reel safety valve frem for et ikke-valg.
-3. Sammenlign rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2; retune evolution-output, hvis all-Power bliver den dominerende løsning.
+3. Verificér de tre evolution-identiteter og deres landingseffekter på en fysisk 384 px-telefon, og sammenlign derefter rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2.
 4. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
 5. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
 6. Brainstorm Expedition Board videre uden at implementere det, og afvent stadig nye dice families.
@@ -84,6 +85,7 @@ Brug denne skabelon:
 - Simuleringen bekræfter den matematiske dybde- og reward-kurve, men modellerer ikke spillerens face-køb eller oplevet combat-tempo.
 - Mixed-evolution regressionen går materielt længere end flade værdi-3 Attack Dice, men økonomien er endnu ikke simuleret som en fuld sekvens af konkrete Chaos/Precision-køb. Særligt 80-Soul-awakening og faldende Chaos-rabat skal playtestes mod faktiske rewards.
 - Flere faces må foreløbig vælge samme evolution. Det er bevidst for første playtest, men all-Power kan blive en ny løst strategi og skal sammenlignes mod Momentum/Rend, før systemet betragtes som balanceret.
+- Power/Momentum/Rend er browser-verificeret som separate mønstre, silhuetter og farver i den 384 px brede game-shell. Den subjektive aflæsning under hurtigt Auto Combat skal stadig godkendes på en fysisk mobil.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Enemy intent-rækken er dimensioneret til 1–3 dice; flere end tre kræver en ny kompakt præsentation eller sekventiel paging.
 - Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
@@ -100,6 +102,7 @@ Brug denne skabelon:
 - XP giver permanent adgang og kapacitet; Souls forbedrer konkrete permanente dice/faces.
 - Soul Forge har to komplementære metoder: Chaos forbedrer en tilfældig eligible face billigere, mens Precision vælger den konkrete face til 2× basisprisen. Chaos-rabatten falder med antallet af eligible faces og er nul ved én mulighed.
 - Attack-faces stopper ved værdi 3, vækkes via Forge og vælger derefter gratis Power, Momentum eller Rend permanent. Power er 5 direkte Attack; Momentum er 3 Attack +2 til næste face med Attack-fallback; Rend er 2 Attack +2 forsinket Bleed.
+- Evolved Attack-faces er hero faces: Power bruger stjerne-burst, Momentum bruger chevrons/fartstriber, og Rend bruger flænsespor. Identiteten skal være den samme i Workshop, summaries, combat, draw order og score-transfer og må aldrig bero på farve alene.
 - Nyt Bleed skader først fra næste player resolution, ignorerer enemy Shield, falder med 1 efter hvert tick og annullerer enemy intent ved lethal damage.
 - Kun permanent `bankedSouls` (player-facing `Souls`) og `xp` findes som valuta/progression; `runSouls` findes kun som version-6 migrationsfelt.
 - Spilleren starter med én Attack Die.
@@ -136,6 +139,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Tydelige evolution hero-faces
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Power, Momentum og Rend kan nu identificeres øjeblikkeligt gennem hver sin SVG-silhuet, overflade, ramme og accent i Workshop, dice summaries, alle seks 3D-cube-sider, settled draw order og score-transfer. Et evolved face får ved landing en kort navngivet impact-puls uden at ændre combat-mekanikken.
+- Beslutninger: Power er hvidgylden med eksplosivt stjerne-burst, Momentum er cyan med tre chevrons/fartstriber, og Rend er crimson med tre flænsespor. Farve står aldrig alene; silhuet og mønster er bindende og Attack-tilhørsforholdet bevares som sekundær information.
+- Berørte områder: Central evolution-visual registry, egne SVG-ikoner, DieSummary, RollDieTile, ScoreTransfer, Workshop, mobile styles, præsentationstests, GDD, DESIGN, README og progress-log.
+- Validering: `npx tsc --noEmit`, 22 testfiler med 117 tests, ESLint, production-build og `git diff --check` består. Lokal browser gennemfører et rigtigt post-Dungeon-1-forløb til 86 Souls, Chaos-awakening, Rend-valg og efterfølgende combat i en 384 px bred game-shell uden horisontal overflow; evolution-valgene og det permanente Rend-face er visuelt inspiceret.
+- Kendte mangler: Hurtig aflæsning af alle tre landingseffekter skal stadig playtestes på en fysisk mobil; gameplay-tal og evolution-mekanik er bevidst urørte.
+- Git: Ikke committed.
 
 ### 2026-07-28 — Zoom og stort Talent Tree-overlay
 

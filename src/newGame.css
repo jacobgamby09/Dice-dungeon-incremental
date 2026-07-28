@@ -185,6 +185,64 @@
   font-weight: 900;
 }
 
+.evolution-icon {
+  flex: 0 0 auto;
+  fill: none;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-width: 2.35;
+}
+
+.evolution-icon--power path:first-child {
+  fill: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.evolution-icon--rend {
+  stroke-width: 2.7;
+}
+
+.evolution-face-surface {
+  --face-color: var(--evolution-accent);
+  border-color: var(--evolution-shadow);
+  color: var(--evolution-highlight);
+}
+
+.evolution-face-surface--power {
+  background:
+    linear-gradient(45deg, transparent 43%, color-mix(in srgb, var(--evolution-highlight) 34%, transparent) 44% 48%, transparent 49%),
+    linear-gradient(-45deg, transparent 43%, color-mix(in srgb, var(--evolution-accent) 25%, transparent) 44% 48%, transparent 49%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--evolution-highlight) 28%, transparent) 0 14%, transparent 15%),
+    var(--evolution-surface) !important;
+}
+
+.evolution-face-surface--momentum {
+  background:
+    repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--evolution-highlight) 24%, transparent) 9px 11px, transparent 12px 18px),
+    linear-gradient(90deg, color-mix(in srgb, var(--evolution-shadow) 75%, transparent), transparent 55%),
+    var(--evolution-surface) !important;
+}
+
+.evolution-face-surface--rend {
+  background:
+    linear-gradient(123deg, transparent 0 29%, color-mix(in srgb, var(--evolution-highlight) 31%, transparent) 30% 33%, transparent 34%),
+    linear-gradient(123deg, transparent 0 51%, color-mix(in srgb, var(--evolution-accent) 36%, transparent) 52% 55%, transparent 56%),
+    linear-gradient(123deg, transparent 0 72%, color-mix(in srgb, var(--evolution-highlight) 24%, transparent) 73% 76%, transparent 77%),
+    var(--evolution-surface) !important;
+}
+
+.face-cell.evolution-face-surface {
+  position: relative;
+  border-color: var(--evolution-accent);
+  box-shadow: inset 0 0 0 1px var(--evolution-shadow);
+  color: var(--evolution-highlight);
+}
+
+.face-cell.evolution-face-surface strong {
+  text-shadow: 1px 1px 0 var(--evolution-shadow);
+}
+
 .footer-actions,
 .combat-actions {
   margin-top: auto;
@@ -775,10 +833,32 @@
 }
 
 .score-transfer strong {
-  color: #fff;
+  color: var(--score-highlight, #fff);
   font-size: 1rem;
   line-height: 1;
   text-shadow: 2px 2px 0 #05050b;
+}
+
+.score-transfer-origin--evolution .score-transfer {
+  min-width: 86px;
+  border-color: var(--score-dark);
+  box-shadow:
+    0 4px 0 #05050b,
+    0 0 13px color-mix(in srgb, var(--score-color) 62%, transparent),
+    inset 0 0 0 2px color-mix(in srgb, var(--score-color) 42%, transparent);
+}
+
+.score-transfer-origin--evolution .score-transfer small {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  color: var(--score-highlight);
+  font-size: 0.34rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #05050b;
+  text-transform: uppercase;
 }
 
 .score-transfer__spark {
@@ -992,6 +1072,35 @@
   backface-visibility: hidden;
 }
 
+.roll-die__side.evolution-face-surface,
+.roll-die__body.evolution-face-surface {
+  border-color: var(--evolution-shadow);
+  box-shadow:
+    0 6px 0 #030308,
+    inset 0 0 0 3px color-mix(in srgb, var(--evolution-accent) 38%, transparent),
+    inset 0 3px 0 color-mix(in srgb, var(--evolution-highlight) 40%, transparent);
+  color: var(--evolution-highlight);
+}
+
+.roll-die__side.evolution-face-surface {
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--evolution-accent) 38%, transparent),
+    inset 0 3px 0 color-mix(in srgb, var(--evolution-highlight) 40%, transparent);
+}
+
+.evolution-face__attack-mark {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 15px;
+  height: 15px;
+  border: 1px solid color-mix(in srgb, var(--evolution-highlight) 58%, transparent);
+  background: color-mix(in srgb, var(--evolution-shadow) 84%, transparent);
+  display: grid;
+  place-items: center;
+  color: var(--evolution-highlight);
+}
+
 .roll-die__side strong {
   font-size: 1.55rem;
   line-height: 1;
@@ -1024,6 +1133,60 @@
 .roll-die__result { display: flex; align-items: center; gap: 5px; color: #fff; font-size: 1.4rem; font-weight: 900; }
 .roll-pedestal .roll-die__question { font-size: 1.8rem; text-shadow: 3px 3px 0 #030308; }
 .roll-pedestal .roll-die__result { font-size: 1.85rem; text-shadow: 3px 3px 0 #030308; }
+
+.roll-die--evolution {
+  --die-color: var(--evolution-accent);
+  --die-surface: var(--evolution-surface);
+}
+
+.roll-die--landed.roll-die--evolution .roll-die__cube {
+  animation: evolution-landing-flash 0.34s steps(4, end);
+}
+
+.roll-die--evolution .roll-die__result {
+  color: var(--evolution-highlight);
+  text-shadow: 2px 2px 0 var(--evolution-shadow);
+}
+
+.evolution-impact {
+  position: absolute;
+  z-index: 8;
+  top: -38px;
+  left: 50%;
+  min-width: 100px;
+  border: 2px solid var(--evolution-accent);
+  background: var(--evolution-shadow);
+  box-shadow:
+    0 4px 0 #030308,
+    0 0 18px color-mix(in srgb, var(--evolution-accent) 64%, transparent);
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--evolution-highlight);
+  pointer-events: none;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+.evolution-impact::before,
+.evolution-impact::after {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--evolution-accent);
+  box-shadow:
+    -25px 14px 0 var(--evolution-highlight),
+    23px 18px 0 var(--evolution-accent),
+    -17px -13px 0 var(--evolution-accent),
+    28px -8px 0 var(--evolution-highlight);
+  content: '';
+}
+
+.evolution-impact::before { left: 6px; top: 50%; }
+.evolution-impact::after { right: 6px; top: 35%; transform: rotate(45deg); }
+.evolution-impact strong { font-size: 0.62rem; letter-spacing: 0.08em; }
 
 .combat-actions {
   position: relative;
@@ -2174,6 +2337,32 @@
   text-transform: uppercase;
 }
 
+.workshop-screen .workshop-face.evolution-face-surface {
+  border-color: var(--evolution-shadow);
+  box-shadow:
+    0 5px 0 #030308,
+    inset 0 0 0 3px color-mix(in srgb, var(--evolution-accent) 34%, transparent),
+    inset 0 3px 0 color-mix(in srgb, var(--evolution-highlight) 34%, transparent);
+  color: var(--evolution-highlight);
+}
+
+.workshop-screen .workshop-face.evolution-face-surface[aria-pressed="true"] {
+  border-color: var(--evolution-accent);
+  box-shadow:
+    0 7px 0 #030308,
+    0 0 17px color-mix(in srgb, var(--evolution-accent) 62%, transparent),
+    inset 0 0 0 3px color-mix(in srgb, var(--evolution-highlight) 35%, transparent);
+}
+
+.workshop-screen .workshop-face.evolution-face-surface > small {
+  color: color-mix(in srgb, var(--evolution-highlight) 72%, transparent);
+}
+
+.workshop-screen .workshop-face .workshop-face__evolution-name {
+  color: var(--evolution-highlight);
+  text-shadow: 1px 1px 0 var(--evolution-shadow);
+}
+
 .enemy-bleed {
   margin-left: auto;
   margin-right: 8px;
@@ -2266,13 +2455,23 @@
 }
 
 .evolution-choices button:active { transform: translateY(2px); }
-.evolution-choices button[aria-pressed="true"] {
-  border-color: #e879f9;
-  background: #35133f;
-  box-shadow: 0 0 12px rgba(232, 121, 249, 0.34);
+.evolution-choices .evolution-choice {
+  border-left-color: var(--evolution-accent);
+  background:
+    linear-gradient(105deg, color-mix(in srgb, var(--evolution-surface) 75%, transparent), transparent 62%),
+    #17131f;
+  color: var(--evolution-accent);
+}
+
+.evolution-choices .evolution-choice[aria-pressed="true"] {
+  border-color: var(--evolution-accent);
+  background:
+    linear-gradient(105deg, var(--evolution-surface), transparent 70%),
+    #211725;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--evolution-accent) 42%, transparent);
 }
 .evolution-choices span { display: grid; gap: 3px; }
-.evolution-choices strong { color: #fff; font-size: 0.63rem; text-transform: uppercase; }
+.evolution-choices strong { color: var(--evolution-highlight, #fff); font-size: 0.63rem; text-transform: uppercase; }
 .evolution-choices small { color: #b7afc3; font-size: 0.49rem; line-height: 1.35; }
 
 .evolution-confirm {
@@ -2304,11 +2503,19 @@
   position: absolute;
   right: 4px;
   bottom: 3px;
-  color: #f0abfc;
+  color: var(--evolution-highlight, #f0abfc);
   font-size: 0.42rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  text-shadow: 1px 1px 0 var(--evolution-shadow, #030308);
+}
+
+@keyframes evolution-landing-flash {
+  0% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+  24% { filter: brightness(1.9) drop-shadow(0 0 14px var(--evolution-highlight)); }
+  48% { filter: brightness(0.86) drop-shadow(0 0 5px var(--evolution-accent)); }
+  100% { filter: brightness(1) drop-shadow(0 0 10px var(--evolution-accent)); }
 }
 
 .round-total--bleed {
