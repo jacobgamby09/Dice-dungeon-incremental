@@ -68,7 +68,7 @@ Brug denne skabelon:
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
 - En deterministisk simulator og 117 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum og deres visuelle identiteter, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#33 — Redesign Talent Tree interactions](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/33), squash merge `f98ee86`.
+- Seneste gameplay-merge i produktion: [#35 — Make evolution faces unmistakable](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/35), squash merge `18f2938`.
 
 ## Næste anbefalede skridt
 
@@ -150,7 +150,7 @@ Brug denne skabelon:
 - Berørte områder: Central evolution-visual registry, egne SVG-ikoner, DieSummary, RollDieTile, ScoreTransfer, Workshop, mobile styles, præsentationstests, GDD, DESIGN, README og progress-log.
 - Validering: `npx tsc --noEmit`, 22 testfiler med 117 tests, ESLint, production-build og `git diff --check` består. Lokal browser gennemfører et rigtigt post-Dungeon-1-forløb til 86 Souls, Chaos-awakening, Rend-valg og efterfølgende combat i en 384 px bred game-shell uden horisontal overflow; evolution-valgene og det permanente Rend-face er visuelt inspiceret.
 - Kendte mangler: Hurtig aflæsning af alle tre landingseffekter skal stadig playtestes på en fysisk mobil; gameplay-tal og evolution-mekanik er bevidst urørte.
-- Git: Ikke committed.
+- Git: `2e8efbe` — `Make evolution faces unmistakable`; PR [#35](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/35) er squash-merget til `main` som `18f2938`. Vercel production-deployment `dpl_uGx83msLjszoR5jDGwB2kt5g1DyX` er `READY`; den offentlige URL er browser-verificeret med HTTP 200, og production-assets indeholder alle tre evolution-overflader samt landingseffekten.
 
 ### 2026-07-28 — Zoom og stort Talent Tree-overlay
 
