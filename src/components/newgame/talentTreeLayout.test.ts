@@ -5,6 +5,7 @@ import {
   getCenteredTalentCanvasOffset,
   getTalentTreeFrontierPoint,
   getTalentTreePoint,
+  getZoomedTalentCanvasOffset,
   TALENT_TREE_LAYOUT,
 } from './talentTreeLayout'
 
@@ -35,6 +36,26 @@ describe('Talent Tree canvas layout', () => {
 
     expect(offset.x).toBeCloseTo(222.16)
     expect(offset.y).toBe(-1040)
+  })
+
+  it('keeps the viewport anchor fixed while zooming', () => {
+    const viewport = { height: 800, width: 384 }
+    const anchor = { x: 192, y: 400 }
+    const offset = getCenteredTalentCanvasOffset({ x: 520, y: 640 }, viewport)
+    const zoomed = getZoomedTalentCanvasOffset(offset, anchor, 1, 1.25, viewport)
+
+    expect(zoomed).toEqual({
+      x: 192 - 520 * 1.25,
+      y: 400 - 640 * 1.25,
+    })
+  })
+
+  it('centers requested points at the current zoom level', () => {
+    expect(getCenteredTalentCanvasOffset(
+      { x: 520, y: 260 },
+      { height: 800, width: 384 },
+      0.75,
+    )).toEqual({ x: -198, y: 205 })
   })
 
   it('centers a fresh profile on the opening talent', () => {

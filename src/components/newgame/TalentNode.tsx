@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { LockKeyhole } from 'lucide-react'
+import { Check, LockKeyhole } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import type { TalentDefinition } from '../../game/types/progression'
 import { TalentIcon } from './TalentIcon'
@@ -27,11 +27,18 @@ interface TalentNodeProps {
 }
 
 const STATE_LABELS: Record<Exclude<TalentNodeState, 'silhouette'>, string> = {
-  active: 'Active',
+  active: 'Purchased',
   locked: 'Path required',
   maxed: 'Maximum rank',
   ready: 'Ready to purchase',
-  unaffordable: 'Not enough XP',
+  unaffordable: 'Unlocked, not enough XP',
+}
+
+const NODE_TAGS: Partial<Record<Exclude<TalentNodeState, 'silhouette'>, string>> = {
+  active: 'Owned',
+  maxed: 'Max',
+  ready: 'Buy',
+  unaffordable: 'Open',
 }
 
 export function TalentNode({
@@ -121,6 +128,12 @@ export function TalentNode({
           ? <LockKeyhole aria-hidden="true" size={25} />
           : <TalentIcon iconKey={talent.iconKey} size={27} />}
 
+        {(state === 'active' || state === 'maxed') && (
+          <span aria-hidden="true" className="talent-canvas-node__owned">
+            <Check size={12} strokeWidth={4} />
+          </span>
+        )}
+
         {maxRank > 1 && (
           <span aria-hidden="true" className="talent-canvas-node__ranks">
             {talent.ranks.map((_, index) => (
@@ -143,6 +156,15 @@ export function TalentNode({
           </span>
         )}
       </motion.span>
+
+      {NODE_TAGS[state] && (
+        <span
+          aria-hidden="true"
+          className={`talent-canvas-node__state-tag talent-canvas-node__state-tag--${state}`}
+        >
+          {NODE_TAGS[state]}
+        </span>
+      )}
     </motion.button>
   )
 }

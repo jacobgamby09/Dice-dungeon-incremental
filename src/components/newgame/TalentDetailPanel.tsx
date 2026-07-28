@@ -10,6 +10,7 @@ import {
   Map,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
 import type {
   TalentDefinition,
@@ -69,6 +70,14 @@ function getPurchaseLabel(
   return `Purchase for ${nextRank.cost} XP`
 }
 
+const DETAIL_STATE_LABELS: Record<Exclude<TalentNodeState, 'silhouette'>, string> = {
+  active: 'Purchased · Upgrade available',
+  locked: 'Locked',
+  maxed: 'Purchased · Maximum rank',
+  ready: 'Ready to purchase',
+  unaffordable: 'Unlocked · More XP required',
+}
+
 export function TalentDetailPanel({
   isAnimating,
   isAffordable,
@@ -80,64 +89,100 @@ export function TalentDetailPanel({
   talent,
   xp,
 }: TalentDetailPanelProps) {
+  const dialogRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!talent) return
+
+    dialogRef.current?.focus()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isAnimating) onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isAnimating, onClose, talent])
+
   return (
     <AnimatePresence>
       {talent && (
-        <motion.aside
-          aria-labelledby="talent-detail-title"
-          className="talent-canvas-inspector"
-          data-testid="talent-detail-panel"
+        <motion.div
+          className="talent-canvas-dialog-backdrop"
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          exit={{ opacity: 0, y: 12 }}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !isAnimating) onClose()
+          }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
         >
-          <button
-            aria-label="Close talent details"
-            className="talent-canvas-inspector__close"
-            onClick={onClose}
-            type="button"
+          <motion.aside
+            aria-labelledby="talent-detail-title"
+            aria-modal="true"
+            className="talent-canvas-inspector"
+            data-testid="talent-detail-panel"
+            initial={{ opacity: 0, scale: 0.88, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 12 }}
+            ref={dialogRef}
+            role="dialog"
+            tabIndex={-1}
+            transition={{ duration: 0.22, ease: [0.2, 0.82, 0.24, 1] }}
           >
-            <X aria-hidden="true" size={17} />
-          </button>
+            <button
+              aria-label="Close talent details"
+              className="talent-canvas-inspector__close"
+              disabled={isAnimating}
+              onClick={onClose}
+              type="button"
+            >
+              <X aria-hidden="true" size={21} />
+            </button>
 
-          <div className="talent-canvas-inspector__icon">
-            <TalentIcon iconKey={talent.iconKey} size={23} />
-          </div>
+            <div className="talent-canvas-inspector__icon">
+              <TalentIcon iconKey={talent.iconKey} size={36} />
+            </div>
 
-          <header>
-            <span>{talent.track} talent</span>
-            <h2 id="talent-detail-title">{talent.name}</h2>
-            <p>{talent.description}</p>
-          </header>
+            <header>
+              <span>{talent.track} talent</span>
+              <h2 id="talent-detail-title">{talent.name}</h2>
+              <p>{talent.description}</p>
+            </header>
 
-          <div className="talent-canvas-inspector__rank">
-            <span>Rank</span>
-            <strong>{rank}/{talent.ranks.length}</strong>
-          </div>
+            <div
+              className={`talent-canvas-inspector__state talent-canvas-inspector__state--${nodeState}`}
+            >
+              {DETAIL_STATE_LABELS[nodeState]}
+            </div>
 
-          <div className="talent-canvas-inspector__effects" aria-label="Next rank effects">
-            {(nextRank?.effects ?? talent.ranks.at(-1)?.effects ?? []).map((effect, index) => {
-              const EffectIcon = EFFECT_ICONS[effect.type]
-              return (
-                <span key={`${effect.type}-${index}`}>
-                  <EffectIcon aria-hidden="true" size={14} />
-                  {getEffectLabel(effect)}
-                </span>
-              )
-            })}
-          </div>
+            <div className="talent-canvas-inspector__rank">
+              <span>Current rank</span>
+              <strong>{rank}/{talent.ranks.length}</strong>
+            </div>
 
-          <button
-            className="talent-canvas-inspector__purchase"
-            disabled={!nextRank || !isAffordable || isAnimating}
-            onClick={onPurchase}
-            type="button"
-          >
-            <Sparkles aria-hidden="true" size={15} />
-            {getPurchaseLabel(nodeState, isAffordable, nextRank, xp)}
-          </button>
-        </motion.aside>
+            <div className="talent-canvas-inspector__effects" aria-label="Next rank effects">
+              <small>{nextRank ? 'Next rank grants' : 'Permanent effects'}</small>
+              {(nextRank?.effects ?? talent.ranks.at(-1)?.effects ?? []).map((effect, index) => {
+                const EffectIcon = EFFECT_ICONS[effect.type]
+                return (
+                  <span key={`${effect.type}-${index}`}>
+                    <EffectIcon aria-hidden="true" size={20} />
+                    {getEffectLabel(effect)}
+                  </span>
+                )
+              })}
+            </div>
+
+            <button
+              className="talent-canvas-inspector__purchase"
+              disabled={!nextRank || !isAffordable || isAnimating}
+              onClick={onPurchase}
+              type="button"
+            >
+              <Sparkles aria-hidden="true" size={19} />
+              {getPurchaseLabel(nodeState, isAffordable, nextRank, xp)}
+            </button>
+          </motion.aside>
+        </motion.div>
       )}
     </AnimatePresence>
   )

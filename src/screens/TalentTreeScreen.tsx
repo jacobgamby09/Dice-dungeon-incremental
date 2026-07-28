@@ -1,5 +1,5 @@
 import { ChevronLeft, LocateFixed, Sparkles } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TalentDetailPanel } from '../components/newgame/TalentDetailPanel'
 import { TalentTreeCanvas } from '../components/newgame/TalentTreeCanvas'
 import type {
@@ -111,6 +111,10 @@ export function TalentTreeScreen() {
     point: getTalentTreeFrontierPoint(talentRanks),
   }))
 
+  useEffect(() => {
+    window.scrollTo({ left: 0, top: 0 })
+  }, [])
+
   const selectedTalent = selectedTalentId ? TALENTS_BY_ID[selectedTalentId] : null
   const selectedRank = selectedTalent ? getTalentRank(talentRanks, selectedTalent.id) : 0
   const selectedNextRank = selectedTalent
@@ -200,6 +204,10 @@ export function TalentTreeScreen() {
     [ceremony, ceremonyStage],
   )
 
+  const closeTalentDetails = useCallback(() => {
+    setSelectedTalentId(null)
+  }, [])
+
   const selectTalent = (talent: TalentDefinition) => {
     if (ceremony) return
     setSelectedTalentId(talent.id)
@@ -242,7 +250,7 @@ export function TalentTreeScreen() {
         <button
           aria-label="Back to Hub"
           className="talent-canvas-hud__button"
-          disabled={Boolean(ceremony)}
+          disabled={Boolean(ceremony) || selectedTalentId !== null}
           onClick={goToHub}
           type="button"
         >
@@ -261,10 +269,10 @@ export function TalentTreeScreen() {
 
       <TalentTreeCanvas
         chargingTalentIds={chargingTalentIds}
-        disabled={Boolean(ceremony)}
+        disabled={Boolean(ceremony) || selectedTalentId !== null}
         focusRequest={focusRequest}
         nodes={canvasNodes}
-        onClearSelection={() => setSelectedTalentId(null)}
+        onClearSelection={closeTalentDetails}
         onSelectTalent={selectTalent}
         selectedTalentId={selectedTalentId}
       />
@@ -272,7 +280,7 @@ export function TalentTreeScreen() {
       <button
         aria-label="Center on current frontier"
         className="talent-canvas-recenter"
-        disabled={Boolean(ceremony)}
+        disabled={Boolean(ceremony) || selectedTalentId !== null}
         onClick={recenterTree}
         type="button"
       >
@@ -303,7 +311,7 @@ export function TalentTreeScreen() {
             ? selectedNodeState
             : 'locked'
         }
-        onClose={() => setSelectedTalentId(null)}
+        onClose={closeTalentDetails}
         onPurchase={confirmPurchase}
         rank={selectedRank}
         talent={selectedTalent}

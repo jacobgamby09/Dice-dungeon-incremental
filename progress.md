@@ -41,7 +41,7 @@ Brug denne skabelon:
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, kompakt Victory/Boss Victory og descent-resumé ved Defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
-- XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, kompakt bund-inspector, fog-silhuetter og chain-reaction reveals.
+- XP Talent Tree er nu et næsten sort, skærmfyldende spatial canvas med frit pan, 65–140% pinch/knap/Ctrl-wheel-zoom, faste nodekoordinater, die-sized talent-noder, SVG-forbindelser, stort modal-overlay, tydelige `Owned/Max/Buy/Open/Locked`-states, fog-silhuetter og chain-reaction reveals.
 - Battle-Hardened har tre ranks á +2 Max HP for maksimalt +6; rank 1 åbner slot 2 og Striker-vejen, mens rank 2 og 3 er valgfrie.
 - Talentforløbet giver derefter slot 2 og en unik Striker Die. Auto Combat åbner direkte efter Twin Arsenal; senere følger Shield, tre samtidige grene, Heal, fire slots og Quick Draw.
 - Nye dice er unikke permanente objekter, auto-equippes ikke og vælges aktivt inden for spillerens slot-cap.
@@ -65,17 +65,18 @@ Brug denne skabelon:
 - Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
 - Combat-headeren har en diskret Run Menu før floor-informationen. Menuen pauser live- og background-Auto Combat; et totrinsbekræftet leave returnerer til Hub med XP, Souls og permanent progression intakt.
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
-- En deterministisk simulator og 110 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- En deterministisk simulator og 114 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#31 — Add early QoL test start](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/31), squash merge `eaf698c`.
 
 ## Næste anbefalede skridt
 
-1. Fresh-save-playtest hvor ofte Chaos Forge opleves spændende frem for tilfældig, og om Precision-premium er en reel safety valve frem for et ikke-valg.
-2. Sammenlign rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2; retune evolution-output, hvis all-Power bliver den dominerende løsning.
-3. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
-4. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
-5. Brainstorm Expedition Board videre uden at implementere det, og afvent stadig nye dice families.
+1. Verificér Talent Tree-pinch, modalens læsbarhed og state-kontrast på en fysisk iPhone ved både 320 px og 384 px.
+2. Fresh-save-playtest hvor ofte Chaos Forge opleves spændende frem for tilfældig, og om Precision-premium er en reel safety valve frem for et ikke-valg.
+3. Sammenlign rene Power-dice mod blandede Power/Momentum/Rend-builds i Dungeon 2; retune evolution-output, hvis all-Power bliver den dominerende løsning.
+4. Sammenlign et helt Dungeon 2-run med Auto Combat On/Off på en fysisk mobil og mål faktisk tid per round, encounter og descent.
+5. Tune enemy HP, Shield og Heal mod målet om typisk 2–4 rounds for relevante normale mobs, 4–6 for elites og 6–9 for bosses; one-round kills skal primært opstå efter overleveling.
+6. Brainstorm Expedition Board videre uden at implementere det, og afvent stadig nye dice families.
 
 ## Åbne spørgsmål og kendte risici
 
@@ -109,7 +110,7 @@ Brug denne skabelon:
 - Shieldcraft åbner Survival, Arsenal og Control samtidigt uden branch lockout.
 - Talent Tree er et næsten sort, edge-to-edge spatial canvas med minimal fast HUD; det må ikke præsenteres som shrine, kort, kolonner eller en almindelig scroll-side.
 - Talent-noder beholder fast die-størrelse og afstand og udforskes med frit pan i begge akser. Træet komprimeres ikke til mobilbredden, og en recenter-knap returnerer kameraet til den aktuelle frontier.
-- Første canvas-version bruger fast zoom. Nodeknapper og SVG-forbindelser ligger i samme transformerede DOM-world, så skarphed, semantic buttons og keyboardfokus bevares.
+- Talent Tree zoomer fra 65% til 140% med pinch, `− / +` og Ctrl/Cmd + wheel. Nodeknapper og SVG-forbindelser ligger i samme transformerede DOM-world, mens zoom/recenter/HUD forbliver skærmfaste, så skarphed, semantic buttons og keyboardfokus bevares.
 - Talent Tree viser kun den aktuelle frontier fuldt og ét kommende lag som en navnløs, ikke-interaktiv fog-silhuet.
 - Talent-køb ruller noden på stedet, tænder forbindelsen og afslører nye nodes som en kort chain reaction; Shieldcraft splitter effekten i tre.
 - Dev-reset er tilgængelig nederst på Hubben og må først udføres efter et eksplicit andet bekræftelsestryk; den nulstiller både permanent progression, dungeon-progress og et eventuelt aktivt run.
@@ -135,6 +136,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Zoom og stort Talent Tree-overlay
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Talent Tree kan zoomes 65–140% med pinch, knapper eller Ctrl/Cmd + wheel. Nodevalg åbner nu et stort, tilgængeligt modal-overlay med væsentligt større tekst, tydelig status, rank, effekter og købshandling. Canvas-nodes skelner eksplicit mellem `Owned`, `Max`, `Buy`, `Open` og låst.
+- Beslutninger: Zoom bevarer et stabilt anker og recenter respekterer den aktuelle skala. Købte nodes bruger massiv cyan-fyldning og checkmark; købsklare nodes bruger lys outline/pulse; åbne men for dyre nodes må ikke ligne prerequisite-låste nodes. Talent Tree nulstiller body-scroll ved indgang.
+- Berørte områder: Talent Tree canvas, zoom-/viewport-matematik, node-præsentation, detail-overlay, mobile styles, tests, GDD, DESIGN, README og progress-log.
+- Validering: `npx tsc --noEmit`, 21 testfiler med 114 tests, ESLint, production-build og `git diff --check` består. Lokal 384 px game-shell-browsertest verificerer 100→85% zoom, stabil recenter ved skala, scroll-reset, stort modal-overlay, disabled baggrundskontroller, større copy/effects/købsknap samt synlige `Owned`, `Max` og `Buy`-states gennem et rigtigt talentkøb og reveal.
+- Kendte mangler: Native pinch skal stadig godkendes på en fysisk iPhone; browserkontrollen verificerer zoomknapper og anker-matematik, men kan ikke konstruere native `PointerEvent` i den tilsluttede runtime.
+- Git: Ikke committed.
 
 ### 2026-07-28 — Fresh QoL-teststart med 88 XP
 
