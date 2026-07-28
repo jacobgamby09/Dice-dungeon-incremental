@@ -56,6 +56,7 @@ export interface NewGameState {
   run: RunState
   combat: CombatState
   awayRecap: AwayRecap | null
+  runMenuOpen: boolean
   openDungeonSelect: () => void
   openWorkshop: () => void
   openTalentTree: () => void
@@ -77,6 +78,9 @@ export interface NewGameState {
   checkpointAutoCombat: (now?: number) => void
   resumeAutoCombat: (now?: number) => AwayRecap | null
   dismissAwayRecap: () => void
+  openRunMenu: () => void
+  closeRunMenu: () => void
+  leaveDungeonRun: () => void
   upgradeFace: (dieId: string, faceId: string) => boolean
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
@@ -435,6 +439,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     run: migratedRun,
     combat: migratedCombat,
     awayRecap: null,
+    runMenuOpen: false,
   } as NewGameState
 }
 
@@ -451,6 +456,7 @@ const initialState = {
   run: createInactiveRun(),
   combat: createCombatState(),
   awayRecap: null,
+  runMenuOpen: false,
 }
 
 export const useNewGameStore = create<NewGameState>()(
@@ -496,6 +502,7 @@ export const useNewGameStore = create<NewGameState>()(
         set({
           screen: 'combat',
           awayRecap: null,
+          runMenuOpen: false,
           run: {
             status: 'active',
             dungeonId,
@@ -917,6 +924,7 @@ export const useNewGameStore = create<NewGameState>()(
       checkpointAutoCombat: (now = Date.now()) => {
         const state = get()
         if (
+          state.runMenuOpen ||
           !state.profile.settings.autoCombat
           || !hasAutoCombatUnlocked(state.profile.talentRanks)
           || (
@@ -945,6 +953,7 @@ export const useNewGameStore = create<NewGameState>()(
         const state = get()
         const checkpointAt = state.run.automation.lastCheckpointAt
         if (
+          state.runMenuOpen ||
           !state.profile.settings.autoCombat
           || !hasAutoCombatUnlocked(state.profile.talentRanks)
           || state.run.status === 'inactive'
@@ -984,6 +993,57 @@ export const useNewGameStore = create<NewGameState>()(
 
       dismissAwayRecap: () => {
         set({ awayRecap: null })
+      },
+
+      openRunMenu: () => {
+        const state = get()
+        if (state.screen !== 'combat' || state.run.status !== 'active') return
+        if (state.combat.phase === 'resolving') return
+        set({
+          runMenuOpen: true,
+          run: {
+            ...state.run,
+            automation: {
+              ...state.run.automation,
+              bankedMilliseconds: 0,
+              lastCheckpointAt: null,
+            },
+          },
+        })
+      },
+
+      closeRunMenu: () => {
+        const state = get()
+        if (!state.runMenuOpen) return
+        const canResumeAutoCombat = (
+          state.screen === 'combat'
+          && state.run.status === 'active'
+          && state.profile.settings.autoCombat
+          && hasAutoCombatUnlocked(state.profile.talentRanks)
+        )
+        set({
+          runMenuOpen: false,
+          run: {
+            ...state.run,
+            automation: {
+              ...state.run.automation,
+              bankedMilliseconds: 0,
+              lastCheckpointAt: canResumeAutoCombat ? Date.now() : null,
+            },
+          },
+        })
+      },
+
+      leaveDungeonRun: () => {
+        const state = get()
+        if (state.screen !== 'combat' || state.run.status !== 'active') return
+        set({
+          screen: 'hub',
+          run: createInactiveRun(),
+          combat: createCombatState([], 1, state.combat.resolutionVersion),
+          awayRecap: null,
+          runMenuOpen: false,
+        })
       },
 
       upgradeFace: (dieId, faceId) => {
@@ -1027,6 +1087,7 @@ export const useNewGameStore = create<NewGameState>()(
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
           awayRecap: null,
+          runMenuOpen: false,
         })
       },
 
@@ -1037,6 +1098,7 @@ export const useNewGameStore = create<NewGameState>()(
           run: createInactiveRun(),
           combat: createCombatState(),
           awayRecap: null,
+          runMenuOpen: false,
         })
       },
     }),

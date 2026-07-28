@@ -48,6 +48,7 @@ Preset’et lander i Hubben, så Talent Tree, Workshop og loadout kan inspiceres
 - Alle udstyrede terninger trækkes tilfældigt uden replacement hver runde.
 - Auto Combat unlockes tidligt efter Twin Arsenal og automatiserer draw, resolve, normale Victory-pulses og næste floor, men stopper ved Defeat eller Boss Victory.
 - Et aktivt Auto Combat-run kan fast-forwardes deterministisk efter browser-suspension uden at duplikere rewards.
+- Combat-headerens beskyttede Run Menu kan pause eller afslutte et aktivt run; et bekræftet leave nulstiller kun dungeon-positionen og bevarer allerede optjent XP/Souls.
 - Boardet viser kun faktisk trukne terninger i draw-rækkefølge og har ingen faste dice-slots.
 - Combat viser ingen tomme typebokse; totals og ikoner opstår først, når en face-type bliver rullet.
 - Spillede dice genkendes på face-farve og ikon frem for ydre typekort.

@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-27.
+Senest opdateret: 2026-07-28.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -60,8 +60,9 @@ Brug denne skabelon:
 - Normal Victory viser kun encounter-reward, totals, HP og dungeon-progress; næste-enemy-data er fjernet. Manuel mode bruger én Continue-knap, mens Auto Combat viser en kort reward-pulse og fortsætter til næste floor med en synlig Pause-handling.
 - Auto Combat automatiserer player-rolls, Resolve Round, næste round og normale floor-transitions. Det stopper ved Defeat og Boss Victory og har endnu ingen Auto Retry.
 - Et aktivt Auto Combat-run kan fast-forwardes efter browser-suspension via et persisteret checkpoint, tidsbudget og deterministisk random-seed. Resume viser et modal recap og pauser live automation, indtil spilleren lukker rapporten.
+- Combat-headeren har en diskret Run Menu før floor-informationen. Menuen pauser live- og background-Auto Combat; et totrinsbekræftet leave returnerer til Hub med XP, Souls og permanent progression intakt.
 - Save-formatet er version 10 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary- og automation-progress sammen med aktive runs. Version-9 Auto Roll migreres til Auto Combat med en idempotent 28-XP-refund.
-- En deterministisk simulator og 93 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
+- En deterministisk simulator og 96 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, outcome-flow, ranked talents, spatial layout-/viewport-matematik, full reset, dev-profilet, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
 - Seneste gameplay-merge i produktion: [#25 — Add early Auto Combat and AFK resume](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/25), squash merge `79c3429`.
 
@@ -106,6 +107,7 @@ Brug denne skabelon:
 - Dev-reset er tilgængelig nederst på Hubben og må først udføres efter et eksplicit andet bekræftelsestryk; den nulstiller både permanent progression, dungeon-progress og et eventuelt aktivt run.
 - Auto Combat koster 12 XP direkte efter Twin Arsenal og er én spillerstyret toggle for draw, resolve, næste round og normale floor-transitions. Den stopper ved Defeat og Boss Victory; Auto Retry er senere progression.
 - Auto Combat må fast-forwarde et aktivt run efter browser-suspension, men kun proportionalt med reel fraværstid og aldrig forbi Defeat eller Boss Victory. Rewards skal forblive idempotente ved gentagne reload/resume-events.
+- Run Menu pauser både live Auto Combat og background-fast-forward uden at ændre spillerens Auto Combat-præference. `Leave Dungeon` kræver bekræftelse, tæller ikke som Defeat og nulstiller kun det aktive runs floor-, HP-, enemy- og round-state.
 - MVP-dungeonen har 10 floors; floor 10 er boss og giver sin permanente reward præcis én gang ved sejr.
 - Dungeon 1 genbruger fire basale archetypes som Level 1/2, har én Elite og er attack-only. Demon er boss og har heller ingen Shield.
 - Dungeon 2 genbruger fire nye archetypes som Level 1/2. Alle normale mobs har én Attack Die og én midlertidig Shield Die; Spiked Behemoth har desuden én Heal Die.
@@ -125,6 +127,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-28 — Beskyttet Run Menu og mid-run leave
+
+**Status:** I gang
+**Ansvarlig:** Codex
+
+- Resultat: Combat-headeren har fået en diskret dørknap, som åbner en mobil bottom sheet med Resume Run og en totrinsbeskyttet Leave Dungeon-handling. Menuen pauser live Auto Combat og AFK-fast-forward; et bekræftet leave returnerer atomisk til Hub.
+- Beslutninger: Leave tæller ikke som Defeat og giver ingen ekstra rewards. Allerede optjent XP/Souls samt talents, dice og øvrig permanent progression bevares, mens aktiv floor, HP, enemy, round og draw-state nulstilles. Auto Combat-præferencen bevares til næste run.
+- Berørte områder: Combat-header, ny Run Menu-komponent, Auto Combat lifecycle, Zustand-store, tests, mobile styles, GDD, README og progress-log.
+- Validering: Begge TypeScript-checks, 18 testfiler med 96 tests, ESLint, production-build og `git diff --check` består. Browseren verificerer hele flowet ved 384 px uden overflow, error-overlay eller console errors: åbning/fokus, Resume, første leave-trin, advarsel, Confirm Leave, Hub-retur med uændrede Souls samt Auto Combat-pause efter det igangværende atomiske roll og korrekt fortsættelse efter Resume.
+- Kendte mangler: Ingen kendte inden for det implementerede scope.
+- Git: Branch `agent/add-mid-run-menu`; commit, PR, merge og deployment afventer.
 
 ### 2026-07-27 — Tidlig Auto Combat og AFK-resume
 

@@ -156,6 +156,8 @@ Auto Combat er én spillerstyret toggle. Når den er aktiv, ruller den alle play
 
 Auto Combat kan også fortsætte et aktivt run, mens siden er suspenderet. Et tidsbudget, et deterministisk random-seed og det seneste checkpoint persisteres. Ved resume simuleres kun den progression, den faktiske fraværstid tillader, og resultatet committes atomisk. Simulationen stopper ved Defeat eller Boss Victory og viser et kort recap med floors, enemies, XP og Souls. Reload eller gentagne resume-events må aldrig duplikere rewards.
 
+Combat-headeren har en diskret `Run Menu`-knap før floor-informationen. Menuen pauser både live Auto Combat og background-fast-forward uden at slå spillerens Auto Combat-præference fra. `Leave Dungeon` kræver et separat bekræftelsestryk og returnerer derefter direkte til Hub uden at registrere Defeat. Allerede optjent XP og Souls samt permanent progression bevares; kun det aktive runs floor, HP, enemy og round-state nulstilles.
+
 Talent Tree viser kun det nuværende købslag fuldt. Én kommende node eller ét kommende branch-lag anes som en navnløs silhuet bag fog of war. Et køb aktiverer talent-terningen, sender energi gennem forbindelserne og afslører næste lag som en kort chain reaction. Alle talent-noder er terningeformede, har ét stabilt ikon og bruger cyan som fælles XP-identitet. Træet præsenteres på et næsten sort, frit panorerbart canvas med minimal HUD; det må ikke komprimeres til kort, kolonner eller en almindelig scroll-side.
 
 Den tidlige tilsigtede cadence er:
@@ -239,6 +241,7 @@ HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls perman
 - `Victory`: vis `+XP`, `+Souls`, opdaterede totals, nuværende HP og dungeon-progress. Vis ingen information om næste enemy. Manuel mode bruger én Continue-knap; Auto Combat viser pulsen i cirka 1,25 sekunder og fortsætter, medmindre spilleren trykker Pause.
 - `Defeat`: vis floor reached, enemies defeated og samlet XP/Souls optjent i descenten, før dungeon-dybden nulstilles ved retur til Hub.
 - `Boss Victory`: markér dungeon-clear, vis hele descentens XP/Souls og antal besejrede enemies, og returnér derefter til Hub.
+- `Leave Dungeon`: returnér direkte til Hub efter bekræftelse. Vis ingen Defeat-skærm og giv ingen ekstra rewards; allerede optjent XP/Souls forbliver permanente.
 
 Et Defeat er derfor ikke et tabt run i incremental forstand. Spilleren mister kun positionen i dungeonen og den tid, der skal bruges på at nå samme dybde igen.
 

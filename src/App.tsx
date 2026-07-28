@@ -17,12 +17,13 @@ export function App() {
   const autoCombat = useNewGameStore((state) => state.profile.settings.autoCombat)
   const runStatus = useNewGameStore((state) => state.run.status)
   const awayRecap = useNewGameStore((state) => state.awayRecap)
+  const runMenuOpen = useNewGameStore((state) => state.runMenuOpen)
   const checkpointAutoCombat = useNewGameStore((state) => state.checkpointAutoCombat)
   const resumeAutoCombat = useNewGameStore((state) => state.resumeAutoCombat)
   const dismissAwayRecap = useNewGameStore((state) => state.dismissAwayRecap)
 
   useEffect(() => {
-    if (!autoCombat || runStatus === 'inactive') return
+    if (!autoCombat || runStatus === 'inactive' || runMenuOpen) return
 
     const checkpoint = () => checkpointAutoCombat(Date.now())
     const resume = () => resumeAutoCombat(Date.now())
@@ -46,6 +47,7 @@ export function App() {
     autoCombat,
     checkpointAutoCombat,
     resumeAutoCombat,
+    runMenuOpen,
     runStatus,
   ])
 
