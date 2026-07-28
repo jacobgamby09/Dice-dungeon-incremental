@@ -15,7 +15,13 @@ function prepareResolvedRound(totals: { attack: number; shield: number; heal: nu
       ...state.combat,
       phase: 'awaiting_resolve',
       drawPileDieIds: [],
-      totals: { ...totals, bleed: totals.bleed ?? 0 },
+      totals: {
+        ...totals,
+        bleed: totals.bleed ?? 0,
+        ward: 0,
+        regrowth: 0,
+        overflow: 0,
+      },
     },
   })
 }
@@ -608,7 +614,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.profile.xp).toBe(33)
       expect(migrated.profile.settings).toEqual({
         rollSpeed: 1,
@@ -924,7 +930,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.profile.bankedSouls).toBe(26)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.runStats).toEqual({
@@ -978,7 +984,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.profile.bankedSouls).toBe(12)
       expect(migrated.profile.xp).toBe(18)
       expect(migrated.run.status).toBe('active')
@@ -1031,7 +1037,7 @@ describe('new game progression loop', () => {
 
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.profile.xp).toBe(21)
       expect(migrated.profile.bankedSouls).toBe(9)
       expect(migrated.profile.diceCollection.map((die) => die.id)).toEqual(['attack-die-1'])
@@ -1076,7 +1082,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.profile.talentRanks).toEqual({
         [TALENT_IDS.battleHardenedOne]: 1,
         [TALENT_IDS.twinArsenal]: 1,
@@ -1132,7 +1138,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.run.status).toBe('active')
       expect(migrated.run.enemy?.intentRolls[0]).toMatchObject({
         dieId: 'slime-l1-attack',
@@ -1205,7 +1211,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.profile.xp).toBe(91)
       expect(migrated.profile.bankedSouls).toBe(73)
       expect(migrated.run.status).toBe('active')
@@ -1268,7 +1274,7 @@ describe('new game progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
 
-      expect(migrated.profile.saveVersion).toBe(11)
+      expect(migrated.profile.saveVersion).toBe(12)
       expect(migrated.screen).toBe('hub')
       expect(migrated.run.status).toBe('inactive')
       expect(migrated.combat.drawPileDieIds).toEqual([])

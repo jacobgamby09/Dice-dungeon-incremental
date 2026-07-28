@@ -153,7 +153,7 @@ Faste regler:
 - Et navn beskriver den konkrete die (`die.name`); det må ikke udledes af typen.
 - Permanente faces skal opleves som individuelle objekter, især i Workshop.
 
-#### Evolution-faces
+#### Evolution- og signature-faces
 
 En evolution er et hero face og skal læses før den almindelige Attack-type. Identiteten er den samme i Workshop, dice summaries, combat-roll, draw order og score-transfer:
 
@@ -162,10 +162,14 @@ En evolution er et hero face og skal læses før den almindelige Attack-type. Id
 | Power | Eksplosiv stjerne med centralt kryds | Hvidgylden burst over mørk okker | Kort hvid flash og direkte gylden transfer |
 | Momentum | Tre fremadgående chevrons | Cyan fartstriber over mørk teal | Cyan trail, `Next die +2`-charge og navngivet bonus på modtageren |
 | Rend | Tre kantede flænsespor | Crimson ridser over mørk blodrød | Blodrød slash-puls, `+2 Bleed` og pulserende stack ved enemy HP |
+| Bastion / Reserve / Spikes | Skjold, reservekammer eller pigge | Tre adskilte blå/violette overflader | Blå impact og synlig Ward eller ekstra Attack |
+| Restoration / Regrowth / Overflow | Hjerte, spire eller dråbe | Tre adskilte grønne/teal overflader | Grøn impact og synlig delayed Heal eller Overflow |
+| Execute | Kantet mål-/klingemærke | Orange over mørk rust | `EXECUTE`-impact og navngivet +2 under half HP |
+| Fortify | Tårn-/murmotiv | Isblå over mørk marine | `FORTIFY`-impact og synlig `Next Shield +2`-charge |
 
 Evolutionens værdi og hovedsilhuet er primære. Et lille sværdmærke er sekundært og viser, at facen stadig er Attack. Farve er støtte, ikke eneste identifikation. Landingen må kort vise `POWER`, `MOMENTUM` eller `REND`, men draw-order-resultatet skal bagefter kunne genkendes alene på ramme, mønster og ikon.
 
-En evolution må ikke kun være tydelig på selve facen. Dens kausale effekt skal kunne følges til sit mål: Momentum bliver stående som en charge indtil næste roll og navngives på den modtagende score-transfer; Rend følger med fra roll til Bleed-total og videre til enemy HP/tick. Effekten skal stadig kunne aflæses under Auto Combat.
+En evolution eller signature må ikke kun være tydelig på selve facen. Dens kausale effekt skal kunne følges til sit mål: Momentum og Fortify bliver stående som charges, Rend følger fra roll til Bleed/tick, og Reserve/Regrowth bliver synlige frem til næste round. Effekten skal stadig kunne aflæses under Auto Combat. Loadout har et stort Die Details-overlay med konkret signature-rate, tekst og hele den relevante family-evolution-pulje; Talent Tree viser samme die-identitet før køb.
 
 ### 5. Vis information, når den er sand
 

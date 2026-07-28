@@ -53,6 +53,9 @@ export function CombatScreen() {
     results: state.combat.results,
     totals: state.combat.totals,
     pendingMomentum: state.combat.pendingMomentum,
+    pendingFortify: state.combat.pendingFortify,
+    carriedShield: state.combat.carriedShield,
+    carriedHeal: state.combat.carriedHeal,
     lastResolution: state.combat.lastResolution,
     resolutionVersion: state.combat.resolutionVersion,
     resolutionStep: state.combat.resolutionStep,
@@ -190,7 +193,14 @@ export function CombatScreen() {
   const scoredResults = pendingFaceId
     ? combat.results.filter((result) => result.faceId !== pendingFaceId)
     : combat.results
-  const rollContributions = getRollContributions(combat.results, diceLeft)
+  const rollContributions = getRollContributions(
+    combat.results,
+    diceLeft,
+    {
+      enemyHp: run.enemy?.hp,
+      enemyMaxHp: run.enemy?.maxHp,
+    },
+  )
   const pendingContribution = pendingFaceId
     ? rollContributions.find(({ result }) => result.faceId === pendingFaceId)
     : undefined
@@ -205,9 +215,31 @@ export function CombatScreen() {
           0,
           combat.totals.bleed - (pendingContribution?.bleedValue ?? 0),
         ),
+        attack: Math.max(
+          0,
+          combat.totals.attack
+            - (pendingResult.type === 'attack' ? (pendingContribution?.totalValue ?? pendingResult.value) : 0)
+            - (pendingResult.type === 'attack' ? 0 : (pendingContribution?.secondaryAttackValue ?? 0)),
+        ),
+        shield: Math.max(
+          0,
+          combat.totals.shield
+            - (pendingResult.type === 'shield' ? (pendingContribution?.totalValue ?? pendingResult.value) : 0)
+            - (pendingResult.type === 'shield' ? 0 : (pendingContribution?.fortifyBonus ?? 0)),
+        ),
+        ward: Math.max(0, combat.totals.ward - (pendingContribution?.wardValue ?? 0)),
+        regrowth: Math.max(
+          0,
+          combat.totals.regrowth - (pendingContribution?.regrowthValue ?? 0),
+        ),
+        overflow: Math.max(
+          0,
+          combat.totals.overflow - (pendingContribution?.overflowValue ?? 0),
+        ),
       }
     : combat.totals
   const displayedMomentum = pendingFaceId ? 0 : combat.pendingMomentum
+  const displayedFortify = pendingFaceId ? 0 : combat.pendingFortify
   const autoCombatUnlocked = hasAutoCombatUnlocked(profile.talentRanks)
   const rollDurationMilliseconds = 620 / rollSpeed
   const rollDurationSeconds = rollDurationMilliseconds / 1000
@@ -225,6 +257,10 @@ export function CombatScreen() {
     const resultContribution = getRollContributions(
       [...combat.results, result],
       Math.max(0, diceLeft - 1),
+      {
+        enemyHp: run.enemy?.hp,
+        enemyMaxHp: run.enemy?.maxHp,
+      },
     ).at(-1)
     checkpointAutoCombat()
     setActiveRoll({ faceId: result.faceId, stage: 'rolling' })
@@ -252,12 +288,20 @@ export function CombatScreen() {
 
         setScoreTransfer({
           bleedValue: resultContribution?.bleedValue,
+          executeBonus: resultContribution?.executeBonus,
           faceId: result.faceId,
+          fortifyArmed: resultContribution?.fortifyArmed,
+          fortifyBonus: resultContribution?.fortifyBonus,
           momentumArmed: resultContribution?.momentumArmed,
           momentumBonus: resultContribution?.momentumBonus,
+          overflowValue: resultContribution?.overflowValue,
+          regrowthValue: resultContribution?.regrowthValue,
+          secondaryAttackValue: resultContribution?.secondaryAttackValue,
           type: result.type,
           value: resultContribution?.totalValue ?? result.value,
           evolution: result.evolution,
+          signature: result.signature,
+          wardValue: resultContribution?.wardValue,
           fromX,
           fromY,
           toX,
@@ -279,6 +323,8 @@ export function CombatScreen() {
     isScoreAnimating,
     rollDurationMilliseconds,
     rollSpeed,
+    run.enemy?.hp,
+    run.enemy?.maxHp,
   ])
 
   useEffect(() => {
@@ -417,6 +463,9 @@ export function CombatScreen() {
         <HpBar current={run.playerHp} max={run.playerMaxHp} />
         <div className="round-totals-stage" ref={scoreStageElement}>
           <RoundTotalsPanel
+            carriedHeal={combat.carriedHeal}
+            carriedShield={combat.carriedShield}
+            pendingFortify={displayedFortify}
             pendingMomentum={displayedMomentum}
             results={scoredResults}
             totals={displayedTotals}

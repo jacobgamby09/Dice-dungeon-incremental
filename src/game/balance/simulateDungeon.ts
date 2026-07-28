@@ -1,4 +1,5 @@
 import { addRollEffects, rollDie } from '../combat/rollDie'
+import { shuffleDieIds } from '../combat/drawBag'
 import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
 import { DUNGEONS } from '../content/dungeons'
@@ -61,19 +62,32 @@ export function simulateDungeonRun(
   for (const floor of dungeon.floors) {
     let enemy = createEnemyState(floor.encounterId, random)
     let floorCleared = false
+    let carriedShield = 0
+    let carriedHeal = 0
 
     for (let round = 0; round < 100; round += 1) {
       let totals = { ...EMPTY_TOTALS }
       let pendingMomentum = 0
-      for (const [index, die] of build.dice.entries()) {
+      let pendingFortify = 0
+      const shuffledDice = shuffleDieIds(
+        build.dice.map((die) => die.id),
+        random,
+      ).map((dieId) => build.dice.find((die) => die.id === dieId)!)
+      for (const [index, die] of shuffledDice.entries()) {
         const effects = addRollEffects(
           totals,
           pendingMomentum,
           rollDie(die, random),
-          index === build.dice.length - 1,
+          index === shuffledDice.length - 1,
+          pendingFortify,
+          {
+            enemyHp: enemy.hp,
+            enemyMaxHp: enemy.maxHp,
+          },
         )
         totals = effects.totals
         pendingMomentum = effects.pendingMomentum
+        pendingFortify = effects.pendingFortify
       }
 
       roundsPlayed += 1
@@ -87,7 +101,11 @@ export function simulateDungeonRun(
         enemyBleed: enemy.bleed,
         enemyIntent: totalEnemyRolls(enemy.intentRolls),
         totals,
+        carriedShield,
+        carriedHeal,
       })
+      carriedShield = resolution.nextRoundShield
+      carriedHeal = resolution.nextRoundHeal
       playerHp = resolution.playerHp
       enemy = {
         ...enemy,

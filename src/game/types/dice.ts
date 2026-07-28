@@ -4,10 +4,28 @@ export type FaceType = (typeof FACE_TYPES)[number]
 export type DieFamily = FaceType
 
 export const ATTACK_EVOLUTION_IDS = ['power', 'momentum', 'rend'] as const
+export const SHIELD_EVOLUTION_IDS = ['bastion', 'reserve', 'spikes'] as const
+export const HEAL_EVOLUTION_IDS = ['restoration', 'regrowth', 'overflow'] as const
+export const FACE_EVOLUTION_IDS = [
+  ...ATTACK_EVOLUTION_IDS,
+  ...SHIELD_EVOLUTION_IDS,
+  ...HEAL_EVOLUTION_IDS,
+] as const
 export type AttackEvolutionId = (typeof ATTACK_EVOLUTION_IDS)[number]
+export type ShieldEvolutionId = (typeof SHIELD_EVOLUTION_IDS)[number]
+export type HealEvolutionId = (typeof HEAL_EVOLUTION_IDS)[number]
+export type FaceEvolutionId = (typeof FACE_EVOLUTION_IDS)[number]
+
+export const SIGNATURE_FACE_IDS = ['execute', 'fortify'] as const
+export type SignatureFaceId = (typeof SIGNATURE_FACE_IDS)[number]
 
 export interface FaceEvolution {
-  id: AttackEvolutionId
+  id: FaceEvolutionId
+  name: string
+}
+
+export interface FaceSignature {
+  id: SignatureFaceId
   name: string
 }
 
@@ -17,6 +35,7 @@ export interface FaceInstance {
   value: number
   evolutionReady?: boolean
   evolution?: FaceEvolution
+  signature?: FaceSignature
 }
 
 export type DieFaces = [
@@ -43,6 +62,7 @@ export interface RollResult {
   type: FaceType
   value: number
   evolution?: FaceEvolution
+  signature?: FaceSignature
 }
 
 export function cloneDie(die: DieInstance): DieInstance {
@@ -51,6 +71,7 @@ export function cloneDie(die: DieInstance): DieInstance {
     faces: die.faces.map((face) => ({
       ...face,
       evolution: face.evolution ? { ...face.evolution } : undefined,
+      signature: face.signature ? { ...face.signature } : undefined,
     })) as DieFaces,
   }
 }

@@ -152,4 +152,47 @@ describe('resolveRound', () => {
     expect(result.enemyActed).toBe(false)
     expect(result.playerHp).toBe(1)
   })
+
+  it('uses carried Ward and Regrowth once in the following round', () => {
+    const result = resolveRound({
+      playerHp: 5,
+      playerMaxHp: 10,
+      enemyHp: 10,
+      enemyMaxHp: 10,
+      enemyShield: 0,
+      enemyIntent: { attack: 5, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      carriedShield: 2,
+      carriedHeal: 2,
+    })
+
+    expect(result.healApplied).toBe(2)
+    expect(result.enemyDamageBlocked).toBe(2)
+    expect(result.playerHp).toBe(4)
+    expect(result.nextRoundShield).toBe(0)
+    expect(result.nextRoundHeal).toBe(0)
+  })
+
+  it('converts only actual overheal into same-round Shield', () => {
+    const result = resolveRound({
+      playerHp: 9,
+      playerMaxHp: 10,
+      enemyHp: 10,
+      enemyMaxHp: 10,
+      enemyShield: 0,
+      enemyIntent: { attack: 4, shield: 0, heal: 0, bleed: 0 },
+      totals: {
+        attack: 0,
+        shield: 0,
+        heal: 3,
+        bleed: 0,
+        overflow: 2,
+      },
+    })
+
+    expect(result.healApplied).toBe(1)
+    expect(result.overflowShield).toBe(2)
+    expect(result.enemyDamageBlocked).toBe(2)
+    expect(result.playerHp).toBe(8)
+  })
 })

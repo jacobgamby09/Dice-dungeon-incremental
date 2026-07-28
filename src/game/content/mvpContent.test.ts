@@ -27,9 +27,15 @@ describe('MVP content integrity', () => {
     const tower = dice.find((die) => die.id === 'shield-die-tower')
 
     expect(executioner?.name).toBe('Executioner Die')
-    expect(executioner?.faces.map((face) => face.value)).toEqual([1, 1, 1, 3, 3, 3])
+    expect(executioner?.faces.map((face) => face.value)).toEqual([1, 2, 3, 3, 3, 3])
+    expect(executioner?.faces.map((face) => face.signature?.id ?? null)).toEqual([
+      null, null, null, null, 'execute', 'execute',
+    ])
     expect(tower?.name).toBe('Tower Die')
-    expect(tower?.faces.map((face) => face.value)).toEqual([1, 1, 1, 1, 3, 4])
+    expect(tower?.faces.map((face) => face.value)).toEqual([1, 2, 3, 3, 3, 3])
+    expect(tower?.faces.map((face) => face.signature?.id ?? null)).toEqual([
+      null, null, null, null, 'fortify', 'fortify',
+    ])
   })
 
   it('defines six stable same-type faces for every enemy die', () => {

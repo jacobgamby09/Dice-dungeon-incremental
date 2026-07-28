@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { createStartingDice } from '../content/dice'
+import { createDiceCatalog, createStartingDice } from '../content/dice'
 import {
   chaosForge,
   evolveAttackFace,
+  evolveFaceOnDie,
   getChaosForgeCost,
   getPrecisionForgeCost,
   precisionForge,
@@ -54,5 +55,38 @@ describe('controlled Soul Forge', () => {
       evolutionReady: undefined,
       evolution: { id: evolutionId },
     })
+  })
+
+  it.each([
+    ['shield-die-1', 'reserve', 3],
+    ['heal-die-1', 'overflow', 3],
+  ] as const)('awakens and evolves normal %s family faces', (dieId, evolutionId, value) => {
+    const die = createDiceCatalog().find((candidate) => candidate.id === dieId)!
+    const face = {
+      ...die.faces[0],
+      value: 3,
+    }
+    const prepared = {
+      ...die,
+      faces: die.faces.map((candidate, index) => (index === 0 ? face : candidate)) as typeof die.faces,
+    }
+    const awakened = precisionForge(prepared, face.id)!.die
+    const evolved = evolveFaceOnDie(awakened, face.id, evolutionId)
+
+    expect(evolved?.faces[0]).toMatchObject({
+      value,
+      evolution: { id: evolutionId },
+    })
+  })
+
+  it('keeps signature faces out of both Forge methods', () => {
+    const executioner = createDiceCatalog().find(
+      (candidate) => candidate.id === 'attack-die-executioner',
+    )!
+    const signatureFace = executioner.faces[4]
+
+    expect(signatureFace.signature?.id).toBe('execute')
+    expect(getPrecisionForgeCost(signatureFace)).toBeNull()
+    expect(precisionForge(executioner, signatureFace.id)).toBeNull()
   })
 })

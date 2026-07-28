@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { EVOLUTION_DEFINITIONS } from '../content/faceEffects'
 import { TALENT_IDS } from '../content/talents'
 import { getDiceCapacity } from '../progression/talents'
 import {
@@ -68,7 +69,11 @@ describe('progression journey simulator', () => {
       }, 18, 31)
       const evolutionIds = result.finalProfile.diceCollection
         .flatMap((die) => die.faces)
-        .flatMap((face) => face.evolution?.id ?? [])
+        .flatMap((face) => (
+          face.evolution && EVOLUTION_DEFINITIONS[face.evolution.id].family === 'attack'
+            ? [face.evolution.id]
+            : []
+        ))
 
       expect(evolutionIds.length).toBeGreaterThan(0)
       expect(new Set(evolutionIds)).toEqual(new Set([evolutionId]))
