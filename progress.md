@@ -68,7 +68,7 @@ Brug denne skabelon:
 - Save-formatet er version 11 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge- og automation-progress sammen med aktive runs. Version-10 Attack-faces over 3 migreres til Power uden tab af styrke.
 - En deterministisk simulator og 117 automatiserede tests beskytter begge balancekurver, per-floor round-målinger, permanent Soul-loot, controlled Forge, evolutioner/Bleed/Momentum og deres visuelle identiteter, outcome-flow, ranked talents, spatial layout-/zoom-/viewport-matematik, Talent Tree-modal og node-states, full reset, begge dev-profiler, Auto Combat/background-resume, Run Menu/leave-flow, progressive multi-dice intents, sprite-mapping, migrationer og atomiske transitions.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#35 — Make evolution faces unmistakable](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/35), squash merge `18f2938`.
+- Seneste gameplay-merge i produktion: [#37 — Clean up Talent Tree node states](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/37), squash merge `6193f61`.
 
 ## Næste anbefalede skridt
 
@@ -150,7 +150,7 @@ Brug denne skabelon:
 - Berørte områder: TalentNode, spatial canvas-styles, præsentationstests, GDD, DESIGN, README og progress-log.
 - Validering: Målrettet TypeScript, Talent Tree-præsentationstest, ESLint og `git diff --check` består. Lokal browser ved 100% zoom verificerer fresh 88-XP-state, fog-silhuet, købsklar node, stort status-overlay samt Battle-Hardened rank 1 med checkmark og 1/3 rank-pips i en 384 px bred game-shell uden horisontal overflow.
 - Kendte mangler: Den endelige kontrast skal stadig godkendes på en fysisk iPhone ved 320 px og 384 px.
-- Git: Ikke committed.
+- Git: `3eadfff` — `Clean up Talent Tree node states`; PR [#37](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/37) er squash-merget til `main` som `6193f61`. Vercel production-deployment `dpl_C7boF2tHhkDasi87DzLKRVHoRW3m` er `READY`; den offentlige URL svarer HTTP 200, production-assets indeholder fortsat checkmark/rank-pips og indeholder ikke længere state-tag markup eller styles.
 
 ### 2026-07-28 — Tydelige evolution hero-faces
 
