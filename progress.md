@@ -57,6 +57,7 @@ Brug denne skabelon:
 - Enemy-intent bruger separate render-identiteter til den roterende 3D-cube og den flade resultat-face. Landed, active og cancelled nulstiller altid X/Y-rotation, så ingen enemy-die kan arve en spejlvendt roll-transform på tværs af faces, runder eller mobs.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
+- Player-dice skjuler nu bagsiden af alle seks 3D-faces i både WebKit/iPhone og standard-rendereren. Power-rolls kan derfor ikke kort vise et spejlvendt rødt Attack-symbol, der ligner Rend, mens cuben tumbler.
 - Combat fordeler nu den lodrette mobilplads responsivt: enemy-stage er komprimeret, den aktive die har en mindst 130 px høj hero zone med ekstra luft over facen, og det aktive evolution/signature-lag ligger foran roll-headeren. Under 760 px viewport-højde komprimeres sekundære paneler, så hero-effekter og draw-order-rack ikke klippes.
 - Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
@@ -78,7 +79,7 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Gennemspil Build Diversity-devprofilen på en fysisk 384 px-telefon og sammenlign Executioner mod Striker samt Tower mod Iron Guard over flere Dungeon 2-runs.
+1. Gennemspil Build Diversity-devprofilen på en fysisk 384 px-iPhone og bekræft, at Power/Executioner-tumblen aldrig viser en spejlvendt face under hurtig Auto Combat.
 2. Mål om `2/6` Execute/Fortify føles hyppigt nok til at definere terningen uden at dominere de fire evolvable familie-faces.
 3. Sammenlign Shield-valgene Bastion/Reserve/Spikes og Heal-valgene Restoration/Regrowth/Overflow i både manuelle og automatiske runs.
 4. Fresh-save-playtest om journey-regressionens run 2–5-evolution føles som fornyelse eller kommer for tidligt, og om Chaos Forge opleves spændende frem for tilfældig.
@@ -93,7 +94,7 @@ Brug denne skabelon:
 - Flere normale faces må foreløbig vælge samme evolution. Det er bevidst for første playtest, men rene direct-output builds kan blive en ny løst strategi og skal sammenlignes mod utility-valgene, før systemet betragtes som balanceret.
 - Output-budgettet på cirka 5 er nu ens på tværs af direkte output og betinget utility, men Execute, Fortify og de seks nye Shield/Heal-evolutioner er endnu ikke fysisk balanceret mod de rene standard-dice.
 - Den seedede journey med den nye arkitektur kan nå Dungeon 2-clear omkring run 10. Det består det nuværende senest-run-18-regressionskrav, men kan være for hurtigt og skal vurderes som pacing frem for blot som bestået test.
-- Power/Momentum/Rend er browser-verificeret som separate mønstre, silhuetter og farver i den 384 px brede game-shell. Den subjektive aflæsning under hurtigt Auto Combat skal stadig godkendes på en fysisk mobil.
+- Power/Momentum/Rend er browser-verificeret som separate mønstre, silhuetter og farver i den 384 px brede game-shell. Power-landingen og score-transferen bruger korrekt gylden Power-identitet, og 3D-bagsider er skjult med både standard- og WebKit-reglen; den subjektive aflæsning under hurtigt Auto Combat skal stadig godkendes på en fysisk mobil.
 - Det skal playtestes, hvor ofte spillere prioriterer de valgfrie HP-ranks frem for anden die, og om 8/16/32-XP-kurven opleves som et reelt valg frem for en fælde.
 - Enemy intent-rækken er dimensioneret til 1–3 dice; flere end tre kræver en ny kompakt præsentation eller sekventiel paging.
 - Dungeon 2-tal er en simuleret første tuning. Det skal måles, om floor 4, floor 5 og boss-væggen opleves lige så glidende i faktiske runs som i den matematiske model.
@@ -155,6 +156,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Retvendte Power-rolls
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Executioner/Power viser ikke længere en spejlvendt rød Attack-face lige før den gyldne Power-landing. Alle player- og enemy-cubes, som deler den centrale face-renderer, skjuler nu bagsiden korrekt under hele 3D-tumblen.
+- Beslutninger: Power-mapping, gyldent landingsbanner og gylden score-transfer var allerede korrekte og ændres ikke. Fejlen løses i den fælles 3D-overflade med både standard- og WebKit-kompatibilitet i stedet for særlogik for Power.
+- Berørte områder: `src/newGame.css`, evolution-præsentationstest og progress-log.
+- Validering: `npx tsc --noEmit`, 24 testfiler med 144 tests, ESLint og production-build består. Lokal 384×844-browser reproducerede først den spejlvendte røde face under et tvunget Power-roll og verificerede derefter en retvendt Executioner-tumble, korrekt gylden `Power`-landing og korrekt gylden `+5 Power`-score-transfer. Regressionstesten dækker nu Power, Momentum og Rend separat og afviser lånte evolution-klasser.
+- Kendte mangler: Den konkrete WebKit-rettelse skal stadig mærkes på brugerens fysiske iPhone/Safari, hvor den oprindelige fejl blev bemærket.
+- Git: `f7f1e49` — `Fix mirrored Power roll faces` på `codex/fix-power-roll-visual`; push/PR/production-publicering afventer.
 
 ### 2026-07-29 — Mere plads til aktive combat-rolls
 
