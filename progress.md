@@ -166,7 +166,7 @@ Brug denne skabelon:
 - Berørte områder: Combat-layout i `src/newGame.css`, visuel combat-retning i `DESIGN.md` og progress-log.
 - Validering: `npx tsc --noEmit`, 24 testfiler med 142 tests, ESLint og production-build består. Lokal browser ved 384×844, 384×700 og 320×700 viser mindst 130 px roll-pedestal, ingen overlap mellem enemy intent og HP samt ingen horisontal overflow. Et faktisk Rend-roll er fanget med banner og partikler fuldt synlige ved 384×700.
 - Kendte mangler: Safari safe-area og browser-chrome varierer mellem fysiske modeller; den nye kompakte breakpoint skal stadig mærkes i brugerens konkrete browser.
-- Git: Ikke committed.
+- Git: `1b71f5d` — `Protect combat roll effects` på `codex/combat-roll-space`; PR og production-deployment afventer.
 
 ### 2026-07-28 — Dice Architecture v1
 
