@@ -89,6 +89,8 @@ Combat er reference for resten af spillets game feel og læses i denne rækkefø
 
 Den aktive die er større end afsluttede resultater. Når den er scoret, flytter resultatet ned i draw-order-racket og forbliver læsbart. Racket må scrolle vandret ved mange dice; det må ikke wrappe og skabe en uforudsigelig høj skærm. Den tomme roll-flade bruger bevidst næsten-sort negativ plads: ingen murstenslinjer, runer, tom piedestal eller idle-instruktioner konkurrerer med den aktive die. Header og primær handling kommunikerer allerede den aktuelle state.
 
+Den aktive die har en reserveret **hero zone** med fri luft over facen til evolution- og signature-impact. Hero-zonen må ikke kollapse under cirka én diehøjde plus impact-banner, heller ikke når effect-railen er åben eller browserens chrome reducerer viewport-højden. Det aktive roll-lag ligger foran roll-header og draw-order-rack under selve landingen. På korte viewports komprimeres enemy-stage, player-padding og action-panelet, før hero-zonen eller draw-order-resultater beskæres.
+
 Afslørede round totals ligger i en separat vandret **effect-rail** under spillerens HP. Hver type bruger ikon, værdi og kort label fra den centrale face registry. Railen viser kun typer, der faktisk er rullet, bevarer deres første reveal-rækkefølge og scroller vandret ved mange typer. HP-baren eller draw-headeren må aldrig blive smallere, når Shield, Heal, Poison eller senere effects tilføjes.
 
 ### Motion grammar

@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-28.
+Senest opdateret: 2026-07-29.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -57,6 +57,7 @@ Brug denne skabelon:
 - Enemy-intent bruger separate render-identiteter til den roterende 3D-cube og den flade resultat-face. Landed, active og cancelled nulstiller altid X/Y-rotation, så ingen enemy-die kan arve en spejlvendt roll-transform på tværs af faces, runder eller mobs.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
 - Roll-resultater afsløres først ved landing og flyver derefter op i den relevante round total.
+- Combat fordeler nu den lodrette mobilplads responsivt: enemy-stage er komprimeret, den aktive die har en mindst 130 px høj hero zone med ekstra luft over facen, og det aktive evolution/signature-lag ligger foran roll-headeren. Under 760 px viewport-højde komprimeres sekundære paneler, så hero-effekter og draw-order-rack ikke klippes.
 - Combat viser Slime Crawler og Marrow Bat med deres egne animation-sheets, enemy-navne i en ren sans-serif samt næsten-sorte enemy- og roll-flader uden murværk, runer, tomme piedestaler eller idle-instruktioner. Slime Crawler har særskilt større skalering, og floor-10 Demon bruger den store røde hornede boss-art.
 - Hub, Workshop, Combat og Victory følger nu den fysiske 3D-pixel-scene-retning.
 - Workshop har to atomiske Soul-forges: billig Chaos Forge med controlled RNG og faldende rabat samt dyr Precision Forge til en valgt face. Normale Attack-, Shield- og Heal-faces vækkes fra værdi 3 og udvikles permanent inden for deres familie.
@@ -154,6 +155,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Mere plads til aktive combat-rolls
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Den aktive terning og dens evolution/signature-impact har nu en fast beskyttet hero zone. Enemy-stage bruger mindre tom højde, og korte browser-viewports komprimerer meta-, player-, draw- og action-zonerne, før roll-effekter eller draw-order-resultater beskæres.
+- Beslutninger: Gameplay-information fjernes ikke for at skabe plads. Enemy intent, HP og sprite forbliver synlige; den aktive terning prioriteres over sekundær padding, og dens midlertidige impact-lag må ligge foran roll-headeren.
+- Berørte områder: Combat-layout i `src/newGame.css`, visuel combat-retning i `DESIGN.md` og progress-log.
+- Validering: `npx tsc --noEmit`, 24 testfiler med 142 tests, ESLint og production-build består. Lokal browser ved 384×844, 384×700 og 320×700 viser mindst 130 px roll-pedestal, ingen overlap mellem enemy intent og HP samt ingen horisontal overflow. Et faktisk Rend-roll er fanget med banner og partikler fuldt synlige ved 384×700.
+- Kendte mangler: Safari safe-area og browser-chrome varierer mellem fysiske modeller; den nye kompakte breakpoint skal stadig mærkes i brugerens konkrete browser.
+- Git: Ikke committed.
 
 ### 2026-07-28 — Dice Architecture v1
 
