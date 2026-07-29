@@ -207,9 +207,9 @@ Brug denne skabelon:
 - Resultat: Den korte V2 vertical-slice note er erstattet af en fuld branch-specifik GDD på dansk. Dokumentet samler high concept, designprincipper, fresh start, kerne-loop, XP/Soul-økonomi, permanente dice, totrins-Workshop, komplet radialt Talent Tree, combat, Auto Combat, dungeon-tabeller, pacing, UI/UX, persistence og scope i én autoritativ kilde.
 - Beslutninger: `CLASSIC_INCREMENTAL_V2.md` har forrang over `NEW_GAME_GDD.md` på V2-branchen. Implementerede regler er adskilt fra foreløbig balance og eksplicit deferred content; Fatecraft beskrives ikke som et færdigt Charm-system.
 - Berørte områder: `CLASSIC_INCREMENTAL_V2.md` og fælles progress-log.
-- Validering: Talentpriser/prerequisites, dice-faces, Workshop-formel/distributioner, face caps, enemy HP/dice/rewards, save-version og journey-rails er krydstjekket mod branchens content-, progression-, Forge- og simulatorfiler. Markdown-struktur og `git diff --check` valideres før commit.
+- Validering: Talentpriser/prerequisites, dice-faces, Workshop-formel/distributioner, face caps, enemy HP/dice/rewards, save-version og journey-rails er krydstjekket mod branchens content-, progression-, Forge- og simulatorfiler. Markdown-struktur og `git diff --check` består.
 - Kendte mangler: GDD’en dokumenterer aktuelle implementerede Dungeon 2-tal, men markerer dem fortsat som ikke endeligt V2-balancerede. Charm/Fate Token-loopet kræver et separat designforløb.
-- Git: Ikke committed.
+- Git: `58d0bde` — `Expand Classic Incremental V2 GDD` på `codex/classic-incremental-v2`; branchen er pushet.
 
 ### 2026-07-29 — Vedvarende 3D Workshop Die
 
