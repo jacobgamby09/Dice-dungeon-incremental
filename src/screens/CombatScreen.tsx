@@ -249,6 +249,19 @@ export function CombatScreen() {
     ? run.equippedDiceSnapshot.find((candidate) => candidate.id === pendingResult.dieId)
     : undefined
   const roundReady = diceLeft === 0 && !isScoreAnimating
+  const hasVisibleRoundPower = scoredResults.length > 0
+    || combat.carriedHeal > 0
+    || combat.carriedShield > 0
+    || displayedFortify > 0
+    || displayedMomentum > 0
+    || displayedTotals.bleed > 0
+    || displayedTotals.ward > 0
+    || displayedTotals.regrowth > 0
+    || displayedTotals.overflow > 0
+  const resolutionTone = combat.resolutionStep === 'enemy_attack'
+    || combat.resolutionStep === 'enemy_heal'
+    ? 'enemy'
+    : combat.resolutionStep ?? 'player'
 
   const handleDraw = useCallback(() => {
     if (isScoreAnimating) return
@@ -449,7 +462,7 @@ export function CombatScreen() {
       </section>
 
       <section
-        className={`player-zone${scoredResults.length > 0 ? ' player-zone--with-totals' : ''}`}
+        className={`player-zone${hasVisibleRoundPower ? ' player-zone--with-totals' : ''}`}
         aria-label="Adventurer status and round power"
       >
         <div className="player-vitals">
@@ -473,7 +486,7 @@ export function CombatScreen() {
           <div aria-hidden="true" className="score-target-anchor" ref={scoreTargetElement} />
         </div>
         {combat.phase === 'resolving' && combat.lastResolution && (
-          <div className={`resolution-banner resolution-banner--${combat.resolutionStep ?? 'player'}`} role="status">
+          <div className={`resolution-banner resolution-banner--${resolutionTone}`} role="status">
             {combat.lastResolution.outcome === 'victory'
               ? 'Enemy defeated — its intent is cancelled!'
               : combat.resolutionStep === 'enemy_heal'

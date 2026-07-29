@@ -6671,3 +6671,1141 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ==========================================================================
+   Pixel Arcade visual test
+   --------------------------------------------------------------------------
+   This branch deliberately separates the flat UI shell from the physical
+   dice. Gameplay and state stay unchanged; only presentation is overridden.
+   ========================================================================== */
+
+:root {
+  --arcade-black: #000;
+  --arcade-surface: #08080d;
+  --arcade-surface-raised: #11111a;
+  --arcade-white: #fff;
+  --arcade-muted: #9a9aa8;
+  --arcade-purple: #8b5cf6;
+  --arcade-red: #ff334f;
+  --arcade-blue: #2498ff;
+  --arcade-green: #31e85f;
+  --arcade-yellow: #ffe500;
+  --arcade-cyan: #30e8ff;
+  --arcade-orange: #ff9b32;
+  --bg: var(--arcade-black);
+  --panel: var(--arcade-surface);
+  --panel-raised: var(--arcade-surface-raised);
+  --line: var(--arcade-white);
+  --muted: var(--arcade-muted);
+  --text: var(--arcade-white);
+  --purple: var(--arcade-purple);
+  --yellow: var(--arcade-yellow);
+  --red: var(--arcade-red);
+  --green: var(--arcade-green);
+  --blue: var(--arcade-blue);
+}
+
+.game-shell {
+  width: min(100%, 384px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  border-inline: 2px solid var(--arcade-white);
+  color: var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.game-shell h1,
+.game-shell h2,
+.game-shell h3,
+.game-shell strong,
+.game-shell button {
+  font-weight: 900;
+}
+
+.game-shell h1,
+.game-shell h2,
+.game-shell h3 {
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.eyebrow {
+  color: var(--arcade-muted);
+  letter-spacing: 0.12em;
+}
+
+.pixel-button,
+.loadout-manage,
+.hub-action,
+.workshop-ritual__action,
+.talent-canvas-inspector__purchase {
+  border: 3px solid var(--arcade-white);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    4px 4px 0 var(--arcade-white);
+  color: var(--arcade-white);
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.pixel-button:active:not(:disabled),
+.loadout-manage:active:not(:disabled),
+.hub-action:active:not(:disabled),
+.workshop-ritual__action:active:not(:disabled),
+.talent-canvas-inspector__purchase:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.pixel-button:focus-visible,
+.loadout-manage:focus-visible,
+.hub-action:focus-visible,
+.workshop-ritual__action:focus-visible,
+.talent-canvas-inspector__purchase:focus-visible {
+  outline: 3px solid var(--arcade-yellow);
+  outline-offset: 3px;
+}
+
+.pixel-button--primary,
+.pixel-button--resolve {
+  background: #4338ca;
+}
+
+.hp-bar {
+  height: 14px;
+  border: 3px solid var(--arcade-white);
+  background: #17171f;
+  box-shadow: none;
+}
+
+.hp-bar__fill {
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45);
+}
+
+.hp-bar__fill--player {
+  background: var(--arcade-green);
+}
+
+.hp-bar__fill--enemy {
+  background: var(--arcade-red);
+}
+
+/* Shared physical die skin */
+.roll-die__cube {
+  filter: none;
+}
+
+.roll-die__side {
+  border: 3px solid var(--arcade-white);
+  background: var(--side-surface);
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    inset 4px 4px 0 color-mix(in srgb, var(--side-color) 62%, transparent);
+  color: var(--arcade-white);
+}
+
+.roll-die__side strong {
+  color: var(--arcade-white);
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.roll-die__body {
+  border: 3px solid var(--arcade-white);
+  background: var(--die-surface);
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.roll-die__body::before,
+.roll-die__body::after {
+  background: var(--arcade-white);
+}
+
+.face-cell {
+  border: 2px solid var(--arcade-white);
+  background: #0b0b12;
+  box-shadow: inset 0 0 0 1px var(--arcade-black);
+}
+
+/* Hub */
+.hub-screen {
+  gap: 8px;
+  padding: 8px 8px max(18px, env(safe-area-inset-bottom));
+}
+
+.hub-gate {
+  min-height: 132px;
+  overflow: hidden;
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 18px 12px;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  place-items: center;
+}
+
+.hub-gate::before,
+.hub-gate::after,
+.hub-gate__glow,
+.hub-gate__door,
+.hub-soul {
+  display: none;
+}
+
+.hub-sign {
+  position: static;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  text-align: center;
+  transform: none;
+}
+
+.hub-sign::before,
+.hub-sign::after {
+  display: none;
+}
+
+.hub-sign > span {
+  color: var(--arcade-purple);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
+.hub-sign h1 {
+  margin-top: 5px;
+  color: var(--arcade-white);
+  font-size: 1.65rem;
+  letter-spacing: 0.05em;
+}
+
+.hub-gate > p {
+  position: static;
+  z-index: auto;
+  width: min(100%, 306px);
+  margin: 0 auto;
+  color: var(--arcade-muted);
+  font-size: 0.58rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.resource-hud {
+  min-height: 50px;
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.resource-hud__item {
+  color: var(--arcade-cyan);
+}
+
+.resource-hud__item--souls {
+  color: var(--arcade-purple);
+}
+
+.resource-hud__item + .resource-hud__item {
+  border-left: 3px solid var(--arcade-white);
+}
+
+.resource-hud__item span {
+  color: var(--arcade-white);
+}
+
+.loadout-vault {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 12px;
+}
+
+.loadout-vault__heading {
+  margin-bottom: 8px;
+  border-bottom: 2px solid var(--arcade-white);
+  padding-bottom: 8px;
+}
+
+.loadout-count {
+  border: 2px solid var(--arcade-white);
+  background: #161024;
+  color: var(--arcade-white);
+}
+
+.hub-screen .die-summary {
+  min-width: min(100%, 310px);
+  border: 3px solid var(--arcade-white);
+  background: #08080d;
+  box-shadow: none;
+  padding: 8px;
+}
+
+.hub-screen .die-summary__pedestal {
+  display: none;
+}
+
+.hub-screen .die-summary__header {
+  border-bottom: 2px solid var(--arcade-white);
+  background: transparent;
+}
+
+.hub-screen .die-summary__header > span {
+  color: var(--arcade-muted);
+}
+
+.loadout-manage {
+  min-height: 39px;
+  margin-top: 2px;
+  background: #26203d;
+}
+
+.hub-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hub-action {
+  --action-color: var(--arcade-purple);
+  min-height: 76px;
+  background: color-mix(in srgb, var(--action-color) 32%, var(--arcade-black));
+  padding: 9px;
+  align-items: center;
+}
+
+.hub-action--workshop {
+  --action-color: var(--arcade-yellow);
+}
+
+.hub-action--dungeon {
+  --action-color: var(--arcade-green);
+  grid-column: auto;
+  min-height: 76px;
+}
+
+.hub-action--loadout {
+  --action-color: var(--arcade-cyan);
+}
+
+.hub-action__icon {
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--action-color);
+}
+
+.hub-action small {
+  color: var(--arcade-muted);
+}
+
+.hub-action strong {
+  color: var(--arcade-white);
+}
+
+.dev-tools {
+  border: 2px dashed #50505c;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+/* Combat */
+.combat-screen {
+  height: 100dvh;
+  min-height: 640px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--arcade-black);
+}
+
+.combat-meta {
+  min-height: 44px;
+  border-bottom: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding-inline: 8px;
+}
+
+.combat-meta div {
+  border: 0;
+}
+
+.combat-meta span {
+  color: var(--arcade-muted);
+}
+
+.combat-meta strong,
+.combat-meta .permanent-souls strong {
+  color: var(--arcade-white);
+}
+
+.combat-meta .permanent-souls {
+  color: var(--arcade-purple);
+}
+
+.run-menu-trigger {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.enemy-zone {
+  min-height: 218px;
+  border-bottom: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.enemy-zone--boss {
+  min-height: 228px;
+}
+
+.enemy-zone__title {
+  font-family: inherit;
+}
+
+.enemy-zone__title .eyebrow {
+  color: var(--arcade-red);
+  font-family: inherit;
+}
+
+.enemy-zone__title h1 {
+  color: var(--arcade-white);
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 900;
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.enemy-zone__level {
+  color: var(--arcade-white);
+}
+
+.enemy-zone__sprite {
+  bottom: 26px;
+  width: 154px;
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.enemy-zone__vitals {
+  bottom: 7px;
+}
+
+.hp-label {
+  color: var(--arcade-white);
+}
+
+.enemy-intent-tray__label {
+  color: var(--arcade-red);
+}
+
+.enemy-intent-die__button,
+.enemy-intent-die__face {
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.enemy-intent-die__cube .roll-die__side {
+  border-color: var(--arcade-white);
+}
+
+.enemy-intent-total {
+  border-bottom: 2px solid currentColor;
+  background: var(--arcade-black);
+}
+
+.enemy-intent-tray__details {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.player-zone {
+  min-height: 92px;
+  border-bottom: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 9px 12px;
+}
+
+.player-vitals__label {
+  color: var(--arcade-muted);
+}
+
+.player-health {
+  color: var(--arcade-green);
+}
+
+.player-health span {
+  color: var(--arcade-white);
+}
+
+.player-zone--with-totals .round-totals-stage {
+  border-top-color: var(--arcade-white);
+}
+
+.round-totals {
+  gap: 5px;
+}
+
+.round-total {
+  min-width: 69px;
+  border: 2px solid var(--arcade-white);
+  background: var(--total-surface);
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.resolution-banner {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.roll-zone {
+  flex: 1;
+  border: 0;
+  background: var(--arcade-black);
+}
+
+.dice-stage-header {
+  min-height: 48px;
+  border-bottom: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.dice-stage-header h2 {
+  color: var(--arcade-white);
+}
+
+.bag-counter {
+  border: 2px solid var(--arcade-white);
+  background: #111128;
+  box-shadow: none;
+  color: var(--arcade-cyan);
+}
+
+.bag-counter span {
+  color: var(--arcade-white);
+}
+
+.dice-arena {
+  min-height: 190px;
+  background: var(--arcade-black);
+}
+
+.roll-pedestal {
+  background: var(--arcade-black);
+}
+
+.roll-pedestal::before,
+.roll-pedestal::after {
+  display: none;
+}
+
+.played-dice-rack {
+  border-top: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.played-dice-rack__label {
+  color: var(--arcade-muted);
+}
+
+.combat-actions {
+  min-height: 78px;
+  border-top: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+}
+
+.auto-combat-toggle {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-muted);
+}
+
+.auto-combat-toggle--active {
+  background: #073d47;
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+  color: var(--arcade-cyan);
+}
+
+/* Workshop */
+.workshop-ritual {
+  gap: 8px;
+  padding: 8px 8px max(18px, env(safe-area-inset-bottom));
+  background: var(--arcade-black);
+}
+
+.workshop-ritual__header {
+  min-height: 58px;
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 7px 9px;
+}
+
+.workshop-ritual__back {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__header h1 {
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__header header span {
+  color: var(--arcade-yellow);
+}
+
+.workshop-ritual__header .resource-hud--compact {
+  position: static;
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-ritual__rack {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 9px;
+}
+
+.workshop-ritual__rack > header {
+  border-bottom: 2px solid var(--arcade-white);
+  padding-bottom: 7px;
+}
+
+.workshop-ritual__rack > header span,
+.workshop-ritual__rack > header strong {
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__tab {
+  border: 2px solid #686873;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-ritual__tab[aria-pressed="true"] {
+  border-color: var(--arcade-white);
+  background: color-mix(in srgb, var(--workshop-family) 25%, var(--arcade-black));
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.workshop-ritual__tab small {
+  color: var(--arcade-muted);
+}
+
+.workshop-ritual__die-heading {
+  min-height: 62px;
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  padding: 9px;
+}
+
+.workshop-target,
+.workshop-power {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-target > header,
+.workshop-power > header {
+  border-bottom: 2px solid var(--arcade-white);
+}
+
+.workshop-target > header > span,
+.workshop-power > header > span {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-yellow);
+}
+
+.workshop-target h3,
+.workshop-power h3,
+.workshop-power > header > div:last-child strong {
+  color: var(--arcade-white);
+}
+
+.workshop-target__face {
+  border: 2px solid #666673;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-target__face--highlighted {
+  border-color: var(--arcade-white);
+  background: color-mix(in srgb, var(--target-color) 26%, var(--arcade-black));
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    0 0 0 2px var(--target-color);
+}
+
+.workshop-target__face--locked::after {
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-yellow);
+}
+
+.workshop-ritual__conduit {
+  color: var(--arcade-yellow);
+}
+
+.workshop-ritual__conduit span {
+  border-color: var(--arcade-black);
+  background: var(--arcade-white);
+}
+
+.workshop-power__stage {
+  background: var(--arcade-black);
+}
+
+.workshop-power__distribution > span {
+  border: 2px solid #77776a;
+  background: var(--arcade-black);
+  color: var(--arcade-yellow);
+}
+
+.workshop-power__distribution-face--rolled {
+  border-color: var(--arcade-white) !important;
+  background: #534b00 !important;
+  box-shadow: none;
+}
+
+.workshop-power-die__side {
+  border-color: var(--arcade-white);
+  background: #8a6414;
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    inset 4px 4px 0 #c7992f;
+}
+
+.workshop-power-die__jackpot-glow {
+  border-color: var(--arcade-yellow);
+  background: rgba(255, 229, 0, 0.08);
+  box-shadow:
+    0 0 0 3px var(--arcade-black),
+    0 0 0 5px var(--arcade-yellow);
+}
+
+.workshop-impact {
+  border: 3px solid var(--arcade-white);
+  border-left-color: var(--workshop-family);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-ritual__status {
+  color: var(--arcade-muted);
+}
+
+.workshop-ritual__action {
+  background: #685400;
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__action--power {
+  background: #7a6200;
+}
+
+.workshop-ritual__odds {
+  color: var(--arcade-muted);
+}
+
+/* Spatial Talent Tree */
+.talent-canvas-screen,
+.talent-canvas {
+  background: var(--arcade-black);
+}
+
+.talent-canvas {
+  background-image: none;
+}
+
+.talent-canvas-hud__button,
+.talent-canvas-recenter {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.talent-canvas-xp {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-purple);
+}
+
+.talent-canvas-xp strong,
+.talent-canvas-xp span {
+  color: var(--arcade-white);
+}
+
+.talent-canvas-zoom {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.talent-canvas-zoom button {
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-sector {
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.talent-canvas-sector::before {
+  display: none;
+}
+
+.talent-canvas-sector--north {
+  color: rgba(36, 152, 255, 0.4);
+}
+
+.talent-canvas-sector--west {
+  color: rgba(255, 155, 50, 0.4);
+}
+
+.talent-canvas-sector--south {
+  color: rgba(49, 232, 95, 0.38);
+}
+
+.talent-canvas-sector--east {
+  color: rgba(139, 92, 246, 0.42);
+}
+
+.talent-canvas-connection__base,
+.talent-canvas-connection--dormant .talent-canvas-connection__base {
+  stroke: #4c4c56;
+  stroke-width: 3;
+}
+
+.talent-canvas-connection--veiled .talent-canvas-connection__base {
+  stroke: #222229;
+  opacity: 1;
+}
+
+.talent-canvas-connection--open .talent-canvas-connection__base {
+  stroke: var(--arcade-white);
+  filter: none;
+}
+
+.talent-canvas-connection--active .talent-canvas-connection__base {
+  stroke: var(--arcade-yellow);
+  filter: none;
+}
+
+.talent-canvas-connection__charge {
+  stroke: var(--arcade-white);
+  filter: none;
+}
+
+.talent-canvas__node-position {
+  width: 70px;
+  height: 70px;
+}
+
+.talent-canvas-node {
+  width: 68px;
+  height: 68px;
+  padding: 8px;
+}
+
+.talent-canvas-node__face {
+  width: 52px;
+  height: 52px;
+  border: 3px solid #555560;
+  background: var(--arcade-black);
+  box-shadow: inset 0 0 0 2px #16161d;
+}
+
+.talent-canvas-node__face::before,
+.talent-canvas-node__face::after {
+  background: var(--arcade-white);
+}
+
+.talent-canvas-node--ready .talent-canvas-node__face,
+.talent-canvas-node--affordable .talent-canvas-node__face {
+  border-color: var(--arcade-yellow);
+  background: var(--arcade-black);
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    0 0 0 2px var(--arcade-white);
+}
+
+.talent-canvas-node--active .talent-canvas-node__face,
+.talent-canvas-node--maxed .talent-canvas-node__face {
+  border-color: var(--arcade-white);
+  background: color-mix(in srgb, var(--talent-track-color) 58%, var(--arcade-black));
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.talent-canvas-node--unaffordable .talent-canvas-node__face {
+  border-color: var(--talent-track-color);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.talent-canvas-node--locked .talent-canvas-node__face {
+  border-color: #303038;
+  background: #07070a;
+  box-shadow: none;
+  filter: grayscale(1);
+}
+
+.talent-canvas-node--silhouette .talent-canvas-node__face {
+  border-color: #202027;
+  background: #050507;
+  box-shadow: none;
+  filter: none;
+}
+
+.talent-canvas-node__fog {
+  background: #111116;
+  filter: none;
+  opacity: 0.72;
+}
+
+.talent-canvas-node--activating .talent-canvas-node__face {
+  filter: none;
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    0 0 0 3px var(--arcade-white);
+}
+
+.talent-canvas-node__particles > span {
+  background: var(--arcade-yellow);
+  box-shadow: none;
+}
+
+.roll-die--landed.roll-die--evolution .roll-die__cube,
+.roll-die--landed.roll-die--signature .roll-die__cube {
+  animation: none;
+}
+
+.talent-canvas-dialog-backdrop {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.talent-canvas-inspector {
+  border: 4px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: 6px 6px 0 var(--arcade-white);
+}
+
+.talent-canvas-inspector__close {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__icon {
+  border: 3px solid var(--arcade-white);
+  background: #25164f;
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector h2 {
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__state {
+  border-color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__state--ready {
+  border-color: var(--arcade-yellow);
+  color: var(--arcade-yellow);
+}
+
+.talent-canvas-inspector__state--active,
+.talent-canvas-inspector__state--maxed {
+  border-color: var(--arcade-green);
+  color: var(--arcade-green);
+}
+
+.talent-canvas-inspector__effects span {
+  border: 2px solid var(--arcade-white);
+  border-left: 5px solid var(--arcade-purple);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__purchase {
+  background: #45328f;
+}
+
+.talent-canvas-inspector__purchase:disabled {
+  border-color: #45454f;
+  background: #111116;
+  box-shadow: none;
+}
+
+/* Bridge surfaces */
+.screen-header,
+.collection-header,
+.forge-header,
+.dungeon-card,
+.collection-die,
+.outcome-stage,
+.outcome-summary,
+.run-menu,
+.away-recap,
+.die-details-panel {
+  border-color: var(--arcade-white);
+  border-radius: 0;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.screen-header button,
+.collection-header button,
+.forge-header button,
+.run-menu button,
+.away-recap button,
+.collection-details,
+.dungeon-card button {
+  border-color: var(--arcade-white);
+  border-radius: 0;
+  background-color: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-screen,
+.dungeon-select-screen,
+.loadout-screen {
+  background: var(--arcade-black);
+}
+
+.outcome-screen {
+  gap: 8px;
+}
+
+.outcome-stage {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-stage::before,
+.outcome-stage::after,
+.outcome-stage__rays,
+.outcome-stage__danger-glow,
+.outcome-stage__platform {
+  display: none;
+}
+
+.outcome-banner {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-banner::before,
+.outcome-banner::after {
+  display: none;
+}
+
+.outcome-banner h1 {
+  color: var(--arcade-green);
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.outcome-banner--defeat h1 {
+  color: var(--arcade-red);
+}
+
+.outcome-rewards,
+.outcome-run-status,
+.outcome-clear-summary {
+  border: 3px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-reward {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-reward__icon {
+  border: 2px solid var(--arcade-white);
+  background: var(--reward-dark);
+  box-shadow: none;
+}
+
+@media (min-width: 430px) {
+  .game-shell {
+    box-shadow:
+      0 0 0 4px var(--arcade-black),
+      0 0 0 7px var(--arcade-white);
+  }
+}
+
+@media (max-width: 340px) {
+  .hub-screen,
+  .workshop-ritual {
+    padding-inline: 6px;
+  }
+
+  .hub-sign h1 {
+    font-size: 1.42rem;
+  }
+
+  .hub-action {
+    min-height: 70px;
+    padding-inline: 6px;
+  }
+
+  .hub-action small {
+    display: none;
+  }
+
+  .enemy-zone__sprite {
+    left: 3px;
+    width: 135px;
+  }
+
+  .enemy-zone__intel {
+    right: 8px;
+    width: 165px;
+  }
+
+  .enemy-zone__vitals {
+    right: 8px;
+    width: 172px;
+  }
+
+  .talent-canvas__node-position {
+    width: 64px;
+    height: 64px;
+  }
+
+  .talent-canvas-node {
+    width: 62px;
+    height: 62px;
+  }
+
+  .talent-canvas-node__face {
+    width: 48px;
+    height: 48px;
+  }
+}

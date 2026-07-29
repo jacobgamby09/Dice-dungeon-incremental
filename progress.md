@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **En separat Pixel Arcade-visual test findes på `codex/pixel-arcade-visual-test`:** Hub, Combat, Workshop, Talent Tree og de vigtigste bro-skærme bruger nu ren sort canvas, hårde hvide pixelrammer og mættede gameplayfarver. Gameplay, saves, enemy-sprites og de fysiske 3D-terninger er uændrede; retningen er dokumenteret i `PIXEL_ARCADE_VISUAL_TEST.md`.
 - **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
 - V2 bruger save-version 14 og starter med én `Worn Blade Die` på præcis `1,1,1,1,1,1 Attack`. Version 13 migreres uden progressionstab; ældre production-saves nulstilles fortsat bevidst til en frisk V2-profil på denne branch.
 - Første Slime har 3 HP og fast 2 Attack. Den friske spiller slår tre gange, vinder med 6/10 HP og får præcis 4 XP + 5 Souls; floor 2 er den første sikre væg.
@@ -92,11 +93,12 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
-2. Vurder subjektivt om target-flicker, det efterfølgende Workshop-roll og `+2`-øjeblikket giver nok spænding uden at gøre gentagne Forge-køb langsomme; test mindst 15–25 upgrades.
-3. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
-4. Brainstorm og specificér Fate Token/Charm-loot som V2's næste selvstændige progressiongren; implementér den ikke som Talent Tree-stat-bonusser.
-5. Beslut efter V2-playtest om branchen skal fortsætte som separat mode, erstatte production eller levere enkelte systemer tilbage til den nuværende version.
+1. Sammenlign Pixel Arcade-branchen direkte med `codex/classic-incremental-v2` på en fysisk iPhone med samme save: Hub-overblik, én fuld combat, et `+2`-Forge og et Talent Tree-køb.
+2. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
+3. Vurder subjektivt om target-flicker, det efterfølgende Workshop-roll og `+2`-øjeblikket giver nok spænding uden at gøre gentagne Forge-køb langsomme; test mindst 15–25 upgrades.
+4. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
+5. Brainstorm og specificér Fate Token/Charm-loot som V2's næste selvstændige progressiongren; implementér den ikke som Talent Tree-stat-bonusser.
+6. Beslut efter V2-playtest om branchen skal fortsætte som separat mode, erstatte production eller levere enkelte systemer tilbage til den nuværende version.
 
 ### Production-reference
 
@@ -109,6 +111,8 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Pixel Arcade-retningen er implementeret som et isoleret override-lag oven på den eksisterende store stylesheet. Det gør A/B-testen sikker og hurtig, men efterlader bevidst ældre CSS under laget; ved en mergebeslutning bør stilen konsolideres i mindre screen- og tokenfiler.
+- De nuværende detaljerede enemy-sprites er bevaret som aftalt. Det skal vurderes på fysisk mobil, om deres billedsprog passer til den simplere sort/hvide arcade-shell, før der bestilles eller bygges ny sprite-art.
 - V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–45-grænser skal derfor fysisk valideres.
 - Workshop-ritualet er browser-verificeret ved 384 px, inklusive reload efter target-roll og før power-roll. Den subjektive varighed og gentagelsesværdi ved mange køb skal stadig afprøves på fysisk mobil.
 - Et Workshop-roll kan vise mindre faktisk fremgang end sit rå resultat, når target-face ligger tæt på cap. UI'et viser den cap-begrænsede fordeling før rullet, men det skal playtestes, om spilleren stadig oplever dette som fair.
@@ -199,6 +203,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Pixel Arcade visual vertical slice
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hub, Combat, Workshop, Talent Tree, Dungeon Select, Loadout, Victory, Defeat og centrale overlays har fået en sammenhængende alternativ arcade-præsentation med ren sort canvas, hårde hvide pixelrammer, mættede funktionsfarver og markant mindre visuel støj. De fysiske player-, enemy- og Workshop-terninger er bevaret og reskinnet som de primære hero-objekter.
+- Beslutninger: Testen ændrer kun grafik og præsentationsklassifikation. Gameplay, økonomi, persistence og enemy-sprites er uændrede. Talent-forbindelser lyser kun hvidt, når target faktisk er åbent; dungeon-låste targets forbliver mørke. 3D-cubers egne transform-elementer må ikke modtage filter-animationer.
+- Berørte områder: `src/index.css`, arcade-override i `src/newGame.css`, Hub-, Combat- og Workshop-præsentation, Talent Tree-forbindelser og `PIXEL_ARCADE_VISUAL_TEST.md`.
+- Validering: Browser-verificeret ved 320×700, 384×844 og 430×932 på alle fire hovedskærme samt Dungeon Select, Loadout og Victory. Manuel Workshop-test gennemførte gentagne Forge-rul inklusive et frontvendt jackpot-`+2`; browserkonsollen havde ingen errors eller warnings. `npx tsc --noEmit`, 25 testfiler med 123 tests, ESLint, production-build og `git diff --check` består.
+- Kendte mangler: Retningen er endnu ikke subjektivt sammenlignet med den eksisterende V2-stil på fysisk iPhone. Enemy-sprites er bevidst ikke ændret, og det store CSS-override bør først konsolideres, hvis retningen vælges.
+- Git: Ikke committed endnu på `codex/pixel-arcade-visual-test`.
 
 ### 2026-07-29 — Stabil Workshop-cube ved jackpot-rul
 

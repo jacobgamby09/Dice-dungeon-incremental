@@ -292,6 +292,7 @@ export function WorkshopScreen() {
 
       {selectedDie ? (
         <section
+          aria-busy={isAnimating}
           className={`workshop-ritual__chamber workshop-ritual__chamber--${selectedDie.family}`}
           aria-labelledby="workshop-selected-die"
         >

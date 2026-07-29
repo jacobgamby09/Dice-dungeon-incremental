@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { TALENT_IDS, TALENTS_BY_ID } from '../../game/content/talents'
 import { TalentDetailPanel } from './TalentDetailPanel'
 import { TalentNode } from './TalentNode'
+import { getTalentConnectionState } from './talentConnectionState'
 
 const battleHardened = TALENTS_BY_ID[TALENT_IDS.battleHardenedOne]
 
@@ -82,5 +83,14 @@ describe('Talent Tree presentation', () => {
     expect(markup).toContain('Buy · 4 XP')
     expect(markup).not.toContain('Current rank')
     expect(markup).not.toContain('Next rank grants')
+  })
+
+  it('only lights connections to talent nodes that can currently be purchased', () => {
+    expect(getTalentConnectionState(1, 0, 'ready')).toBe('open')
+    expect(getTalentConnectionState(1, 0, 'unaffordable')).toBe('open')
+    expect(getTalentConnectionState(1, 0, 'locked')).toBe('dormant')
+    expect(getTalentConnectionState(1, 0, 'silhouette')).toBe('veiled')
+    expect(getTalentConnectionState(1, 1, 'active')).toBe('active')
+    expect(getTalentConnectionState(0, 0, 'ready')).toBe('dormant')
   })
 })

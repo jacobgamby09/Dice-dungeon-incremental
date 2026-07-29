@@ -18,6 +18,7 @@ import {
   getZoomedTalentCanvasOffset,
   TALENT_TREE_WORLD,
 } from './talentTreeLayout'
+import { getTalentConnectionState } from './talentConnectionState'
 import type { TalentTreePoint, TalentTreeViewport } from './talentTreeLayout'
 
 export interface TalentCanvasNode {
@@ -447,13 +448,11 @@ export function TalentTreeCanvas({
           {connections.map(({ isCharging, source, target }) => {
             const sourcePoint = getTalentTreePoint(source.talent.id)
             const targetPoint = getTalentTreePoint(target.talent.id)
-            const connectionState = target.state === 'silhouette'
-              ? 'veiled'
-              : target.rank > 0
-                ? 'active'
-                : source.rank > 0
-                  ? 'open'
-                  : 'dormant'
+            const connectionState = getTalentConnectionState(
+              source.rank,
+              target.rank,
+              target.state,
+            )
 
             return (
               <g

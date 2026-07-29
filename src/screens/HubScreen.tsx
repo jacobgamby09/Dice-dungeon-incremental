@@ -64,14 +64,9 @@ export function HubScreen() {
 
   return (
     <main className="game-shell hub-screen">
-      <section className="hub-gate" aria-labelledby="hub-title">
-        <div aria-hidden="true" className="hub-gate__glow" />
-        <span aria-hidden="true" className="hub-soul hub-soul--one" />
-        <span aria-hidden="true" className="hub-soul hub-soul--two" />
-        <span aria-hidden="true" className="hub-soul hub-soul--three" />
-        <div aria-hidden="true" className="hub-gate__door"><DoorOpen size={58} /></div>
+      <section className="hub-gate hub-header" aria-labelledby="hub-title">
         <header className="hub-sign">
-          <span>Classic Incremental V2</span>
+          <span>Classic Incremental V2 · Pixel Arcade Test</span>
           <h1 id="hub-title">Dice Dungeon</h1>
         </header>
         <p>Fail, forge a random face, and return stronger. Every run moves the wall.</p>
@@ -82,8 +77,8 @@ export function HubScreen() {
       <section className="loadout-vault" aria-labelledby="loadout-title">
         <header className="loadout-vault__heading">
           <div>
-            <span className="eyebrow">Adventurer's rack</span>
-            <h2 id="loadout-title">Equipped Dice</h2>
+            <span className="eyebrow">Current build</span>
+            <h2 id="loadout-title">Permanent Dice</h2>
           </div>
           <span className="loadout-count"><Dices aria-hidden="true" size={14} /> {profile.equippedDieIds.length}/{diceCapacity}</span>
         </header>
@@ -93,24 +88,25 @@ export function HubScreen() {
             return die ? <DieSummary die={die} key={die.id} /> : null
           })}
         </div>
-        <button className="loadout-manage" onClick={openLoadout} type="button">
-          <Backpack aria-hidden="true" size={16} /> Manage Loadout
-        </button>
       </section>
 
       <footer className="hub-actions">
+        <button className="hub-action hub-action--dungeon" onClick={openDungeonSelect} type="button">
+          <span className="hub-action__icon"><Castle aria-hidden="true" size={24} /></span>
+          <span><small>Begin a descent</small><strong>Enter Dungeon</strong></span>
+          <DoorOpen aria-hidden="true" className="hub-action__door" size={20} />
+        </button>
         <button className="hub-action hub-action--talents" onClick={openTalentTree} type="button">
           <span className="hub-action__icon"><Sparkles aria-hidden="true" size={22} /></span>
-          <span><small>Spend permanent XP</small><strong>Talent Tree</strong></span>
+          <span><small>Spend XP</small><strong>Talent Tree</strong></span>
         </button>
         <button className="hub-action hub-action--workshop" onClick={openWorkshop} type="button">
           <span className="hub-action__icon"><Hammer aria-hidden="true" size={22} /></span>
-          <span><small>Improve permanent faces</small><strong>Enter Workshop</strong></span>
+          <span><small>Improve dice</small><strong>Workshop</strong></span>
         </button>
-        <button className="hub-action hub-action--dungeon" onClick={openDungeonSelect} type="button">
-          <span className="hub-action__icon"><Castle aria-hidden="true" size={24} /></span>
-          <span><small>Begin a dungeon descent</small><strong>Enter Dungeon</strong></span>
-          <DoorOpen aria-hidden="true" className="hub-action__door" size={20} />
+        <button className="hub-action hub-action--loadout" onClick={openLoadout} type="button">
+          <span className="hub-action__icon"><Backpack aria-hidden="true" size={22} /></span>
+          <span><small>Choose your dice</small><strong>Loadout</strong></span>
         </button>
       </footer>
 
