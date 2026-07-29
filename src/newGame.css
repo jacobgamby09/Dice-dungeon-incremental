@@ -2088,6 +2088,7 @@
   --cube-size: 70px;
   --cube-depth: 35px;
   position: relative;
+  z-index: 1;
   width: var(--cube-size);
   height: var(--cube-size);
   -webkit-transform-style: preserve-3d;
@@ -2120,8 +2121,17 @@
   text-shadow: 2px 2px 0 #1c1507;
 }
 
-.workshop-power-die--jackpot .workshop-power-die__cube {
-  filter: drop-shadow(0 0 13px rgba(250, 204, 21, 0.72));
+.workshop-power-die__jackpot-glow {
+  position: absolute;
+  z-index: 0;
+  width: 76px;
+  height: 76px;
+  border: 2px solid rgba(255, 230, 154, 0.44);
+  background: rgba(250, 204, 21, 0.09);
+  box-shadow:
+    0 0 10px rgba(250, 204, 21, 0.72),
+    0 0 24px rgba(250, 204, 21, 0.42);
+  pointer-events: none;
 }
 
 .workshop-power__cap-note {

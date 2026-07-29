@@ -32,6 +32,9 @@ export function WorkshopDie({
           : `Workshop Die faces ${faces.map((face) => face.value).join(', ')}`}
       className={`workshop-power-die workshop-power-die--${stage}${(appliedAmount ?? 0) > 1 ? ' workshop-power-die--jackpot' : ''}`}
     >
+      {isLanded && (appliedAmount ?? 0) > 1 ? (
+        <span aria-hidden="true" className="workshop-power-die__jackpot-glow" />
+      ) : null}
       <PhysicalDieCube
         className="workshop-power-die__cube"
         faceIndex={rolledFaceIndex}

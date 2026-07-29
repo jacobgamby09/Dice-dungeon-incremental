@@ -32,7 +32,24 @@ describe('Workshop Die presentation', () => {
 
     expect(markup).toContain('Workshop Die rolled plus 2')
     expect(markup).toContain('workshop-power-die--jackpot')
+    expect(markup).toContain('workshop-power-die__jackpot-glow')
     expect(markup).toContain('roll-die__cube workshop-power-die__cube')
     expect(markup).not.toContain('workshop-power-die__impact')
+  })
+
+  it('does not add the separate jackpot glow to a normal landed roll', () => {
+    const faces = createWorkshopDieFaces()
+    const markup = renderToStaticMarkup(
+      <WorkshopDie
+        appliedAmount={1}
+        faces={faces}
+        rolledFaceId={faces[0].id}
+        stage="landed"
+      />,
+    )
+
+    expect(markup).toContain('Workshop Die rolled plus 1')
+    expect(markup).not.toContain('workshop-power-die__jackpot-glow')
+    expect(markup).toContain('roll-die__cube workshop-power-die__cube')
   })
 })
