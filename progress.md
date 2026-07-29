@@ -210,7 +210,7 @@ Brug denne skabelon:
 - Berørte områder: `WorkshopDie.tsx`, Workshop-præsentationstests og Workshop-styling i `src/newGame.css`.
 - Validering: `npx tsc --noEmit`, 25 testfiler med 122 tests, ESLint, production-build og `git diff --check` består. Lokal browser gennemførte to `+2`-Forge-resultater i direkte rækkefølge; begge tumbles landede på en synlig, frontvendt cube med glow og uden forsvinding.
 - Kendte mangler: Fysisk Safari/iPhone bør stadig bruges til den endelige subjektive kontrol af tumble-timing, men den konkrete browserstandard-fejl er fjernet strukturelt.
-- Git: Ikke committed.
+- Git: `5b00e28` — `Keep Workshop cube visible on jackpot rolls` på `codex/classic-incremental-v2`; branchen er pushet.
 
 ### 2026-07-29 — Frontvendt Workshop-resultat
 
