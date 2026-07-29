@@ -12,6 +12,10 @@ import { FACE_META } from '../components/newgame/faceVisuals'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { WorkshopDie } from '../components/newgame/WorkshopDie'
 import {
+  getWorkshopResultPresentation,
+  type WorkshopPresentationPhase,
+} from '../components/newgame/workshopResultPresentation'
+import {
   getChaosEligibleFaces,
   getChaosForgeCost,
 } from '../game/forge/forge'
@@ -22,13 +26,6 @@ import {
 import type { FaceType } from '../game/types/dice'
 import type { WorkshopDieFace } from '../game/types/workshop'
 import { useNewGameStore } from '../store/newGameStore'
-
-type ForgePhase =
-  | 'idle'
-  | 'selecting_target'
-  | 'target_locked'
-  | 'rolling_power'
-  | 'result'
 
 interface ForgeImpact {
   amount: number
@@ -58,7 +55,7 @@ function getAverage(values: readonly number[]): string {
   return (values.reduce((total, value) => total + value, 0) / values.length).toFixed(2)
 }
 
-function getPhaseCopy(phase: ForgePhase): string {
+function getPhaseCopy(phase: WorkshopPresentationPhase): string {
   switch (phase) {
     case 'selecting_target':
       return 'The forge is choosing a permanent face'
@@ -97,7 +94,7 @@ export function WorkshopScreen() {
   const reduceMotion = useReducedMotion()
   const initialDieId = pendingForge?.dieId ?? diceCollection[0]?.id ?? ''
   const [selectedDieId, setSelectedDieId] = useState(initialDieId)
-  const [phase, setPhase] = useState<ForgePhase>(
+  const [phase, setPhase] = useState<WorkshopPresentationPhase>(
     pendingForge ? 'target_locked' : 'idle',
   )
   const [highlightedFaceId, setHighlightedFaceId] = useState<string | null>(
@@ -125,6 +122,7 @@ export function WorkshopScreen() {
     () => capWorkshopFaces(workshopFaces, targetHeadroom),
     [targetHeadroom, workshopFaces],
   )
+  const revealedWorkshopResult = getWorkshopResultPresentation(phase, forgeImpact)
   const isAnimating = phase === 'selecting_target' || phase === 'rolling_power'
   const canBeginForge = (
     !pendingForge
@@ -370,8 +368,7 @@ export function WorkshopScreen() {
               <div className="workshop-power__distribution" aria-label="Workshop Die distribution">
                 {displayedWorkshopFaces.map((face) => (
                   <span
-                    className={pendingForge?.workshopFaceId === face.id
-                      && ['rolling_power', 'result'].includes(phase)
+                    className={revealedWorkshopResult.workshopFaceId === face.id
                       ? 'workshop-power__distribution-face--rolled'
                       : undefined}
                     key={face.id}
@@ -381,7 +378,7 @@ export function WorkshopScreen() {
                 ))}
               </div>
               <WorkshopDie
-                appliedAmount={pendingForge?.appliedAmount ?? forgeImpact?.amount ?? null}
+                appliedAmount={revealedWorkshopResult.amount}
                 faces={displayedWorkshopFaces}
                 rolledFaceId={pendingForge?.workshopFaceId ?? forgeImpact?.workshopFaceId ?? null}
                 stage={phase === 'rolling_power'
@@ -390,11 +387,11 @@ export function WorkshopScreen() {
                     ? 'landed'
                     : 'idle'}
               />
-              {(pendingForge?.rolledAmount ?? forgeImpact?.rolledAmount ?? 0)
-                > (pendingForge?.appliedAmount ?? forgeImpact?.amount ?? 0) ? (
+              {(revealedWorkshopResult.rolledAmount ?? 0)
+                > (revealedWorkshopResult.amount ?? 0) ? (
                 <small className="workshop-power__cap-note">
-                  Face Cap converts +{pendingForge?.rolledAmount ?? forgeImpact?.rolledAmount}
-                  {' '}to +{pendingForge?.appliedAmount ?? forgeImpact?.amount}
+                  Face Cap converts +{revealedWorkshopResult.rolledAmount}
+                  {' '}to +{revealedWorkshopResult.amount}
                 </small>
               ) : null}
             </div>

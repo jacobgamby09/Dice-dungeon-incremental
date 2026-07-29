@@ -46,6 +46,7 @@ Brug denne skabelon:
 - Workshop Die starter `1–1–1–1–1–2`. West-talentet `Loaded Alloy` opgraderer fordelingen gennem `1–1–1–1–2–2`, `1–1–1–2–2–2` og `1–1–1–2–2–3`; et roll begrænses synligt af den valgte faces aktuelle cap-headroom.
 - Workshop Die og player-dice i Combat deler nu samme fysiske cube-renderer, tumble-kurve og landed-state. Efter tumble vises det valgte face præcist frontvendt og bliver stående efter Forge-resultatet; den tidligere separate flade `+X`-overlay-face er fjernet.
 - Workshop-jackpotgløden ligger i et separat dekorationslag bag cuben. `+2/+3` kan derfor ikke længere flade den bevarede 3D-kontekst ud eller få Workshop Die til at forsvinde under/efter gentagne Forge-rul.
+- Pixel Arcade-Workshoppen holder target-face synlig under hele ritualet: den låste outline er transparent og dækker ikke længere face-værdi eller ikon. Det persisterede Workshop-resultat styrer fortsat den fysiske landing, men distribution-marker, jackpot-state og cap-note forbliver skjult gennem `target_locked` og `rolling_power` og afsløres først i `result`.
 - Det nye Talent Tree er radialt omkring `Inner Spark`. Første rank koster 4 XP, giver +1 HP og åbner North/Arsenal, West/Workshop, South/Descent og East/Fate samtidigt. Alle fire første valg kan ses ved 100% zoom på 384 px.
 - Talent Tree-clusteret er komprimeret, så alle direkte forbindelser højst er 185 world-pixels lange. Node-inspektøren viser nu kun navn, tydelig state/rank, store konkrete effekter, eventuelle seks die-faces og én købsknap; gentaget branch-label, beskrivelse, statusblok og preview-copy er fjernet.
 - Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
@@ -203,6 +204,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Workshop target og skjult roll-resultat
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Den valgte permanente target-face bliver ikke længere sort eller ulæselig efter første rul. Workshop Die-fordelingen afslører heller ikke længere det fastlåste udfald, mens 3D-terningen stadig ruller; præcis én face markeres først efter landing.
+- Beslutninger: Den atomiske Forge bevarer sit persisterede udfald før animationen, men alle resultatafhængige præsentationssignaler er samlet bag en eksplicit `result`-gate. Det gælder distribution-marker, jackpot-class, applied amount og cap-note. Den fysiske cube må fortsat kende face-id'et internt for at kunne lande deterministisk.
+- Berørte områder: `WorkshopScreen.tsx`, Pixel Arcade-Workshop-styling i `src/newGame.css` samt den nye rene `workshopResultPresentation`-hjælper og regressionstest.
+- Validering: Browser ved 384×844 verificerede transparent target-overlay, læsbar Attack-face, 0 markers/jackpot/cap-note under `rolling_power` og præcis 1 marker efter en landet `+2`-jackpot. Browserkonsollen var ren. `npx tsc --noEmit`, 26 testfiler med 125 tests, ESLint, production-build og `git diff --check` består.
+- Kendte mangler: Ingen kendte fejl i det rettede flow; fysisk Safari/iPhone bør fortsat bruges til subjektiv animationstiming.
+- Git: Ikke committed endnu på `codex/pixel-arcade-visual-test`.
 
 ### 2026-07-29 — Pixel Arcade visual vertical slice
 

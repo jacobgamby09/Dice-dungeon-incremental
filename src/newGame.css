@@ -7354,7 +7354,7 @@
 
 .workshop-target__face--locked::after {
   border-color: var(--arcade-white);
-  background: var(--arcade-black);
+  background: transparent;
   color: var(--arcade-yellow);
 }
 
