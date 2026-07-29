@@ -15,10 +15,11 @@ describe('Workshop Die presentation', () => {
     )
 
     expect(markup).toContain('Workshop Die faces 1, 1, 1, 1, 1, 2')
-    expect(markup.match(/workshop-power-die__side /g)).toHaveLength(6)
+    expect(markup.match(/workshop-power-die__side/g)).toHaveLength(6)
+    expect(markup).toContain('roll-die__cube workshop-power-die__cube')
   })
 
-  it('announces a landed jackpot without relying on color', () => {
+  it('keeps the shared combat cube visible after announcing a landed jackpot', () => {
     const faces = createWorkshopDieFaces()
     const markup = renderToStaticMarkup(
       <WorkshopDie
@@ -31,6 +32,7 @@ describe('Workshop Die presentation', () => {
 
     expect(markup).toContain('Workshop Die rolled plus 2')
     expect(markup).toContain('workshop-power-die--jackpot')
-    expect(markup).toContain('+2')
+    expect(markup).toContain('roll-die__cube workshop-power-die__cube')
+    expect(markup).not.toContain('workshop-power-die__impact')
   })
 })

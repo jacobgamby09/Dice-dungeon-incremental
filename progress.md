@@ -43,6 +43,7 @@ Brug denne skabelon:
 - Første Slime har 3 HP og fast 2 Attack. Den friske spiller slår tre gange, vinder med 6/10 HP og får præcis 4 XP + 5 Souls; floor 2 er den første sikre væg.
 - Workshoppen er nu et atomisk ritual i to synlige rul: spilleren vælger en permanent die, første rul vælger uniformt en eligible face, og andet rul bruger en separat Workshop Die til at afgøre `+1/+2/+3`. Souls trækkes og begge resultater persisteres før animationen, så reload mellem rullene fortsætter samme Forge uden dobbeltbetaling.
 - Workshop Die starter `1–1–1–1–1–2`. West-talentet `Loaded Alloy` opgraderer fordelingen gennem `1–1–1–1–2–2`, `1–1–1–2–2–2` og `1–1–1–2–2–3`; et roll begrænses synligt af den valgte faces aktuelle cap-headroom.
+- Workshop Die og player-dice i Combat deler nu samme fysiske cube-renderer, tumble-kurve og landed-state. Den valgte face lander i en let 3D hero-vinkel og bliver stående efter Forge-resultatet; den tidligere flade `+X`-overlay-face er fjernet.
 - Det nye Talent Tree er radialt omkring `Inner Spark`. Første rank koster 4 XP, giver +1 HP og åbner North/Arsenal, West/Workshop, South/Descent og East/Fate samtidigt. Alle fire første valg kan ses ved 100% zoom på 384 px.
 - Talent Tree-clusteret er komprimeret, så alle direkte forbindelser højst er 185 world-pixels lange. Node-inspektøren viser nu kun navn, tydelig state/rank, store konkrete effekter, eventuelle seks die-faces og én købsknap; gentaget branch-label, beskrivelse, statusblok og preview-copy er fjernet.
 - Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
@@ -197,6 +198,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Vedvarende 3D Workshop Die
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Workshop Die bevarer nu sin fysiske cube gennem idle, tumble og det afsluttede Forge-resultat. Det landede face står i en let vinkel med synlig top og side, og terningen bliver stående i power chamberet i stedet for at blive erstattet af en flad `+X`-plade.
+- Beslutninger: Combat og Workshop bruger én fælles `PhysicalDieCube` til seks face-positioner, tumble, reduced-motion og landing. Det konkrete `+1/+2/+3` vises fortsat i det separate Forge-resultatpanel, så den fysiske terning ikke konkurrerer med en ekstra falsk face.
+- Berørte områder: Ny fælles cube-komponent, `RollDieTile`, `WorkshopDie`, Workshop-regressionstest og oprydning af de gamle overlay-/cube-styles.
+- Validering: `npx tsc --noEmit`, 25 testfiler med 121 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384×844 verificerer en vedvarende landed 3D-cube med synlig top/side og uden det gamle flade overlay.
+- Kendte mangler: Den subjektive tumble-hastighed skal fortsat mærkes på fysisk iPhone; mekanik, økonomi og persistence er uændret.
+- Git: Ikke committed.
 
 ### 2026-07-29 — Workshop Die og totrins-Forge
 

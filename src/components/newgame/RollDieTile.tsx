@@ -8,6 +8,7 @@ import { EvolutionIcon } from './EvolutionIcon'
 import { getEvolutionVisualStyle } from './evolutionVisuals'
 import { SignatureIcon } from './SignatureIcon'
 import { getSignatureVisualStyle } from './signatureVisuals'
+import { PhysicalDieCube } from './PhysicalDieCube'
 
 interface RollDieTileProps {
   die: DieInstance
@@ -16,16 +17,6 @@ interface RollDieTileProps {
   rollDuration: number
   activeElementRef?: Ref<HTMLDivElement>
 }
-
-const CUBE_SIDES = ['front', 'back', 'right', 'left', 'top', 'bottom'] as const
-const LANDING_ROTATIONS = [
-  { rotateX: 720, rotateY: 720 },
-  { rotateX: 720, rotateY: 900 },
-  { rotateX: 720, rotateY: 630 },
-  { rotateX: 720, rotateY: 810 },
-  { rotateX: 630, rotateY: 720 },
-  { rotateX: 810, rotateY: 720 },
-] as const
 
 export const RollDieTile = memo(function RollDieTile({
   activeElementRef,
@@ -37,7 +28,6 @@ export const RollDieTile = memo(function RollDieTile({
   const meta = FACE_META[result.type]
   const isRolling = stage === 'rolling'
   const isActive = stage !== 'settled'
-  const landingRotation = LANDING_ROTATIONS[result.faceIndex]
   const landedEvolution = !isRolling ? result.evolution : undefined
   const landedSignature = !isRolling ? result.signature : undefined
   const evolutionClassName = landedEvolution
@@ -63,61 +53,42 @@ export const RollDieTile = memo(function RollDieTile({
         : `${die.name} rolled ${result.value} ${meta.label}${result.evolution ? `, ${result.evolution.name} evolution` : ''}${result.signature ? `, ${result.signature.name} signature` : ''}`}
     >
       {isActive ? (
-        <motion.div
-          ref={activeElementRef}
-          className="roll-die__cube"
-          animate={
-            isRolling
-              ? {
-                  rotateX: [0, 205, 430, landingRotation.rotateX],
-                  rotateY: [0, 255, 505, landingRotation.rotateY],
-                  scale: [0.96, 1.04, 1.01, 1],
-                  y: [4, -24, -12, 0],
-                }
-              : {
-                  rotateX: landingRotation.rotateX,
-                  rotateY: landingRotation.rotateY,
-                  scale: [1, 1.08, 0.96, 1],
-                  y: [0, -3, 0],
-                }
-          }
-          transition={{
-            duration: isRolling ? rollDuration : 0.18,
-            ease: isRolling ? [0.42, 0, 0.58, 1] : 'easeOut',
-            times: isRolling ? [0, 0.38, 0.7, 1] : undefined,
-          }}
-        >
-          {die.faces.map((face, index) => {
+        <PhysicalDieCube
+          activeElementRef={activeElementRef}
+          faceIndex={result.faceIndex}
+          faces={die.faces.map((face) => {
             const faceMeta = FACE_META[face.type]
             const evolutionStyle = face.evolution ? getEvolutionVisualStyle(face.evolution.id) : {}
             const signatureStyle = face.signature ? getSignatureVisualStyle(face.signature.id) : {}
-            return (
-              <span
-                aria-hidden="true"
-                className={`roll-die__side roll-die__side--${CUBE_SIDES[index]}${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`}
-                key={face.id}
-                style={{
+            return {
+              className: `${face.evolution ? `evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`,
+              content: (
+                <>
+                  <strong>{face.value}</strong>
+                  {face.evolution
+                    ? (
+                      <>
+                        <EvolutionIcon evolutionId={face.evolution.id} size={24} />
+                        <span className="evolution-face__attack-mark"><FaceIcon type="attack" size={10} /></span>
+                      </>
+                    )
+                    : face.signature
+                      ? <SignatureIcon signatureId={face.signature.id} size={24} />
+                    : <FaceIcon type={face.type} size={20} />}
+                </>
+              ),
+              id: face.id,
+              style: {
                   '--side-color': faceMeta.color,
                   '--side-surface': faceMeta.shadow,
                   ...evolutionStyle,
                   ...signatureStyle,
-                } as CSSProperties}
-              >
-                <strong>{face.value}</strong>
-                {face.evolution
-                  ? (
-                    <>
-                      <EvolutionIcon evolutionId={face.evolution.id} size={24} />
-                      <span className="evolution-face__attack-mark"><FaceIcon type="attack" size={10} /></span>
-                    </>
-                  )
-                  : face.signature
-                    ? <SignatureIcon signatureId={face.signature.id} size={24} />
-                  : <FaceIcon type={face.type} size={20} />}
-              </span>
-            )
+                } as CSSProperties,
+            }
           })}
-        </motion.div>
+          rollDuration={rollDuration}
+          stage={isRolling ? 'rolling' : 'landed'}
+        />
       ) : (
         <div className={`roll-die__body${result.evolution ? ` evolution-face-surface evolution-face-surface--${result.evolution.id}` : ''}${result.signature ? ` signature-face-surface signature-face-surface--${result.signature.id}` : ''}`}>
           <span className="roll-die__result">
