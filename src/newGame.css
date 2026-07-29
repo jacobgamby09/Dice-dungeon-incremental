@@ -1070,6 +1070,7 @@
   position: relative;
   width: var(--cube-size);
   height: var(--cube-size);
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
   will-change: transform;
 }
@@ -1091,6 +1092,7 @@
   justify-content: center;
   gap: 6px;
   color: #fff;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 

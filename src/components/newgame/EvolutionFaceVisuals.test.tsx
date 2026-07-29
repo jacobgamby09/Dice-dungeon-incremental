@@ -39,26 +39,35 @@ describe('evolution face visuals', () => {
     })
   })
 
-  it('announces and celebrates an evolved face when it lands', () => {
-    const die = createEvolutionDie()
-    const result: RollResult = {
-      dieId: die.id,
-      dieName: die.name,
-      evolution: { id: 'rend', name: 'Rend' },
-      faceId: die.faces[2].id,
-      faceIndex: 2,
-      type: 'attack',
-      value: 2,
-    }
-    const markup = renderToStaticMarkup(
-      <RollDieTile die={die} result={result} rollDuration={0.5} stage="landed" />,
-    )
+  it.each(EVOLUTIONS)(
+    'announces and celebrates the $name identity without borrowing another evolution',
+    ({ id, name, value }) => {
+      const die = createEvolutionDie()
+      const faceIndex = EVOLUTIONS.findIndex((candidate) => candidate.id === id)
+      const result: RollResult = {
+        dieId: die.id,
+        dieName: die.name,
+        evolution: { id, name },
+        faceId: die.faces[faceIndex].id,
+        faceIndex,
+        type: 'attack',
+        value,
+      }
+      const markup = renderToStaticMarkup(
+        <RollDieTile die={die} result={result} rollDuration={0.5} stage="landed" />,
+      )
 
-    expect(markup).toContain('Worn Blade Die rolled 2 Attack, Rend evolution')
-    expect(markup).toContain('roll-die--evolution-rend')
-    expect(markup).toContain('evolution-impact--rend')
-    expect(markup).toContain('data-evolution-icon="rend"')
-  })
+      expect(markup).toContain(`Worn Blade Die rolled ${value} Attack, ${name} evolution`)
+      expect(markup).toContain(`roll-die--evolution-${id}`)
+      expect(markup).toContain(`evolution-impact--${id}`)
+      expect(markup).toContain(`data-evolution-icon="${id}"`)
+
+      EVOLUTIONS.filter((candidate) => candidate.id !== id).forEach((candidate) => {
+        expect(markup).not.toContain(`roll-die--evolution-${candidate.id}`)
+        expect(markup).not.toContain(`evolution-impact--${candidate.id}`)
+      })
+    },
+  )
 
   it('carries the evolution identity into the score transfer', () => {
     const markup = renderToStaticMarkup(
