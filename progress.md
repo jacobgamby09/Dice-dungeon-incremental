@@ -209,7 +209,7 @@ Brug denne skabelon:
 - Berørte områder: `PhysicalDieCube.tsx`, `CLASSIC_INCREMENTAL_V2.md` og fælles progress-log.
 - Validering: `npx tsc --noEmit`, 25 testfiler med 121 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384×844 gennemførte begge Forge-rul og verificerede en vedvarende, helt frontvendt resultatflade uden den gamle flade overlay-face.
 - Kendte mangler: Tumble-hastigheden og den subjektive fysiske fornemmelse skal fortsat vurderes på en rigtig iPhone; mekanik, økonomi og persistence er uændret.
-- Git: Ikke committed.
+- Git: `d721c70` — `Land Workshop die on exact face` på `codex/classic-incremental-v2`; branchen er pushet.
 
 ### 2026-07-29 — Fuld Classic Incremental V2 GDD
 
