@@ -203,7 +203,7 @@ Brug denne skabelon:
 - Berørte områder: `TalentDetailPanel.tsx`, det radiale layout og dets tests samt Talent Tree-styling i `src/newGame.css`.
 - Validering: TypeScript, 24 testfiler med 118 tests, ESLint og production-build består. Lokal browser ved 384×844 viser den kompakte first ring og det reducerede Twin Arsenal-panel uden overlap, warnings eller errors.
 - Kendte mangler: De nye afstande er visuelt valideret på first ring; den fulde dybe gren skal fortsat mærkes gennem almindelig pan/zoom på fysisk mobil.
-- Git: `3112ab1` — `Streamline V2 talent tree UI` på `codex/classic-incremental-v2`; push og preview-status registreres i leveringscommittet.
+- Git: `3112ab1` — `Streamline V2 talent tree UI` og `7afbcf0` — `Record V2 talent tree polish` på `codex/classic-incremental-v2`. Branchen er pushet, og den isolerede Vercel Preview-deployment er bekræftet `success`.
 
 ### 2026-07-29 — Classic Incremental V2 vertical slice
 
