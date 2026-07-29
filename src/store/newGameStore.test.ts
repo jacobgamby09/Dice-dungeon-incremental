@@ -6,8 +6,8 @@ import { createEnemyState } from '../game/content/enemies'
 import { TALENT_IDS } from '../game/content/talents'
 import {
   getDiceCapacity,
-  getForgeCriticalChance,
   getPlayerMaxHp,
+  getWorkshopDieFaces,
   hasAutoCombatUnlocked,
 } from '../game/progression/talents'
 import type { NewGameState } from './newGameStore'
@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(13)
+    expect(profile.saveVersion).toBe(14)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -189,7 +189,7 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().equipDie('attack-die-2')).toBe(true)
   })
 
-  it('makes Volatile Temper affect the atomically persisted random Forge result', () => {
+  it('locks the target and Loaded Alloy Workshop result before applying it', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({
       profile: {
@@ -202,44 +202,63 @@ describe('Classic V2 store progression loop', () => {
       },
     })
 
-    const rolls = [0, 0]
-    const result = useNewGameStore.getState().chaosForgeDie(
+    const rolls = [0, 0.99]
+    const pending = useNewGameStore.getState().beginWorkshopForge(
       'attack-die-1',
-      'critical-op',
+      'loaded-op',
       () => rolls.shift() ?? 0,
     )
-    const profile = useNewGameStore.getState().profile
+    const lockedProfile = useNewGameStore.getState().profile
 
-    expect(getForgeCriticalChance(profile.talentRanks)).toBeCloseTo(0.1)
+    expect(getWorkshopDieFaces(lockedProfile.talentRanks).map((face) => face.value))
+      .toEqual([1, 1, 1, 1, 2, 2])
+    expect(pending).toMatchObject({
+      operationId: 'loaded-op',
+      appliedAmount: 2,
+      cost: 5,
+      targetFaceId: 'attack-die-1-face-1',
+      workshopFaceId: 'workshop-die-face-6',
+    })
+    expect(lockedProfile.bankedSouls).toBe(15)
+    expect(lockedProfile.diceCollection[0].faces[0].value).toBe(1)
+    expect(lockedProfile.pendingWorkshopForge).toEqual(pending)
+
+    const result = useNewGameStore.getState().completePendingWorkshopForge('loaded-op')
+    const completedProfile = useNewGameStore.getState().profile
     expect(result).toMatchObject({
       amount: 2,
-      cost: 5,
       faceId: 'attack-die-1-face-1',
-      wasCritical: true,
+      isJackpot: true,
     })
-    expect(profile.bankedSouls).toBe(15)
-    expect(profile.diceCollection[0].faces[0].value).toBe(3)
+    expect(completedProfile.diceCollection[0].faces[0].value).toBe(3)
+    expect(completedProfile.pendingWorkshopForge).toBeNull()
   })
 
-  it('charges a Forge operation id at most once', () => {
+  it('charges a pending Forge once and resumes the same locked outcome', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({
       profile: { ...state.profile, bankedSouls: 100 },
     })
 
-    const first = useNewGameStore.getState().chaosForgeDie(
+    const first = useNewGameStore.getState().beginWorkshopForge(
       'attack-die-1',
       'same-op',
       () => 0,
     )
-    const second = useNewGameStore.getState().chaosForgeDie(
+    const second = useNewGameStore.getState().beginWorkshopForge(
       'attack-die-1',
-      'same-op',
+      'different-op',
       () => 0.99,
     )
 
     expect(first?.cost).toBe(5)
     expect(second).toBeNull()
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(95)
+    expect(useNewGameStore.getState().profile.pendingWorkshopForge).toEqual(first)
+
+    expect(useNewGameStore.getState().completePendingWorkshopForge('wrong-op')).toBeNull()
+    expect(useNewGameStore.getState().completePendingWorkshopForge('same-op')?.amount).toBe(1)
+    expect(useNewGameStore.getState().completePendingWorkshopForge('same-op')).toBeNull()
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(95)
   })
 
@@ -250,7 +269,7 @@ describe('Classic V2 store progression loop', () => {
     })
     useNewGameStore.getState().startRun('prototype-depths')
 
-    expect(useNewGameStore.getState().chaosForgeDie(
+    expect(useNewGameStore.getState().beginWorkshopForge(
       'attack-die-1',
       'during-run',
       () => 0,
@@ -375,11 +394,51 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 13,
+        saveVersion: 14,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
       expect(migrated.run.status).toBe('inactive')
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('preserves the isolated V2 profile when migrating version 13', async () => {
+    const current = useNewGameStore.getState()
+    let saved: StorageValue<NewGameState> | null = {
+      state: {
+        ...current,
+        profile: {
+          ...current.profile,
+          saveVersion: 13,
+          xp: 27,
+          bankedSouls: 41,
+        },
+      },
+      version: 13,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      expect(useNewGameStore.getState().profile).toMatchObject({
+        bankedSouls: 41,
+        pendingWorkshopForge: null,
+        saveVersion: 14,
+        xp: 27,
+      })
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()

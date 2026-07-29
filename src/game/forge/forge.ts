@@ -12,6 +12,10 @@ import type {
   FaceEvolutionId,
   FaceInstance,
 } from '../types/dice'
+import type {
+  PendingWorkshopForge,
+  WorkshopDieFace,
+} from '../types/workshop'
 
 export {
   ATTACK_EVOLUTIONS,
@@ -23,12 +27,14 @@ export {
 
 export interface ForgeResult {
   amount: number
+  rolledAmount: number
   dieId: string
   faceId: string
+  workshopFaceId: string | null
   cost: number
   newValue: number
   previousValue: number
-  wasCritical: boolean
+  isJackpot: boolean
   becameEvolutionReady: boolean
 }
 
@@ -124,46 +130,90 @@ export function precisionForge(
     die: forged.die,
     result: {
       amount: forged.newValue - forged.previousValue,
+      rolledAmount: 1,
       dieId: die.id,
       faceId,
+      workshopFaceId: null,
       cost,
       newValue: forged.newValue,
       previousValue: forged.previousValue,
-      wasCritical: false,
+      isJackpot: false,
       becameEvolutionReady: false,
     },
   }
 }
 
-export function chaosForge(
+function clampRandomRoll(random: () => number): number {
+  return Math.min(0.999999999, Math.max(0, random()))
+}
+
+export function prepareWorkshopForge(
   die: DieInstance,
+  operationId: string,
+  workshopFaces: readonly WorkshopDieFace[],
   random: () => number = Math.random,
   options: {
     costMultiplier?: number
-    criticalChance?: number
     faceCap?: number
   } = {},
-): { die: DieInstance; result: ForgeResult } | null {
+): PendingWorkshopForge | null {
+  if (!operationId || workshopFaces.length === 0) return null
   const faceCap = options.faceCap ?? BASE_FACE_CAP
   const eligibleFaces = getChaosEligibleFaces(die, faceCap)
   const cost = getChaosForgeCost(die, faceCap, options.costMultiplier)
   if (eligibleFaces.length === 0 || cost === null) return null
-  const boundedRoll = Math.min(0.999999999, Math.max(0, random()))
-  const face = eligibleFaces[Math.floor(boundedRoll * eligibleFaces.length)]
-  const criticalChance = Math.min(1, Math.max(0, options.criticalChance ?? 0))
-  const wasCritical = random() < criticalChance
-  const forged = forgeFaceOnDie(die, face.id, wasCritical ? 2 : 1, faceCap)
+
+  const faceRoll = clampRandomRoll(random)
+  const targetFace = eligibleFaces[Math.floor(faceRoll * eligibleFaces.length)]
+  const workshopRoll = clampRandomRoll(random)
+  const workshopFace = workshopFaces[Math.floor(workshopRoll * workshopFaces.length)]
+  const rolledAmount = Math.max(1, Math.floor(workshopFace.value))
+  const appliedAmount = Math.min(faceCap - targetFace.value, rolledAmount)
+
+  return {
+    operationId,
+    dieId: die.id,
+    targetFaceId: targetFace.id,
+    workshopFaceId: workshopFace.id,
+    rolledAmount,
+    appliedAmount,
+    previousValue: targetFace.value,
+    cost,
+  }
+}
+
+export function completeWorkshopForge(
+  die: DieInstance,
+  pending: PendingWorkshopForge,
+  faceCap = BASE_FACE_CAP,
+): { die: DieInstance; result: ForgeResult } | null {
+  if (pending.dieId !== die.id) return null
+  const targetFace = die.faces.find((face) => face.id === pending.targetFaceId)
+  if (
+    !targetFace
+    || targetFace.value !== pending.previousValue
+    || !canForgeFace(targetFace, faceCap)
+  ) return null
+
+  const appliedAmount = Math.min(
+    faceCap - targetFace.value,
+    Math.max(1, Math.floor(pending.appliedAmount)),
+  )
+  const forged = forgeFaceOnDie(die, targetFace.id, appliedAmount, faceCap)
   if (!forged) return null
+
   return {
     die: forged.die,
     result: {
       amount: forged.newValue - forged.previousValue,
+      rolledAmount: pending.rolledAmount,
       dieId: die.id,
-      faceId: face.id,
-      cost,
+      faceId: targetFace.id,
+      workshopFaceId: pending.workshopFaceId,
+      cost: pending.cost,
       newValue: forged.newValue,
       previousValue: forged.previousValue,
-      wasCritical: wasCritical && forged.newValue - forged.previousValue > 1,
+      isJackpot: pending.rolledAmount > 1 && forged.newValue - forged.previousValue > 1,
       becameEvolutionReady: false,
     },
   }

@@ -1668,6 +1668,661 @@
   }
 }
 
+/* Classic Incremental V2: two-stage Workshop ritual. */
+.workshop-ritual {
+  min-height: 100dvh;
+  background:
+    linear-gradient(180deg, rgba(22, 71, 78, 0.11), transparent 24%),
+    #03050a;
+  color: #f4fdff;
+}
+
+.workshop-ritual__header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 76px;
+  border-bottom: 3px solid #111b24;
+  background: rgba(3, 7, 12, 0.96);
+  padding: max(12px, env(safe-area-inset-top)) 13px 11px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  box-shadow: 0 5px 0 #000;
+}
+
+.workshop-ritual__header header {
+  min-width: 0;
+}
+
+.workshop-ritual__header header span,
+.workshop-ritual__rack > header span,
+.workshop-ritual__die-heading span,
+.workshop-target header small,
+.workshop-power header small {
+  color: #71858e;
+  font-size: 0.47rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__header h1 {
+  margin: 3px 0 0;
+  color: #e9fdff;
+  font-size: 1.12rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__back {
+  width: 42px;
+  height: 42px;
+  border: 2px solid #26343e;
+  border-radius: 0;
+  background: #081018;
+  box-shadow: 3px 3px 0 #000;
+  display: grid;
+  place-items: center;
+  color: #c7e2e7;
+  cursor: pointer;
+}
+
+.workshop-ritual__back:disabled {
+  color: #3e4a52;
+  cursor: not-allowed;
+}
+
+.workshop-ritual__back:focus-visible,
+.workshop-ritual__tab:focus-visible,
+.workshop-ritual__action:focus-visible {
+  outline: 3px solid #fef08a;
+  outline-offset: 3px;
+}
+
+.workshop-ritual__rack {
+  border-bottom: 2px solid #101820;
+  background: #05080e;
+  padding: 15px 13px;
+}
+
+.workshop-ritual__rack > header {
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workshop-ritual__rack > header strong {
+  color: #8fb6bc;
+  font-size: 0.53rem;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__tabs {
+  margin-inline: -13px;
+  padding: 0 13px 4px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.workshop-ritual__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.workshop-ritual__tab {
+  --workshop-family: #f87171;
+  flex: 0 0 150px;
+  min-width: 0;
+  min-height: 58px;
+  border: 2px solid #1a232d;
+  border-radius: 0;
+  background: #080c13;
+  padding: 8px 9px;
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: #75818a;
+  text-align: left;
+  cursor: pointer;
+}
+
+.workshop-ritual__tab--shield { --workshop-family: #60a5fa; }
+.workshop-ritual__tab--heal { --workshop-family: #4ade80; }
+
+.workshop-ritual__tab[aria-pressed="true"] {
+  border-color: var(--workshop-family);
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--workshop-family) 14%, transparent), transparent 58%),
+    #0b1119;
+  box-shadow:
+    3px 3px 0 #000,
+    inset 3px 0 0 var(--workshop-family);
+  color: var(--workshop-family);
+}
+
+.workshop-ritual__tab:disabled {
+  cursor: not-allowed;
+}
+
+.workshop-ritual__tab > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.workshop-ritual__tab strong {
+  overflow: hidden;
+  color: #ecfeff;
+  font-size: 0.61rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.workshop-ritual__tab small {
+  color: #70808a;
+  font-size: 0.48rem;
+}
+
+.workshop-ritual__chamber {
+  --workshop-family: #f87171;
+  padding: 18px 13px max(24px, env(safe-area-inset-bottom));
+}
+
+.workshop-ritual__chamber--shield { --workshop-family: #60a5fa; }
+.workshop-ritual__chamber--heal { --workshop-family: #4ade80; }
+
+.workshop-ritual__die-heading {
+  margin-bottom: 16px;
+  border-left: 4px solid var(--workshop-family);
+  padding: 2px 0 2px 10px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workshop-ritual__die-heading h2 {
+  margin: 3px 0 0;
+  color: #fff;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__die-heading > div:last-child {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.workshop-ritual__die-heading > div:last-child small {
+  color: #63737c;
+  font-size: 0.45rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__die-heading > div:last-child strong {
+  color: var(--workshop-family);
+  font-size: 0.9rem;
+}
+
+.workshop-target,
+.workshop-power {
+  border: 2px solid #17232c;
+  background:
+    linear-gradient(145deg, rgba(47, 192, 207, 0.045), transparent 42%),
+    #050910;
+  box-shadow:
+    5px 5px 0 #000,
+    inset 0 0 0 1px #0a1118;
+  padding: 13px 11px 14px;
+}
+
+.workshop-target > header,
+.workshop-power > header {
+  margin-bottom: 13px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.workshop-target > header > span,
+.workshop-power > header > span {
+  width: 27px;
+  height: 27px;
+  border: 2px solid #29414b;
+  display: grid;
+  place-items: center;
+  color: #79d9e2;
+  font-size: 0.52rem;
+  font-weight: 900;
+}
+
+.workshop-target h3,
+.workshop-power h3 {
+  margin: 2px 0 0;
+  color: #e6fbfd;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.workshop-target__faces {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.workshop-target__face {
+  --target-color: #f87171;
+  position: relative;
+  min-width: 0;
+  min-height: 73px;
+  border: 2px solid #25171c;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--target-color) 12%, transparent), transparent 45%),
+    #0c0b11;
+  box-shadow:
+    0 4px 0 #000,
+    inset 0 2px 0 color-mix(in srgb, var(--target-color) 18%, transparent);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  color: var(--target-color);
+}
+
+.workshop-target__face--shield { --target-color: #60a5fa; }
+.workshop-target__face--heal { --target-color: #4ade80; }
+
+.workshop-target__face > small {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  color: #5c6870;
+  font-size: 0.4rem;
+  font-weight: 900;
+}
+
+.workshop-target__face > strong {
+  color: #fff;
+  font-size: 1.16rem;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.workshop-target__face > em {
+  position: absolute;
+  right: 2px;
+  bottom: -11px;
+  left: 2px;
+  border: 1px solid var(--target-color);
+  background: #030609;
+  padding: 2px 1px;
+  color: #effeff;
+  font-size: 0.34rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.workshop-target__face--highlighted {
+  z-index: 3;
+  border-color: var(--target-color);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--target-color) 32%, transparent), transparent 48%),
+    #10151c;
+  box-shadow:
+    0 6px 0 #000,
+    0 0 19px color-mix(in srgb, var(--target-color) 62%, transparent),
+    inset 0 3px 0 color-mix(in srgb, var(--target-color) 42%, transparent);
+}
+
+.workshop-target__faces--scanning .workshop-target__face--highlighted {
+  animation: workshop-target-flash 0.18s steps(2, end) infinite alternate;
+}
+
+.workshop-target__face--locked::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid color-mix(in srgb, var(--target-color) 72%, #fff);
+  content: '';
+  pointer-events: none;
+}
+
+.workshop-target__face--capped:not(.workshop-target__face--highlighted) {
+  filter: grayscale(0.75) brightness(0.55);
+}
+
+.workshop-ritual__conduit {
+  height: 48px;
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  align-items: center;
+  gap: 5px;
+  color: #456873;
+}
+
+.workshop-ritual__conduit span {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #1f4852);
+}
+
+.workshop-ritual__conduit span:last-child {
+  background: linear-gradient(90deg, #1f4852, transparent);
+}
+
+.workshop-power > header {
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+}
+
+.workshop-power > header > div:last-child {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.workshop-power > header > div:last-child strong {
+  color: #f5cf72;
+  font-size: 0.72rem;
+}
+
+.workshop-power__stage {
+  position: relative;
+  min-height: 168px;
+  border-top: 1px solid #14232b;
+  background:
+    radial-gradient(circle at 50% 62%, rgba(245, 207, 114, 0.11), transparent 34%),
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.28));
+  padding: 17px 8px 7px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.workshop-power__distribution {
+  z-index: 4;
+  display: flex;
+  gap: 5px;
+}
+
+.workshop-power__distribution > span {
+  width: 25px;
+  height: 25px;
+  border: 1px solid #4c4127;
+  background: #15130e;
+  display: grid;
+  place-items: center;
+  color: #c9b677;
+  font-size: 0.56rem;
+  font-weight: 900;
+}
+
+.workshop-power__distribution-face--rolled {
+  border-color: #ffe69a !important;
+  background: #493916 !important;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.52);
+  color: #fff8d5 !important;
+}
+
+.workshop-power-die {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  margin-top: 13px;
+  display: grid;
+  place-items: center;
+  perspective: 480px;
+}
+
+.workshop-power-die__cube {
+  --cube-size: 70px;
+  --cube-depth: 35px;
+  position: relative;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.workshop-power-die__side {
+  position: absolute;
+  inset: 0;
+  border: 3px solid #1c1507;
+  background:
+    linear-gradient(145deg, rgba(255, 240, 174, 0.27), transparent 38%),
+    #715318;
+  box-shadow:
+    inset 0 4px 0 #b28a33,
+    inset 4px 0 0 #8c6923;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #fff7d1;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.workshop-power-die__side strong {
+  font-size: 1.45rem;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #1c1507;
+}
+
+.workshop-power-die__side--front { transform: rotateY(0deg) translateZ(var(--cube-depth)); }
+.workshop-power-die__side--back { transform: rotateY(180deg) translateZ(var(--cube-depth)); }
+.workshop-power-die__side--right { transform: rotateY(90deg) translateZ(var(--cube-depth)); }
+.workshop-power-die__side--left { transform: rotateY(-90deg) translateZ(var(--cube-depth)); }
+.workshop-power-die__side--top { transform: rotateX(90deg) translateZ(var(--cube-depth)); }
+.workshop-power-die__side--bottom { transform: rotateX(-90deg) translateZ(var(--cube-depth)); }
+
+.workshop-power-die__impact {
+  position: absolute;
+  z-index: 8;
+  right: -4px;
+  bottom: 8px;
+  min-width: 43px;
+  border: 2px solid #ffe69a;
+  background: #36280d;
+  box-shadow:
+    3px 3px 0 #000,
+    0 0 18px rgba(250, 204, 21, 0.48);
+  padding: 6px;
+  color: #fff8d5;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.workshop-power-die--jackpot .workshop-power-die__cube {
+  filter: drop-shadow(0 0 13px rgba(250, 204, 21, 0.72));
+}
+
+.workshop-power-die--jackpot .workshop-power-die__impact {
+  animation: workshop-jackpot-pulse 0.48s steps(4, end) 2;
+}
+
+.workshop-power__cap-note {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  left: 7px;
+  color: #b9a267;
+  font-size: 0.45rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.workshop-impact {
+  margin-top: 13px;
+  border: 2px solid var(--workshop-family);
+  border-left-width: 6px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--workshop-family) 18%, transparent), transparent 68%),
+    #081017;
+  box-shadow: 4px 4px 0 #000;
+  padding: 11px 12px;
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: var(--workshop-family);
+}
+
+.workshop-impact--shield { --workshop-family: #60a5fa; }
+.workshop-impact--heal { --workshop-family: #4ade80; }
+.workshop-impact--jackpot { --workshop-family: #facc15; }
+
+.workshop-impact > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+}
+
+.workshop-impact small {
+  grid-column: 1 / -1;
+  color: #a5b8bf;
+  font-size: 0.43rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.workshop-impact strong {
+  color: #effeff;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.workshop-impact span {
+  color: var(--workshop-family);
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.workshop-ritual__status {
+  min-height: 32px;
+  margin-top: 13px;
+  display: grid;
+  place-items: center;
+  color: #78929a;
+  font-size: 0.49rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__action {
+  width: 100%;
+  min-height: 58px;
+  border: 3px solid #73dbe5;
+  border-radius: 0;
+  background: #145866;
+  box-shadow:
+    0 6px 0 #000,
+    inset 0 3px 0 #3d9eaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: #effeff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.workshop-ritual__action--power {
+  border-color: #f5d46f;
+  background: #725216;
+  box-shadow:
+    0 6px 0 #000,
+    inset 0 3px 0 #ae8732,
+    0 0 18px rgba(250, 204, 21, 0.22);
+  color: #fff8d5;
+}
+
+.workshop-ritual__action:disabled {
+  border-color: #252e36;
+  background: #0d1218;
+  box-shadow: 0 4px 0 #000;
+  color: #59666e;
+  cursor: not-allowed;
+}
+
+.workshop-ritual__odds {
+  margin-top: 11px;
+  display: block;
+  color: #586a73;
+  font-size: 0.44rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@keyframes workshop-target-flash {
+  from { filter: brightness(0.88); }
+  to { filter: brightness(1.35); }
+}
+
+@keyframes workshop-jackpot-pulse {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(1.55); transform: scale(1.08); }
+}
+
+@media (max-width: 340px) {
+  .workshop-ritual__header {
+    padding-inline: 9px;
+    grid-template-columns: 39px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .workshop-ritual__rack,
+  .workshop-ritual__chamber {
+    padding-inline: 9px;
+  }
+
+  .workshop-target,
+  .workshop-power {
+    padding-inline: 8px;
+  }
+
+  .workshop-target__faces {
+    gap: 3px;
+  }
+
+  .workshop-target__face {
+    min-height: 67px;
+  }
+
+  .workshop-target__face > strong {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workshop-target__faces--scanning .workshop-target__face--highlighted,
+  .workshop-power-die--jackpot .workshop-power-die__impact {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 /* Classic Incremental V2 Workshop */
 .classic-workshop__bench {
   display: grid;

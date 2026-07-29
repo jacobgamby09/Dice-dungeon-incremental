@@ -52,10 +52,10 @@ describe('Classic V2 progression journey', () => {
     expect(result.finalProfile.talentRanks[TALENT_IDS.secondDescent]).toBe(1)
   })
 
-  it('produces critical Workshop moments once Volatile Temper is purchased', () => {
+  it('produces jackpot Workshop moments after Workshop Die progression', () => {
     const seeds = Array.from({ length: 20 }, (_, index) => (
       simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 40, index + 1)
-        .milestones.firstCriticalForgeRun
+        .milestones.firstJackpotForgeRun
     ))
 
     expect(seeds.some((run) => run !== null)).toBe(true)

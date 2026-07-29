@@ -41,7 +41,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   dice_slots: Backpack,
   grant_die: Dices,
   roll_speed: Zap,
-  forge_critical_chance: Flame,
+  workshop_die_faces: Flame,
   face_cap: Gauge,
   unlock_auto_combat: Bot,
   unlock_charms: Gem,
@@ -58,8 +58,8 @@ function getEffectLabel(effect: TalentEffect): string {
       return createDieById(effect.dieId)?.name ?? 'Permanent Die'
     case 'roll_speed':
       return `${Math.round((effect.multiplier - 1) * 100)}% Faster Rolls`
-    case 'forge_critical_chance':
-      return `+${Math.round(effect.amount * 100)}% Critical Forge Chance`
+    case 'workshop_die_faces':
+      return `Workshop Die · ${effect.values.join(' · ')}`
     case 'face_cap':
       return `+${effect.amount} Workshop Face Cap`
     case 'unlock_auto_combat':

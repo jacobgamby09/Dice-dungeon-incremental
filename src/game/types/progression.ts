@@ -1,5 +1,6 @@
 import type { DieInstance } from './dice'
 import type { DungeonId, DungeonProgress } from './dungeon'
+import type { PendingWorkshopForge, WorkshopDieValues } from './workshop'
 
 export const TALENT_TRACKS = [
   'core',
@@ -34,7 +35,7 @@ export type TalentEffect =
   | { type: 'dice_slots'; amount: number }
   | { type: 'grant_die'; dieId: string }
   | { type: 'roll_speed'; multiplier: number }
-  | { type: 'forge_critical_chance'; amount: number }
+  | { type: 'workshop_die_faces'; values: WorkshopDieValues }
   | { type: 'face_cap'; amount: number }
   | { type: 'unlock_auto_combat' }
   | { type: 'unlock_charms' }
@@ -79,5 +80,6 @@ export interface PlayerProfile {
   diceCollection: DieInstance[]
   equippedDieIds: string[]
   recentForgeOperationIds: string[]
+  pendingWorkshopForge: PendingWorkshopForge | null
   settings: PlayerSettings
 }

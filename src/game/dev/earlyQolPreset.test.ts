@@ -22,6 +22,7 @@ function createBaseProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    pendingWorkshopForge: null,
     settings: { rollSpeed: 1, autoCombat: false },
   }
 }

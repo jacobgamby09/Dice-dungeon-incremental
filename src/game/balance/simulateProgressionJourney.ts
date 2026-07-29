@@ -1,13 +1,17 @@
 import { createDieById, createStartingDice } from '../content/dice'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
-import { chaosForge, getChaosForgeCost } from '../forge/forge'
+import {
+  completeWorkshopForge,
+  getChaosForgeCost,
+  prepareWorkshopForge,
+} from '../forge/forge'
 import {
   canPurchaseTalent,
   getDiceCapacity,
-  getForgeCriticalChance,
   getNextTalentRank,
   getPlayerMaxHp,
   getTalentRank,
+  getWorkshopDieFaces,
   getWorkshopFaceCap,
   hasAutoCombatUnlocked,
 } from '../progression/talents'
@@ -30,7 +34,7 @@ export interface ProgressionJourneyMilestones {
   autoCombatRun: number | null
   dungeonOneClearRun: number | null
   dungeonTwoUnlockRun: number | null
-  firstCriticalForgeRun: number | null
+  firstJackpotForgeRun: number | null
   firstFaceUpgradeRun: number | null
   firstLoadoutChoiceRun: number | null
   secondDieRun: number | null
@@ -81,7 +85,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 13,
+    saveVersion: 14,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {},
@@ -93,6 +97,7 @@ function createJourneyProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    pendingWorkshopForge: null,
     settings: {
       autoCombat: false,
       rollSpeed: 1,
@@ -173,9 +178,9 @@ function spendSouls(
   profile: PlayerProfile,
   strategy: ProgressionJourneyStrategy,
   random: () => number,
-): { criticals: number; profile: PlayerProfile; upgrades: number } {
+): { jackpots: number; profile: PlayerProfile; upgrades: number } {
   let nextProfile = profile
-  let criticals = 0
+  let jackpots = 0
   let upgrades = 0
 
   for (let operation = 0; operation < 300; operation += 1) {
@@ -186,10 +191,15 @@ function spendSouls(
     })
     if (!target) break
 
-    const forged = chaosForge(target, random, {
-      criticalChance: getForgeCriticalChance(nextProfile.talentRanks),
-      faceCap,
-    })
+    const pending = prepareWorkshopForge(
+      target,
+      `journey-forge-${operation}`,
+      getWorkshopDieFaces(nextProfile.talentRanks),
+      random,
+      { faceCap },
+    )
+    if (!pending) break
+    const forged = completeWorkshopForge(target, pending, faceCap)
     if (!forged) break
 
     nextProfile = {
@@ -200,10 +210,10 @@ function spendSouls(
       )),
     }
     upgrades += 1
-    criticals += forged.result.wasCritical ? 1 : 0
+    jackpots += forged.result.isJackpot ? 1 : 0
   }
 
-  return { criticals, profile: nextProfile, upgrades }
+  return { jackpots, profile: nextProfile, upgrades }
 }
 
 function selectLoadout(
@@ -222,7 +232,7 @@ function createMilestones(): ProgressionJourneyMilestones {
     autoCombatRun: null,
     dungeonOneClearRun: null,
     dungeonTwoUnlockRun: null,
-    firstCriticalForgeRun: null,
+    firstJackpotForgeRun: null,
     firstFaceUpgradeRun: null,
     firstLoadoutChoiceRun: null,
     secondDieRun: null,
@@ -259,7 +269,7 @@ export function simulateProgressionJourney(
     profile = selectLoadout(preRunForge.profile, strategy.loadoutPriority)
 
     setMilestone(milestones, 'firstFaceUpgradeRun', run, preRunForge.upgrades > 0)
-    setMilestone(milestones, 'firstCriticalForgeRun', run, preRunForge.criticals > 0)
+    setMilestone(milestones, 'firstJackpotForgeRun', run, preRunForge.jackpots > 0)
     setMilestone(milestones, 'secondDieRun', run, profile.diceCollection.length >= 2)
     setMilestone(
       milestones,
@@ -321,9 +331,9 @@ export function simulateProgressionJourney(
     )
     setMilestone(
       milestones,
-      'firstCriticalForgeRun',
+      'firstJackpotForgeRun',
       run,
-      preRunForge.criticals + postRunForge.criticals > 0,
+      preRunForge.jackpots + postRunForge.jackpots > 0,
     )
     setMilestone(milestones, 'secondDieRun', run, profile.diceCollection.length >= 2)
     setMilestone(

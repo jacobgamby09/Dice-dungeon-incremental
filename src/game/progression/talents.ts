@@ -1,4 +1,5 @@
 import { TALENTS, TALENTS_BY_ID } from '../content/talents'
+import { createWorkshopDieFaces } from '../content/workshopDie'
 import { BASE_FACE_CAP } from '../content/upgradeCosts'
 import type {
   PlayerProfile,
@@ -6,6 +7,7 @@ import type {
   TalentEffect,
   TalentRanks,
 } from '../types/progression'
+import type { WorkshopDieFace, WorkshopDieValues } from '../types/workshop'
 
 export const BASE_PLAYER_HP = 10
 export const BASE_DICE_SLOTS = 1
@@ -75,15 +77,16 @@ export function hasAutoCombatUnlocked(talentRanks: Readonly<TalentRanks>): boole
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_combat')
 }
 
-export function getForgeCriticalChance(
+export function getWorkshopDieFaces(
   talentRanks: Readonly<TalentRanks>,
-): number {
-  return Math.min(1, getPurchasedEffects(talentRanks).reduce(
-    (total, effect) => total + (
-      effect.type === 'forge_critical_chance' ? effect.amount : 0
+): WorkshopDieFace[] {
+  const values = getPurchasedEffects(talentRanks).reduce<WorkshopDieValues | null>(
+    (current, effect) => (
+      effect.type === 'workshop_die_faces' ? effect.values : current
     ),
-    0,
-  ))
+    null,
+  )
+  return createWorkshopDieFaces(values ?? undefined)
 }
 
 export function getWorkshopFaceCap(

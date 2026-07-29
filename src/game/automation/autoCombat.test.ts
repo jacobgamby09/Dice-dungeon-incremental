@@ -27,6 +27,7 @@ function createProfile(): PlayerProfile {
     diceCollection: createStartingDice(),
     equippedDieIds: ['attack-die-1'],
     recentForgeOperationIds: [],
+    pendingWorkshopForge: null,
     settings: {
       rollSpeed: 1,
       autoCombat: true,

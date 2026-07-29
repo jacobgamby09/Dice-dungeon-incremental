@@ -4,10 +4,10 @@ import type { PlayerProfile, TalentRanks } from '../types/progression'
 import {
   canPurchaseTalent,
   getDiceCapacity,
-  getForgeCriticalChance,
   getPlayerMaxHp,
   getTalentPurchaseReason,
   getTalentVisibility,
+  getWorkshopDieFaces,
   getWorkshopFaceCap,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
@@ -16,7 +16,7 @@ import {
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 13,
+    saveVersion: 14,
     xp,
     bankedSouls: 0,
     talentRanks,
@@ -28,6 +28,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     diceCollection: [],
     equippedDieIds: [],
     recentForgeOperationIds: [],
+    pendingWorkshopForge: null,
     settings: { rollSpeed: 1, autoCombat: false },
   }
 }
@@ -74,14 +75,17 @@ describe('Classic V2 directional talent progression', () => {
     })).toBe(2)
   })
 
-  it('stacks the Workshop critical chance and face cap independently', () => {
+  it('upgrades the concrete Workshop Die distribution independently of face cap', () => {
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,
       [TALENT_IDS.volatileTemper]: 3,
       [TALENT_IDS.faceMastery]: 2,
     }
 
-    expect(getForgeCriticalChance(ranks)).toBeCloseTo(0.2)
+    expect(getWorkshopDieFaces({}).map((face) => face.value))
+      .toEqual([1, 1, 1, 1, 1, 2])
+    expect(getWorkshopDieFaces(ranks).map((face) => face.value))
+      .toEqual([1, 1, 1, 2, 2, 3])
     expect(getWorkshopFaceCap(ranks)).toBe(7)
   })
 

@@ -39,9 +39,10 @@ Brug denne skabelon:
 ## Aktuel status
 
 - **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
-- V2 starter på save-version 13 med én `Worn Blade Die` på præcis `1,1,1,1,1,1 Attack`. Et ældre save nulstilles bevidst til en frisk V2-profil på denne branch.
+- V2 bruger save-version 14 og starter med én `Worn Blade Die` på præcis `1,1,1,1,1,1 Attack`. Version 13 migreres uden progressionstab; ældre production-saves nulstilles fortsat bevidst til en frisk V2-profil på denne branch.
 - Første Slime har 3 HP og fast 2 Attack. Den friske spiller slår tre gange, vinder med 6/10 HP og får præcis 4 XP + 5 Souls; floor 2 er den første sikre væg.
-- Workshoppen er i V2 player-facing kun random growth: spilleren vælger en die, Workshop vælger uniformt en eligible face, og den får altid +1. `Volatile Temper` kan gøre købet critical til +2. Pris starter på 5 Souls og stiger med 2 for hver tre samlede upgrades på den valgte die.
+- Workshoppen er nu et atomisk ritual i to synlige rul: spilleren vælger en permanent die, første rul vælger uniformt en eligible face, og andet rul bruger en separat Workshop Die til at afgøre `+1/+2/+3`. Souls trækkes og begge resultater persisteres før animationen, så reload mellem rullene fortsætter samme Forge uden dobbeltbetaling.
+- Workshop Die starter `1–1–1–1–1–2`. West-talentet `Loaded Alloy` opgraderer fordelingen gennem `1–1–1–1–2–2`, `1–1–1–2–2–2` og `1–1–1–2–2–3`; et roll begrænses synligt af den valgte faces aktuelle cap-headroom.
 - Det nye Talent Tree er radialt omkring `Inner Spark`. Første rank koster 4 XP, giver +1 HP og åbner North/Arsenal, West/Workshop, South/Descent og East/Fate samtidigt. Alle fire første valg kan ses ved 100% zoom på 384 px.
 - Talent Tree-clusteret er komprimeret, så alle direkte forbindelser højst er 185 world-pixels lange. Node-inspektøren viser nu kun navn, tydelig state/rank, store konkrete effekter, eventuelle seks die-faces og én købsknap; gentaget branch-label, beskrivelse, statusblok og preview-copy er fjernet.
 - Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
@@ -89,8 +90,8 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første Forge, Auto Combat, floor 3 og Twin Arsenal.
-2. Vurder subjektivt om random face-growth opleves som spændende ujævnhed eller manglende kontrol efter 15–25 upgrades.
+1. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
+2. Vurder subjektivt om target-flicker, det efterfølgende Workshop-roll og `+2`-øjeblikket giver nok spænding uden at gøre gentagne Forge-køb langsomme; test mindst 15–25 upgrades.
 3. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
 4. Brainstorm og specificér Fate Token/Charm-loot som V2's næste selvstændige progressiongren; implementér den ikke som Talent Tree-stat-bonusser.
 5. Beslut efter V2-playtest om branchen skal fortsætte som separat mode, erstatte production eller levere enkelte systemer tilbage til den nuværende version.
@@ -107,6 +108,8 @@ Brug denne skabelon:
 ## Åbne spørgsmål og kendte risici
 
 - V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–45-grænser skal derfor fysisk valideres.
+- Workshop-ritualet er browser-verificeret ved 384 px, inklusive reload efter target-roll og før power-roll. Den subjektive varighed og gentagelsesværdi ved mange køb skal stadig afprøves på fysisk mobil.
+- Et Workshop-roll kan vise mindre faktisk fremgang end sit rå resultat, når target-face ligger tæt på cap. UI'et viser den cap-begrænsede fordeling før rullet, men det skal playtestes, om spilleren stadig oplever dette som fair.
 - V2's `Fatecraft` har en rigtig unlock-effekt i Talent Tree, men den efterfølgende Charm-skærm og Fate Token-valuta findes endnu ikke. Noden er placeret bag første Dungeon 1-clear, så den ikke kan blive et tidligt tomt køb.
 - De dybere Dungeon 2-tal og de eksisterende signatur-dice stammer stadig fra production-kurven. De er bevaret som teknisk reference, men er ikke endeligt V2-balanceret.
 - V2 nulstiller versions-12 saves på sin separate preview. Det er bevidst isolation og må ikke merges til production uden en eksplicit migrationsbeslutning.
@@ -132,7 +135,9 @@ Brug denne skabelon:
 - V2 udvikles og deployes separat; production-regler ændres ikke automatisk af eksperimentet.
 - Frisk V2-start er 10 HP og én Attack Die med seks 1-faces.
 - Første kill skal garantere både første Inner Spark-rank og første random Workshop-køb.
-- V2-Workshoppen er player-facing random-only: vælg die, ikke face; +1 er garanteret, og talentbaseret critical kan give +2.
+- V2-Workshoppen er player-facing random-only på target: vælg die, ikke face. Første rul fastlåser target-face, andet rul bruger den permanente Workshop Die til upgrade-mængden, og hvert køb giver mindst +1.
+- Workshop Die starter `1–1–1–1–1–2` og forbedres kun gennem Workshop-retningens `Loaded Alloy`. XP ændrer dens mulige udfald; Souls betaler den konkrete permanente face-opgradering.
+- Forge-operationen er atomisk: Soul-pris, target-face og Workshop-resultat gemmes ved første trin. Reload må genoptage andet trin og aldrig trække Souls eller anvende opgraderingen mere end én gang.
 - V2-Talent Tree er radialt: Arsenal mod nord, Workshop mod vest, Descent/Automation mod syd og Fate/Charms mod øst.
 - Inner Spark har fem valgfrie +1 HP-ranks. Rank 1 alene åbner alle fire retninger.
 - V2 Auto Combat koster 6 XP efter Inner Spark og automatiserer både roll, resolve, rounds og normale floor-transitions.
@@ -192,6 +197,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Workshop Die og totrins-Forge
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: V2-Workshoppen er redesignet som ét sammenhængende fysisk ritual. Spilleren vælger en permanent die, ser seks faces flicker frem til et fastlåst random target og ruller derefter en separat animeret Workshop Die for den konkrete permanente `+1/+2/+3`-forbedring. Skærmen har fået en ny kompakt die-rail, target chamber, anvil-forbindelse, stor 3D Workshop Die og et tydeligt impact-resultat.
+- Beslutninger: Workshop Die starter `1–1–1–1–1–2`; `Loaded Alloy` har tre ranks med fordelingerne `1–1–1–1–2–2`, `1–1–1–2–2–2` og `1–1–1–2–2–3`. Face cap reducerer den viste mulige roll-værdi på forhånd, så der ikke opstår skjult spild. Precision Forge er fortsat engine-kompatibel, men V2-skærmens hovedflow er det nye random ritual.
+- Berørte områder: Nye Workshop-typer/content, Forge-engine, talent-effekter, version-14 store/migration, journey-simulator, `WorkshopScreen`, ny `WorkshopDie`-komponent, V2-styling, tests og `CLASSIC_INCREMENTAL_V2.md`.
+- Validering: `npx tsc --noEmit`, 25 testfiler med 121 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384×844 gennemførte target-roll, verificerede Soul-fradrag, reloadede mellem rullene med target/resultat intakt og landede derefter `+2`, som permanent ændrede face 2 fra 4 til 6 uden dobbeltbetaling.
+- Kendte mangler: Animationstempo og gentagelsesværdi ved 15–25 køb mangler fysisk iPhone-playtest. Fate/Charms og den dybere Dungeon 2-balance er fortsat uden for denne leverance.
+- Git: Ikke committed.
 
 ### 2026-07-29 — Kompakt Talent Tree og strømlinet node-info
 

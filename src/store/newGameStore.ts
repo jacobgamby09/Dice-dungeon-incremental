@@ -15,10 +15,11 @@ import { getEnemyDie } from '../game/content/enemyDice'
 import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/content/enemies'
 import { TALENT_IDS, TALENTS_BY_ID } from '../game/content/talents'
 import {
-  chaosForge,
+  completeWorkshopForge,
   EVOLUTION_DEFINITIONS,
   evolveFaceOnDie,
   migrateLegacyFaceEvolution,
+  prepareWorkshopForge,
   precisionForge,
   type ForgeResult,
 } from '../game/forge/forge'
@@ -28,10 +29,10 @@ import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
   getDiceCapacity,
-  getForgeCriticalChance,
   getNextTalentRank,
   getPlayerMaxHp,
   getTalentRank,
+  getWorkshopDieFaces,
   getWorkshopFaceCap,
   hasAutoCombatUnlocked,
   normalizeTalentRanks,
@@ -49,6 +50,7 @@ import type {
   RunStats,
 } from '../game/types/dungeon'
 import type { PlayerProfile, TalentRanks } from '../game/types/progression'
+import type { PendingWorkshopForge } from '../game/types/workshop'
 
 export type AppScreen =
   | 'hub'
@@ -91,7 +93,12 @@ export interface NewGameState {
   openRunMenu: () => void
   closeRunMenu: () => void
   leaveDungeonRun: () => void
-  chaosForgeDie: (dieId: string, operationId: string, random?: () => number) => ForgeResult | null
+  beginWorkshopForge: (
+    dieId: string,
+    operationId: string,
+    random?: () => number,
+  ) => PendingWorkshopForge | null
+  completePendingWorkshopForge: (operationId: string) => ForgeResult | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
   evolveFace: (dieId: string, faceId: string, evolutionId: FaceEvolutionId) => boolean
   loadEarlyQolDevPreset: () => void
@@ -99,7 +106,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 13
+const SAVE_VERSION = 14
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -119,6 +126,7 @@ function createInitialProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    pendingWorkshopForge: null,
     settings: {
       rollSpeed: 1,
       autoCombat: false,
@@ -309,6 +317,19 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 13) {
+    const persisted = persistedState as Partial<NewGameState>
+    const existingProfile = persisted.profile as Partial<PlayerProfile> | undefined
+    return {
+      ...persisted,
+      profile: {
+        ...createInitialProfile(),
+        ...existingProfile,
+        saveVersion: SAVE_VERSION,
+        pendingWorkshopForge: null,
+      },
+    } as NewGameState
+  }
   if (version < SAVE_VERSION) {
     return {
       screen: 'hub',
@@ -365,6 +386,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     diceCollection,
     equippedDieIds,
     recentForgeOperationIds: existingProfile?.recentForgeOperationIds?.slice(-20) ?? [],
+    pendingWorkshopForge: null,
     settings: {
       rollSpeed: Math.max(
         0.25,
@@ -1126,24 +1148,59 @@ export const useNewGameStore = create<NewGameState>()(
         })
       },
 
-      chaosForgeDie: (dieId, operationId, random = Math.random) => {
+      beginWorkshopForge: (dieId, operationId, random = Math.random) => {
         const state = get()
         if (state.run.status !== 'inactive') return null
         if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
+        if (state.profile.pendingWorkshopForge) return null
         const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
         if (!die) return null
-        const forged = chaosForge(die, random, {
-          criticalChance: getForgeCriticalChance(state.profile.talentRanks),
+        const pendingForge = prepareWorkshopForge(
+          die,
+          operationId,
+          getWorkshopDieFaces(state.profile.talentRanks),
+          random,
+          {
           faceCap: getWorkshopFaceCap(state.profile.talentRanks),
-        })
-        if (!forged || state.profile.bankedSouls < forged.result.cost) return null
+          },
+        )
+        if (!pendingForge || state.profile.bankedSouls < pendingForge.cost) return null
         set({
           profile: {
             ...state.profile,
-            bankedSouls: state.profile.bankedSouls - forged.result.cost,
+            bankedSouls: state.profile.bankedSouls - pendingForge.cost,
+            pendingWorkshopForge: pendingForge,
+          },
+        })
+        return pendingForge
+      },
+
+      completePendingWorkshopForge: (operationId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return null
+        const pendingForge = state.profile.pendingWorkshopForge
+        if (
+          !pendingForge
+          || pendingForge.operationId !== operationId
+          || state.profile.recentForgeOperationIds.includes(operationId)
+        ) return null
+        const die = state.profile.diceCollection.find(
+          (candidate) => candidate.id === pendingForge.dieId,
+        )
+        if (!die) return null
+        const forged = completeWorkshopForge(
+          die,
+          pendingForge,
+          getWorkshopFaceCap(state.profile.talentRanks),
+        )
+        if (!forged) return null
+        set({
+          profile: {
+            ...state.profile,
             diceCollection: state.profile.diceCollection.map((candidate) => (
-              candidate.id === dieId ? forged.die : candidate
+              candidate.id === die.id ? forged.die : candidate
             )),
+            pendingWorkshopForge: null,
             recentForgeOperationIds: [
               ...state.profile.recentForgeOperationIds,
               operationId,
@@ -1156,6 +1213,7 @@ export const useNewGameStore = create<NewGameState>()(
       precisionForgeFace: (dieId, faceId, operationId) => {
         const state = get()
         if (state.run.status !== 'inactive') return null
+        if (state.profile.pendingWorkshopForge) return null
         if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
         const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
         if (!die) return null

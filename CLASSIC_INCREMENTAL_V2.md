@@ -50,7 +50,7 @@ XP buys capability and access in the directional Talent Tree:
 - Max HP.
 - Auto Combat and speed.
 - Dice slots and named permanent dice.
-- Workshop critical chance and face caps.
+- Workshop Die faces and player-die face caps.
 - New dungeons.
 - Later: the Charm system.
 
@@ -61,12 +61,23 @@ XP never upgrades an individual face.
 Souls buy a random upgrade on a player-selected die:
 
 1. The player chooses the die.
-2. The Workshop chooses uniformly among eligible faces.
-3. The selected face gains +1.
-4. A Workshop critical can instead give +2, capped by the current face cap.
+2. The Workshop visibly rolls uniformly among eligible target faces.
+3. The selected target remains locked.
+4. The player rolls the separate Workshop Die to determine the upgrade amount.
+5. The selected face permanently gains the visible result.
 
-Every upgrade succeeds and is permanent. Randomness decides where the growth lands,
-not whether the player receives growth.
+Every upgrade succeeds and is permanent. Randomness decides where the growth lands
+and which positive value the current Workshop Die grants, not whether the player
+receives growth.
+
+The base Workshop Die is `1, 1, 1, 1, 1, 2`. Target and power results are generated
+and persisted when the operation begins, so reload cannot reroll either result.
+Souls are deducted once at operation start, and the target face changes once after
+the Workshop Die lands.
+
+If the chosen face has less headroom than the rolled Workshop value, the visible
+Workshop Die is capped to the available headroom for that operation. No hidden
+upgrade point is presented and then discarded.
 
 The initial random-Forge cost is grouped by total upgrades on that die:
 
@@ -106,7 +117,8 @@ HP is worth delaying a directional purchase.
 
 ### West — Workshop
 
-- `Volatile Temper`: three ranks; 10%, +5%, +5% chance that random growth gives +2.
+- `Loaded Alloy`: three ranks that change the Workshop Die to
+  `1-1-1-1-2-2`, then `1-1-1-2-2-2`, then `1-1-1-2-2-3`.
 - `Face Mastery`: three ranks; +1 normal-face cap per rank.
 
 ### South — Descent
@@ -141,10 +153,10 @@ measure perceived time, not only simulated run numbers.
 
 ## Save and branch isolation
 
-- V2 uses save version 13.
+- V2 uses save version 14.
 - The only save key remains `new-dice-dungeon-save`.
-- Opening this isolated V2 build with an older save intentionally creates a fresh
-  V2 profile.
+- Version-13 V2 profiles migrate without losing XP, Souls, dice or talents.
+- Opening this isolated V2 build with a pre-V2 save still creates a fresh V2 profile.
 - `main` and the existing production deployment are not changed by this branch.
 
 ## Explicitly deferred
