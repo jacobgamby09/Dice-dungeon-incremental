@@ -12,7 +12,7 @@ describe('enemy dice', () => {
       dieId: 'slime-l1-attack',
       faceId: 'slime-l1-attack-face-6',
       type: 'attack',
-      value: 3,
+      value: 2,
     })
   })
 

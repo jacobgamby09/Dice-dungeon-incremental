@@ -1,4 +1,4 @@
-import { getFaceUpgradeCost } from '../content/upgradeCosts'
+import { BASE_FACE_CAP } from '../content/upgradeCosts'
 import {
   ATTACK_EVOLUTIONS,
   EVOLUTION_DEFINITIONS,
@@ -22,58 +22,87 @@ export {
 }
 
 export interface ForgeResult {
+  amount: number
   dieId: string
   faceId: string
   cost: number
+  newValue: number
+  previousValue: number
+  wasCritical: boolean
   becameEvolutionReady: boolean
 }
 
-export function canForgeFace(face: FaceInstance): boolean {
+export const BASE_CHAOS_FORGE_COST = 5
+
+export function canForgeFace(
+  face: FaceInstance,
+  faceCap = BASE_FACE_CAP,
+): boolean {
   if (face.signature || face.evolution || face.evolutionReady) return false
-  return face.value <= 3
+  return face.value < faceCap
 }
 
-export function getPrecisionForgeCost(face: FaceInstance): number | null {
-  if (!canForgeFace(face)) return null
-  const baseCost = getFaceUpgradeCost(face.value)
-  return baseCost === null ? null : baseCost * 2
+export function getDieUpgradeCount(die: DieInstance): number {
+  return die.faces.reduce(
+    (total, face) => total + Math.max(0, face.value - 1),
+    0,
+  )
 }
 
-export function getChaosEligibleFaces(die: DieInstance): FaceInstance[] {
-  return die.faces.filter(canForgeFace)
+export function getPrecisionForgeCost(
+  face: FaceInstance,
+  faceCap = BASE_FACE_CAP,
+): number | null {
+  if (!canForgeFace(face, faceCap)) return null
+  return BASE_CHAOS_FORGE_COST * 2
 }
 
-export function getChaosForgeCost(die: DieInstance): number | null {
-  const eligibleFaces = getChaosEligibleFaces(die)
+export function getChaosEligibleFaces(
+  die: DieInstance,
+  faceCap = BASE_FACE_CAP,
+): FaceInstance[] {
+  return die.faces.filter((face) => canForgeFace(face, faceCap))
+}
+
+export function getChaosForgeCost(
+  die: DieInstance,
+  faceCap = BASE_FACE_CAP,
+  costMultiplier = 1,
+): number | null {
+  const eligibleFaces = getChaosEligibleFaces(die, faceCap)
   if (eligibleFaces.length === 0) return null
-  const costs = eligibleFaces
-    .map(getPrecisionForgeCost)
-    .filter((cost): cost is number => cost !== null)
-  if (costs.length === 0) return null
 
-  const cheapestPrecisionCost = Math.min(...costs)
-  const discount = 0.35 * Math.min(1, Math.max(0, (eligibleFaces.length - 1) / 5))
-  return Math.ceil(cheapestPrecisionCost * (1 - discount))
+  const upgradeTier = Math.floor(getDieUpgradeCount(die) / 3)
+  const baseCost = BASE_CHAOS_FORGE_COST + upgradeTier * 2
+  return Math.max(1, Math.ceil(baseCost * Math.max(0, costMultiplier)))
 }
 
-export function forgeFaceOnDie(die: DieInstance, faceId: string): {
+export function forgeFaceOnDie(
+  die: DieInstance,
+  faceId: string,
+  amount = 1,
+  faceCap = BASE_FACE_CAP,
+): {
   die: DieInstance
-  becameEvolutionReady: boolean
+  newValue: number
+  previousValue: number
 } | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
-  if (!face || !canForgeFace(face)) return null
-  const becameEvolutionReady = face.value === 3
+  if (!face || !canForgeFace(face, faceCap)) return null
+  const previousValue = face.value
+  const newValue = Math.min(faceCap, face.value + Math.max(1, Math.floor(amount)))
 
   return {
-    becameEvolutionReady,
+    newValue,
+    previousValue,
     die: {
       ...die,
       faces: die.faces.map((candidate) => (
         candidate.id === faceId
           ? {
               ...candidate,
-              value: becameEvolutionReady ? candidate.value : candidate.value + 1,
-              evolutionReady: becameEvolutionReady || undefined,
+              value: newValue,
+              evolutionReady: undefined,
             }
           : candidate
       )) as DieFaces,
@@ -84,19 +113,24 @@ export function forgeFaceOnDie(die: DieInstance, faceId: string): {
 export function precisionForge(
   die: DieInstance,
   faceId: string,
+  faceCap = BASE_FACE_CAP,
 ): { die: DieInstance; result: ForgeResult } | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
   if (!face) return null
-  const cost = getPrecisionForgeCost(face)
-  const forged = forgeFaceOnDie(die, faceId)
+  const cost = getPrecisionForgeCost(face, faceCap)
+  const forged = forgeFaceOnDie(die, faceId, 1, faceCap)
   if (cost === null || !forged) return null
   return {
     die: forged.die,
     result: {
+      amount: forged.newValue - forged.previousValue,
       dieId: die.id,
       faceId,
       cost,
-      becameEvolutionReady: forged.becameEvolutionReady,
+      newValue: forged.newValue,
+      previousValue: forged.previousValue,
+      wasCritical: false,
+      becameEvolutionReady: false,
     },
   }
 }
@@ -104,21 +138,33 @@ export function precisionForge(
 export function chaosForge(
   die: DieInstance,
   random: () => number = Math.random,
+  options: {
+    costMultiplier?: number
+    criticalChance?: number
+    faceCap?: number
+  } = {},
 ): { die: DieInstance; result: ForgeResult } | null {
-  const eligibleFaces = getChaosEligibleFaces(die)
-  const cost = getChaosForgeCost(die)
+  const faceCap = options.faceCap ?? BASE_FACE_CAP
+  const eligibleFaces = getChaosEligibleFaces(die, faceCap)
+  const cost = getChaosForgeCost(die, faceCap, options.costMultiplier)
   if (eligibleFaces.length === 0 || cost === null) return null
   const boundedRoll = Math.min(0.999999999, Math.max(0, random()))
   const face = eligibleFaces[Math.floor(boundedRoll * eligibleFaces.length)]
-  const forged = forgeFaceOnDie(die, face.id)
+  const criticalChance = Math.min(1, Math.max(0, options.criticalChance ?? 0))
+  const wasCritical = random() < criticalChance
+  const forged = forgeFaceOnDie(die, face.id, wasCritical ? 2 : 1, faceCap)
   if (!forged) return null
   return {
     die: forged.die,
     result: {
+      amount: forged.newValue - forged.previousValue,
       dieId: die.id,
       faceId: face.id,
       cost,
-      becameEvolutionReady: forged.becameEvolutionReady,
+      newValue: forged.newValue,
+      previousValue: forged.previousValue,
+      wasCritical: wasCritical && forged.newValue - forged.previousValue > 1,
+      becameEvolutionReady: false,
     },
   }
 }

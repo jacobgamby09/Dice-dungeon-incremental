@@ -31,28 +31,28 @@ const WORN_BLADE_DIE: DieInstance = {
   id: 'attack-die-1',
   name: 'Worn Blade Die',
   family: 'attack',
-  faces: createFaces('attack-die-1', 'attack', [1, 1, 2, 2, 2, 3]),
+  faces: createFaces('attack-die-1', 'attack', [1, 1, 1, 1, 1, 1]),
 }
 
 const STRIKER_DIE: DieInstance = {
   id: 'attack-die-2',
   name: 'Striker Die',
   family: 'attack',
-  faces: createFaces('attack-die-2', 'attack', [1, 1, 1, 2, 3, 3]),
+  faces: createFaces('attack-die-2', 'attack', [1, 1, 1, 1, 1, 1]),
 }
 
 const IRON_GUARD_DIE: DieInstance = {
   id: 'shield-die-1',
   name: 'Iron Guard Die',
   family: 'shield',
-  faces: createFaces('shield-die-1', 'shield', [1, 1, 2, 2, 2, 3]),
+  faces: createFaces('shield-die-1', 'shield', [1, 1, 1, 1, 1, 1]),
 }
 
 const VITALITY_DIE: DieInstance = {
   id: 'heal-die-1',
   name: 'Vitality Die',
   family: 'heal',
-  faces: createFaces('heal-die-1', 'heal', [1, 1, 1, 1, 2, 2]),
+  faces: createFaces('heal-die-1', 'heal', [1, 1, 1, 1, 1, 1]),
 }
 
 const EXECUTIONER_DIE: DieInstance = {

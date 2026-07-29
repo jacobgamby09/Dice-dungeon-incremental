@@ -12,17 +12,21 @@ describe('TalentTreeScreen progressive presentation', () => {
     useNewGameStore.getState().resetProgress()
   })
 
-  it('starts on a blank canvas with Battle-Hardened and a nameless silhouette', () => {
+  it('starts on a radial blank canvas with Inner Spark and nameless silhouettes', () => {
     const markup = renderTree()
 
     expect(markup).toContain('data-testid="talent-tree-canvas"')
     expect(markup).toContain('Zoom out Talent Tree')
     expect(markup).toContain('100% zoom')
     expect(markup).toContain('Zoom in Talent Tree')
-    expect(markup).toContain('Battle-Hardened')
+    expect(markup).toContain('Inner Spark')
     expect(markup).toContain('data-talent-silhouette="true"')
     expect(markup).not.toContain('Twin Arsenal')
     expect(markup).not.toContain('Shieldcraft')
+    expect(markup).toContain('Arsenal')
+    expect(markup).toContain('Workshop')
+    expect(markup).toContain('Descent')
+    expect(markup).toContain('Fate')
     expect(markup).not.toContain('Permanent progression')
     expect(markup).not.toContain('Permanent capability summary')
   })

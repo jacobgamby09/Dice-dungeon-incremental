@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { createDieById } from '../content/dice'
 import { DUNGEONS } from '../content/dungeons'
 import { ENCOUNTERS } from '../content/enemies'
-import { ATTACK_EVOLUTIONS } from '../forge/forge'
 import { createSeededRandom, simulateDungeonRun, summarizeDungeonSimulations } from './simulateDungeon'
 
 function getDice(...dieIds: string[]) {
@@ -20,34 +19,7 @@ function raiseFacesTo(dieId: string, minimumValue: number) {
   }
 }
 
-function setFaceValues(dieId: string, values: number[]) {
-  const die = createDieById(dieId)!
-  return {
-    ...die,
-    faces: die.faces.map((face, index) => ({
-      ...face,
-      value: values[index],
-    })) as typeof die.faces,
-  }
-}
-
-function createMixedEvolutionDie(dieId: string) {
-  const die = createDieById(dieId)!
-  const evolutionIds = ['power', 'momentum', 'rend', 'power', 'momentum', 'rend'] as const
-  return {
-    ...die,
-    faces: die.faces.map((face, index) => {
-      const evolution = ATTACK_EVOLUTIONS[evolutionIds[index]]
-      return {
-        ...face,
-        value: evolution.resultValue,
-        evolution: { id: evolution.id, name: evolution.name },
-      }
-    }) as typeof die.faces,
-  }
-}
-
-describe('MVP dungeon balance simulator', () => {
+describe('Classic V2 dungeon balance simulator', () => {
   it('is deterministic for a fixed random seed', () => {
     const build = { dice: getDice('attack-die-1'), playerMaxHp: 10 }
     const first = simulateDungeonRun('prototype-depths', build, createSeededRandom(42))
@@ -56,35 +28,36 @@ describe('MVP dungeon balance simulator', () => {
     expect(first).toEqual(second)
   })
 
-  it('keeps the starting build in the early incremental loop', () => {
+  it('makes the untouched starting build clear exactly one enemy before defeat', () => {
     const summary = summarizeDungeonSimulations(
       'prototype-depths',
       { dice: getDice('attack-die-1'), playerMaxHp: 10 },
-      2_000,
+      1_000,
       100,
     )
 
-    expect(summary.floorReachRate[0]).toBeGreaterThan(0.95)
-    expect(summary.averageHighestFloor).toBeGreaterThan(0.9)
-    expect(summary.averageHighestFloor).toBeLessThan(2.5)
+    expect(summary.floorReachRate[0]).toBe(1)
+    expect(summary.averageHighestFloor).toBe(1)
+    expect(summary.averageSouls).toBe(5)
+    expect(summary.averageXp).toBe(4)
     expect(summary.bossClearRate).toBe(0)
   })
 
-  it('lets additional capability move the expected wall deeper', () => {
+  it('lets the second one-value Attack die move the wall deeper', () => {
     const starting = summarizeDungeonSimulations(
       'prototype-depths',
-      { dice: getDice('attack-die-1'), playerMaxHp: 10 },
+      { dice: getDice('attack-die-1'), playerMaxHp: 11 },
       1_000,
       200,
     )
     const twinArsenal = summarizeDungeonSimulations(
       'prototype-depths',
-      { dice: getDice('attack-die-1', 'attack-die-2'), playerMaxHp: 12 },
+      { dice: getDice('attack-die-1', 'attack-die-2'), playerMaxHp: 11 },
       1_000,
       200,
     )
 
-    expect(twinArsenal.averageHighestFloor).toBeGreaterThan(starting.averageHighestFloor + 1)
+    expect(twinArsenal.averageHighestFloor).toBeGreaterThan(starting.averageHighestFloor)
     expect(twinArsenal.averageSouls).toBeGreaterThan(starting.averageSouls)
     expect(twinArsenal.averageXp).toBeGreaterThan(starting.averageXp)
   })
@@ -95,7 +68,6 @@ describe('MVP dungeon balance simulator', () => {
       { dice: getDice('attack-die-1'), playerMaxHp: 10 },
       createSeededRandom(42),
     )
-
     const clearedSoulRewards = DUNGEONS['prototype-depths'].floors
       .slice(0, run.highestFloorCleared)
       .map((floor) => ENCOUNTERS[floor.encounterId].soulReward)
@@ -103,100 +75,52 @@ describe('MVP dungeon balance simulator', () => {
     expect(run.soulsCollected).toBe(clearedSoulRewards.reduce((total, reward) => total + reward, 0))
   })
 
-  it('makes the boss a reachable late-MVP milestone after both XP and Soul growth', () => {
+  it('makes the boss a reliable milestone after substantial Soul and XP growth', () => {
     const summary = summarizeDungeonSimulations(
       'prototype-depths',
       {
         dice: ['attack-die-1', 'attack-die-2', 'shield-die-1', 'heal-die-1']
-          .map((dieId) => raiseFacesTo(dieId, 3)),
-        playerMaxHp: 15,
+          .map((dieId) => raiseFacesTo(dieId, 4)),
+        playerMaxHp: 17,
       },
       1_000,
       300,
     )
 
-    expect(summary.bossClearRate).toBeGreaterThan(0.9)
+    expect(summary.bossClearRate).toBeGreaterThan(0.95)
   })
 
-  it('turns Dungeon 2 into a new incremental climb rather than an immediate clear', () => {
+  it('turns Dungeon 2 into another climb for the post-Dungeon-1 test build', () => {
     const earlyBuild = summarizeDungeonSimulations(
-      'iron-depths',
-      {
-        dice: ['attack-die-1', 'attack-die-2', 'shield-die-1', 'heal-die-1']
-          .map((dieId) => raiseFacesTo(dieId, 3)),
-        playerMaxHp: 15,
-      },
-      1_000,
-      400,
-    )
-    const midBuild = summarizeDungeonSimulations(
       'iron-depths',
       {
         dice: [
           raiseFacesTo('attack-die-1', 4),
           raiseFacesTo('attack-die-2', 4),
-          raiseFacesTo('shield-die-1', 3),
-          raiseFacesTo('heal-die-1', 3),
+          raiseFacesTo('shield-die-1', 4),
         ],
-        playerMaxHp: 18,
+        playerMaxHp: 17,
       },
       1_000,
-      500,
+      400,
     )
     const lateBuild = summarizeDungeonSimulations(
       'iron-depths',
       {
         dice: [
-          raiseFacesTo('attack-die-1', 5),
-          raiseFacesTo('attack-die-2', 5),
-          setFaceValues('shield-die-1', [4, 4, 4, 5, 5, 5]),
-          raiseFacesTo('heal-die-1', 4),
+          raiseFacesTo('attack-die-1', 6),
+          raiseFacesTo('attack-die-2', 6),
+          raiseFacesTo('shield-die-1', 6),
+          raiseFacesTo('heal-die-1', 6),
         ],
-        playerMaxHp: 21,
+        playerMaxHp: 23,
       },
       1_000,
-      600,
+      500,
     )
 
-    expect(earlyBuild.averageHighestFloor).toBeGreaterThan(2)
-    expect(earlyBuild.averageHighestFloor).toBeLessThan(4)
-    expect(earlyBuild.averageRoundsByReachedFloor[0]).toBeGreaterThan(1)
-    expect(earlyBuild.averageRoundsByReachedFloor[0]).toBeLessThan(10)
-    expect(earlyBuild.averageRoundsPlayed).toBeGreaterThan(earlyBuild.averageHighestFloor)
-    expect(midBuild.averageHighestFloor).toBeGreaterThan(earlyBuild.averageHighestFloor + 0.8)
-    expect(midBuild.bossClearRate).toBe(0)
-    expect(lateBuild.bossClearRate).toBeGreaterThan(0.65)
-    expect(lateBuild.bossClearRate).toBeLessThan(0.8)
+    expect(earlyBuild.averageHighestFloor).toBeGreaterThan(0)
+    expect(earlyBuild.bossClearRate).toBe(0)
+    expect(lateBuild.averageHighestFloor).toBeGreaterThan(earlyBuild.averageHighestFloor)
   })
-
-  it('makes mixed Attack evolutions a material step beyond flat value-three dice', () => {
-    const flat = summarizeDungeonSimulations(
-      'iron-depths',
-      {
-        dice: ['attack-die-1', 'attack-die-2', 'shield-die-1', 'heal-die-1']
-          .map((dieId) => raiseFacesTo(dieId, 3)),
-        playerMaxHp: 15,
-      },
-      750,
-      700,
-    )
-    const evolved = summarizeDungeonSimulations(
-      'iron-depths',
-      {
-        dice: [
-          createMixedEvolutionDie('attack-die-1'),
-          createMixedEvolutionDie('attack-die-2'),
-          raiseFacesTo('shield-die-1', 3),
-          raiseFacesTo('heal-die-1', 3),
-        ],
-        playerMaxHp: 15,
-      },
-      750,
-      700,
-    )
-
-    expect(evolved.averageHighestFloor).toBeGreaterThan(flat.averageHighestFloor + 1)
-    expect(evolved.averageRoundsPlayed).toBeGreaterThan(evolved.averageHighestFloor)
-  })
-
 })

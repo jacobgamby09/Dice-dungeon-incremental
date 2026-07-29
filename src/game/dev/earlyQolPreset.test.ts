@@ -33,13 +33,11 @@ describe('early QoL developer preset', () => {
 
     expect(EARLY_QOL_TEST_TALENT_PATH).toEqual([
       'battle-hardened-1',
-      'twin-arsenal',
       'auto-roll',
-      'shieldcraft',
       'quick-draw',
     ])
-    expect(EARLY_QOL_TEST_XP).toBe(88)
-    expect(profile.xp).toBe(88)
+    expect(EARLY_QOL_TEST_XP).toBe(20)
+    expect(profile.xp).toBe(20)
     expect(profile.talentRanks).toEqual({})
     expect(profile.diceCollection).toEqual(base.diceCollection)
   })

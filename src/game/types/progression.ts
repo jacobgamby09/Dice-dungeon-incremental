@@ -1,7 +1,13 @@
 import type { DieInstance } from './dice'
 import type { DungeonId, DungeonProgress } from './dungeon'
 
-export const TALENT_TRACKS = ['core', 'survival', 'arsenal', 'control'] as const
+export const TALENT_TRACKS = [
+  'core',
+  'arsenal',
+  'workshop',
+  'descent',
+  'fate',
+] as const
 export type TalentTrack = (typeof TALENT_TRACKS)[number]
 
 export const TALENT_ICON_KEYS = [
@@ -17,6 +23,9 @@ export const TALENT_ICON_KEYS = [
   'fourth-grip',
   'executioner-die',
   'tower-die',
+  'volatile-temper',
+  'face-mastery',
+  'fate-seal',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -25,7 +34,10 @@ export type TalentEffect =
   | { type: 'dice_slots'; amount: number }
   | { type: 'grant_die'; dieId: string }
   | { type: 'roll_speed'; multiplier: number }
+  | { type: 'forge_critical_chance'; amount: number }
+  | { type: 'face_cap'; amount: number }
   | { type: 'unlock_auto_combat' }
+  | { type: 'unlock_charms' }
   | { type: 'unlock_dungeon'; dungeonId: DungeonId }
 
 export type TalentRequirement = {

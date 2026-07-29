@@ -3,9 +3,7 @@ import type { PlayerProfile } from '../types/progression'
 
 export const EARLY_QOL_TEST_TALENT_PATH = [
   TALENT_IDS.battleHardenedOne,
-  TALENT_IDS.twinArsenal,
   TALENT_IDS.autoCombat,
-  TALENT_IDS.shieldcraft,
   TALENT_IDS.quickDraw,
 ] as const
 

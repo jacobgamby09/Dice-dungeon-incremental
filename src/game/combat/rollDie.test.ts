@@ -14,7 +14,7 @@ describe('rollDie', () => {
 
     expect(result.faceIndex).toBe(5)
     expect(result.faceId).toBe('attack-die-1-face-6')
-    expect(result.value).toBe(3)
+    expect(result.value).toBe(1)
   })
 
   it('adds a result to only its matching total', () => {
@@ -22,7 +22,7 @@ describe('rollDie', () => {
     const result = rollDie(die, () => 0.5)
     const totals = addRollToTotals({ attack: 4, shield: 1, heal: 2, bleed: 0 }, result)
 
-    expect(totals).toMatchObject({ attack: 4, shield: 3, heal: 2, bleed: 0 })
+    expect(totals).toMatchObject({ attack: 4, shield: 2, heal: 2, bleed: 0 })
   })
 
   it('carries Momentum into the next rolled face and falls back to Attack when last', () => {

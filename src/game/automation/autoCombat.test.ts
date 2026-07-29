@@ -83,11 +83,11 @@ describe('Auto Combat background fast-forward', () => {
     expect(result.run.encounterIndex).toBe(9)
     expect(result.run.runStats).toEqual({
       enemiesDefeated: 10,
-      soulsEarned: 210,
-      xpEarned: 242,
+      soulsEarned: 249,
+      xpEarned: 190,
     })
-    expect(result.profile.bankedSouls).toBe(210)
-    expect(result.profile.xp).toBe(242)
+    expect(result.profile.bankedSouls).toBe(249)
+    expect(result.profile.xp).toBe(190)
     expect(result.profile.dungeonProgress['prototype-depths']).toEqual({
       highestFloorCleared: 10,
       clearCount: 1,
@@ -95,9 +95,9 @@ describe('Auto Combat background fast-forward', () => {
     expect(result.recap).toMatchObject({
       enemiesDefeated: 10,
       outcome: 'boss_victory',
-      soulsEarned: 210,
+      soulsEarned: 249,
       toFloor: 10,
-      xpEarned: 242,
+      xpEarned: 190,
     })
 
     const repeated = fastForwardAutoCombat({
@@ -107,8 +107,8 @@ describe('Auto Combat background fast-forward', () => {
       combat: result.combat,
     }, 300_000)
     expect(repeated.recap).toBeNull()
-    expect(repeated.profile.xp).toBe(242)
-    expect(repeated.profile.bankedSouls).toBe(210)
+    expect(repeated.profile.xp).toBe(190)
+    expect(repeated.profile.bankedSouls).toBe(249)
     expect(repeated.profile.dungeonProgress['prototype-depths'].clearCount).toBe(1)
   })
 

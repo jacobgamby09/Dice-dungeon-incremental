@@ -10,6 +10,9 @@ import {
   Shield,
   ShieldCheck,
   ShieldPlus,
+  Sparkles,
+  Flame,
+  Gem,
   Zap,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -28,6 +31,9 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'fourth-grip': Layers3,
   'executioner-die': Skull,
   'tower-die': ShieldCheck,
+  'volatile-temper': Flame,
+  'face-mastery': Sparkles,
+  'fate-seal': Gem,
 }
 
 interface TalentIconProps {

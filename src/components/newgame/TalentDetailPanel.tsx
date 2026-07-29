@@ -8,6 +8,9 @@ import {
   X,
   Zap,
   Map,
+  Flame,
+  Gauge,
+  Gem,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
@@ -39,7 +42,10 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   dice_slots: Backpack,
   grant_die: Dices,
   roll_speed: Zap,
+  forge_critical_chance: Flame,
+  face_cap: Gauge,
   unlock_auto_combat: Bot,
+  unlock_charms: Gem,
   unlock_dungeon: Map,
 }
 
@@ -53,8 +59,14 @@ function getEffectLabel(effect: TalentEffect): string {
       return createDieById(effect.dieId)?.name ?? 'Permanent Die'
     case 'roll_speed':
       return `${Math.round((effect.multiplier - 1) * 100)}% Faster Rolls`
+    case 'forge_critical_chance':
+      return `+${Math.round(effect.amount * 100)}% Critical Forge Chance`
+    case 'face_cap':
+      return `+${effect.amount} Workshop Face Cap`
     case 'unlock_auto_combat':
       return 'Auto Combat Toggle'
+    case 'unlock_charms':
+      return 'Unlock Charm System'
     case 'unlock_dungeon':
       return 'Unlock The Iron Descent'
   }

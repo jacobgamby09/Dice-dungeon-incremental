@@ -28,9 +28,11 @@ import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
   getDiceCapacity,
+  getForgeCriticalChance,
   getNextTalentRank,
   getPlayerMaxHp,
   getTalentRank,
+  getWorkshopFaceCap,
   hasAutoCombatUnlocked,
   normalizeTalentRanks,
 } from '../game/progression/talents'
@@ -97,7 +99,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 12
+const SAVE_VERSION = 13
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -307,6 +309,16 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version < SAVE_VERSION) {
+    return {
+      screen: 'hub',
+      profile: createInitialProfile(),
+      run: createInactiveRun(),
+      combat: createCombatState([], 1),
+      awayRecap: null,
+      runMenuOpen: false,
+    } as NewGameState
+  }
 
   const persisted = persistedState as Partial<NewGameState>
   const freshProfile = createInitialProfile()
@@ -1120,7 +1132,10 @@ export const useNewGameStore = create<NewGameState>()(
         if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
         const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
         if (!die) return null
-        const forged = chaosForge(die, random)
+        const forged = chaosForge(die, random, {
+          criticalChance: getForgeCriticalChance(state.profile.talentRanks),
+          faceCap: getWorkshopFaceCap(state.profile.talentRanks),
+        })
         if (!forged || state.profile.bankedSouls < forged.result.cost) return null
         set({
           profile: {
@@ -1144,7 +1159,11 @@ export const useNewGameStore = create<NewGameState>()(
         if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
         const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
         if (!die) return null
-        const forged = precisionForge(die, faceId)
+        const forged = precisionForge(
+          die,
+          faceId,
+          getWorkshopFaceCap(state.profile.talentRanks),
+        )
         if (!forged || state.profile.bankedSouls < forged.result.cost) return null
         set({
           profile: {

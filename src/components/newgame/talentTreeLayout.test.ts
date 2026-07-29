@@ -23,9 +23,9 @@ describe('Talent Tree canvas layout', () => {
 
   it('centers a requested point inside the viewport', () => {
     expect(getCenteredTalentCanvasOffset(
-      { x: 520, y: 260 },
+      { x: 900, y: 900 },
       { height: 800, width: 384 },
-    )).toEqual({ x: -328, y: 140 })
+    )).toEqual({ x: -708, y: -500 })
   })
 
   it('clamps panning before the complete tree can be lost', () => {
@@ -34,31 +34,38 @@ describe('Talent Tree canvas layout', () => {
       { height: 800, width: 384 },
     )
 
-    expect(offset.x).toBeCloseTo(222.16)
-    expect(offset.y).toBe(-1040)
+    expect(offset.x).toBeCloseTo(-157.84)
+    expect(offset.y).toBe(-1465)
   })
 
   it('keeps the viewport anchor fixed while zooming', () => {
     const viewport = { height: 800, width: 384 }
     const anchor = { x: 192, y: 400 }
-    const offset = getCenteredTalentCanvasOffset({ x: 520, y: 640 }, viewport)
+    const offset = getCenteredTalentCanvasOffset({ x: 900, y: 1125 }, viewport)
     const zoomed = getZoomedTalentCanvasOffset(offset, anchor, 1, 1.25, viewport)
 
     expect(zoomed).toEqual({
-      x: 192 - 520 * 1.25,
-      y: 400 - 640 * 1.25,
+      x: 192 - 900 * 1.25,
+      y: 400 - 1125 * 1.25,
     })
   })
 
   it('centers requested points at the current zoom level', () => {
     expect(getCenteredTalentCanvasOffset(
-      { x: 520, y: 260 },
+      { x: 900, y: 900 },
       { height: 800, width: 384 },
       0.75,
-    )).toEqual({ x: -198, y: 205 })
+    )).toEqual({ x: -483, y: -275 })
   })
 
   it('centers a fresh profile on the opening talent', () => {
-    expect(getTalentTreeFrontierPoint({})).toEqual({ x: 520, y: 260 })
+    expect(getTalentTreeFrontierPoint({})).toEqual({ x: 900, y: 900 })
+  })
+
+  it('returns to the radial center when rank one reveals all four directions', () => {
+    expect(getTalentTreeFrontierPoint({ 'battle-hardened-1': 1 })).toEqual({
+      x: 900,
+      y: 900,
+    })
   })
 })

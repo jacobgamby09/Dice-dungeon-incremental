@@ -3,15 +3,20 @@ import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
 import type { PlayerProfile, TalentRanks } from '../types/progression'
 import {
   canPurchaseTalent,
+  getDiceCapacity,
+  getForgeCriticalChance,
   getPlayerMaxHp,
   getTalentPurchaseReason,
   getTalentVisibility,
+  getWorkshopFaceCap,
+  hasAutoCombatUnlocked,
+  hasCharmsUnlocked,
   normalizeTalentRanks,
 } from './talents'
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 11,
+    saveVersion: 13,
     xp,
     bankedSouls: 0,
     talentRanks,
@@ -27,53 +32,63 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   }
 }
 
-describe('ranked talent progression', () => {
-  it('stacks all three Battle-Hardened ranks for +6 Max HP', () => {
+describe('Classic V2 directional talent progression', () => {
+  it('stacks five optional Inner Spark ranks for +5 Max HP', () => {
     expect(getPlayerMaxHp({})).toBe(10)
-    expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 1 })).toBe(12)
-    expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 2 })).toBe(14)
-    expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 3 })).toBe(16)
+    expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 1 })).toBe(11)
+    expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 3 })).toBe(13)
+    expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 5 })).toBe(15)
   })
 
-  it('makes Twin Arsenal available after rank one without requiring later HP ranks', () => {
-    const talent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
-
-    expect(getTalentPurchaseReason(createProfile({}, 100), talent)).toBe('prerequisite')
-    expect(canPurchaseTalent(
-      createProfile({ [TALENT_IDS.battleHardenedOne]: 1 }, 16),
-      talent.id,
-    )).toBe(true)
+  it('opens all four directions after only the first central rank', () => {
+    const ranks = { [TALENT_IDS.battleHardenedOne]: 1 }
+    for (const talentId of [
+      TALENT_IDS.twinArsenal,
+      TALENT_IDS.volatileTemper,
+      TALENT_IDS.autoCombat,
+      TALENT_IDS.fatecraft,
+    ]) {
+      expect(getTalentVisibility(ranks, TALENTS_BY_ID[talentId])).toBe('revealed')
+    }
   })
 
-  it('makes Auto Combat available directly after Twin Arsenal for 12 XP', () => {
+  it('unlocks Auto Combat in the first few runs for six XP', () => {
     const talent = TALENTS_BY_ID[TALENT_IDS.autoCombat]
-    const ranks = {
-      [TALENT_IDS.battleHardenedOne]: 1,
-      [TALENT_IDS.twinArsenal]: 1,
-    }
+    const ranks = { [TALENT_IDS.battleHardenedOne]: 1 }
 
-    expect(talent.ranks[0].cost).toBe(12)
-    expect(getTalentPurchaseReason(createProfile(ranks, 11), talent)).toBe('xp')
-    expect(getTalentPurchaseReason(createProfile(ranks, 12), talent)).toBeNull()
+    expect(talent.ranks[0].cost).toBe(6)
+    expect(getTalentPurchaseReason(createProfile(ranks, 5), talent)).toBe('xp')
+    expect(canPurchaseTalent(createProfile(ranks, 6), talent.id)).toBe(true)
+    expect(hasAutoCombatUnlocked({ ...ranks, [talent.id]: 1 })).toBe(true)
   })
 
-  it('caps Battle-Hardened at rank three', () => {
-    const talent = TALENTS_BY_ID[TALENT_IDS.battleHardenedOne]
-
-    expect(getTalentPurchaseReason(
-      createProfile({ [talent.id]: 3 }, 999),
-      talent,
-    )).toBe('maxed')
-  })
-
-  it('gates the Second Descent behind a clear and unlocks it for exactly the boss reward', () => {
-    const talent = TALENTS_BY_ID[TALENT_IDS.secondDescent]
-    const ranks = {
+  it('grants the second die and its second slot as one Arsenal purchase', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
+    expect(talent.ranks[0].effects).toEqual([
+      { type: 'dice_slots', amount: 1 },
+      { type: 'grant_die', dieId: 'attack-die-2' },
+    ])
+    expect(getDiceCapacity({
       [TALENT_IDS.battleHardenedOne]: 1,
       [TALENT_IDS.twinArsenal]: 1,
-      [TALENT_IDS.shieldcraft]: 1,
+    })).toBe(2)
+  })
+
+  it('stacks the Workshop critical chance and face cap independently', () => {
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.volatileTemper]: 3,
+      [TALENT_IDS.faceMastery]: 2,
     }
-    const uncleared = createProfile(ranks, 60)
+
+    expect(getForgeCriticalChance(ranks)).toBeCloseTo(0.2)
+    expect(getWorkshopFaceCap(ranks)).toBe(7)
+  })
+
+  it('keeps Fatecraft locked behind the first dungeon clear', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.fatecraft]
+    const ranks = { [TALENT_IDS.battleHardenedOne]: 1 }
+    const uncleared = createProfile(ranks, 999)
     const cleared = {
       ...uncleared,
       dungeonProgress: {
@@ -84,146 +99,56 @@ describe('ranked talent progression', () => {
 
     expect(getTalentPurchaseReason(uncleared, talent)).toBe('dungeon')
     expect(getTalentPurchaseReason(cleared, talent)).toBeNull()
+    expect(hasCharmsUnlocked({ ...ranks, [TALENT_IDS.fatecraft]: 1 })).toBe(true)
   })
 
-  it('keeps Healing Arts available before the first clear so the player learns Heal first', () => {
-    const talent = TALENTS_BY_ID[TALENT_IDS.healingArts]
-    const profile = createProfile({
-      [TALENT_IDS.battleHardenedOne]: 1,
-      [TALENT_IDS.twinArsenal]: 1,
-      [TALENT_IDS.shieldcraft]: 1,
-      [TALENT_IDS.thirdGrip]: 1,
-    }, 55)
-
-    expect(profile.dungeonProgress['prototype-depths'].clearCount).toBe(0)
-    expect(getTalentPurchaseReason(profile, talent)).toBeNull()
-  })
-
-  it('opens both sidegrade dice together after Second Descent without branch exclusion', () => {
-    const ranks = {
-      [TALENT_IDS.battleHardenedOne]: 1,
-      [TALENT_IDS.twinArsenal]: 1,
-      [TALENT_IDS.shieldcraft]: 1,
-      [TALENT_IDS.secondDescent]: 1,
-    }
-    const profile = createProfile(ranks, 90)
-
-    expect(getTalentPurchaseReason(
-      profile,
-      TALENTS_BY_ID[TALENT_IDS.executionerDoctrine],
-    )).toBeNull()
-    expect(getTalentPurchaseReason(
-      profile,
-      TALENTS_BY_ID[TALENT_IDS.towerDiscipline],
-    )).toBeNull()
-  })
-
-  it('normalizes unknown, fractional, negative, and over-cap ranks', () => {
+  it('caps and cleans persisted ranks against the V2 registry', () => {
     expect(normalizeTalentRanks({
       [TALENT_IDS.battleHardenedOne]: 99,
       [TALENT_IDS.twinArsenal]: 0.8,
-      [TALENT_IDS.shieldcraft]: -2,
+      [TALENT_IDS.faceMastery]: 2.9,
       unknown: 4,
     })).toEqual({
-      [TALENT_IDS.battleHardenedOne]: 3,
+      [TALENT_IDS.battleHardenedOne]: 5,
+      [TALENT_IDS.faceMastery]: 2,
     })
   })
 })
 
-describe('talent fog and silhouette visibility', () => {
-  it('shows the foundation, silhouettes its child, and hides deeper nodes on a fresh profile', () => {
-    const ranks = {}
-
+describe('radial fog and silhouette visibility', () => {
+  it('starts with one central node and four weak silhouettes', () => {
     expect(getTalentVisibility(
-      ranks,
+      {},
       TALENTS_BY_ID[TALENT_IDS.battleHardenedOne],
     )).toBe('revealed')
+
+    for (const talentId of [
+      TALENT_IDS.twinArsenal,
+      TALENT_IDS.volatileTemper,
+      TALENT_IDS.autoCombat,
+      TALENT_IDS.fatecraft,
+    ]) {
+      expect(getTalentVisibility({}, TALENTS_BY_ID[talentId])).toBe('silhouette')
+    }
     expect(getTalentVisibility(
-      ranks,
-      TALENTS_BY_ID[TALENT_IDS.twinArsenal],
-    )).toBe('silhouette')
-    expect(getTalentVisibility(
-      ranks,
+      {},
       TALENTS_BY_ID[TALENT_IDS.shieldcraft],
     )).toBe('hidden')
   })
 
-  it('reveals Dice Slot 2 after HP rank one and silhouettes Shieldcraft', () => {
-    const ranks = { [TALENT_IDS.battleHardenedOne]: 1 }
+  it('reveals only one deeper layer along a purchased direction', () => {
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.volatileTemper]: 1,
+    }
 
     expect(getTalentVisibility(
       ranks,
-      TALENTS_BY_ID[TALENT_IDS.twinArsenal],
+      TALENTS_BY_ID[TALENT_IDS.faceMastery],
     )).toBe('revealed')
     expect(getTalentVisibility(
       ranks,
       TALENTS_BY_ID[TALENT_IDS.shieldcraft],
     )).toBe('silhouette')
-  })
-
-  it('reveals Auto Combat beside Shieldcraft after Twin Arsenal', () => {
-    const ranks = {
-      [TALENT_IDS.battleHardenedOne]: 1,
-      [TALENT_IDS.twinArsenal]: 1,
-    }
-
-    expect(getTalentVisibility(
-      ranks,
-      TALENTS_BY_ID[TALENT_IDS.autoCombat],
-    )).toBe('revealed')
-    expect(getTalentVisibility(
-      ranks,
-      TALENTS_BY_ID[TALENT_IDS.shieldcraft],
-    )).toBe('revealed')
-  })
-
-  it('reveals all three branches after Shieldcraft and silhouettes one deeper layer', () => {
-    const ranks = {
-      [TALENT_IDS.battleHardenedOne]: 1,
-      [TALENT_IDS.twinArsenal]: 1,
-      [TALENT_IDS.shieldcraft]: 1,
-    }
-
-    for (const talentId of [
-      TALENT_IDS.battleHardenedTwo,
-      TALENT_IDS.thirdGrip,
-      TALENT_IDS.quickDraw,
-    ]) {
-      expect(getTalentVisibility(ranks, TALENTS_BY_ID[talentId])).toBe('revealed')
-    }
-    expect(getTalentVisibility(
-      ranks,
-      TALENTS_BY_ID[TALENT_IDS.healingArts],
-    )).toBe('silhouette')
-    expect(getTalentVisibility(
-      ranks,
-      TALENTS_BY_ID[TALENT_IDS.fourthGrip],
-    )).toBe('hidden')
-  })
-
-  it('reveals both post-Dungeon-1 sidegrades together after Second Descent', () => {
-    const beforeSecondDescent = {
-      [TALENT_IDS.battleHardenedOne]: 1,
-      [TALENT_IDS.twinArsenal]: 1,
-      [TALENT_IDS.shieldcraft]: 1,
-    }
-    const afterSecondDescent = {
-      ...beforeSecondDescent,
-      [TALENT_IDS.secondDescent]: 1,
-    }
-
-    for (const talentId of [
-      TALENT_IDS.executionerDoctrine,
-      TALENT_IDS.towerDiscipline,
-    ]) {
-      expect(getTalentVisibility(
-        beforeSecondDescent,
-        TALENTS_BY_ID[talentId],
-      )).toBe('silhouette')
-      expect(getTalentVisibility(
-        afterSecondDescent,
-        TALENTS_BY_ID[talentId],
-      )).toBe('revealed')
-    }
   })
 })

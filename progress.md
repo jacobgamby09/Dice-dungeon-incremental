@@ -38,6 +38,15 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
+- V2 starter på save-version 13 med én `Worn Blade Die` på præcis `1,1,1,1,1,1 Attack`. Et ældre save nulstilles bevidst til en frisk V2-profil på denne branch.
+- Første Slime har 3 HP og fast 2 Attack. Den friske spiller slår tre gange, vinder med 6/10 HP og får præcis 4 XP + 5 Souls; floor 2 er den første sikre væg.
+- Workshoppen er i V2 player-facing kun random growth: spilleren vælger en die, Workshop vælger uniformt en eligible face, og den får altid +1. `Volatile Temper` kan gøre købet critical til +2. Pris starter på 5 Souls og stiger med 2 for hver tre samlede upgrades på den valgte die.
+- Det nye Talent Tree er radialt omkring `Inner Spark`. Første rank koster 4 XP, giver +1 HP og åbner North/Arsenal, West/Workshop, South/Descent og East/Fate samtidigt. Alle fire første valg kan ses ved 100% zoom på 384 px.
+- Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
+- Fatecraft er synlig som den låste østlige fremtidsgren efter centrum, men kræver første Dungeon 1-clear. Selve Charm/Fate Token-systemet er fortsat bevidst udskudt.
+- Den nye journey-regression fastholder første random face-upgrade på run 1, Auto Combat på run 2–3, anden die på run 6–15 og første Dungeon 1-clear i en længere run 12–45-bue.
+- Den bindende V2-specifikation findes i `CLASSIC_INCREMENTAL_V2.md`. Nedenstående produktionsstatus beskriver fortsat den nuværende `main`-version som reference.
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, kompakt Victory/Boss Victory og descent-resumé ved Defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
@@ -79,6 +88,14 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første Forge, Auto Combat, floor 3 og Twin Arsenal.
+2. Vurder subjektivt om random face-growth opleves som spændende ujævnhed eller manglende kontrol efter 15–25 upgrades.
+3. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
+4. Brainstorm og specificér Fate Token/Charm-loot som V2's næste selvstændige progressiongren; implementér den ikke som Talent Tree-stat-bonusser.
+5. Beslut efter V2-playtest om branchen skal fortsætte som separat mode, erstatte production eller levere enkelte systemer tilbage til den nuværende version.
+
+### Production-reference
+
 1. Gennemspil Build Diversity-devprofilen på en fysisk 384 px-iPhone og bekræft, at Power/Executioner-tumblen aldrig viser en spejlvendt face under hurtig Auto Combat.
 2. Mål om `2/6` Execute/Fortify føles hyppigt nok til at definere terningen uden at dominere de fire evolvable familie-faces.
 3. Sammenlign Shield-valgene Bastion/Reserve/Spikes og Heal-valgene Restoration/Regrowth/Overflow i både manuelle og automatiske runs.
@@ -88,6 +105,10 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–45-grænser skal derfor fysisk valideres.
+- V2's `Fatecraft` har en rigtig unlock-effekt i Talent Tree, men den efterfølgende Charm-skærm og Fate Token-valuta findes endnu ikke. Noden er placeret bag første Dungeon 1-clear, så den ikke kan blive et tidligt tomt køb.
+- De dybere Dungeon 2-tal og de eksisterende signatur-dice stammer stadig fra production-kurven. De er bevaret som teknisk reference, men er ikke endeligt V2-balanceret.
+- V2 nulstiller versions-12 saves på sin separate preview. Det er bevidst isolation og må ikke merges til production uden en eksplicit migrationsbeslutning.
 - Det nye multi-dice-layout, Spiked Behemoth og face-inspector er lokalt browser-verificeret ved 320 px og 384 px uden overlap eller horisontal overflow. Den fulde Dungeon 2-progression skal stadig gennemspilles på en fysisk mobil.
 - Journey-simulatoren modellerer konkrete XP-køb, Chaos/Precision-forges, evolutioner og loadout mellem runs, men dens automatiske købsstrategi kan ikke måle spillerens forståelse, tøven eller oplevede combat-tempo.
 - Første evolution opstår i seedede journey-regressioner omkring run 2–5, tidligere end den første Dungeon 1-clear. Det giver tidlig variation, men skal fysisk fresh-save-playtestes, før timingen betragtes som endeligt balanceret.
@@ -104,6 +125,20 @@ Brug denne skabelon:
 - Legacy-kode findes stadig i repository og må ikke blandes ind i den nye production-state.
 
 ## Bindende beslutninger
+
+### Classic Incremental V2-branch
+
+- V2 udvikles og deployes separat; production-regler ændres ikke automatisk af eksperimentet.
+- Frisk V2-start er 10 HP og én Attack Die med seks 1-faces.
+- Første kill skal garantere både første Inner Spark-rank og første random Workshop-køb.
+- V2-Workshoppen er player-facing random-only: vælg die, ikke face; +1 er garanteret, og talentbaseret critical kan give +2.
+- V2-Talent Tree er radialt: Arsenal mod nord, Workshop mod vest, Descent/Automation mod syd og Fate/Charms mod øst.
+- Inner Spark har fem valgfrie +1 HP-ranks. Rank 1 alene åbner alle fire retninger.
+- V2 Auto Combat koster 6 XP efter Inner Spark og automatiserer både roll, resolve, rounds og normale floor-transitions.
+- V2 Twin Arsenal koster 32 XP og giver samtidig slot 2 og én unik Striker Die.
+- Charms, Fate Tokens og random Charm-loot er en senere selvstændig systemgren og må ikke erstattes af skæve proc-talenter.
+
+### Production-reference
 
 - Spillet er incremental-first; et kill giver permanent fremgang, og Defeat koster kun dungeon-position.
 - Normal Victory er en kort reward-pulse uden information om næste enemy; Combat introducerer først enemy-data på det nye floor.
@@ -156,6 +191,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Classic Incremental V2 vertical slice
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: En separat V2-branch har nu en fuld fresh-save incremental kerne: seks 1-Attack-faces, en første tre-slags Slime, permanent 4 XP/5 Souls efter første kill, random face-growth, Workshop criticals, tidlig fuld Auto Combat og et radialt fire-retningers Talent Tree.
+- Beslutninger: Spilleren vælger die men ikke face; hvert Forge-køb lykkes. Inner Spark rank 1 åbner alle retninger. North er Arsenal, West er Workshop, South er Descent/Automation, East er senere Fate/Charms. Twin Arsenal giver både slot 2 og én unik Striker Die. Charm-systemet implementeres ikke i denne slice.
+- Berørte områder: Dice- og encounter-content, Forge-engine/store, talenttyper/content/progression, radialt Talent Tree-layout/UI, Chaos Workshop, Hub, V2-devpresets, balance-simulatorer, tests, `CLASSIC_INCREMENTAL_V2.md` og denne log.
+- Validering: TypeScript, 24 testfiler med 117 tests, ESLint og production-build består. Lokal browser gennemspillede fresh start til første Slime-kill, viste Victory med +4 XP/+5 Souls, forlod run med valuta intakt, købte én random permanent face fra 1 til 2 og købte Inner Spark, hvorefter alle fire første retningsnodes var synlige samtidigt på 384 px game-shell. Ingen browser-errors.
+- Kendte mangler: Fate/Charms er kun en senere gated retning. Dungeon 2 og de eksisterende signatur-dice er endnu ikke V2-tunet. Fysisk iPhone-pacing mangler.
+- Git: Ikke committed endnu på `codex/classic-incremental-v2`; separat Vercel-preview mangler.
 
 ### 2026-07-29 — Retvendte Power-rolls
 

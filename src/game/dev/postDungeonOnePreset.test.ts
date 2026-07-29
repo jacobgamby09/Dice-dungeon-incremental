@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createDiceCatalog, createStartingDice } from '../content/dice'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
-import { getFaceUpgradeCost } from '../content/upgradeCosts'
 import { getDiceCapacity, getPlayerMaxHp } from '../progression/talents'
 import type { PlayerProfile } from '../types/progression'
 import {
@@ -32,7 +31,7 @@ function createBaseProfile(): PlayerProfile {
 }
 
 describe('post-Dungeon-1 developer preset', () => {
-  it('creates the canonical boss-clear profile without maxing later QoL', () => {
+  it('creates the canonical Classic V2 boss-clear profile', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
 
     expect(profile.xp).toBe(0)
@@ -44,7 +43,7 @@ describe('post-Dungeon-1 developer preset', () => {
     })
     expect(getPlayerMaxHp(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.maxHp)
     expect(getDiceCapacity(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.diceSlots)
-    expect(profile.talentRanks[TALENT_IDS.quickDraw]).toBeUndefined()
+    expect(profile.talentRanks[TALENT_IDS.quickDraw]).toBe(3)
     expect(profile.talentRanks[TALENT_IDS.autoCombat]).toBe(1)
     expect(profile.settings).toEqual({
       rollSpeed: 1,
@@ -52,7 +51,7 @@ describe('post-Dungeon-1 developer preset', () => {
     })
   })
 
-  it('equips every permanent family with stable faces upgraded to minimum three', () => {
+  it('owns every basic family but equips a three-die Dungeon 2 loadout', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
     const catalog = createDiceCatalog()
 
@@ -60,10 +59,9 @@ describe('post-Dungeon-1 developer preset', () => {
     expect(profile.equippedDieIds).toHaveLength(POST_DUNGEON_ONE_DEV_PRESET.equippedCount)
     expect(profile.diceCollection.length).toBeGreaterThan(profile.equippedDieIds.length)
     expect(profile.equippedDieIds).toEqual([
-      'attack-die-executioner',
       'attack-die-1',
+      'attack-die-2',
       'shield-die-1',
-      'heal-die-1',
     ])
     expect(new Set(profile.diceCollection.map((die) => die.family))).toEqual(
       new Set(['attack', 'shield', 'heal']),
@@ -75,13 +73,11 @@ describe('post-Dungeon-1 developer preset', () => {
         original.faces.map((face) => face.id),
       )
       expect(die.faces.every(
-        (face) => face.evolution
-          || face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
+        (face) => face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
       )).toBe(true)
     }
     expect(profile.diceCollection.flatMap((die) => die.faces)
-      .filter((face) => face.evolution)
-      .map((face) => face.evolution?.id)).toEqual(['power', 'momentum', 'rend'])
+      .filter((face) => face.evolution)).toHaveLength(0)
   })
 
   it('keeps the displayed XP and Soul spend derived from actual content costs', () => {
@@ -91,27 +87,11 @@ describe('post-Dungeon-1 developer preset', () => {
         .slice(0, rank)
         .reduce((rankTotal, talentRank) => rankTotal + talentRank.cost, 0)
     ), 0)
-    const originalDice = createDiceCatalog()
-    const soulsSpent = profile.diceCollection.reduce((total, die) => {
-      const original = originalDice.find((candidate) => candidate.id === die.id)!
-      return total + die.faces.reduce((dieTotal, face, faceIndex) => {
-        const targetBaseValue = face.evolution
-          ? POST_DUNGEON_ONE_DEV_PRESET.faceMinimum
-          : face.value
-        let faceTotal = 0
-        for (
-          let value = original.faces[faceIndex].value;
-          value < targetBaseValue;
-          value += 1
-        ) {
-          faceTotal += getFaceUpgradeCost(value) ?? 0
-        }
-        if (face.evolution) {
-          faceTotal += (getFaceUpgradeCost(POST_DUNGEON_ONE_DEV_PRESET.faceMinimum) ?? 0) * 2
-        }
-        return dieTotal + faceTotal
-      }, 0)
-    }, 0)
+    const upgradesPerDie = 6 * (POST_DUNGEON_ONE_DEV_PRESET.faceMinimum - 1)
+    const soulsPerDie = Array.from({ length: upgradesPerDie }, (_, index) => (
+      5 + Math.floor(index / 3) * 2
+    )).reduce((total, cost) => total + cost, 0)
+    const soulsSpent = soulsPerDie * profile.diceCollection.length
 
     expect(xpSpent).toBe(POST_DUNGEON_ONE_DEV_PRESET.xpSpent)
     expect(soulsSpent).toBe(POST_DUNGEON_ONE_DEV_PRESET.soulsSpent)

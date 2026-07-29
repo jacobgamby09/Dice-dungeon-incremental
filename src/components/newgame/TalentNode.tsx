@@ -54,7 +54,7 @@ export function TalentNode({
     return (
       <motion.div
         aria-hidden="true"
-        className={`talent-canvas-node talent-canvas-node--silhouette${isNew ? ' talent-canvas-node--new' : ''}`}
+        className={`talent-canvas-node talent-canvas-node--silhouette talent-canvas-node--track-${talent.track}${isNew ? ' talent-canvas-node--new' : ''}`}
         data-talent-silhouette="true"
         initial={isNew ? { opacity: 0, scale: 0.32 } : false}
         animate={{ opacity: 1, scale: 1 }}
@@ -85,6 +85,7 @@ export function TalentNode({
       className={[
         'talent-canvas-node',
         `talent-canvas-node--${state}`,
+        `talent-canvas-node--track-${talent.track}`,
         isAffordable ? 'talent-canvas-node--affordable' : '',
         isActivating ? 'talent-canvas-node--activating' : '',
         isNew ? 'talent-canvas-node--new' : '',

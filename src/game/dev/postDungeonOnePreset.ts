@@ -1,32 +1,31 @@
 import { createDieById } from '../content/dice'
 import { TALENT_IDS } from '../content/talents'
-import { ATTACK_EVOLUTIONS } from '../forge/forge'
 import type { DieFaces } from '../types/dice'
 import type { PlayerProfile, TalentRanks } from '../types/progression'
 
 export const POST_DUNGEON_ONE_DEV_PRESET = {
-  collectionCount: 6,
-  diceSlots: 4,
-  equippedCount: 4,
-  evolutionCount: 3,
-  faceMinimum: 3,
-  maxHp: 15,
-  soulsSpent: 545,
-  xpSpent: 427,
+  collectionCount: 4,
+  diceSlots: 3,
+  equippedCount: 3,
+  evolutionCount: 0,
+  faceMinimum: 4,
+  maxHp: 17,
+  soulsSpent: 720,
+  xpSpent: 496,
 } as const
 
 const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
-  [TALENT_IDS.battleHardenedOne]: 1,
+  [TALENT_IDS.battleHardenedOne]: 3,
   [TALENT_IDS.twinArsenal]: 1,
   [TALENT_IDS.autoCombat]: 1,
   [TALENT_IDS.shieldcraft]: 1,
   [TALENT_IDS.secondDescent]: 1,
-  [TALENT_IDS.battleHardenedTwo]: 1,
+  [TALENT_IDS.battleHardenedTwo]: 2,
   [TALENT_IDS.thirdGrip]: 1,
+  [TALENT_IDS.quickDraw]: 3,
   [TALENT_IDS.healingArts]: 1,
-  [TALENT_IDS.fourthGrip]: 1,
-  [TALENT_IDS.executionerDoctrine]: 1,
-  [TALENT_IDS.towerDiscipline]: 1,
+  [TALENT_IDS.volatileTemper]: 2,
+  [TALENT_IDS.faceMastery]: 1,
 }
 
 const POST_DUNGEON_ONE_DIE_IDS = [
@@ -34,15 +33,12 @@ const POST_DUNGEON_ONE_DIE_IDS = [
   'attack-die-2',
   'shield-die-1',
   'heal-die-1',
-  'attack-die-executioner',
-  'shield-die-tower',
 ] as const
 
 const POST_DUNGEON_ONE_EQUIPPED_DIE_IDS = [
-  'attack-die-executioner',
   'attack-die-1',
+  'attack-die-2',
   'shield-die-1',
-  'heal-die-1',
 ] as const
 
 export function createPostDungeonOneDevProfile(
@@ -55,21 +51,6 @@ export function createPostDungeonOneDevProfile(
       value: Math.max(face.value, POST_DUNGEON_ONE_DEV_PRESET.faceMinimum),
     })) as DieFaces,
   }))
-  const executioner = diceCollection.find((die) => die.id === 'attack-die-executioner')
-  if (executioner) {
-    const evolutionIds = ['power', 'momentum', 'rend'] as const
-    executioner.faces = executioner.faces.map((face, index) => {
-      const evolutionId = evolutionIds[index]
-      if (!evolutionId) return face
-      const evolution = ATTACK_EVOLUTIONS[evolutionId]
-      return {
-        ...face,
-        evolution: { id: evolution.id, name: evolution.name },
-        value: evolution.resultValue,
-      }
-    }) as DieFaces
-  }
-
   return {
     ...baseProfile,
     xp: 0,

@@ -1,84 +1,63 @@
 import { describe, expect, it } from 'vitest'
-import { EVOLUTION_DEFINITIONS } from '../content/faceEffects'
 import { TALENT_IDS } from '../content/talents'
-import { getDiceCapacity } from '../progression/talents'
 import {
   DEFAULT_JOURNEY_STRATEGY,
   simulateProgressionJourney,
 } from './simulateProgressionJourney'
 
-describe('progression journey simulator', () => {
-  it('is deterministic and records permanent between-run milestones', () => {
-    const first = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 30, 31)
-    const second = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 30, 31)
+describe('Classic V2 progression journey', () => {
+  it('is deterministic and guarantees a permanent upgrade after run one', () => {
+    const first = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 60, 431)
+    const second = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 60, 431)
 
     expect(first).toEqual(second)
-    expect(first.milestones.firstFaceUpgradeRun).toBeLessThanOrEqual(2)
-    expect(first.milestones.secondDieRun).toBeGreaterThanOrEqual(2)
-    expect(first.milestones.secondDieRun).toBeLessThanOrEqual(5)
-    expect(first.milestones.autoCombatRun).toBeGreaterThanOrEqual(2)
-    expect(first.milestones.autoCombatRun).toBeLessThanOrEqual(5)
-    expect(first.milestones.firstEvolutionRun).toBeGreaterThanOrEqual(2)
-    expect(first.milestones.firstEvolutionRun).toBeLessThanOrEqual(5)
-    expect(first.milestones.dungeonOneClearRun).toBeGreaterThanOrEqual(7)
-    expect(first.milestones.dungeonOneClearRun).toBeLessThanOrEqual(12)
-    expect(first.milestones.dungeonTwoClearRun).toBeGreaterThan(
-      first.milestones.dungeonOneClearRun!,
-    )
-    expect(first.milestones.dungeonTwoClearRun).toBeLessThanOrEqual(18)
-    expect(first.finalProfile.bankedSouls).toBeGreaterThanOrEqual(0)
-    expect(first.finalProfile.xp).toBeGreaterThanOrEqual(0)
+    expect(first.milestones.firstFaceUpgradeRun).toBe(1)
+    expect(first.records[0].averageFaceValue).toBeGreaterThan(1)
   })
 
-  it('creates a real loadout choice after Dungeon 1 without auto-equipping every die', () => {
-    const result = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 30, 47)
+  it('unlocks full Auto Combat in the first three runs', () => {
+    const result = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 10, 17)
 
+    expect(result.milestones.autoCombatRun).not.toBeNull()
+    expect(result.milestones.autoCombatRun).toBeGreaterThanOrEqual(2)
+    expect(result.milestones.autoCombatRun).toBeLessThanOrEqual(3)
+  })
+
+  it('keeps the second die meaningfully later than Auto Combat', () => {
+    const result = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 30, 73)
+
+    expect(result.milestones.secondDieRun).not.toBeNull()
+    expect(result.milestones.secondDieRun!).toBeGreaterThan(result.milestones.autoCombatRun!)
+    expect(result.milestones.secondDieRun!).toBeGreaterThanOrEqual(6)
+    expect(result.milestones.secondDieRun!).toBeLessThanOrEqual(15)
+  })
+
+  it('moves the run wall and average die value upward across the journey', () => {
+    const result = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 60, 901)
+    const first = result.records[0]
+    const last = result.records.at(-1)!
+
+    expect(last.averageFaceValue).toBeGreaterThan(first.averageFaceValue)
+    expect(Math.max(...result.records.map((record) => record.highestFloorCleared)))
+      .toBeGreaterThan(first.highestFloorCleared)
+  })
+
+  it('reaches and unlocks Dungeon 2 only after a longer first-dungeon arc', () => {
+    const result = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 80, 222)
+
+    expect(result.milestones.dungeonOneClearRun).not.toBeNull()
+    expect(result.milestones.dungeonOneClearRun!).toBeGreaterThanOrEqual(12)
+    expect(result.milestones.dungeonOneClearRun!).toBeLessThanOrEqual(45)
     expect(result.milestones.dungeonTwoUnlockRun).not.toBeNull()
-    expect(result.milestones.firstLoadoutChoiceRun).not.toBeNull()
-    expect(result.finalProfile.talentRanks[TALENT_IDS.executionerDoctrine]).toBe(1)
-    expect(result.finalProfile.diceCollection.map((die) => die.id)).toContain(
-      'attack-die-executioner',
-    )
-    expect(result.finalProfile.equippedDieIds).toHaveLength(
-      getDiceCapacity(result.finalProfile.talentRanks),
-    )
-    expect(result.finalProfile.diceCollection.length).toBeGreaterThan(
-      result.finalProfile.equippedDieIds.length,
-    )
+    expect(result.finalProfile.talentRanks[TALENT_IDS.secondDescent]).toBe(1)
   })
 
-  it('can compare a targeted Power path against controlled Chaos', () => {
-    const chaos = simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 24, 73)
-    const targetedPower = simulateProgressionJourney({
-      ...DEFAULT_JOURNEY_STRATEGY,
-      evolutionOrder: ['power'],
-      forgeMode: 'precision-attack',
-    }, 24, 73)
+  it('produces critical Workshop moments once Volatile Temper is purchased', () => {
+    const seeds = Array.from({ length: 20 }, (_, index) => (
+      simulateProgressionJourney(DEFAULT_JOURNEY_STRATEGY, 40, index + 1)
+        .milestones.firstCriticalForgeRun
+    ))
 
-    expect(chaos.records).not.toEqual(targetedPower.records)
-    expect(chaos.milestones.firstEvolutionRun).not.toBeNull()
-    expect(targetedPower.milestones.firstEvolutionRun).not.toBeNull()
+    expect(seeds.some((run) => run !== null)).toBe(true)
   })
-
-  it.each(['power', 'momentum', 'rend'] as const)(
-    'keeps a pure %s journey viable without making it the required build',
-    (evolutionId) => {
-      const result = simulateProgressionJourney({
-        ...DEFAULT_JOURNEY_STRATEGY,
-        evolutionOrder: [evolutionId],
-      }, 18, 31)
-      const evolutionIds = result.finalProfile.diceCollection
-        .flatMap((die) => die.faces)
-        .flatMap((face) => (
-          face.evolution && EVOLUTION_DEFINITIONS[face.evolution.id].family === 'attack'
-            ? [face.evolution.id]
-            : []
-        ))
-
-      expect(evolutionIds.length).toBeGreaterThan(0)
-      expect(new Set(evolutionIds)).toEqual(new Set([evolutionId]))
-      expect(result.milestones.dungeonTwoClearRun).not.toBeNull()
-      expect(result.milestones.dungeonTwoClearRun).toBeLessThanOrEqual(18)
-    },
-  )
 })

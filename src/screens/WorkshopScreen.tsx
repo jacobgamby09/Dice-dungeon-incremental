@@ -1,41 +1,33 @@
-import { useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   Anvil,
   ChevronLeft,
-  Crosshair,
   Dices,
   Flame,
   Hammer,
   Sparkles,
 } from 'lucide-react'
-import { EvolutionIcon } from '../components/newgame/EvolutionIcon'
-import { getEvolutionVisualStyle } from '../components/newgame/evolutionVisuals'
+import { useEffect, useRef, useState } from 'react'
 import { FaceIcon } from '../components/newgame/FaceIcon'
 import { FACE_META } from '../components/newgame/faceVisuals'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
-import { SignatureIcon } from '../components/newgame/SignatureIcon'
-import { getSignatureVisualStyle } from '../components/newgame/signatureVisuals'
-import { SIGNATURE_DEFINITIONS } from '../game/content/faceEffects'
 import {
-  EVOLUTION_DEFINITIONS,
-  EVOLUTIONS_BY_FAMILY,
   getChaosEligibleFaces,
   getChaosForgeCost,
-  getPrecisionForgeCost,
 } from '../game/forge/forge'
-import type { FaceEvolutionId, FaceType } from '../game/types/dice'
+import { getForgeCriticalChance, getWorkshopFaceCap } from '../game/progression/talents'
+import type { FaceType } from '../game/types/dice'
 import { useNewGameStore } from '../store/newGameStore'
 
-type ForgeMode = 'chaos' | 'precision'
-
 interface ForgeImpact {
-  cost: number
+  amount: number
   faceId: string
   faceNumber: number
-  mode: ForgeMode
+  newValue: number
+  previousValue: number
   type: FaceType
   version: number
+  wasCritical: boolean
 }
 
 function createOperationId() {
@@ -43,66 +35,60 @@ function createOperationId() {
     ?? `forge-${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
+function getAverage(values: readonly number[]): string {
+  if (values.length === 0) return '0.00'
+  return (values.reduce((total, value) => total + value, 0) / values.length).toFixed(2)
+}
+
 export function WorkshopScreen() {
   const diceCollection = useNewGameStore((state) => state.profile.diceCollection)
   const bankedSouls = useNewGameStore((state) => state.profile.bankedSouls)
+  const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const chaosForgeDie = useNewGameStore((state) => state.chaosForgeDie)
-  const precisionForgeFace = useNewGameStore((state) => state.precisionForgeFace)
-  const evolveFace = useNewGameStore((state) => state.evolveFace)
   const [selectedDieId, setSelectedDieId] = useState(diceCollection[0]?.id ?? '')
-  const [selectedFaceId, setSelectedFaceId] = useState(diceCollection[0]?.faces[0]?.id ?? '')
-  const [forgeMode, setForgeMode] = useState<ForgeMode>('chaos')
   const [forgeImpact, setForgeImpact] = useState<ForgeImpact | null>(null)
-  const [pendingEvolutionId, setPendingEvolutionId] = useState<FaceEvolutionId | null>(null)
   const forgeLock = useRef(false)
 
-  const selectedDie = diceCollection.find((die) => die.id === selectedDieId) ?? diceCollection[0]
-  const selectedFace = selectedDie?.faces.find((face) => face.id === selectedFaceId) ?? selectedDie?.faces[0]
-  const chaosCost = selectedDie ? getChaosForgeCost(selectedDie) : null
-  const precisionCost = selectedFace ? getPrecisionForgeCost(selectedFace) : null
-  const activeCost = forgeMode === 'chaos' ? chaosCost : precisionCost
-  const canForge = activeCost !== null && bankedSouls >= activeCost
-  const eligibleChaosFaces = selectedDie ? getChaosEligibleFaces(selectedDie).length : 0
+  const selectedDie = diceCollection.find((die) => die.id === selectedDieId)
+    ?? diceCollection[0]
+  const faceCap = getWorkshopFaceCap(talentRanks)
+  const criticalChance = getForgeCriticalChance(talentRanks)
+  const forgeCost = selectedDie ? getChaosForgeCost(selectedDie, faceCap) : null
+  const eligibleFaces = selectedDie ? getChaosEligibleFaces(selectedDie, faceCap) : []
+  const canForge = forgeCost !== null && bankedSouls >= forgeCost
+
+  useEffect(() => {
+    window.scrollTo({ left: 0, top: 0 })
+  }, [])
 
   function chooseDie(dieId: string) {
-    const die = diceCollection.find((candidate) => candidate.id === dieId)
-    if (!die) return
-    setSelectedDieId(die.id)
-    setSelectedFaceId(die.faces[0].id)
+    if (!diceCollection.some((die) => die.id === dieId)) return
+    setSelectedDieId(dieId)
     setForgeImpact(null)
-    setPendingEvolutionId(null)
   }
 
   function handleForge() {
-    if (!selectedDie || !selectedFace || !canForge || forgeLock.current) return
+    if (!selectedDie || !canForge || forgeLock.current) return
     forgeLock.current = true
-    const result = forgeMode === 'chaos'
-      ? chaosForgeDie(selectedDie.id, createOperationId())
-      : precisionForgeFace(selectedDie.id, selectedFace.id, createOperationId())
+    const result = chaosForgeDie(selectedDie.id, createOperationId())
     forgeLock.current = false
     if (!result) return
-    setSelectedFaceId(result.faceId)
-    setPendingEvolutionId(null)
+
     setForgeImpact((current) => ({
-      cost: result.cost,
+      amount: result.amount,
       faceId: result.faceId,
       faceNumber: selectedDie.faces.findIndex((face) => face.id === result.faceId) + 1,
-      mode: forgeMode,
+      newValue: result.newValue,
+      previousValue: result.previousValue,
       type: selectedDie.family,
       version: (current?.version ?? 0) + 1,
+      wasCritical: result.wasCritical,
     }))
   }
 
-  function handleEvolution(evolutionId: FaceEvolutionId) {
-    if (!selectedDie || !selectedFace) return
-    if (!evolveFace(selectedDie.id, selectedFace.id, evolutionId)) return
-    setForgeImpact(null)
-    setPendingEvolutionId(null)
-  }
-
   return (
-    <main className="game-shell workshop-screen">
+    <main className="game-shell workshop-screen classic-workshop">
       <section className="forge-header" aria-labelledby="workshop-title">
         <button aria-label="Back to Hub" className="forge-header__back" onClick={goToHub} type="button">
           <ChevronLeft aria-hidden="true" size={20} />
@@ -110,15 +96,18 @@ export function WorkshopScreen() {
         <div aria-hidden="true" className="forge-header__glow" />
         <div aria-hidden="true" className="forge-header__anvil"><Anvil size={60} /></div>
         <header className="forge-sign">
-          <span>Controlled chance</span>
-          <h1 id="workshop-title">Soul Forge</h1>
+          <span>Random permanent growth</span>
+          <h1 id="workshop-title">Chaos Workshop</h1>
         </header>
         <PermanentResourceHud bankedSouls={bankedSouls} compact />
       </section>
 
       <section className="forge-rack" aria-labelledby="forge-rack-title">
         <header className="forge-section-heading">
-          <div><span className="eyebrow">Dice rack</span><h2 id="forge-rack-title">Choose a Die</h2></div>
+          <div>
+            <span className="eyebrow">Permanent dice</span>
+            <h2 id="forge-rack-title">Choose a Die</h2>
+          </div>
           <span>{diceCollection.length} owned</span>
         </header>
         <div className="die-tabs" aria-label="Choose a die">
@@ -133,227 +122,113 @@ export function WorkshopScreen() {
               <span className="die-tab__icon"><FaceIcon type={die.family} size={18} /></span>
               <span>
                 <strong>{die.name}</strong>
-                <small>
-                  {die.family} family
-                  {die.faces.some((face) => face.signature) ? ' · signature die' : ''}
-                </small>
+                <small>Average {getAverage(die.faces.map((face) => face.value))}</small>
               </span>
             </button>
           ))}
         </div>
       </section>
 
-      {selectedDie && selectedFace ? (
-        <section className="forge-bench" aria-labelledby="forge-faces-title">
+      {selectedDie ? (
+        <section className="forge-bench classic-workshop__bench" aria-labelledby="forge-faces-title">
           <header className="forge-section-heading">
-            <div><span className="eyebrow">Forge method</span><h2 id="forge-faces-title">Shape Your Die</h2></div>
+            <div>
+              <span className="eyebrow">{selectedDie.family} family</span>
+              <h2 id="forge-faces-title">{selectedDie.name}</h2>
+            </div>
             <FaceIcon type={selectedDie.family} size={24} />
           </header>
 
-          <div className="forge-mode-switch" role="group" aria-label="Forge method">
-            <button
-              aria-pressed={forgeMode === 'chaos'}
-              onClick={() => setForgeMode('chaos')}
-              type="button"
-            >
-              <Dices aria-hidden="true" size={20} />
-              <span><strong>Chaos Forge</strong><small>Random face · lower cost</small></span>
-            </button>
-            <button
-              aria-pressed={forgeMode === 'precision'}
-              onClick={() => setForgeMode('precision')}
-              type="button"
-            >
-              <Crosshair aria-hidden="true" size={20} />
-              <span><strong>Precision Forge</strong><small>Choose face · higher cost</small></span>
-            </button>
+          <div className="classic-workshop__stats" aria-label="Workshop statistics">
+            <span><small>Die average</small><strong>{getAverage(selectedDie.faces.map((face) => face.value))}</strong></span>
+            <span><small>Face cap</small><strong>{faceCap}</strong></span>
+            <span><small>Critical</small><strong>{Math.round(criticalChance * 100)}%</strong></span>
           </div>
 
-          <div className="workshop-faces">
+          <div className="workshop-faces classic-workshop__faces" aria-label="Current permanent faces">
             {selectedDie.faces.map((face, faceIndex) => {
-              const isEligible = getPrecisionForgeCost(face) !== null
+              const isResult = forgeImpact?.faceId === face.id
+              const isCapped = face.value >= faceCap
               return (
-                <button
-                  aria-label={`${face.value} ${FACE_META[face.type].label}, face ${faceIndex + 1}${face.evolution ? `, ${face.evolution.name}` : ''}${face.signature ? `, ${face.signature.name} signature` : ''}`}
-                  aria-pressed={face.id === selectedFace.id}
-                  className={`workshop-face workshop-face--${face.type}${face.evolutionReady ? ' workshop-face--ready' : ''}${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`}
+                <motion.div
+                  aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}${isCapped ? ', maximum' : ''}`}
+                  className={`workshop-face workshop-face--${face.type}${isResult ? ' classic-workshop__face--hit' : ''}${isCapped ? ' classic-workshop__face--capped' : ''}`}
                   key={face.id}
-                  onClick={() => {
-                    setSelectedFaceId(face.id)
-                    setPendingEvolutionId(null)
-                  }}
-                  style={
-                    face.evolution
-                      ? getEvolutionVisualStyle(face.evolution.id)
-                      : face.signature
-                        ? getSignatureVisualStyle(face.signature.id)
-                        : undefined
-                  }
-                  type="button"
+                  animate={isResult
+                    ? { rotate: [0, -8, 7, -3, 0], scale: [1, 1.2, 0.94, 1] }
+                    : { rotate: 0, scale: 1 }}
+                  transition={{ duration: 0.58, ease: 'easeOut' }}
                 >
                   <small>Face {faceIndex + 1}</small>
-                  <motion.strong
-                    animate={{ scale: [1.35, 0.9, 1] }}
-                    key={`${face.id}-${face.value}-${face.evolution?.id ?? 'base'}`}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                  >
-                    {face.value}
-                  </motion.strong>
-                  {face.evolution
-                    ? <EvolutionIcon evolutionId={face.evolution.id} size={18} />
-                    : face.signature
-                      ? <SignatureIcon signatureId={face.signature.id} size={18} />
-                    : <FaceIcon type={face.type} size={18} />}
-                  {face.evolutionReady ? <em><Sparkles size={11} /> Evolve</em> : null}
-                  {face.evolution ? <em className="workshop-face__evolution-name">{face.evolution.name}</em> : null}
-                  {face.signature ? <em className="workshop-face__signature-name">{face.signature.name}</em> : null}
-                  {!isEligible && !face.evolutionReady && !face.evolution ? <em>Max</em> : null}
-                </button>
+                  <strong>{face.value}</strong>
+                  <FaceIcon type={face.type} size={18} />
+                  {isCapped ? <em>Max</em> : null}
+                </motion.div>
               )
             })}
           </div>
-          <div
-            aria-live="polite"
-            className={`face-effect-readout face-effect-readout--${selectedFace.type}`}
-          >
-            <span>
-              {selectedFace.signature
-                ? 'Signature face'
-                : selectedFace.evolution
-                  ? `${selectedDie.family} evolution`
-                  : 'Family face'}
-            </span>
-            <strong>
-              {selectedFace.signature?.name
-                ?? selectedFace.evolution?.name
-                ?? `${selectedFace.value} ${FACE_META[selectedFace.type].label}`}
-            </strong>
-            <p>
-              {selectedFace.signature
-                ? SIGNATURE_DEFINITIONS[selectedFace.signature.id].description
-                : selectedFace.evolution
-                  ? EVOLUTION_DEFINITIONS[selectedFace.evolution.id].description
-                  : selectedFace.evolutionReady
-                    ? `Choose one of the ${selectedDie.family} family's three permanent evolutions.`
-                    : `Forge this permanent face toward value 3, then choose a ${selectedDie.family} evolution.`}
-            </p>
+
+          <div className={`classic-workshop__machine classic-workshop__machine--${selectedDie.family}`}>
+            <Dices aria-hidden="true" size={35} />
+            <div>
+              <small>Next upgrade</small>
+              <strong>One random face gains +1</strong>
+              <span>
+                {criticalChance > 0
+                  ? `${Math.round(criticalChance * 100)}% chance to gain +2`
+                  : 'Workshop talents can unlock critical +2 upgrades'}
+              </span>
+            </div>
+            <Flame aria-hidden="true" size={24} />
           </div>
-          {forgeImpact?.mode === 'chaos' ? (
-            <motion.div
-              animate={{ opacity: [0, 1, 1], rotate: [-12, 8, -4, 0], scale: [0.55, 1.12, 0.94, 1] }}
-              className={`forge-chaos-result forge-chaos-result--${forgeImpact.type}`}
-              initial={{ opacity: 0 }}
-              key={`chaos-result-${forgeImpact.version}-${forgeImpact.faceId}`}
-              transition={{ duration: 0.68, ease: 'easeOut' }}
-            >
-              <span><strong>{forgeImpact.faceNumber}</strong><FaceIcon type={forgeImpact.type} size={16} /></span>
-              <div><small>Chaos landed</small><strong>Face {forgeImpact.faceNumber} · -{forgeImpact.cost} Souls</strong></div>
-            </motion.div>
-          ) : null}
 
-          {selectedFace.evolutionReady ? (
-            <section className="evolution-panel" aria-labelledby="evolution-title">
-              <header>
-                <Sparkles aria-hidden="true" size={20} />
-                <div><span className="eyebrow">Evolution ready</span><h3 id="evolution-title">Choose Its Identity</h3></div>
-              </header>
-              <p>This choice is permanent and costs no additional Souls.</p>
-              <div className="evolution-choices">
-                {EVOLUTIONS_BY_FAMILY[selectedFace.type].map((evolution) => {
-                  return (
-                    <button
-                      aria-pressed={pendingEvolutionId === evolution.id}
-                      className={`evolution-choice evolution-choice--${evolution.id}`}
-                      key={evolution.id}
-                      onClick={() => setPendingEvolutionId(evolution.id)}
-                      style={getEvolutionVisualStyle(evolution.id)}
-                      type="button"
-                    >
-                      <EvolutionIcon evolutionId={evolution.id} size={21} />
-                      <span><strong>{evolution.name}</strong><small>{evolution.description}</small></span>
-                    </button>
-                  )
-                })}
-              </div>
-              {pendingEvolutionId ? (
-                <div className="evolution-confirm">
-                  <span>Bind {EVOLUTION_DEFINITIONS[pendingEvolutionId].name} to this face?</span>
-                  <button onClick={() => setPendingEvolutionId(null)} type="button">Cancel</button>
-                  <button onClick={() => handleEvolution(pendingEvolutionId)} type="button">Confirm</button>
-                </div>
-              ) : null}
-            </section>
-          ) : (
-            <>
-              <div className={`forge-anvil forge-anvil--${selectedFace.type}`}>
-                <div className="forge-anvil__face">
-                  <span>{forgeMode === 'chaos' ? 'Eligible' : 'Selected'}</span>
-                  <strong>{forgeMode === 'chaos' ? eligibleChaosFaces : selectedFace.value}</strong>
-                  {forgeMode === 'chaos'
-                    ? <Dices aria-hidden="true" size={20} />
-                    : <FaceIcon type={selectedFace.type} size={20} />}
-                </div>
-                <div className="forge-anvil__tool">
-                  <Hammer aria-hidden="true" size={26} />
-                  <span>Forge</span>
-                </div>
-                <div className="forge-anvil__face forge-anvil__face--next">
-                  <span>Result</span>
-                  <strong>
-                    {forgeMode === 'chaos'
-                      ? '?'
-                      : selectedFace.signature
-                        ? 'SIG'
-                        : selectedFace.value === 3
-                          ? '✦'
-                          : selectedFace.value + 1}
-                  </strong>
-                  <FaceIcon type={selectedFace.type} size={20} />
-                </div>
-                {forgeImpact?.mode === 'precision' ? (
-                    <motion.div
-                      animate={{ opacity: [0, 1, 1, 0], scale: [0.7, 1.25, 1, 1.45], x: [76, 32, 0, 0], y: [-76, -35, 0, 0] }}
-                      className={`forge-impact forge-impact--${forgeImpact.type}`}
-                      initial={{ opacity: 0 }}
-                      key={`${forgeImpact.version}-${forgeImpact.faceId}`}
-                      transition={{ duration: 0.72, ease: 'easeOut' }}
-                    >
-                      <Flame aria-hidden="true" size={16} /> Face {forgeImpact.faceNumber} · -{forgeImpact.cost}
-                    </motion.div>
-                ) : null}
-              </div>
-
-              <div aria-live="polite" className="forge-message">
-                {activeCost === null
-                  ? selectedFace.signature && forgeMode === 'precision'
-                    ? 'Signature faces already carry a unique effect. Their next upgrade path arrives with Face Mastery.'
-                    : 'This die has no faces available for this forge method.'
-                  : canForge
-                    ? forgeMode === 'chaos'
-                      ? `One of ${eligibleChaosFaces} eligible faces will be rolled and improved. The discount shrinks as the pool gets smaller.`
-                      : selectedFace.signature
-                        ? 'Signature faces keep their unique effect and unlock later Mastery instead of a family evolution.'
-                      : selectedFace.value === 3
-                        ? `Awaken this face, then choose one of the ${selectedFace.type} family evolutions for free.`
-                        : `Face ${selectedDie.faces.findIndex((face) => face.id === selectedFace.id) + 1} will improve. No other face changes.`
-                    : `Collect ${activeCost - bankedSouls} more Souls to use this forge.`}
-              </div>
-
-              <button
-                className="pixel-button pixel-button--upgrade forge-button"
-                disabled={!canForge}
-                onClick={handleForge}
-                type="button"
+          <AnimatePresence mode="wait">
+            {forgeImpact ? (
+              <motion.div
+                aria-live="polite"
+                className={`classic-forge-result classic-forge-result--${forgeImpact.type}${forgeImpact.wasCritical ? ' classic-forge-result--critical' : ''}`}
+                key={`${forgeImpact.version}-${forgeImpact.faceId}`}
+                initial={{ opacity: 0, rotateX: -80, scale: 0.62, y: -18 }}
+                animate={{ opacity: 1, rotateX: 0, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.86 }}
+                transition={{ duration: 0.46, ease: [0.2, 0.82, 0.24, 1] }}
               >
-                <Hammer aria-hidden="true" size={17} />
-                {activeCost === null
-                  ? 'No Eligible Faces'
-                  : canForge
-                    ? `${forgeMode === 'chaos' ? 'Roll Chaos Forge' : 'Precision Forge'} · ${activeCost} Souls`
-                    : `Need ${activeCost} Souls`}
-              </button>
-            </>
-          )}
+                <span className="classic-forge-result__die">
+                  <strong>{forgeImpact.newValue}</strong>
+                  <FaceIcon type={forgeImpact.type} size={18} />
+                </span>
+                <div>
+                  <small>{forgeImpact.wasCritical ? 'Critical forge!' : 'Chaos chose'}</small>
+                  <strong>Face {forgeImpact.faceNumber} · +{forgeImpact.amount}</strong>
+                  <span>{forgeImpact.previousValue} → {forgeImpact.newValue}</span>
+                </div>
+                {forgeImpact.wasCritical ? <Sparkles aria-hidden="true" size={24} /> : null}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+
+          <p className="forge-message classic-workshop__message">
+            You choose the die. The Workshop chooses the face. Every purchase is permanent,
+            and uneven faces are the point.
+          </p>
+
+          <button
+            className="pixel-button pixel-button--upgrade forge-button"
+            disabled={!canForge}
+            onClick={handleForge}
+            type="button"
+          >
+            <Hammer aria-hidden="true" size={17} />
+            {forgeCost === null
+              ? 'Every Face Is Capped'
+              : canForge
+                ? `Forge a Random Face · ${forgeCost} Souls`
+                : `Need ${forgeCost - bankedSouls} More Souls`}
+          </button>
+
+          <small className="classic-workshop__eligible">
+            {eligibleFaces.length}/6 faces can currently be chosen.
+          </small>
         </section>
       ) : null}
     </main>

@@ -11,7 +11,7 @@ describe('Talent Tree presentation', () => {
     const readyMarkup = renderToStaticMarkup(
       <TalentNode
         isAffordable
-        nextCost={8}
+        nextCost={4}
         onSelect={() => undefined}
         rank={0}
         state="ready"
@@ -20,7 +20,7 @@ describe('Talent Tree presentation', () => {
     )
     const unaffordableMarkup = renderToStaticMarkup(
       <TalentNode
-        nextCost={8}
+        nextCost={4}
         onSelect={() => undefined}
         rank={0}
         state="unaffordable"
@@ -29,7 +29,7 @@ describe('Talent Tree presentation', () => {
     )
     const purchasedMarkup = renderToStaticMarkup(
       <TalentNode
-        nextCost={16}
+        nextCost={7}
         onSelect={() => undefined}
         rank={1}
         state="active"
@@ -40,7 +40,7 @@ describe('Talent Tree presentation', () => {
       <TalentNode
         nextCost={null}
         onSelect={() => undefined}
-        rank={3}
+        rank={5}
         state="maxed"
         talent={battleHardened}
       />,
@@ -57,7 +57,7 @@ describe('Talent Tree presentation', () => {
     expect(purchasedMarkup).not.toContain('talent-canvas-node__state-tag')
     expect(maxedMarkup).toContain('talent-canvas-node--maxed')
     expect(maxedMarkup).toContain('talent-canvas-node__owned')
-    expect(maxedMarkup.match(/talent-canvas-node__rank--filled/g)).toHaveLength(3)
+    expect(maxedMarkup.match(/talent-canvas-node__rank--filled/g)).toHaveLength(5)
   })
 
   it('renders selected talent information as an accessible modal dialog', () => {
@@ -79,6 +79,6 @@ describe('Talent Tree presentation', () => {
     expect(markup).toContain('aria-modal="true"')
     expect(markup).toContain('Ready to purchase')
     expect(markup).toContain('Next rank grants')
-    expect(markup).toContain('Purchase for 8 XP')
+    expect(markup).toContain('Purchase for 4 XP')
   })
 })

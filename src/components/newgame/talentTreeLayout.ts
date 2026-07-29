@@ -22,23 +22,30 @@ export interface TalentTreeViewport {
 type TalentId = (typeof TALENT_IDS)[keyof typeof TALENT_IDS]
 
 export const TALENT_TREE_WORLD = {
-  height: 1480,
-  width: 1040,
+  height: 1800,
+  width: 1800,
 } as const
 
 export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
-  [TALENT_IDS.battleHardenedOne]: { x: 520, y: 260 },
-  [TALENT_IDS.twinArsenal]: { x: 520, y: 450 },
-  [TALENT_IDS.autoCombat]: { x: 720, y: 640 },
-  [TALENT_IDS.shieldcraft]: { x: 520, y: 640 },
-  [TALENT_IDS.secondDescent]: { x: 120, y: 850 },
-  [TALENT_IDS.battleHardenedTwo]: { x: 320, y: 850 },
-  [TALENT_IDS.thirdGrip]: { x: 520, y: 850 },
-  [TALENT_IDS.quickDraw]: { x: 720, y: 850 },
-  [TALENT_IDS.healingArts]: { x: 520, y: 1060 },
-  [TALENT_IDS.fourthGrip]: { x: 520, y: 1270 },
-  [TALENT_IDS.executionerDoctrine]: { x: 120, y: 1060 },
-  [TALENT_IDS.towerDiscipline]: { x: 300, y: 1060 },
+  [TALENT_IDS.battleHardenedOne]: { x: 900, y: 900 },
+
+  [TALENT_IDS.twinArsenal]: { x: 900, y: 735 },
+  [TALENT_IDS.shieldcraft]: { x: 900, y: 525 },
+  [TALENT_IDS.thirdGrip]: { x: 900, y: 270 },
+  [TALENT_IDS.healingArts]: { x: 720, y: 105 },
+  [TALENT_IDS.fourthGrip]: { x: 1080, y: 105 },
+  [TALENT_IDS.executionerDoctrine]: { x: 500, y: 270 },
+
+  [TALENT_IDS.volatileTemper]: { x: 735, y: 900 },
+  [TALENT_IDS.faceMastery]: { x: 515, y: 900 },
+
+  [TALENT_IDS.autoCombat]: { x: 900, y: 1065 },
+  [TALENT_IDS.quickDraw]: { x: 900, y: 1270 },
+  [TALENT_IDS.battleHardenedTwo]: { x: 900, y: 1525 },
+  [TALENT_IDS.secondDescent]: { x: 700, y: 1695 },
+  [TALENT_IDS.towerDiscipline]: { x: 1100, y: 1695 },
+
+  [TALENT_IDS.fatecraft]: { x: 1065, y: 900 },
 }
 
 const TALENT_LAYOUT_VALUES = Object.values(TALENT_TREE_LAYOUT)
@@ -121,11 +128,17 @@ export function getTalentTreeFrontierPoint(
     return getTalentTreePoint(TALENT_IDS.battleHardenedOne)
   }
 
-  const frontierY = Math.max(...revealedPoints.map((point) => point.y))
-  const frontierPoints = revealedPoints.filter((point) => point.y === frontierY)
+  const center = getTalentTreePoint(TALENT_IDS.battleHardenedOne)
+  const distances = revealedPoints.map((point) => (
+    Math.hypot(point.x - center.x, point.y - center.y)
+  ))
+  const frontierDistance = Math.max(...distances)
+  const frontierPoints = revealedPoints.filter((_, index) => (
+    Math.abs(distances[index] - frontierDistance) < 0.01
+  ))
 
   return {
     x: frontierPoints.reduce((total, point) => total + point.x, 0) / frontierPoints.length,
-    y: frontierY,
+    y: frontierPoints.reduce((total, point) => total + point.y, 0) / frontierPoints.length,
   }
 }

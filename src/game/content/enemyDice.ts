@@ -25,28 +25,28 @@ function createEnemyDie(
 
 export const ENEMY_DICE: Record<EnemyDieId, EnemyDieDefinition> = {
   'slime-l1-attack': createEnemyDie(
-    'slime-l1-attack', 'Slime Attack Die', 'attack', [1, 2, 2, 2, 2, 3],
+    'slime-l1-attack', 'Slime Attack Die', 'attack', [2, 2, 2, 2, 2, 2],
   ),
   'slime-crawler-l1-attack': createEnemyDie(
     'slime-crawler-l1-attack', 'Slime Crawler Attack Die', 'attack', [2, 2, 2, 3, 3, 3],
   ),
   'goblin-l1-attack': createEnemyDie(
-    'goblin-l1-attack', 'Goblin Attack Die', 'attack', [2, 2, 3, 3, 4, 4],
+    'goblin-l1-attack', 'Goblin Attack Die', 'attack', [2, 2, 3, 3, 3, 4],
   ),
   'skeleton-l1-attack': createEnemyDie(
     'skeleton-l1-attack', 'Skeleton Attack Die', 'attack', [3, 3, 3, 4, 4, 4],
   ),
   'slime-l2-attack': createEnemyDie(
-    'slime-l2-attack', 'Slime II Attack Die', 'attack', [3, 3, 4, 4, 4, 4],
+    'slime-l2-attack', 'Slime II Attack Die', 'attack', [3, 3, 3, 4, 4, 4],
   ),
   'slime-crawler-l2-attack': createEnemyDie(
     'slime-crawler-l2-attack', 'Slime Crawler II Attack Die', 'attack', [3, 3, 3, 4, 4, 5],
   ),
   'goblin-l2-attack': createEnemyDie(
-    'goblin-l2-attack', 'Goblin II Attack Die', 'attack', [4, 4, 4, 5, 5, 5],
+    'goblin-l2-attack', 'Goblin II Attack Die', 'attack', [4, 4, 4, 4, 5, 5],
   ),
   'skeleton-l2-attack': createEnemyDie(
-    'skeleton-l2-attack', 'Skeleton II Attack Die', 'attack', [4, 4, 5, 5, 6, 6],
+    'skeleton-l2-attack', 'Skeleton II Attack Die', 'attack', [4, 4, 4, 5, 5, 6],
   ),
   'skeleton-elite-attack': createEnemyDie(
     'skeleton-elite-attack', 'Skeleton Elite Attack Die', 'attack', [5, 5, 5, 6, 6, 7],

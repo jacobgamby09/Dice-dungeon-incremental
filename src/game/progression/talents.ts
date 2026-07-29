@@ -1,4 +1,5 @@
 import { TALENTS, TALENTS_BY_ID } from '../content/talents'
+import { BASE_FACE_CAP } from '../content/upgradeCosts'
 import type {
   PlayerProfile,
   TalentDefinition,
@@ -72,6 +73,30 @@ export function getRollSpeed(
 
 export function hasAutoCombatUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_combat')
+}
+
+export function getForgeCriticalChance(
+  talentRanks: Readonly<TalentRanks>,
+): number {
+  return Math.min(1, getPurchasedEffects(talentRanks).reduce(
+    (total, effect) => total + (
+      effect.type === 'forge_critical_chance' ? effect.amount : 0
+    ),
+    0,
+  ))
+}
+
+export function getWorkshopFaceCap(
+  talentRanks: Readonly<TalentRanks>,
+): number {
+  return getPurchasedEffects(talentRanks).reduce(
+    (total, effect) => total + (effect.type === 'face_cap' ? effect.amount : 0),
+    BASE_FACE_CAP,
+  )
+}
+
+export function hasCharmsUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
+  return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_charms')
 }
 
 export function areTalentPrerequisitesMet(

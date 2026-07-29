@@ -1,26 +1,20 @@
 import { createDieById, createStartingDice } from '../content/dice'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
-import {
-  chaosForge,
-  evolveFaceOnDie,
-  EVOLUTIONS_BY_FAMILY,
-  getChaosForgeCost,
-  getPrecisionForgeCost,
-  precisionForge,
-} from '../forge/forge'
+import { chaosForge, getChaosForgeCost } from '../forge/forge'
 import {
   canPurchaseTalent,
   getDiceCapacity,
+  getForgeCriticalChance,
   getNextTalentRank,
   getPlayerMaxHp,
   getTalentRank,
+  getWorkshopFaceCap,
+  hasAutoCombatUnlocked,
 } from '../progression/talents'
-import type { AttackEvolutionId, DieInstance, FaceInstance } from '../types/dice'
+import type { DieInstance } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
 import type { PlayerProfile } from '../types/progression'
 import { createSeededRandom, simulateDungeonRun } from './simulateDungeon'
-
-export type JourneyForgeMode = 'chaos' | 'precision-attack'
 
 export interface JourneyTalentStep {
   id: string
@@ -28,8 +22,6 @@ export interface JourneyTalentStep {
 }
 
 export interface ProgressionJourneyStrategy {
-  evolutionOrder: readonly AttackEvolutionId[]
-  forgeMode: JourneyForgeMode
   loadoutPriority: readonly string[]
   talentPath: readonly JourneyTalentStep[]
 }
@@ -37,18 +29,17 @@ export interface ProgressionJourneyStrategy {
 export interface ProgressionJourneyMilestones {
   autoCombatRun: number | null
   dungeonOneClearRun: number | null
-  dungeonTwoClearRun: number | null
   dungeonTwoUnlockRun: number | null
-  firstEvolutionRun: number | null
+  firstCriticalForgeRun: number | null
   firstFaceUpgradeRun: number | null
   firstLoadoutChoiceRun: number | null
   secondDieRun: number | null
 }
 
 export interface ProgressionJourneyRecord {
+  averageFaceValue: number
   dungeonId: DungeonId
   equippedDieIds: string[]
-  evolutionCount: number
   highestFloorCleared: number
   run: number
   soulsAfterSpending: number
@@ -63,29 +54,26 @@ export interface ProgressionJourneyResult {
 
 export const DEFAULT_JOURNEY_TALENT_PATH: readonly JourneyTalentStep[] = [
   { id: TALENT_IDS.battleHardenedOne, targetRank: 1 },
-  { id: TALENT_IDS.twinArsenal },
   { id: TALENT_IDS.autoCombat },
+  { id: TALENT_IDS.quickDraw },
+  { id: TALENT_IDS.volatileTemper },
+  { id: TALENT_IDS.twinArsenal },
+  { id: TALENT_IDS.battleHardenedOne, targetRank: 3 },
+  { id: TALENT_IDS.quickDraw, targetRank: 3 },
+  { id: TALENT_IDS.volatileTemper, targetRank: 3 },
   { id: TALENT_IDS.shieldcraft },
   { id: TALENT_IDS.thirdGrip },
   { id: TALENT_IDS.healingArts },
-  { id: TALENT_IDS.battleHardenedTwo },
-  { id: TALENT_IDS.fourthGrip },
-  { id: TALENT_IDS.quickDraw },
+  { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
   { id: TALENT_IDS.secondDescent },
-  { id: TALENT_IDS.executionerDoctrine },
-  { id: TALENT_IDS.towerDiscipline },
 ]
 
 export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
-  evolutionOrder: ['power', 'momentum', 'rend'],
-  forgeMode: 'chaos',
   loadoutPriority: [
-    'attack-die-executioner',
     'attack-die-1',
+    'attack-die-2',
     'shield-die-1',
     'heal-die-1',
-    'attack-die-2',
-    'shield-die-tower',
   ],
   talentPath: DEFAULT_JOURNEY_TALENT_PATH,
 }
@@ -93,7 +81,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 12,
+    saveVersion: 13,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {},
@@ -170,37 +158,6 @@ function spendTalentPath(
   return nextProfile
 }
 
-function getEvolutionCount(dice: readonly DieInstance[]): number {
-  return dice.reduce(
-    (total, die) => total + die.faces.filter((face) => face.evolution).length,
-    0,
-  )
-}
-
-function evolveReadyFaces(
-  profile: PlayerProfile,
-  evolutionOrder: readonly AttackEvolutionId[],
-): PlayerProfile {
-  let evolutionIndex = getEvolutionCount(profile.diceCollection)
-  const diceCollection = profile.diceCollection.map((die) => {
-    let nextDie = die
-    for (const face of die.faces) {
-      if (!face.evolutionReady || face.evolution) continue
-      const familyEvolutions = face.type === 'attack'
-        ? evolutionOrder
-        : EVOLUTIONS_BY_FAMILY[face.type].map((evolution) => evolution.id)
-      const evolutionId = familyEvolutions[evolutionIndex % familyEvolutions.length]
-      nextDie = evolutionId
-        ? evolveFaceOnDie(nextDie, face.id, evolutionId) ?? nextDie
-        : nextDie
-      evolutionIndex += 1
-    }
-    return nextDie
-  })
-
-  return { ...profile, diceCollection }
-}
-
 function getPriorityDice(
   profile: PlayerProfile,
   priority: readonly string[],
@@ -212,73 +169,41 @@ function getPriorityDice(
   ))
 }
 
-function findPrecisionTarget(
-  dice: readonly DieInstance[],
-): { die: DieInstance; face: FaceInstance; cost: number } | null {
-  const candidates = dice.flatMap((die) => die.faces
-    .filter((face) => face.type === 'attack')
-    .map((face) => ({
-      cost: getPrecisionForgeCost(face),
-      die,
-      face,
-    })))
-    .filter((candidate): candidate is {
-      cost: number
-      die: DieInstance
-      face: FaceInstance
-    } => candidate.cost !== null)
-
-  candidates.sort((first, second) => (
-    second.face.value - first.face.value
-    || first.cost - second.cost
-  ))
-  return candidates[0] ?? null
-}
-
 function spendSouls(
   profile: PlayerProfile,
   strategy: ProgressionJourneyStrategy,
   random: () => number,
-): { profile: PlayerProfile; upgrades: number } {
-  let nextProfile = evolveReadyFaces(profile, strategy.evolutionOrder)
+): { criticals: number; profile: PlayerProfile; upgrades: number } {
+  let nextProfile = profile
+  let criticals = 0
   let upgrades = 0
 
-  for (let operation = 0; operation < 200; operation += 1) {
-    const priorityDice = getPriorityDice(nextProfile, strategy.loadoutPriority)
-    if (strategy.forgeMode === 'precision-attack') {
-      const target = findPrecisionTarget(priorityDice)
-      if (!target || nextProfile.bankedSouls < target.cost) break
-      const forged = precisionForge(target.die, target.face.id)
-      if (!forged) break
-      nextProfile = {
-        ...nextProfile,
-        bankedSouls: nextProfile.bankedSouls - forged.result.cost,
-        diceCollection: nextProfile.diceCollection.map((die) => (
-          die.id === forged.die.id ? forged.die : die
-        )),
-      }
-    } else {
-      const target = priorityDice.find((die) => {
-        const cost = getChaosForgeCost(die)
-        return cost !== null && cost <= nextProfile.bankedSouls
-      })
-      if (!target) break
-      const forged = chaosForge(target, random)
-      if (!forged) break
-      nextProfile = {
-        ...nextProfile,
-        bankedSouls: nextProfile.bankedSouls - forged.result.cost,
-        diceCollection: nextProfile.diceCollection.map((die) => (
-          die.id === forged.die.id ? forged.die : die
-        )),
-      }
-    }
+  for (let operation = 0; operation < 300; operation += 1) {
+    const faceCap = getWorkshopFaceCap(nextProfile.talentRanks)
+    const target = getPriorityDice(nextProfile, strategy.loadoutPriority).find((die) => {
+      const cost = getChaosForgeCost(die, faceCap)
+      return cost !== null && cost <= nextProfile.bankedSouls
+    })
+    if (!target) break
 
+    const forged = chaosForge(target, random, {
+      criticalChance: getForgeCriticalChance(nextProfile.talentRanks),
+      faceCap,
+    })
+    if (!forged) break
+
+    nextProfile = {
+      ...nextProfile,
+      bankedSouls: nextProfile.bankedSouls - forged.result.cost,
+      diceCollection: nextProfile.diceCollection.map((die) => (
+        die.id === forged.die.id ? forged.die : die
+      )),
+    }
     upgrades += 1
-    nextProfile = evolveReadyFaces(nextProfile, strategy.evolutionOrder)
+    criticals += forged.result.wasCritical ? 1 : 0
   }
 
-  return { profile: nextProfile, upgrades }
+  return { criticals, profile: nextProfile, upgrades }
 }
 
 function selectLoadout(
@@ -296,9 +221,8 @@ function createMilestones(): ProgressionJourneyMilestones {
   return {
     autoCombatRun: null,
     dungeonOneClearRun: null,
-    dungeonTwoClearRun: null,
     dungeonTwoUnlockRun: null,
-    firstEvolutionRun: null,
+    firstCriticalForgeRun: null,
     firstFaceUpgradeRun: null,
     firstLoadoutChoiceRun: null,
     secondDieRun: null,
@@ -314,9 +238,14 @@ function setMilestone(
   if (condition && milestones[key] === null) milestones[key] = run
 }
 
+function getAverageFaceValue(dice: readonly DieInstance[]): number {
+  const values = dice.flatMap((die) => die.faces.map((face) => face.value))
+  return values.reduce((total, value) => total + value, 0) / values.length
+}
+
 export function simulateProgressionJourney(
   strategy: ProgressionJourneyStrategy = DEFAULT_JOURNEY_STRATEGY,
-  maxRuns = 30,
+  maxRuns = 60,
   seed = 1,
 ): ProgressionJourneyResult {
   const random = createSeededRandom(seed)
@@ -325,35 +254,18 @@ export function simulateProgressionJourney(
   let profile = createJourneyProfile()
 
   for (let run = 1; run <= maxRuns; run += 1) {
-    const evolutionCountBefore = getEvolutionCount(profile.diceCollection)
     profile = spendTalentPath(profile, strategy.talentPath)
-    const forgeResult = spendSouls(profile, strategy, random)
-    profile = selectLoadout(forgeResult.profile, strategy.loadoutPriority)
+    const preRunForge = spendSouls(profile, strategy, random)
+    profile = selectLoadout(preRunForge.profile, strategy.loadoutPriority)
 
-    setMilestone(milestones, 'firstFaceUpgradeRun', run, forgeResult.upgrades > 0)
-    setMilestone(
-      milestones,
-      'firstEvolutionRun',
-      run,
-      getEvolutionCount(profile.diceCollection) > evolutionCountBefore,
-    )
-    setMilestone(
-      milestones,
-      'secondDieRun',
-      run,
-      profile.diceCollection.length >= 2,
-    )
+    setMilestone(milestones, 'firstFaceUpgradeRun', run, preRunForge.upgrades > 0)
+    setMilestone(milestones, 'firstCriticalForgeRun', run, preRunForge.criticals > 0)
+    setMilestone(milestones, 'secondDieRun', run, profile.diceCollection.length >= 2)
     setMilestone(
       milestones,
       'autoCombatRun',
       run,
-      getTalentRank(profile.talentRanks, TALENT_IDS.autoCombat) > 0,
-    )
-    setMilestone(
-      milestones,
-      'dungeonTwoUnlockRun',
-      run,
-      profile.unlockedDungeonIds.includes('iron-depths'),
+      hasAutoCombatUnlocked(profile.talentRanks),
     )
     setMilestone(
       milestones,
@@ -396,14 +308,7 @@ export function simulateProgressionJourney(
       run,
       dungeonId === 'prototype-depths' && result.completedDungeon,
     )
-    setMilestone(
-      milestones,
-      'dungeonTwoClearRun',
-      run,
-      dungeonId === 'iron-depths' && result.completedDungeon,
-    )
 
-    const postRunEvolutionCount = getEvolutionCount(profile.diceCollection)
     profile = spendTalentPath(profile, strategy.talentPath)
     const postRunForge = spendSouls(profile, strategy, random)
     profile = selectLoadout(postRunForge.profile, strategy.loadoutPriority)
@@ -412,13 +317,20 @@ export function simulateProgressionJourney(
       milestones,
       'firstFaceUpgradeRun',
       run,
-      postRunForge.upgrades > 0,
+      preRunForge.upgrades + postRunForge.upgrades > 0,
     )
     setMilestone(
       milestones,
-      'firstEvolutionRun',
+      'firstCriticalForgeRun',
       run,
-      getEvolutionCount(profile.diceCollection) > postRunEvolutionCount,
+      preRunForge.criticals + postRunForge.criticals > 0,
+    )
+    setMilestone(milestones, 'secondDieRun', run, profile.diceCollection.length >= 2)
+    setMilestone(
+      milestones,
+      'autoCombatRun',
+      run,
+      hasAutoCombatUnlocked(profile.talentRanks),
     )
     setMilestone(
       milestones,
@@ -426,24 +338,18 @@ export function simulateProgressionJourney(
       run,
       profile.unlockedDungeonIds.includes('iron-depths'),
     )
-    setMilestone(
-      milestones,
-      'firstLoadoutChoiceRun',
-      run,
-      profile.diceCollection.length > getDiceCapacity(profile.talentRanks),
-    )
 
     records.push({
+      averageFaceValue: getAverageFaceValue(profile.diceCollection),
       dungeonId,
       equippedDieIds: [...profile.equippedDieIds],
-      evolutionCount: getEvolutionCount(profile.diceCollection),
       highestFloorCleared: result.highestFloorCleared,
       run,
       soulsAfterSpending: profile.bankedSouls,
       xpAfterSpending: profile.xp,
     })
 
-    if (milestones.dungeonTwoClearRun !== null) break
+    if (profile.unlockedDungeonIds.includes('iron-depths')) break
   }
 
   return { finalProfile: profile, milestones, records }

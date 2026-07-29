@@ -10,7 +10,7 @@ import {
   Sparkles,
   TriangleAlert,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
@@ -40,6 +40,10 @@ export function HubScreen() {
   const resetProgress = useNewGameStore((state) => state.resetProgress)
   const diceCapacity = getDiceCapacity(profile.talentRanks)
 
+  useEffect(() => {
+    window.scrollTo({ left: 0, top: 0 })
+  }, [])
+
   const confirmReset = () => {
     resetProgress()
     setDevAction(null)
@@ -67,10 +71,10 @@ export function HubScreen() {
         <span aria-hidden="true" className="hub-soul hub-soul--three" />
         <div aria-hidden="true" className="hub-gate__door"><DoorOpen size={58} /></div>
         <header className="hub-sign">
-          <span>Incremental dice combat</span>
+          <span>Classic Incremental V2</span>
           <h1 id="hub-title">Dice Dungeon</h1>
         </header>
-        <p>Forge permanent dice. Brave the depths. Every victory makes you stronger.</p>
+        <p>Fail, forge a random face, and return stronger. Every run moves the wall.</p>
       </section>
 
       <PermanentResourceHud bankedSouls={profile.bankedSouls} xp={profile.xp} />
