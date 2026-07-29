@@ -202,7 +202,7 @@ Brug denne skabelon:
 - Berørte områder: Dice- og encounter-content, Forge-engine/store, talenttyper/content/progression, radialt Talent Tree-layout/UI, Chaos Workshop, Hub, V2-devpresets, balance-simulatorer, tests, `CLASSIC_INCREMENTAL_V2.md` og denne log.
 - Validering: TypeScript, 24 testfiler med 117 tests, ESLint og production-build består. Lokal browser gennemspillede fresh start til første Slime-kill, viste Victory med +4 XP/+5 Souls, forlod run med valuta intakt, købte én random permanent face fra 1 til 2 og købte Inner Spark, hvorefter alle fire første retningsnodes var synlige samtidigt på 384 px game-shell. Ingen browser-errors.
 - Kendte mangler: Fate/Charms er kun en senere gated retning. Dungeon 2 og de eksisterende signatur-dice er endnu ikke V2-tunet. Fysisk iPhone-pacing mangler.
-- Git: Ikke committed endnu på `codex/classic-incremental-v2`; separat Vercel-preview mangler.
+- Git: `d8659ed` — `Build Classic Incremental V2 slice` på `codex/classic-incremental-v2`. Branchen er holdt separat fra `main`; preview-status registreres efter push.
 
 ### 2026-07-29 — Retvendte Power-rolls
 
