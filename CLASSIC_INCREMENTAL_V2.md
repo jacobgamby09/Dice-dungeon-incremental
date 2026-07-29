@@ -377,7 +377,8 @@ gang.
 - Target-faces flicker og stopper tydeligt.
 - Workshop Die er en fysisk seks-sidet 3D-cube.
 - Workshop og Combat deler cube-, tumble- og landing-logik.
-- Den landede cube bliver stående i en let hero-vinkel med synlig top og side.
+- Efter tumble roterer cuben præcist til det landede face, som vises frontvendt på
+  samme måde som en player-die i Combat.
 - `+X` vises i resultatpanelet og må ikke erstatte cuben med en flad face.
 
 ### 8.8 Bevidst ikke player-facing i V2

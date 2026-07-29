@@ -32,10 +32,6 @@ const LANDING_ROTATIONS = [
   { rotateX: 630, rotateY: 720 },
   { rotateX: 810, rotateY: 720 },
 ] as const
-const LANDED_SHOWCASE_TILT = {
-  rotateX: -8,
-  rotateY: -10,
-} as const
 
 export function PhysicalDieCube({
   activeElementRef,
@@ -49,10 +45,6 @@ export function PhysicalDieCube({
   const reduceMotion = useReducedMotion()
   const safeFaceIndex = Math.max(0, Math.min(faceIndex, LANDING_ROTATIONS.length - 1))
   const landingRotation = LANDING_ROTATIONS[safeFaceIndex]
-  const showcaseRotation = {
-    rotateX: landingRotation.rotateX + LANDED_SHOWCASE_TILT.rotateX,
-    rotateY: landingRotation.rotateY + LANDED_SHOWCASE_TILT.rotateY,
-  }
   const isRolling = stage === 'rolling'
   const isIdle = stage === 'idle'
 
@@ -67,21 +59,21 @@ export function PhysicalDieCube({
           }
         : reduceMotion
           ? {
-              rotateX: showcaseRotation.rotateX,
-              rotateY: showcaseRotation.rotateY,
+              rotateX: landingRotation.rotateX,
+              rotateY: landingRotation.rotateY,
               scale: 1,
               y: 0,
             }
           : isRolling
             ? {
-                rotateX: [0, 205, 430, showcaseRotation.rotateX],
-                rotateY: [0, 255, 505, showcaseRotation.rotateY],
+                rotateX: [0, 205, 430, landingRotation.rotateX],
+                rotateY: [0, 255, 505, landingRotation.rotateY],
                 scale: [0.96, 1.04, 1.01, 1],
                 y: [4, -24, -12, 0],
               }
             : {
-                rotateX: showcaseRotation.rotateX,
-                rotateY: showcaseRotation.rotateY,
+                rotateX: landingRotation.rotateX,
+                rotateY: landingRotation.rotateY,
                 scale: [1, 1.08, 0.96, 1],
                 y: [0, -3, 0],
               }}
