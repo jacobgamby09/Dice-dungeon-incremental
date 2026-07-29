@@ -215,7 +215,7 @@ Brug denne skabelon:
 - Berørte områder: `WorkshopScreen.tsx`, Pixel Arcade-Workshop-styling i `src/newGame.css` samt den nye rene `workshopResultPresentation`-hjælper og regressionstest.
 - Validering: Browser ved 384×844 verificerede transparent target-overlay, læsbar Attack-face, 0 markers/jackpot/cap-note under `rolling_power` og præcis 1 marker efter en landet `+2`-jackpot. Browserkonsollen var ren. `npx tsc --noEmit`, 26 testfiler med 125 tests, ESLint, production-build og `git diff --check` består.
 - Kendte mangler: Ingen kendte fejl i det rettede flow; fysisk Safari/iPhone bør fortsat bruges til subjektiv animationstiming.
-- Git: Ikke committed endnu på `codex/pixel-arcade-visual-test`.
+- Git: `1b61ad1` — `Hide Workshop results until landing` på `codex/pixel-arcade-visual-test`; branchen er pushet.
 
 ### 2026-07-29 — Pixel Arcade visual vertical slice
 
