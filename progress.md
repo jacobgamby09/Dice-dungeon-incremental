@@ -75,7 +75,7 @@ Brug denne skabelon:
 - Save-formatet er version 12 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge-, signatur- og automation-progress sammen med aktive runs. Version-11 Executioner/Tower migreres til de nye canonical signaturfaces uden tab af kompatible normale faces.
 - Den deterministiske balance-suite modellerer nu både enkelte dungeons og en hel progression journey med XP-køb, Soul-forges, evolutioner, loadout-skift, gentagne runs og dungeon-clears. Regressionen holder første face-køb inden run 2, anden die/Auto Combat omkring run 2–5, første evolution omkring run 2–5, Dungeon 1-clear omkring run 7–12 og Dungeon 2-clear senest omkring run 18 for blandede samt rene Power/Momentum/Rend-strategier.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#43 — Protect combat roll effects](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/43), squash merge `8f98d84`.
+- Seneste gameplay-merge i produktion: [#45 — Fix mirrored Power roll faces](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/45), squash merge `96db7bf`.
 
 ## Næste anbefalede skridt
 
@@ -167,7 +167,7 @@ Brug denne skabelon:
 - Berørte områder: `src/newGame.css`, evolution-præsentationstest og progress-log.
 - Validering: `npx tsc --noEmit`, 24 testfiler med 144 tests, ESLint og production-build består. Lokal 384×844-browser reproducerede først den spejlvendte røde face under et tvunget Power-roll og verificerede derefter en retvendt Executioner-tumble, korrekt gylden `Power`-landing og korrekt gylden `+5 Power`-score-transfer. Regressionstesten dækker nu Power, Momentum og Rend separat og afviser lånte evolution-klasser.
 - Kendte mangler: Den konkrete WebKit-rettelse skal stadig mærkes på brugerens fysiske iPhone/Safari, hvor den oprindelige fejl blev bemærket.
-- Git: `f7f1e49` — `Fix mirrored Power roll faces` på `codex/fix-power-roll-visual`; push/PR/production-publicering afventer.
+- Git: `f7f1e49` — `Fix mirrored Power roll faces` og `7b781db` — `Record Power roll visual fix`; PR [#45](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/45) er squash-merget til `main` som `96db7bf`. Vercel production-check `CLpuiqAfM5V3m9fXVqf51PzwjjRf` er `success`; den offentlige URL svarer HTTP 200 med `index-DztG8g7-.js` og `index-Cz7LJvLH.css`, og production-CSS indeholder de nye backface-/preserve-3D guards.
 
 ### 2026-07-29 — Mere plads til aktive combat-rolls
 
