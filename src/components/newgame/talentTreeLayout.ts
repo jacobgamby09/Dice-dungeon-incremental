@@ -29,23 +29,23 @@ export const TALENT_TREE_WORLD = {
 export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.battleHardenedOne]: { x: 900, y: 900 },
 
-  [TALENT_IDS.twinArsenal]: { x: 900, y: 735 },
-  [TALENT_IDS.shieldcraft]: { x: 900, y: 525 },
-  [TALENT_IDS.thirdGrip]: { x: 900, y: 270 },
-  [TALENT_IDS.healingArts]: { x: 720, y: 105 },
-  [TALENT_IDS.fourthGrip]: { x: 1080, y: 105 },
-  [TALENT_IDS.executionerDoctrine]: { x: 500, y: 270 },
+  [TALENT_IDS.twinArsenal]: { x: 900, y: 780 },
+  [TALENT_IDS.shieldcraft]: { x: 900, y: 650 },
+  [TALENT_IDS.thirdGrip]: { x: 900, y: 520 },
+  [TALENT_IDS.healingArts]: { x: 830, y: 390 },
+  [TALENT_IDS.fourthGrip]: { x: 970, y: 390 },
+  [TALENT_IDS.executionerDoctrine]: { x: 690, y: 390 },
 
-  [TALENT_IDS.volatileTemper]: { x: 735, y: 900 },
-  [TALENT_IDS.faceMastery]: { x: 515, y: 900 },
+  [TALENT_IDS.volatileTemper]: { x: 780, y: 900 },
+  [TALENT_IDS.faceMastery]: { x: 650, y: 900 },
 
-  [TALENT_IDS.autoCombat]: { x: 900, y: 1065 },
-  [TALENT_IDS.quickDraw]: { x: 900, y: 1270 },
-  [TALENT_IDS.battleHardenedTwo]: { x: 900, y: 1525 },
-  [TALENT_IDS.secondDescent]: { x: 700, y: 1695 },
-  [TALENT_IDS.towerDiscipline]: { x: 1100, y: 1695 },
+  [TALENT_IDS.autoCombat]: { x: 900, y: 1020 },
+  [TALENT_IDS.quickDraw]: { x: 900, y: 1150 },
+  [TALENT_IDS.battleHardenedTwo]: { x: 900, y: 1280 },
+  [TALENT_IDS.secondDescent]: { x: 830, y: 1410 },
+  [TALENT_IDS.towerDiscipline]: { x: 970, y: 1410 },
 
-  [TALENT_IDS.fatecraft]: { x: 1065, y: 900 },
+  [TALENT_IDS.fatecraft]: { x: 1020, y: 900 },
 }
 
 const TALENT_LAYOUT_VALUES = Object.values(TALENT_TREE_LAYOUT)

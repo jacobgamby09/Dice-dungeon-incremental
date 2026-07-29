@@ -15,7 +15,6 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
-import { getDieProfile } from '../../game/content/diceProfiles'
 import type {
   TalentDefinition,
   TalentEffect,
@@ -78,18 +77,18 @@ function getPurchaseLabel(
   nextRank: TalentRankDefinition | null,
   xp: number,
 ): string {
-  if (!nextRank || state === 'maxed') return 'Maximum rank reached'
-  if (state === 'locked') return 'Complete the required progression'
-  if (!isAffordable) return `Need ${nextRank.cost - xp} more XP`
-  return `Purchase for ${nextRank.cost} XP`
+  if (!nextRank || state === 'maxed') return 'Maximum rank'
+  if (state === 'locked') return 'Locked'
+  if (!isAffordable) return `Need ${nextRank.cost - xp} XP`
+  return `Buy · ${nextRank.cost} XP`
 }
 
 const DETAIL_STATE_LABELS: Record<Exclude<TalentNodeState, 'silhouette'>, string> = {
-  active: 'Purchased · Upgrade available',
+  active: 'Owned · Upgrade available',
   locked: 'Locked',
-  maxed: 'Purchased · Maximum rank',
-  ready: 'Ready to purchase',
-  unaffordable: 'Unlocked · More XP required',
+  maxed: 'Owned · Maximum rank',
+  ready: 'Unlocked',
+  unaffordable: 'Unlocked',
 }
 
 export function TalentDetailPanel({
@@ -162,24 +161,18 @@ export function TalentDetailPanel({
             </div>
 
             <header>
-              <span>{talent.track} talent</span>
               <h2 id="talent-detail-title">{talent.name}</h2>
-              <p>{talent.description}</p>
+              <div className="talent-canvas-inspector__meta">
+                <span
+                  className={`talent-canvas-inspector__state talent-canvas-inspector__state--${nodeState}`}
+                >
+                  {DETAIL_STATE_LABELS[nodeState]}
+                </span>
+                <span>Rank {rank}/{talent.ranks.length}</span>
+              </div>
             </header>
 
-            <div
-              className={`talent-canvas-inspector__state talent-canvas-inspector__state--${nodeState}`}
-            >
-              {DETAIL_STATE_LABELS[nodeState]}
-            </div>
-
-            <div className="talent-canvas-inspector__rank">
-              <span>Current rank</span>
-              <strong>{rank}/{talent.ranks.length}</strong>
-            </div>
-
             <div className="talent-canvas-inspector__effects" aria-label="Next rank effects">
-              <small>{nextRank ? 'Next rank grants' : 'Permanent effects'}</small>
               {displayedEffects.map((effect, index) => {
                 const EffectIcon = EFFECT_ICONS[effect.type]
                 return (
@@ -193,9 +186,7 @@ export function TalentDetailPanel({
 
             {grantedDie ? (
               <section className="talent-canvas-inspector__die-preview">
-                <small>Permanent die preview</small>
                 <DieSummary die={grantedDie} compact />
-                <p>{getDieProfile(grantedDie).description}</p>
               </section>
             ) : null}
 

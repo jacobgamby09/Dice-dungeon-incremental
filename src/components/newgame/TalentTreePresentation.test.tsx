@@ -77,8 +77,10 @@ describe('Talent Tree presentation', () => {
 
     expect(markup).toContain('role="dialog"')
     expect(markup).toContain('aria-modal="true"')
-    expect(markup).toContain('Ready to purchase')
-    expect(markup).toContain('Next rank grants')
-    expect(markup).toContain('Purchase for 4 XP')
+    expect(markup).toContain('Unlocked')
+    expect(markup).toContain('Rank 0/5')
+    expect(markup).toContain('Buy · 4 XP')
+    expect(markup).not.toContain('Current rank')
+    expect(markup).not.toContain('Next rank grants')
   })
 })

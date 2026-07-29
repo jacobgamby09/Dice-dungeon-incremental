@@ -43,6 +43,7 @@ Brug denne skabelon:
 - Første Slime har 3 HP og fast 2 Attack. Den friske spiller slår tre gange, vinder med 6/10 HP og får præcis 4 XP + 5 Souls; floor 2 er den første sikre væg.
 - Workshoppen er i V2 player-facing kun random growth: spilleren vælger en die, Workshop vælger uniformt en eligible face, og den får altid +1. `Volatile Temper` kan gøre købet critical til +2. Pris starter på 5 Souls og stiger med 2 for hver tre samlede upgrades på den valgte die.
 - Det nye Talent Tree er radialt omkring `Inner Spark`. Første rank koster 4 XP, giver +1 HP og åbner North/Arsenal, West/Workshop, South/Descent og East/Fate samtidigt. Alle fire første valg kan ses ved 100% zoom på 384 px.
+- Talent Tree-clusteret er komprimeret, så alle direkte forbindelser højst er 185 world-pixels lange. Node-inspektøren viser nu kun navn, tydelig state/rank, store konkrete effekter, eventuelle seks die-faces og én købsknap; gentaget branch-label, beskrivelse, statusblok og preview-copy er fjernet.
 - Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
 - Fatecraft er synlig som den låste østlige fremtidsgren efter centrum, men kræver første Dungeon 1-clear. Selve Charm/Fate Token-systemet er fortsat bevidst udskudt.
 - Den nye journey-regression fastholder første random face-upgrade på run 1, Auto Combat på run 2–3, anden die på run 6–15 og første Dungeon 1-clear i en længere run 12–45-bue.
@@ -191,6 +192,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Kompakt Talent Tree og strømlinet node-info
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Talent Tree-noderne ligger nu markant tættere i alle fire retninger, og infopanelet er omtrent halvt så højt med større titel-, effekt- og knaptekst. Twin Arsenal viser eksempelvis kun `Unlocked`, rank, `+1 Dice Slot`, `Striker Die`, de seks relevante faces og den aktuelle XP-handling.
+- Beslutninger: Effektlisten er panelets primære forklaring. Talentbeskrivelsen, branch-overskriften, den separate statusbjælke, den separate rank-række samt gentaget preview-label/-beskrivelse er fjernet. En ny permanent die beholder sit seks-face-preview, fordi det er gameplay-information.
+- Berørte områder: `TalentDetailPanel.tsx`, det radiale layout og dets tests samt Talent Tree-styling i `src/newGame.css`.
+- Validering: TypeScript, 24 testfiler med 118 tests, ESLint og production-build består. Lokal browser ved 384×844 viser den kompakte first ring og det reducerede Twin Arsenal-panel uden overlap, warnings eller errors.
+- Kendte mangler: De nye afstande er visuelt valideret på first ring; den fulde dybe gren skal fortsat mærkes gennem almindelig pan/zoom på fysisk mobil.
+- Git: Ikke committed endnu på `codex/classic-incremental-v2`.
 
 ### 2026-07-29 — Classic Incremental V2 vertical slice
 

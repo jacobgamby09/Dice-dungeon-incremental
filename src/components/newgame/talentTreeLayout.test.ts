@@ -34,8 +34,18 @@ describe('Talent Tree canvas layout', () => {
       { height: 800, width: 384 },
     )
 
-    expect(offset.x).toBeCloseTo(-157.84)
-    expect(offset.y).toBe(-1465)
+    expect(offset.x).toBeCloseTo(-307.84)
+    expect(offset.y).toBe(-1180)
+  })
+
+  it('keeps connected nodes in a compact radial cluster', () => {
+    for (const talent of TALENTS) {
+      const target = getTalentTreePoint(talent.id)
+      for (const prerequisiteId of talent.prerequisiteIds) {
+        const source = getTalentTreePoint(prerequisiteId)
+        expect(Math.hypot(target.x - source.x, target.y - source.y)).toBeLessThanOrEqual(185)
+      }
+    }
   })
 
   it('keeps the viewport anchor fixed while zooming', () => {
