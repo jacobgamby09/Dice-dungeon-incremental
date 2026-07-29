@@ -209,7 +209,7 @@ Brug denne skabelon:
 - Berørte områder: Ny fælles cube-komponent, `RollDieTile`, `WorkshopDie`, Workshop-regressionstest og oprydning af de gamle overlay-/cube-styles.
 - Validering: `npx tsc --noEmit`, 25 testfiler med 121 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384×844 verificerer en vedvarende landed 3D-cube med synlig top/side og uden det gamle flade overlay.
 - Kendte mangler: Den subjektive tumble-hastighed skal fortsat mærkes på fysisk iPhone; mekanik, økonomi og persistence er uændret.
-- Git: `5b97b20` — `Keep Workshop die physically three dimensional` på `codex/classic-incremental-v2`; branch-push og preview-status registreres i næste log-commit.
+- Git: `5b97b20` — `Keep Workshop die physically three dimensional` og `a9cc98e` — `Record Workshop cube fix` på `codex/classic-incremental-v2`. Branchen er pushet, og Vercel Preview for leverancen er bekræftet `success`.
 
 ### 2026-07-29 — Workshop Die og totrins-Forge
 
