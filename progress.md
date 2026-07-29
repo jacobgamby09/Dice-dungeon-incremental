@@ -49,7 +49,7 @@ Brug denne skabelon:
 - Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
 - Fatecraft er synlig som den låste østlige fremtidsgren efter centrum, men kræver første Dungeon 1-clear. Selve Charm/Fate Token-systemet er fortsat bevidst udskudt.
 - Den nye journey-regression fastholder første random face-upgrade på run 1, Auto Combat på run 2–3, anden die på run 6–15 og første Dungeon 1-clear i en længere run 12–45-bue.
-- Den bindende V2-specifikation findes i `CLASSIC_INCREMENTAL_V2.md`. Nedenstående produktionsstatus beskriver fortsat den nuværende `main`-version som reference.
+- Den fulde og bindende V2-GDD findes i `CLASSIC_INCREMENTAL_V2.md`. Den dokumenterer branchens vision, loop, økonomi, Workshop, komplette Talent Tree, dice-katalog, begge dungeons, pacing-rails, persistence samt implementeret/deferred scope. Nedenstående produktionsstatus beskriver fortsat den nuværende `main`-version som reference.
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, kompakt Victory/Boss Victory og descent-resumé ved Defeat.
 - Spilleren starter med én permanent Attack Die. Shield og Heal er senere progression.
@@ -198,6 +198,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-29 — Fuld Classic Incremental V2 GDD
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Den korte V2 vertical-slice note er erstattet af en fuld branch-specifik GDD på dansk. Dokumentet samler high concept, designprincipper, fresh start, kerne-loop, XP/Soul-økonomi, permanente dice, totrins-Workshop, komplet radialt Talent Tree, combat, Auto Combat, dungeon-tabeller, pacing, UI/UX, persistence og scope i én autoritativ kilde.
+- Beslutninger: `CLASSIC_INCREMENTAL_V2.md` har forrang over `NEW_GAME_GDD.md` på V2-branchen. Implementerede regler er adskilt fra foreløbig balance og eksplicit deferred content; Fatecraft beskrives ikke som et færdigt Charm-system.
+- Berørte områder: `CLASSIC_INCREMENTAL_V2.md` og fælles progress-log.
+- Validering: Talentpriser/prerequisites, dice-faces, Workshop-formel/distributioner, face caps, enemy HP/dice/rewards, save-version og journey-rails er krydstjekket mod branchens content-, progression-, Forge- og simulatorfiler. Markdown-struktur og `git diff --check` valideres før commit.
+- Kendte mangler: GDD’en dokumenterer aktuelle implementerede Dungeon 2-tal, men markerer dem fortsat som ikke endeligt V2-balancerede. Charm/Fate Token-loopet kræver et separat designforløb.
+- Git: Ikke committed.
 
 ### 2026-07-29 — Vedvarende 3D Workshop Die
 

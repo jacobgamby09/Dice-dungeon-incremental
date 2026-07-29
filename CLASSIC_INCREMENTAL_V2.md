@@ -1,168 +1,828 @@
-# Dice Dungeon — Classic Incremental V2
+# Dice Dungeon — Classic Incremental V2 GDD
 
-Status: playable vertical slice on `codex/classic-incremental-v2`.
+- **Status:** Autoritativt designdokument for den spilbare eksperiment-branch
+- **Branch:** `codex/classic-incremental-v2`
+- **GDD-version:** 1.0
+- **Senest opdateret:** 2026-07-29
+- **Aktuel save-version:** 14
 
-This document describes the experimental Classic Incremental version. The current
-production game on `main` remains intact and is the reference implementation for
-combat presentation, enemy dice, automation and mobile UI.
+Denne GDD beskriver Classic Incremental V2. Hvis dokumentet er i konflikt med
+`NEW_GAME_GDD.md`, gælder denne fil for V2-branchen. Production-spillet på `main`
+forbliver urørt og fungerer kun som teknisk og visuel reference.
 
-## Design hypothesis
+---
 
-The player should fail early, return with permanent currency, buy one small
-unpredictable increase and immediately try the same wall again.
+## 1. High concept
 
-The motivating question is:
+Dice Dungeon er et mobile-first incremental combat-spil om at udvikle en lille
+samling permanente terninger.
 
-> How much farther will this exact collection of personally grown dice get on the
-> next attempt?
+Spilleren begynder svag, rammer hurtigt en dungeon-væg og vender tilbage med
+permanent XP og Souls. XP åbner nye muligheder. Souls forbedrer tilfældige faces på
+spillerens valgte terning. Næste run begynder med en lille, synlig fordel, som gør
+det muligt at nå en smule længere.
 
-Player input is not expanded to solve pacing. The incremental rhythm is created by
-short early attempts, reliable permanent rewards, random face growth, early full
-automation and longer-term system unlocks.
+Spillets centrale spørgsmål er:
 
-## Fresh start
+> Hvor meget længere kan netop mine permanent udviklede terninger bringe mig i
+> næste run?
 
-- 10 Max HP.
-- One equipped `Worn Blade Die`.
-- Six stable Attack faces: `1, 1, 1, 1, 1, 1`.
-- No Auto Combat.
-- No other dice.
-- No XP or Souls.
+Det primære produktløfte er:
 
-The first Slime has 3 HP and a deterministic 2-Attack die. The untouched player:
+> Hvert run giver permanent fremgang, hver Forge ændrer en virkelig terning, og
+> gentagne handlinger bliver gradvist automatiseret.
 
-1. rolls exactly three times;
-2. defeats the Slime with 6 HP remaining;
-3. receives 4 XP and 5 Souls permanently;
-4. cannot defeat floor 2 without additional growth.
+V2 er ikke et roguelike. Der findes ingen bust, extraction, midlertidige builds,
+run-only loot eller tab af allerede optjent valuta.
 
-This makes the first completed encounter fund both progression layers:
+---
 
-- 4 XP buys `Inner Spark` rank 1.
-- 5 Souls buys the first random Workshop improvement.
+## 2. Designhypotese
 
-## Permanent economy
+Spillet skal bevise følgende:
 
-### XP
+> Korte tidlige nederlag, sikre permanente rewards og små uforudsigelige
+> terningeforbedringer kan skabe en stærkere incremental-rytme end lange runs med
+> mange manuelle valg.
 
-XP buys capability and access in the directional Talent Tree:
+Pacing løses derfor ikke ved at lægge mere input ind i hvert combat-turn. Den skabes
+gennem:
 
-- Max HP.
-- Auto Combat and speed.
-- Dice slots and named permanent dice.
-- Workshop Die faces and player-die face caps.
-- New dungeons.
-- Later: the Charm system.
+- korte tidlige runs;
+- synlige vægge;
+- permanente rewards fra hvert kill;
+- hyppige små upgrades;
+- tilfældig face-growth;
+- tidlig fuld automation;
+- langsommere, mærkbare system-unlocks;
+- flere permanente dice og loadout-valg senere.
 
-XP never upgrades an individual face.
+---
 
-### Souls
+## 3. Designprincipper
 
-Souls buy a random upgrade on a player-selected die:
+### 3.1 Incremental first
 
-1. The player chooses the die.
-2. The Workshop visibly rolls uniformly among eligible target faces.
-3. The selected target remains locked.
-4. The player rolls the separate Workshop Die to determine the upgrade amount.
-5. The selected face permanently gains the visible result.
+Spilleren skal altid kunne svare på:
 
-Every upgrade succeeds and is permanent. Randomness decides where the growth lands
-and which positive value the current Workshop Die grants, not whether the player
-receives growth.
+- Hvad fik jeg permanent fra mit sidste run?
+- Hvad er stærkere i mit næste run?
+- Hvilken væg prøver jeg at flytte nu?
+- Hvilken større unlock arbejder jeg mod?
 
-The base Workshop Die is `1, 1, 1, 1, 1, 2`. Target and power results are generated
-and persisted when the operation begins, so reload cannot reroll either result.
-Souls are deducted once at operation start, and the target face changes once after
-the Workshop Die lands.
+### 3.2 Permanent progression må aldrig mistes
 
-If the chosen face has less headroom than the rolled Workshop value, the visible
-Workshop Die is capped to the available headroom for that operation. No hidden
-upgrade point is presented and then discarded.
+XP og Souls gives direkte ved hvert kill. Defeat og frivillig retreat nulstiller kun
+det aktive dungeon-forsøg.
 
-The initial random-Forge cost is grouped by total upgrades on that die:
+### 3.3 XP og Souls har adskilte roller
 
-| Total upgrades before purchase | Soul cost |
-| --- | ---: |
-| 0–2 | 5 |
-| 3–5 | 7 |
-| 6–8 | 9 |
-| 9–11 | 11 |
+- XP ændrer spillerens adgang, kapacitet og systemer.
+- Souls ændrer konkrete faces på konkrete permanente terninger.
 
-The pattern continues by +2 Souls for every three improvements.
+De to valutaer må ikke købe den samme type progression.
 
-The initial normal face cap is 5. `Face Mastery` raises access to higher values.
+### 3.4 RNG skal skabe historier, ikke fiasko
 
-## Directional Talent Tree
+Workshoppen må vælge et andet face end det, spilleren håbede på, men et køb må
+aldrig give nul fremgang. RNG bestemmer placering og størrelse, ikke om købet virker.
 
-The central node is `Inner Spark`, with five optional ranks:
+### 3.5 Klarhed før kompleksitet
 
-| Rank | Cost | Effect |
-| --- | ---: | --- |
-| 1 | 4 XP | +1 Max HP and reveal all four directions |
-| 2 | 7 XP | +1 Max HP |
-| 3 | 11 XP | +1 Max HP |
-| 4 | 16 XP | +1 Max HP |
-| 5 | 24 XP | +1 Max HP |
+Resultater, totals, enemy intent og permanente upgrades skal kunne aflæses uden en
+combat-log. Nye mechanics introduceres gradvist.
 
-Only rank 1 is required to leave the center. The player decides whether more early
-HP is worth delaying a directional purchase.
+### 3.6 Automation er progression
 
-### North — Arsenal
+Manuel interaktion lærer spilleren systemet. Auto Combat fjerner derefter gentagelsen
+og gør spillet reelt idle/AFK-kompatibelt.
 
-- `Twin Arsenal`: 32 XP; gain slot 2 and the permanent Striker Die.
-- `Shieldcraft`: gain the first Shield Die.
-- `Third Grip`: gain slot 3.
-- `Healing Arts`: gain the first Heal Die.
-- Deeper named dice and slots continue outward.
+### 3.7 Terninger er personlige objekter
 
-### West — Workshop
+En unlock giver én navngiven permanent terning, aldrig uendelige kopier. Spilleren
+vælger aktivt sit loadout inden for sin slot-cap.
 
-- `Loaded Alloy`: three ranks that change the Workshop Die to
-  `1-1-1-1-2-2`, then `1-1-1-2-2-2`, then `1-1-1-2-2-3`.
-- `Face Mastery`: three ranks; +1 normal-face cap per rank.
+---
 
-### South — Descent
+## 4. Kerne-loop
 
-- `Auto Combat`: 6 XP directly after the center; automatically rolls, resolves,
-  starts new rounds and advances normal floors.
-- `Quick Draw`: three speed ranks.
-- `Deep Reserves`: longer-run Max HP.
-- `Second Descent`: opens Dungeon 2 after the first Dungeon 1 clear.
+```text
+Start dungeon run
+↓
+Enemy ruller og viser intent
+↓
+Player-terninger trækkes i tilfældig rækkefølge
+↓
+Runden resolves tydeligt
+↓
+Et kill giver permanent XP og Souls med det samme
+↓
+Fortsæt til næste floor eller dø/forlad runnet
+↓
+Brug XP i Talent Tree
+↓
+Brug Souls i Workshop
+↓
+Start igen med mere HP, bedre dice, flere slots eller mere automation
+↓
+Flyt den forventede dungeon-væg
+```
 
-### East — Fate
+Spilleren kan gennemføre flere kills i samme run, men behøver aldrig afslutte hele
+dungeonen for at gøre permanent fremgang.
 
-`Fatecraft` is visible as a locked future direction after `Inner Spark`, but requires
-the first Dungeon 1 clear. It represents the later Charm system. Charm effects, Fate
-Tokens and loot-box generation are deliberately not part of this vertical slice.
+---
 
-## Measured early journey
+## 5. Fresh start og første progression
 
-The deterministic journey simulator buys the default talent path and spends every
-affordable Soul upgrade between runs.
+En ny V2-profil starter med:
 
-Regression boundaries:
+| Parameter | Startværdi |
+| --- | --- |
+| Max HP | 10 |
+| Dice slots | 1 |
+| Ejet loadout | `Worn Blade Die` |
+| Equipped | `Worn Blade Die` |
+| Worn Blade faces | `1–1–1–1–1–1 Attack` |
+| XP | 0 |
+| Souls | 0 |
+| Auto Combat | Låst |
+| Workshop Die | `1–1–1–1–1–2` |
+| Normal face cap | 5 |
+| Unlocked dungeon | `The First Descent` |
 
-- First random face improvement: run 1.
-- Full Auto Combat: run 2–3.
-- Second die: later than Auto Combat, normally run 6–15.
-- Dungeon 1 clear: a longer arc, currently constrained to run 12–45 across the
-  canonical seeded journey.
+### Første encounter
 
-These are balance rails, not final release promises. Physical playtesting must
-measure perceived time, not only simulated run numbers.
+Floor 1 er en Slime med:
 
-## Save and branch isolation
+- 3 HP;
+- én deterministisk Attack Die på `2–2–2–2–2–2`;
+- 4 XP reward;
+- 5 Souls reward.
 
-- V2 uses save version 14.
-- The only save key remains `new-dice-dungeon-save`.
-- Version-13 V2 profiles migrate without losing XP, Souls, dice or talents.
-- Opening this isolated V2 build with a pre-V2 save still creates a fresh V2 profile.
-- `main` and the existing production deployment are not changed by this branch.
+Den urørte spiller:
 
-## Explicitly deferred
+1. bruger tre runder på at give 3 damage;
+2. modtager to enemy-angreb før lethal player attack;
+3. vinder med 6/10 HP;
+4. får 4 XP og 5 Souls permanent;
+5. rammer floor 2 som den første tydelige væg.
 
-- Charm inventory, Fate Tokens and random Charm loot.
-- Precision Forge and face evolutions in the V2 player-facing Workshop.
-- Final Dungeon 2 balance for the new slower curve.
-- Final deeper Arsenal/Descent content.
+Det første kill finansierer begge progressionslag:
+
+- 4 XP køber `Inner Spark` rank 1.
+- 5 Souls køber den første Workshop Forge.
+
+---
+
+## 6. Permanent økonomi
+
+Der findes kun to valutaer.
+
+| Ressource | Optjenes | Bruges | Mistet ved Defeat |
+| --- | --- | --- | --- |
+| XP | Hvert enemy kill | Talent Tree | Nej |
+| Souls | Hvert enemy kill | Konkrete dice-face upgrades | Nej |
+
+Der findes ingen Gold, Coins, Materials, ubankede Souls eller `At Risk`.
+
+### 6.1 XP — adgang og kapacitet
+
+XP svarer på:
+
+> Hvad kan min karakter og konto nu?
+
+XP kan give:
+
+- Max HP;
+- dice slots;
+- navngivne permanente dice;
+- Auto Combat;
+- hurtigere combat;
+- stærkere Workshop Die;
+- højere face cap;
+- nye dungeons;
+- adgang til fremtidige systemer som Charms.
+
+XP må ikke øge værdien på et konkret player-face.
+
+### 6.2 Souls — konkret terningestyrke
+
+Souls svarer på:
+
+> Hvor stærke er mine permanente terninger blevet?
+
+Souls bruges på et Workshop-ritual, der forbedrer ét konkret face på én
+player-valgt terning. Souls må ikke købe HP, slots, automation, content-adgang eller
+Talent Tree-noder.
+
+### 6.3 Reward-regler
+
+- Rewards gives atomisk ved et gyldigt kill.
+- Samme encounter-reward kan kun gives én gang.
+- Reload, dobbeltklik eller Auto Combat må ikke duplikere rewards.
+- Defeat bevarer alle kills fra det afsluttede run.
+- `Leave Dungeon` bevarer alle allerede optjente rewards og tæller ikke som Defeat.
+
+---
+
+## 7. Permanente terninger og loadout
+
+### 7.1 Datamodel
+
+Hver permanent terning har:
+
+- et stabilt `die.id`;
+- et player-facing navn;
+- en family: Attack, Shield eller Heal;
+- præcis seks faces;
+- et stabilt `face.id` per face;
+- en permanent individuel face-værdi;
+- senere eventuel evolution eller signature.
+
+Faces med samme værdi er fortsat separate objekter.
+
+### 7.2 Ownership og slots
+
+- En talent-unlock giver én bestemt permanent die.
+- En ny die auto-equippes ikke.
+- Spilleren vælger loadout i Hub.
+- Mindst én die skal være equipped.
+- Loadout kan ikke ændres under et aktivt run.
+- Equipped dice snapshots ved run-start, så Hub-upgrades ikke ændrer runnet midtvejs.
+
+### 7.3 Aktuelt dice-katalog
+
+| Stabilt ID | Navn | Family | Startfaces | Adgang |
+| --- | --- | --- | --- | --- |
+| `attack-die-1` | Worn Blade Die | Attack | `1–1–1–1–1–1` | Fresh start |
+| `attack-die-2` | Striker Die | Attack | `1–1–1–1–1–1` | Twin Arsenal |
+| `shield-die-1` | Iron Guard Die | Shield | `1–1–1–1–1–1` | Shieldcraft |
+| `heal-die-1` | Vitality Die | Heal | `1–1–1–1–1–1` | Healing Arts |
+| `attack-die-executioner` | Executioner Die | Attack | `1–2–3–3 + 2 Execute` | Executioner Doctrine |
+| `shield-die-tower` | Tower Die | Shield | `1–2–3–3 + 2 Fortify` | Tower Discipline |
+
+Worn Blade og Striker starter mekanisk ens i V2. Deres langsigtede forskel opstår
+gennem uafhængig random growth, forskellige Workshop-forløb og senere
+family-evolutions.
+
+### 7.4 Signature-faces
+
+`Execute`:
+
+- giver 3 Attack;
+- giver 5 Attack, hvis enemy begyndte player-roll-sekvensen på højst 50% HP.
+
+`Fortify`:
+
+- giver 3 Shield;
+- giver +2 til næste Shield-face i samme roll-sekvens;
+- hvis intet Shield-face følger, gives +2 Shield straks.
+
+Signature-faces kan ikke vælges af den nuværende Workshop.
+
+---
+
+## 8. Workshop
+
+Workshoppen er V2’s vigtigste gentagne incremental-upgrade.
+
+### 8.1 Player flow
+
+1. Spilleren vælger én ejet permanent die.
+2. UI viser dens seks nuværende faces og den aktuelle face cap.
+3. Spilleren betaler den viste Soul-pris.
+4. Workshoppen flicker mellem alle eligible faces.
+5. Ét tilfældigt face fastlåses som target.
+6. Spilleren ruller den separate Workshop Die.
+7. Workshop Die bestemmer upgrade-mængden.
+8. Target-face får den viste permanente forbedring.
+9. Resultatet viser face-nummer, `+X` samt gammel og ny værdi.
+
+### 8.2 Eligible faces
+
+Et face kan rammes, hvis det:
+
+- ikke er et signature-face;
+- ikke allerede er evolved;
+- ikke venter på en evolution;
+- ligger under den aktuelle face cap.
+
+Target vælges uniformt blandt alle eligible faces. Et capped face reducerer derfor
+ikke chancen for de resterende faces.
+
+### 8.3 Workshop Die
+
+Base Workshop Die:
+
+```text
+1–1–1–1–1–2
+```
+
+| Loaded Alloy-rank | Workshop Die | Gennemsnit |
+| ---: | --- | ---: |
+| 0 | `1–1–1–1–1–2` | 1,17 |
+| 1 | `1–1–1–1–2–2` | 1,33 |
+| 2 | `1–1–1–2–2–2` | 1,50 |
+| 3 | `1–1–1–2–2–3` | 1,67 |
+
+Et resultat over 1 er et jackpot-resultat. Workshop Die har ingen 0-side.
+
+### 8.4 Face cap og headroom
+
+Base face cap er 5. `Face Mastery` hæver den til 6, 7 og 8.
+
+Hvis et target kun har ét point til cap, vises Workshop Die for den operation med
+alle resultater capped til `+1`. Spilleren ser dermed aldrig et råt `+2/+3`, som
+bagefter skjult reduceres.
+
+### 8.5 Soul-pris
+
+Prisen beregnes ud fra terningens samlede permanente face-vækst over startværdien 1:
+
+```text
+Cost = 5 + 2 × floor(total applied face upgrades / 3)
+```
+
+| Samlet growth før køb | Pris |
+| ---: | ---: |
+| 0–2 | 5 Souls |
+| 3–5 | 7 Souls |
+| 6–8 | 9 Souls |
+| 9–11 | 11 Souls |
+| 12–14 | 13 Souls |
+
+Et `+2`-resultat øger den samlede growth med 2 og kan derfor krydse et pristrin
+hurtigere.
+
+### 8.6 Atomisk persistence
+
+Ved første Forge-handling fastlåses og gemmes:
+
+- operation-ID;
+- die-ID;
+- target-face-ID;
+- Workshop-face-ID;
+- råt roll;
+- faktisk anvendt roll;
+- tidligere face-værdi;
+- Soul-pris.
+
+Souls trækkes én gang ved operationens start. Reload mellem target-roll og
+Workshop-roll genoptager samme operation. Completion må kun ændre face-værdien én
+gang.
+
+### 8.7 Visuel retning
+
+- Target-faces flicker og stopper tydeligt.
+- Workshop Die er en fysisk seks-sidet 3D-cube.
+- Workshop og Combat deler cube-, tumble- og landing-logik.
+- Den landede cube bliver stående i en let hero-vinkel med synlig top og side.
+- `+X` vises i resultatpanelet og må ikke erstatte cuben med en flad face.
+
+### 8.8 Bevidst ikke player-facing i V2
+
+Følgende eksisterer helt eller delvist som teknisk reference, men er ikke en del af
+V2’s nuværende Workshop-loop:
+
+- Precision Forge;
+- manuelt face-valg;
+- family-evolution-selection;
+- signatur-upgrades.
+
+---
+
+## 9. Talent Tree
+
+Talent Tree bruger kun XP og er bygget radialt omkring `Inner Spark`.
+
+### 9.1 Retninger
+
+| Retning | Identitet | Primær progression |
+| --- | --- | --- |
+| Centrum | Core | Tidlig HP og adgang til alle retninger |
+| Nord | Arsenal | Slots og nye permanente dice |
+| Vest | Workshop | Workshop Die og face cap |
+| Syd | Descent | Auto Combat, hastighed, HP og dungeons |
+| Øst | Fate | Senere Charm-system |
+
+Rank 1 af `Inner Spark` åbner alle fire retninger samtidigt. Retningerne udelukker
+ikke hinanden.
+
+### 9.2 Komplet aktuelt talent-katalog
+
+| Talent | Ranks/pris | Krav | Permanent effekt |
+| --- | --- | --- | --- |
+| Inner Spark | 4 / 7 / 11 / 16 / 24 XP | Ingen | +1 Max HP per rank; rank 1 åbner alle retninger |
+| Twin Arsenal | 32 XP | Inner Spark rank 1 | +1 slot og Striker Die |
+| Shieldcraft | 50 XP | Twin Arsenal | Iron Guard Die |
+| Third Grip | 70 XP | Shieldcraft | +1 slot |
+| Healing Arts | 85 XP | Third Grip | Vitality Die |
+| Fourth Grip | 120 XP | Healing Arts | +1 slot |
+| Executioner Doctrine | 140 XP | Healing Arts | Executioner Die |
+| Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
+| Face Mastery | 30 / 50 / 80 XP | Loaded Alloy rank 1 | +1 normal face cap per rank |
+| Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
+| Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
+| Deep Reserves | 18 / 28 / 42 XP | Quick Draw rank 1 | +2 Max HP per rank |
+| Second Descent | 75 XP | Deep Reserves rank 1 + Dungeon 1 clear | Unlock The Iron Descent |
+| Tower Discipline | 110 XP | Deep Reserves rank 1 | Tower Die |
+| Fatecraft | 75 XP | Inner Spark rank 1 + Dungeon 1 clear | Markeret adgang til fremtidige Charms |
+
+Kun første rank af en multi-rank prerequisite er nødvendig, medmindre andet står
+eksplicit.
+
+### 9.3 Afledte caps
+
+- Base Max HP: 10.
+- Maksimal nuværende talent-HP: 21.
+  - Inner Spark: +5.
+  - Deep Reserves: +6.
+- Base dice slots: 1.
+- Maksimale nuværende slots: 4.
+- Base face cap: 5.
+- Maksimal nuværende face cap: 8.
+
+### 9.4 Quick Draw
+
+Hver rank multiplicerer roll-speed med `1,15`.
+
+| Rank | Samlet speed-multiplier |
+| ---: | ---: |
+| 0 | ×1,000 |
+| 1 | ×1,150 |
+| 2 | ×1,323 |
+| 3 | ×1,521 |
+
+### 9.5 Talent Tree UX
+
+- Noder ligger på et næsten sort, skærmfyldende canvas.
+- Spilleren kan panorerere frit og zoome 65–140%.
+- Retninger har korte, tydelige forbindelser.
+- Købte nodes, åbne nodes og låste nodes skal aflæses uden små tekst-tags.
+- En node viser ikon, checkmark/rank-pips, outline og eventuel puls.
+- Ét fremtidigt lag kan anes som en svag fog-silhuet.
+- Køb sender energi gennem forbindelsen og afslører nye nodes som en chain reaction.
+- Nodeklik åbner et stort, læsbart modal-overlay med effekt, rank, pris og handling.
+
+---
+
+## 10. Combat
+
+### 10.1 Round flow
+
+1. Enemy-resultater genereres og persisteres.
+2. Enemy-dice ruller automatisk og viser præcist intent.
+3. Player-draw-pilen er låst under enemy reveal.
+4. Alle equipped player-dice blandes i en persisteret draw-pile.
+5. Spilleren trækker én die ad gangen uden replacement.
+6. Hvert face-resultat persisteres før animationen.
+7. Resultatet flyver til den relevante synlige round-total.
+8. Når draw-pilen er tom, kan runden resolves.
+9. Næste round starter, hvis begge parter lever.
+
+Der er ingen bust, stop-early eller gratis reroll.
+
+### 10.2 Round totals
+
+En total vises først, når dens type faktisk er rullet:
+
+- Attack;
+- Shield;
+- Heal.
+
+Der vises ingen tomme type-placeholders.
+
+### 10.3 Resolution-rækkefølge
+
+1. Player Heal anvendes op til Max HP.
+2. Player Attack reducerer enemy Shield og derefter HP.
+3. Eventuel player recoil/selvskade anvendes.
+4. Reel samtidig død afgøres som Player Defeat.
+5. Hvis enemy er død: Victory; enemy intent og attack-animation annulleres.
+6. Hvis enemy lever: enemy Heal anvendes op til max HP.
+7. Enemy Attack rammer player Shield og derefter HP.
+8. Ved 0 player HP: Defeat.
+9. Midlertidigt Shield nulstilles.
+10. Næste round forberedes.
+
+Player lethality har prioritet over enemy intent. En dræbt enemy angriber aldrig.
+
+### 10.4 Enemy dice
+
+- En enemy har 1–3 seks-sidede dice.
+- Dice er Attack, Shield eller Heal.
+- Resultaterne er synlige før player-rolls.
+- Enemy Shield erstattes ved hver ny round og udløber efter enemy-fasen.
+- Enemy Heal udføres kun, hvis enemy overlever player-fasen.
+
+### 10.5 Auto Combat
+
+Auto Combat er én player-styret toggle, der:
+
+- ruller alle player-dice;
+- scorer resultater;
+- resolver runden;
+- starter næste round;
+- fortsætter gennem normale Victory-pulses;
+- starter næste normale floor.
+
+Auto Combat stopper ved:
+
+- Defeat;
+- Boss Victory;
+- manuelt pausevalg;
+- åbning af Run Menu.
+
+Auto Retry findes ikke.
+
+### 10.6 Background fast-forward
+
+Et aktivt Auto Combat-run kan fortsætte efter browser-suspension gennem:
+
+- persisteret checkpoint;
+- deterministisk random-seed;
+- estimeret tidsbudget per handling;
+- atomisk resume-resultat.
+
+Fast-forward må aldrig passere Defeat eller Boss Victory og må ikke duplikere
+rewards. Spilleren ser et recap ved resume.
+
+### 10.7 Leave Dungeon
+
+Run Menu kan åbnes under et run.
+
+- Menuen pauser live og background Auto Combat.
+- `Leave Dungeon` kræver bekræftelse.
+- XP, Souls og permanent progression bevares.
+- Floor, enemy, round og aktuel HP-runstate nulstilles.
+- Handlingen tæller ikke som Defeat.
+
+---
+
+## 11. Dungeon-struktur
+
+Hver dungeon har:
+
+- 10 floors;
+- genbrugte archetypes i stærkere levels;
+- floor 9 som Elite;
+- floor 10 som boss;
+- permanent reward efter hvert kill.
+
+### 11.1 Dungeon 1 — The First Descent
+
+Formål:
+
+- lære Attack og enemy intent;
+- etablere run → reward → Forge-loopet;
+- lade spilleren lære Auto Combat;
+- skabe en længere første incremental-bue uden enemy Shield eller Heal.
+
+Alle enemies har præcis én Attack Die.
+
+| Floor | Enemy | Level | HP | Attack faces | XP | Souls |
+| ---: | --- | ---: | ---: | --- | ---: | ---: |
+| 1 | Slime | 1 | 3 | `2–2–2–2–2–2` | 4 | 5 |
+| 2 | Slime Crawler | 1 | 5 | `2–2–2–3–3–3` | 5 | 7 |
+| 3 | Goblin | 1 | 8 | `2–2–3–3–3–4` | 6 | 9 |
+| 4 | Skeleton | 1 | 12 | `3–3–3–4–4–4` | 8 | 12 |
+| 5 | Slime | 2 | 17 | `3–3–3–4–4–4` | 11 | 16 |
+| 6 | Slime Crawler | 2 | 23 | `3–3–3–4–4–5` | 15 | 21 |
+| 7 | Goblin | 2 | 30 | `4–4–4–4–5–5` | 20 | 28 |
+| 8 | Skeleton | 2 | 38 | `4–4–4–5–5–6` | 28 | 37 |
+| 9 | Skeleton Elite | 3 | 48 | `5–5–5–6–6–7` | 38 | 49 |
+| 10 | Demon | Boss | 62 | `6–6–6–7–8–9` | 55 | 65 |
+
+### 11.2 Dungeon 2 — The Iron Descent
+
+Formål:
+
+- introducere multi-die enemy intent;
+- gøre enemy Shield til den centrale mechanic;
+- teste værdien af player Shield, Heal og større loadouts;
+- introducere enemy Heal på bossen.
+
+Normale enemies har én Attack Die og én Shield Die. Bossen har desuden Heal.
+
+| Floor | Enemy | Level | HP | Attack | Shield | Heal | XP | Souls |
+| ---: | --- | ---: | ---: | --- | --- | --- | ---: | ---: |
+| 1 | Shieldbearer | 1 | 22 | `5–5–6–6–7–7` | `0–1–1–1–2–2` | — | 48 | 44 |
+| 2 | Cultist | 1 | 26 | `5–6–6–6–7–8` | `0–1–1–2–2–2` | — | 52 | 48 |
+| 3 | Orc | 1 | 30 | `6–6–6–7–7–8` | `1–1–1–2–2–3` | — | 58 | 54 |
+| 4 | Blood Orc | 1 | 34 | `6–6–7–7–8–8` | `1–1–2–2–2–3` | — | 64 | 60 |
+| 5 | Shieldbearer | 2 | 39 | `6–7–7–7–8–9` | `1–2–2–2–3–3` | — | 72 | 68 |
+| 6 | Cultist | 2 | 44 | `7–7–7–8–8–9` | `1–2–2–3–3–3` | — | 80 | 76 |
+| 7 | Orc | 2 | 50 | `7–7–8–8–9–9` | `2–2–2–3–3–4` | — | 90 | 86 |
+| 8 | Blood Orc | 2 | 57 | `7–8–8–8–9–10` | `2–2–3–3–4–4` | — | 102 | 98 |
+| 9 | Blood Orc Elite | 3 | 65 | `8–8–8–9–9–10` | `2–3–3–4–4–5` | — | 118 | 112 |
+| 10 | Spiked Behemoth | Boss | 80 | `8–9–9–9–10–11` | `3–3–4–4–5–6` | `0–0–1–1–2–3` | 160 | 160 |
+
+Dungeon 2’s tal er implementerede, men endnu ikke endeligt balanceret til V2’s
+langsommere progression.
+
+---
+
+## 12. Outcome-skærme
+
+### Normal Victory
+
+Viser kort:
+
+- besejret enemy;
+- floor-progress;
+- encounterens XP og Souls;
+- total XP og Souls;
+- aktuel HP;
+- Continue eller Auto Combat-status.
+
+Der vises ingen information om næste enemy.
+
+### Boss Victory
+
+Viser:
+
+- dungeon clear;
+- samlet antal besejrede enemies;
+- samlet XP og Souls fra descenten;
+- permanent clear-progress;
+- tilbagevenden til Hub.
+
+### Defeat
+
+Viser:
+
+- floor reached;
+- enemies defeated;
+- XP og Souls optjent i runnet;
+- at progressionen er beholdt;
+- handling til at vende tilbage og opgradere.
+
+---
+
+## 13. Tilsigtet progression og pacing
+
+Den deterministiske journey-simulator bruger en canonical prioritet:
+
+1. Inner Spark rank 1.
+2. Auto Combat.
+3. Quick Draw.
+4. Loaded Alloy.
+5. Twin Arsenal.
+6. Flere Inner Spark-, Quick Draw- og Loaded Alloy-ranks.
+7. Shieldcraft.
+8. Third Grip.
+9. Healing Arts.
+10. Deep Reserves.
+11. Second Descent.
+
+Aktuelle regression-rails:
+
+| Milepæl | Forventet run |
+| --- | --- |
+| Første permanent face-upgrade | Run 1 |
+| Auto Combat | Run 2–3 |
+| Anden permanent die | Run 6–15 |
+| Første Dungeon 1-clear | Run 12–45 |
+
+Disse er balancegrænser, ikke endelige release-løfter. Simulatoren måler runs og
+matematik, men ikke realtid, animationstempo, ventetid eller spillerens subjektive
+motivation.
+
+### Pacing-mål
+
+- Første kill skal føles garanteret og forståeligt.
+- Første run skal finansiere både en XP- og en Soul-beslutning.
+- Auto Combat skal komme før manuel rolling bliver trættende.
+- Anden die skal være et langsigtet tidligt mål, ikke en første-session freebie.
+- Hver Forge skal kunne ændre næste runs sandsynlige floor-wall.
+- Dungeon 1-clear skal kræve gentagen permanent vækst, men ikke føles som tom grind.
+
+---
+
+## 14. UI/UX og visuel retning
+
+### 14.1 Platform
+
+- Mobile-first ved 384 px.
+- Skal også fungere ved 320 px.
+- Portrait-orienteret game-shell.
+- Hard-edge pixel-art uden afrundede app-kort.
+
+### 14.2 Visuelt hierarki
+
+- Næsten-sort negativ plads.
+- Fysiske 3D-pixelterninger.
+- Attack er rød, Shield blå, Heal grøn.
+- XP/Talent Tree er cyan.
+- Workshop-power er varm guld.
+- HP, rewards og totals skal være læselige uden log.
+
+### 14.3 Combat-readability
+
+- Enemy sprite, navn, intent og HP er scene-hierarkiet.
+- Enemy intent vises før player-action.
+- Dice-resultater holdes længe nok til at kunne læses.
+- Værdien animeres til den relevante total.
+- En landet face og en afsluttet total skal stadig kunne læses efter animationen.
+- Dice-bagsider skjules i WebKit og standard-rendering.
+
+### 14.4 Semantik og accessibility
+
+- Interaktioner bruger semantiske buttons.
+- Headings og regions navngives.
+- HP og dungeon-progress bruger progressbars.
+- State kommunikeres ikke kun gennem farve.
+- Fokus-state skal være synlig.
+- Reduced-motion springer unødvendig tumble over, men bevarer det korrekte resultat.
+
+---
+
+## 15. Persistence og tekniske designregler
+
+- Save-key: `new-dice-dungeon-save`.
+- Save-version: 14.
+- Version 13 migreres uden tab af V2 XP, Souls, dice eller talents.
+- Pre-V2 saves starter frisk på den isolerede branch.
+- Aktivt run, enemy intent, draw-pile, runde og allerede rullede faces persisteres.
+- Et face-resultat gemmes før animationen.
+- Draw-pilen blandes ved round-start og trækkes uden replacement.
+- `Resolve Round` er låst, mens draw-pilen indeholder dice.
+- Enemy rewards er idempotente.
+- Forge-operationer er idempotente.
+- Equipped dice snapshots ved run-start.
+- XP og Souls er eneste valutaer.
+- Legacy draw/bust, relics, draft og run-only dice må ikke importeres i V2-state.
+
+---
+
+## 16. Implementeret, eksperimentelt og deferred
+
+### Implementeret og bindende i V2
+
+- Fresh start med én seks-sidet 1-Attack Die.
+- Permanente XP og Souls per kill.
+- Defeat uden currency-tab.
+- Random target Workshop.
+- Separat Workshop Die og totrins-Forge.
+- Radialt Talent Tree.
+- Auto Combat.
+- Quick Draw.
+- Op til fire slots.
+- Attack-, Shield- og Heal-dice.
+- To dungeons á 10 floors.
+- Enemy multi-dice i Dungeon 2.
+- Run Menu og frivillig retreat.
+- Save-version 14 og pending Workshop-operationer.
+
+### Implementeret, men endnu ikke endeligt V2-balanceret
+
+- Dungeon 2’s HP, dice og rewards.
+- Executioner Die.
+- Tower Die.
+- Deep Arsenal/Descent-priser.
+- Background fast-forward-tempo.
+
+### Bevidst deferred
+
+- Charm inventory.
+- Fate Tokens som tredje loot-valuta.
+- Random Charm-loot eller loot-box UI.
+- Faktiske Charm-effects.
+- Auto Retry.
+- Precision Forge i player-facing V2.
+- Manuelt face-valg.
+- Family-evolution-selection i V2 Workshop.
+- Signature-face Mastery.
+- Dungeon 3+.
 - Production merge.
+
+`Fatecraft` er synlig som fremtidig retning, men må ikke betragtes som et færdigt
+system-unlock, før Charm-loopet eksisterer.
+
+---
+
+## 17. Åbne designspørgsmål
+
+1. Føles target-flicker og Workshop-roll stadig godt efter 15–25 køb?
+2. Er et capped Workshop-roll tydeligt og fair?
+3. Er Auto Combat run 2–3 tidligt nok til at undgå input-træthed?
+4. Er Twin Arsenal på 32 XP et motiverende mål eller for langsomt?
+5. Opleves Dungeon 1-clear omkring run 12–45 som progression eller grind?
+6. Skal Worn Blade og Striker have forskellige medfødte identiteter senere?
+7. Hvornår skal family-evolutions vende tilbage i V2?
+8. Skal Fate Tokens droppe fra elites, bosses eller alle enemies?
+9. Hvor mange Charms kan være equipped, og hvordan undgår systemet loot-støj?
+10. Skal Dungeon 2 retunes fuldt før Charm-systemet bygges?
+
+---
+
+## 18. Næste anbefalede designarbejde
+
+1. Gennemfør en fysisk fresh-save-playtest på iPhone.
+2. Mål realtid til første kill, første Forge, Auto Combat, floor 3 og Twin Arsenal.
+3. Log 15–25 Workshop-køb og vurder variation, tempo og cap-oplevelse.
+4. Retune Dungeon 2 til den målte V2-kurve.
+5. Specificér Fate Token/Charm-loopet som et separat design før implementation.
+6. Beslut derefter, om V2 skal erstatte production, fortsætte separat eller levere
+   enkelte systemer tilbage til `main`.
