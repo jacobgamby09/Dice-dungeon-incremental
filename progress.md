@@ -74,7 +74,7 @@ Brug denne skabelon:
 - Save-formatet er version 12 og persisterer canonical talent-ranks, collection-, loadout-, dungeon-, encounter-, enemy-roll-, run-summary-, Forge-, signatur- og automation-progress sammen med aktive runs. Version-11 Executioner/Tower migreres til de nye canonical signaturfaces uden tab af kompatible normale faces.
 - Den deterministiske balance-suite modellerer nu både enkelte dungeons og en hel progression journey med XP-køb, Soul-forges, evolutioner, loadout-skift, gentagne runs og dungeon-clears. Regressionen holder første face-køb inden run 2, anden die/Auto Combat omkring run 2–5, første evolution omkring run 2–5, Dungeon 1-clear omkring run 7–12 og Dungeon 2-clear senest omkring run 18 for blandede samt rene Power/Momentum/Rend-strategier.
 - `NEW_GAME_GDD.md` er gameplay-kilden, og `DESIGN.md` er den gældende visuelle reference.
-- Seneste gameplay-merge i produktion: [#41 — Build dice family architecture](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/41), squash merge `301783f`.
+- Seneste gameplay-merge i produktion: [#43 — Protect combat roll effects](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/43), squash merge `8f98d84`.
 
 ## Næste anbefalede skridt
 
@@ -166,7 +166,7 @@ Brug denne skabelon:
 - Berørte områder: Combat-layout i `src/newGame.css`, visuel combat-retning i `DESIGN.md` og progress-log.
 - Validering: `npx tsc --noEmit`, 24 testfiler med 142 tests, ESLint og production-build består. Lokal browser ved 384×844, 384×700 og 320×700 viser mindst 130 px roll-pedestal, ingen overlap mellem enemy intent og HP samt ingen horisontal overflow. Et faktisk Rend-roll er fanget med banner og partikler fuldt synlige ved 384×700.
 - Kendte mangler: Safari safe-area og browser-chrome varierer mellem fysiske modeller; den nye kompakte breakpoint skal stadig mærkes i brugerens konkrete browser.
-- Git: `1b71f5d` — `Protect combat roll effects` på `codex/combat-roll-space`; PR og production-deployment afventer.
+- Git: `1b71f5d` — `Protect combat roll effects` og `2894f54` — `Record combat layout validation`; PR [#43](https://github.com/jacobgamby09/Dice-dungeon-incremental/pull/43) er squash-merget til `main` som `8f98d84`. Vercel production-check `DnrQwzxWqrer54Kiw2TcDiKoju9D` er `success`; den offentlige URL svarer HTTP 200 med `index-CbUlPxji.js` og den nye layout-asset `index-DkkFfyJg.css`.
 
 ### 2026-07-28 — Dice Architecture v1
 
