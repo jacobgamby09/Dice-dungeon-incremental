@@ -208,7 +208,7 @@ Brug denne skabelon:
 - Berørte områder: Nye Workshop-typer/content, Forge-engine, talent-effekter, version-14 store/migration, journey-simulator, `WorkshopScreen`, ny `WorkshopDie`-komponent, V2-styling, tests og `CLASSIC_INCREMENTAL_V2.md`.
 - Validering: `npx tsc --noEmit`, 25 testfiler med 121 tests, ESLint, production-build og `git diff --check` består. Lokal browser ved 384×844 gennemførte target-roll, verificerede Soul-fradrag, reloadede mellem rullene med target/resultat intakt og landede derefter `+2`, som permanent ændrede face 2 fra 4 til 6 uden dobbeltbetaling.
 - Kendte mangler: Animationstempo og gentagelsesværdi ved 15–25 køb mangler fysisk iPhone-playtest. Fate/Charms og den dybere Dungeon 2-balance er fortsat uden for denne leverance.
-- Git: `8f7166c` — `Build two-stage Workshop Die forge` på `codex/classic-incremental-v2`; branch-push og preview-status registreres i næste log-commit.
+- Git: `8f7166c` — `Build two-stage Workshop Die forge` og `dea5065` — `Record Workshop Die delivery` på `codex/classic-incremental-v2`. Branchen er pushet, og Vercel Preview for leverancen er bekræftet `success`.
 
 ### 2026-07-29 — Kompakt Talent Tree og strømlinet node-info
 
