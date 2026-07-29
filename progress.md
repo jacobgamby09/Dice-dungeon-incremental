@@ -214,7 +214,7 @@ Brug denne skabelon:
 - Berørte områder: `src/index.css`, arcade-override i `src/newGame.css`, Hub-, Combat- og Workshop-præsentation, Talent Tree-forbindelser og `PIXEL_ARCADE_VISUAL_TEST.md`.
 - Validering: Browser-verificeret ved 320×700, 384×844 og 430×932 på alle fire hovedskærme samt Dungeon Select, Loadout og Victory. Manuel Workshop-test gennemførte gentagne Forge-rul inklusive et frontvendt jackpot-`+2`; browserkonsollen havde ingen errors eller warnings. `npx tsc --noEmit`, 25 testfiler med 123 tests, ESLint, production-build og `git diff --check` består.
 - Kendte mangler: Retningen er endnu ikke subjektivt sammenlignet med den eksisterende V2-stil på fysisk iPhone. Enemy-sprites er bevidst ikke ændret, og det store CSS-override bør først konsolideres, hvis retningen vælges.
-- Git: `a4f7ff1` — `Build pixel arcade visual test` på `codex/pixel-arcade-visual-test`; branch-push logges i den efterfølgende progress-commit.
+- Git: `a4f7ff1` — `Build pixel arcade visual test` og `a99582a` — `Record pixel arcade visual delivery` på `codex/pixel-arcade-visual-test`; branchen er pushet.
 
 ### 2026-07-29 — Stabil Workshop-cube ved jackpot-rul
 
