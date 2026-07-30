@@ -218,7 +218,7 @@ Brug denne skabelon:
 - Berørte områder: `DESIGN.md`, `progress.md`, Combat-skærmen, HP/roll/score/damage/totals-komponenterne, arcade tokens/shared/dice/combat samt Hub-, Workshop-, Talent Tree- og outcome-styles.
 - Validering: Browserpass ved 320×700, 384×844 og 430×932 dækkede Dungeon 2 med player/enemy multi-dice, rolling/landed/scoring, Auto Combat, Workshop, Hub, Talent Tree, inspector-overlay, Loadout og Defeat uden horisontal overflow eller console warnings/errors. DOM-tests dækker seks settled player-dice og Spiked Behemoths tre enemy-dice. `npx tsc --noEmit`, 27 testfiler med 130 tests, ESLint, production-build og `git diff --check` består.
 - Kendte mangler: Fysisk iPhone/Safari og den subjektive timing med seks samtidige player-dice mangler stadig. Victory blev ikke fastholdt manuelt i browserpasset, fordi aktiv Auto Combat fortsatte, men eksisterende outcome-regressioner og de delte outcome-styles dækker state/layout.
-- Git: Ikke committed eller pushed endnu på `codex/arcade-foundation-v1`.
+- Git: `81ee84d` — `Polish pixel arcade combat feedback` på `codex/arcade-foundation-v1`; branchen er bevidst ikke pushed endnu.
 
 ### 2026-07-30 — Pixel Arcade foundation v1
 
