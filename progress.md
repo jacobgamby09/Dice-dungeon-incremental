@@ -216,7 +216,7 @@ Brug denne skabelon:
 - Berørte områder: `DESIGN.md`, `PIXEL_ARCADE_VISUAL_TEST.md`, `DESIGN_LEGACY_DIORAMA.md`, Hub-copy/test, `src/App.tsx`, `src/newGame.css` og `src/styles/arcade/`.
 - Validering: Browser ved 320, 384 og 430 px verificerede Hub, Dungeon Select, Dungeon 1 Combat, Dungeon 2 Combat med tre player-dice og Attack+Shield-intent, Workshop, Talent Tree, Talent-overlay og Run Menu uden horisontal overflow eller console warnings/errors. `npx tsc --noEmit`, 26 testfiler med 125 tests, ESLint og production-build består.
 - Kendte mangler: Fysisk iPhone/Safari og seks samtidige player-dice under hurtig Auto Combat er stadig næste stress-test. Custom font, ikonbibliotek og nye enemy-sprites er bevidst udskudt.
-- Git: Arbejdet ligger på `codex/arcade-foundation-v1`; commit og push afsluttes i dette arbejdsforløb.
+- Git: `3ac9e5f` — `Adopt pixel arcade design foundation` på `codex/arcade-foundation-v1`; leveringsloggen færdiggøres og branchen pushes i dette arbejdsforløb.
 
 ### 2026-07-29 — Workshop target og skjult roll-resultat
 
