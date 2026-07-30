@@ -7,6 +7,7 @@ import { LoadoutScreen } from './screens/LoadoutScreen'
 import { PostCombatScreen } from './screens/PostCombatScreen'
 import { TalentTreeScreen } from './screens/TalentTreeScreen'
 import { WorkshopScreen } from './screens/WorkshopScreen'
+import { FateSanctumScreen } from './screens/FateSanctumScreen'
 import { useNewGameStore } from './store/newGameStore'
 import './newGame.css'
 import './styles/arcade/index.css'
@@ -19,6 +20,7 @@ export function App() {
   if (screen === 'combat') content = <CombatScreen />
   if (screen === 'post_combat') content = <PostCombatScreen />
   if (screen === 'workshop') content = <WorkshopScreen />
+  if (screen === 'fate_sanctum') content = <FateSanctumScreen />
   if (screen === 'talent_tree') content = <TalentTreeScreen />
   if (screen === 'loadout') content = <LoadoutScreen />
   if (screen === 'defeat') content = <DefeatScreen />

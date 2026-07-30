@@ -20,6 +20,8 @@ export const TALENT_IDS = {
   fieldStudies: 'field-studies',
   soulHarvest: 'soul-harvest',
   fatecraft: 'fatecraft',
+  wovenPair: 'woven-pair',
+  trinityKnot: 'trinity-knot',
 } as const
 
 export const TALENTS: TalentDefinition[] = [
@@ -245,17 +247,45 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.fatecraft,
     name: 'Fatecraft',
-    description: 'Future path: Charms and their dedicated currency.',
+    description: 'Unlock Fate Token drops, the Fate Sanctum and your first Charm slot.',
     iconKey: 'fate-seal',
     prerequisiteIds: [TALENT_IDS.fieldStudies, TALENT_IDS.soulHarvest],
-    prerequisiteCount: 2,
+    prerequisiteCount: 1,
     requirements: [{
       type: 'dungeon_clear',
       dungeonId: 'prototype-depths',
       count: 1,
     }],
-    availability: 'future',
-    ranks: [{ cost: 75, effects: [{ type: 'unlock_charms' }] }],
+    ranks: [{
+      cost: 30,
+      effects: [
+        { type: 'unlock_charms' },
+        { type: 'charm_slots', amount: 1 },
+      ],
+    }],
+    track: 'fate',
+  },
+  {
+    id: TALENT_IDS.wovenPair,
+    name: 'Woven Pair',
+    description: 'Open a second Charm slot for paired Fatecraft builds.',
+    iconKey: 'charm-pair',
+    prerequisiteIds: [TALENT_IDS.fatecraft],
+    ranks: [{ cost: 45, effects: [{ type: 'charm_slots', amount: 1 }] }],
+    track: 'fate',
+  },
+  {
+    id: TALENT_IDS.trinityKnot,
+    name: 'Trinity Knot',
+    description: 'Open a third and final Charm slot.',
+    iconKey: 'charm-trinity',
+    prerequisiteIds: [TALENT_IDS.wovenPair],
+    requirements: [{
+      type: 'dungeon_clear',
+      dungeonId: 'iron-depths',
+      count: 1,
+    }],
+    ranks: [{ cost: 90, effects: [{ type: 'charm_slots', amount: 1 }] }],
     track: 'fate',
   },
 ]

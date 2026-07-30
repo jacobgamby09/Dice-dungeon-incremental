@@ -1,10 +1,10 @@
 # Dice Dungeon — Classic Incremental V2 GDD
 
 - **Status:** Autoritativt designdokument for den spilbare eksperiment-branch
-- **Branch:** `codex/classic-incremental-v2`
-- **GDD-version:** 1.0
-- **Senest opdateret:** 2026-07-29
-- **Aktuel save-version:** 15
+- **Branch:** `codex/arcade-foundation-v1`
+- **GDD-version:** 1.1
+- **Senest opdateret:** 2026-07-30
+- **Aktuel save-version:** 16
 
 Denne GDD beskriver Classic Incremental V2. Hvis dokumentet er i konflikt med
 `NEW_GAME_GDD.md`, gælder denne fil for V2-branchen. Production-spillet på `main`
@@ -75,12 +75,13 @@ Spilleren skal altid kunne svare på:
 XP og Souls gives direkte ved hvert kill. Defeat og frivillig retreat nulstiller kun
 det aktive dungeon-forsøg.
 
-### 3.3 XP og Souls har adskilte roller
+### 3.3 De permanente ressourcer har adskilte roller
 
 - XP ændrer spillerens adgang, kapacitet og systemer.
 - Souls ændrer konkrete faces på konkrete permanente terninger.
+- Fate Tokens bruges kun til at afsløre og forbedre permanente Charms.
 
-De to valutaer må ikke købe den samme type progression.
+De tre ressourcer må ikke købe den samme type progression.
 
 ### 3.4 RNG skal skabe historier, ikke fiasko
 
@@ -116,6 +117,8 @@ Player-terninger trækkes i tilfældig rækkefølge
 Runden resolves tydeligt
 ↓
 Et kill giver permanent XP og Souls med det samme
+↓
+Efter Fatecraft kan et kill også give Fate Tokens
 ↓
 Fortsæt til næste floor eller dø/forlad runnet
 ↓
@@ -177,12 +180,13 @@ Det første kill finansierer begge progressionslag:
 
 ## 6. Permanent økonomi
 
-Der findes kun to valutaer.
+Der findes tre permanente ressourcer med hver sin rolle.
 
 | Ressource | Optjenes | Bruges | Mistet ved Defeat |
 | --- | --- | --- | --- |
 | XP | Hvert enemy kill | Talent Tree | Nej |
 | Souls | Hvert enemy kill | Konkrete dice-face upgrades | Nej |
+| Fate Tokens | Drops efter Fatecraft | Fate Draw og Charm-ranks | Nej |
 
 Der findes ingen Gold, Coins, Materials, ubankede Souls eller `At Risk`.
 
@@ -202,7 +206,7 @@ XP kan give:
 - stærkere Workshop Die;
 - højere face cap;
 - nye dungeons;
-- adgang til fremtidige systemer som Charms.
+- adgang til systemer som Charms.
 
 XP må ikke øge værdien på et konkret player-face.
 
@@ -223,6 +227,57 @@ Talent Tree-noder.
 - Reload, dobbeltklik eller Auto Combat må ikke duplikere rewards.
 - Defeat bevarer alle kills fra det afsluttede run.
 - `Leave Dungeon` bevarer alle allerede optjente rewards og tæller ikke som Defeat.
+
+### 6.4 Fate Tokens, drops og pity
+
+Fate Tokens begynder først at droppe, når `Fatecraft` er købt.
+
+- Normale enemies har 20% dropchance for 1 Fate Token.
+- Hver femte eligible kill uden drop garanterer 1 Token og nulstiller pity.
+- Elite-enemies giver altid 1 Token.
+- Bosses giver altid 3 Tokens.
+- Pity er permanent profil-state og bevares mellem runs.
+- Dungeon 1's otte normale enemies, elite og boss giver mindst 5 Tokens selv ved
+  værst mulige normale rolls, så ét Fate Draw altid kan finansieres.
+- Samme encounter kan aldrig udbetale Tokens to gange.
+
+### 6.5 Fate Draw
+
+Et Fate Draw koster 5 Fate Tokens og viser tre forskellige Charm-tilbud.
+
+- Prisen trækkes atomisk, før reveal-animationen starter.
+- De tre tilbud og operationens ID persisteres, så reload ikke reroller eller
+  dobbeltbetaler.
+- Spilleren vælger præcis ét tilbud.
+- De første tre ejede Charms er beskyttet mod duplicates.
+- Derefter er ukendte Charms vægtet højere end kendte.
+- En kendt Charm øges én rank; max-rank Charms fjernes fra offer-poolen.
+
+### 6.6 Charm collection og loadout
+
+Charms er permanente, konto-ejede regelændringer. De forbedrer combat-rytmer,
+rewards eller overlevelse, men ændrer ikke konkrete dice faces.
+
+- `Fatecraft` giver første Charm-slot.
+- `Woven Pair` giver slot 2.
+- `Trinity Knot` giver slot 3 efter Dungeon 2-clear.
+- Charms vælges i Fate Sanctum og auto-equippes aldrig ved unlock.
+- Equipped Charms snapshots ved run-start; loadout kan ikke ændres mid-run.
+- Progress counters til rytme-Charms persisteres i det aktive run.
+
+Det første Charm-katalog:
+
+| Charm | Rank 1 | Rank 2 | Rank 3 |
+| --- | --- | --- | --- |
+| Blade Rhythm | Hvert 5. Attack-roll får +2 | +3 | +4 |
+| Echo Knot | To ens raw rolls i træk giver +1 native output | +2 | +3 |
+| Low Omen | Efter tre raw 1-rolls får næste die +2 native output | +3 | +4 |
+| Ward Clock | Hver 6. round starter med 2 Shield | 3 Shield | 4 Shield |
+| Bloodroot | Hvert 3. kill healer 1 HP | 2 HP | 3 HP |
+| Soul Prism | Hvert 5. kill gentager enemyens base Souls | Hvert 4. kill | Hvert 3. kill |
+
+Raw roll betyder værdien før Charm-bonusser. Native output følger face-familien:
+Attack, Shield eller Heal.
 
 ---
 
@@ -405,7 +460,7 @@ Talent Tree bruger kun XP og er bygget radialt omkring `Inner Spark`.
 | Nord | Arsenal | Slots og nye permanente dice |
 | Vest | Workshop | Workshop Die, Soul-effektivitet og face cap |
 | Syd | Descent | Auto Combat, hastighed, HP og dungeons |
-| Øst | Fate & Fortune | XP/Soul-effektivitet nu; Charms senere |
+| Øst | Fate & Fortune | XP/Soul-effektivitet, Fate Tokens og Charms |
 
 Rank 1 af `Inner Spark` åbner alle fire retninger samtidigt. Retningerne udelukker
 ikke hinanden. Flere junctions kræver kun ét af to eller to af tre forbundne
@@ -433,7 +488,9 @@ talenter, så centrale mål kan nås ad flere veje.
 | Second Descent | 75 XP | To af Auto Combat, Quick Draw og Deep Reserves + Dungeon 1 clear | Unlock The Iron Descent |
 | Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
 | Soul Harvest | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 Soul per enemy per rank |
-| Fatecraft | Fremtidig | Field Studies + Soul Harvest + Dungeon 1 clear | Silhuet for det senere Charm-system |
+| Fatecraft | 30 XP | Field Studies **eller** Soul Harvest + Dungeon 1 clear | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
+| Woven Pair | 45 XP | Fatecraft | Charm-slot 2 |
+| Trinity Knot | 90 XP | Woven Pair + Dungeon 2 clear | Charm-slot 3 |
 
 Kun første rank af en multi-rank prerequisite er nødvendig, medmindre andet står
 eksplicit.
@@ -446,6 +503,8 @@ eksplicit.
   - Deep Reserves: +6.
 - Base dice slots: 1.
 - Maksimale nuværende slots: 4.
+- Base Charm slots: 0.
+- Maksimale nuværende Charm slots: 3.
 - Base face cap: 5.
 - Maksimal nuværende face cap: 8.
 
@@ -743,8 +802,8 @@ motivation.
 ## 15. Persistence og tekniske designregler
 
 - Save-key: `new-dice-dungeon-save`.
-- Save-version: 14.
-- Version 13 migreres uden tab af V2 XP, Souls, dice eller talents.
+- Save-version: 16.
+- Version 15 migreres med Fate/Charm-defaults uden tab af XP, Souls, dice eller talents.
 - Pre-V2 saves starter frisk på den isolerede branch.
 - Aktivt run, enemy intent, draw-pile, runde og allerede rullede faces persisteres.
 - Et face-resultat gemmes før animationen.
@@ -752,8 +811,10 @@ motivation.
 - `Resolve Round` er låst, mens draw-pilen indeholder dice.
 - Enemy rewards er idempotente.
 - Forge-operationer er idempotente.
-- Equipped dice snapshots ved run-start.
-- XP og Souls er eneste valutaer.
+- Fate Draw-operationer og Charm-valg er idempotente.
+- Pending Fate Draw persisteres med de tre allerede valgte offers.
+- Equipped dice og Charms snapshots ved run-start.
+- XP, Souls og Fate Tokens er de eneste valutaer.
 - Legacy draw/bust, relics, draft og run-only dice må ikke importeres i V2-state.
 
 ---
@@ -775,7 +836,11 @@ motivation.
 - To dungeons á 10 floors.
 - Enemy multi-dice i Dungeon 2.
 - Run Menu og frivillig retreat.
-- Save-version 15, version-14 Talent Tree-migration og pending Workshop-operationer.
+- Fate Token-drops med profile-level pity.
+- Fate Sanctum med atomisk Choose-One-of-Three draw.
+- Seks Charms med tre ranks og tre mulige loadout-slots.
+- Charm progress/procs i Combat og outcomes.
+- Save-version 16 med pending Fate Draw, Charm collection, loadout og run-snapshots.
 - Gamle Twin Arsenal-køb splittes tabsfrit; et allerede købt tomt Fatecraft refunderes fuldt.
 
 ### Implementeret, men endnu ikke endeligt V2-balanceret
@@ -787,10 +852,8 @@ motivation.
 
 ### Bevidst deferred
 
-- Charm inventory.
-- Fate Tokens som tredje loot-valuta.
-- Random Charm-loot eller loot-box UI.
-- Faktiske Charm-effects.
+- Flere Charm-pools og rarity tiers.
+- Charm-reroll, banish eller targeted acquisition.
 - Auto Retry.
 - Precision Forge i player-facing V2.
 - Manuelt face-valg.
@@ -798,9 +861,6 @@ motivation.
 - Signature-face Mastery.
 - Dungeon 3+.
 - Production merge.
-
-`Fatecraft` er synlig som fremtidig retning, men må ikke betragtes som et færdigt
-system-unlock, før Charm-loopet eksisterer.
 
 ---
 
@@ -813,9 +873,10 @@ system-unlock, før Charm-loopet eksisterer.
 5. Opleves Dungeon 1-clear omkring run 12–45 som progression eller grind?
 6. Skal Worn Blade og Striker have forskellige medfødte identiteter senere?
 7. Hvornår skal family-evolutions vende tilbage i V2?
-8. Skal Fate Tokens droppe fra elites, bosses eller alle enemies?
-9. Hvor mange Charms kan være equipped, og hvordan undgår systemet loot-støj?
-10. Skal Dungeon 2 retunes fuldt før Charm-systemet bygges?
+8. Føles 20% dropchance plus pity spændende uden at skabe for meget reward-støj?
+9. Er tre tilbud og early no-duplicate protection nok player agency?
+10. Er første Charm-slot efter Dungeon 1 det rigtige tidspunkt, eller bør Fatecraft komme lidt tidligere?
+11. Er de seks første Charm-rytmer lige læsbare under hurtig Auto Combat?
 
 ---
 
@@ -825,6 +886,7 @@ system-unlock, før Charm-loopet eksisterer.
 2. Mål realtid til første kill, første Forge, Auto Combat, floor 3, Second Grip og Striker Pattern.
 3. Log 15–25 Workshop-køb og vurder variation, tempo og cap-oplevelse.
 4. Retune Dungeon 2 til den målte V2-kurve.
-5. Specificér Fate Token/Charm-loopet som et separat design før implementation.
-6. Beslut derefter, om V2 skal erstatte production, fortsætte separat eller levere
+5. Playtest Fatecraft, første Fate Draw og mindst to simultaneous Charm-procs.
+6. Mål acquisition rate og rank-up tempo gennem Dungeon 1 og 2.
+7. Beslut derefter, om V2 skal erstatte production, fortsætte separat eller levere
    enkelte systemer tilbage til `main`.

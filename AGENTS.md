@@ -47,8 +47,9 @@ Kun disse valutaer findes:
 
 - `bankedSouls`: permanent Soul-valuta, som hvert besejret mob giver direkte, og som bruges til konkrete dice/face-upgrades i Hub. Player-facing hedder den blot `Souls`.
 - `xp`: permanent meta-progression til et senere talent tree.
+- `fateTokens`: permanent Charm-valuta, som først kan droppe efter Fatecraft, aldrig mistes og kun bruges på atomiske Fate Draws.
 
-Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og Souls må ikke bruges på talent tree.
+Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, Souls må ikke bruges på talent tree, og Fate Tokens må ikke bruges uden for Charm-systemet.
 
 ## 6. Persistence og atomiske transitions
 
@@ -59,8 +60,9 @@ Brug aldrig Gold, Coins eller Materials. XP må ikke bruges på dice faces, og S
 - `Resolve Round` må ikke aktiveres, mens draw-pilen stadig indeholder dice.
 - Combat-boardet må kun vise faktisk trukne dice i draw-rækkefølge; der findes ingen faste type-slots.
 - Enemy rewards og face-køb skal være idempotente; reload eller dobbeltklik må ikke duplikere værdier.
+- Fate drops, pending Fate Draws og Charm-claims skal være idempotente; de tre offers persisteres før reveal-animationen.
 - Version-6 `runSouls` migreres én gang til permanente `bankedSouls`; nye saves og aktive runs må ikke indeholde `runSouls`.
-- Equipped dice snapshots ved run-start, så Hub-opgraderinger ikke kan ændre et aktivt run.
+- Equipped dice og Charms snapshots ved run-start, så Hub-opgraderinger ikke kan ændre et aktivt run.
 
 ## 7. UI og React
 

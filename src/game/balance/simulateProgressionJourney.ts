@@ -88,9 +88,11 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 15,
+    saveVersion: 16,
     xp: 0,
     bankedSouls: 0,
+    fateTokens: 0,
+    fatePity: 0,
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
@@ -100,6 +102,10 @@ function createJourneyProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    charmRanks: {},
+    equippedCharmIds: [],
+    pendingFateDraw: null,
+    recentFateOperationIds: [],
     pendingWorkshopForge: null,
     settings: {
       autoCombat: false,

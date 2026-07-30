@@ -12,6 +12,7 @@ import {
 import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { EnemyDamageTransfer } from '../components/newgame/EnemyDamageTransfer'
+import { CombatCharmBar } from '../components/newgame/CombatCharmBar'
 import type { EnemyDamageTransferPath } from '../components/newgame/EnemyDamageTransfer'
 import { EnemyIntentTray } from '../components/newgame/EnemyIntentTray'
 import { HpBar } from '../components/newgame/HpBar'
@@ -63,6 +64,8 @@ export function CombatScreen() {
     playerHp: state.run.playerHp,
     playerMaxHp: state.run.playerMaxHp,
     equippedDiceSnapshot: state.run.equippedDiceSnapshot,
+    equippedCharmSnapshot: state.run.equippedCharmSnapshot,
+    charmState: state.run.charmState,
     enemy: state.run.enemy,
   })))
   const combat = useNewGameStore(useShallow((state) => ({
@@ -73,6 +76,8 @@ export function CombatScreen() {
     totals: state.combat.totals,
     pendingMomentum: state.combat.pendingMomentum,
     pendingFortify: state.combat.pendingFortify,
+    lastCharmTriggers: state.combat.lastCharmTriggers,
+    charmTriggerVersion: state.combat.charmTriggerVersion,
     carriedShield: state.combat.carriedShield,
     carriedHeal: state.combat.carriedHeal,
     lastResolution: state.combat.lastResolution,
@@ -544,6 +549,12 @@ export function CombatScreen() {
           impactVersion={combat.resolutionVersion}
           max={run.playerMaxHp}
         />
+        <CombatCharmBar
+          charms={run.equippedCharmSnapshot}
+          charmState={run.charmState}
+          charmTriggerVersion={combat.charmTriggerVersion}
+          triggers={combat.lastCharmTriggers}
+        />
         <div className="round-totals-stage" ref={scoreStageElement}>
           <RoundTotalsPanel
             carriedHeal={combat.carriedHeal}
@@ -633,7 +644,7 @@ export function CombatScreen() {
           <button
             className={`pixel-button pixel-button--resolve${profile.settings.autoCombat ? ' pixel-button--automation' : ''}`}
             disabled={isScoreAnimating || profile.settings.autoCombat}
-            onClick={beginRoundResolution}
+            onClick={() => beginRoundResolution()}
             type="button"
           >
             <Swords aria-hidden="true" size={18} />

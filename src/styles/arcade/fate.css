@@ -1,0 +1,374 @@
+.fate-screen {
+  min-height: 100dvh;
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+
+.fate-token-icon {
+  display: block;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.fate-header,
+.fate-pity,
+.charm-loadout,
+.fate-draw,
+.charm-collection {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.fate-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+.fate-header h1,
+.fate-screen h2,
+.fate-screen h3 {
+  margin: 0;
+  font-family: var(--arcade-font-display);
+  text-transform: uppercase;
+}
+
+.fate-header h1 {
+  color: var(--arcade-purple);
+  font-size: 1.15rem;
+}
+
+.fate-token-total {
+  min-width: 56px;
+  height: 40px;
+  border: 2px solid var(--arcade-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--arcade-purple);
+}
+
+.fate-pity,
+.charm-loadout,
+.fate-draw,
+.charm-collection {
+  margin-top: 8px;
+  padding: 12px;
+}
+
+.fate-pity > div:first-child,
+.charm-loadout > header,
+.fate-draw > header,
+.charm-collection > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fate-pity p,
+.fate-reliquary p,
+.charm-empty {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.fate-pity__pips,
+.charm-ranks {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.fate-pity__pips span,
+.charm-ranks span {
+  flex: 1;
+  height: 7px;
+  border: 1px solid var(--arcade-purple);
+  background: #130b22;
+}
+
+.fate-pity__pips span.is-filled,
+.charm-ranks span.is-filled {
+  background: var(--arcade-purple);
+}
+
+.charm-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.charm-slot {
+  min-height: 104px;
+  border: 2px solid var(--arcade-line-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 4px;
+  color: var(--arcade-muted);
+  text-align: center;
+}
+
+.charm-slot.is-filled {
+  border-color: var(--arcade-white);
+  color: var(--arcade-white);
+}
+
+.charm-slot span,
+.charm-slot button {
+  font-family: var(--arcade-font-ui);
+  font-size: 0.52rem;
+}
+
+.charm-slot button,
+.charm-card button {
+  min-height: 28px;
+  border: 1px solid var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.fate-reliquary {
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.fate-reliquary img {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.fate-offers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.fate-offer {
+  min-height: 190px;
+  border: 2px solid #3a3a44;
+  background: #07070b;
+  color: var(--arcade-muted);
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.fate-offer.is-revealed {
+  border-color: var(--charm-accent);
+  background: color-mix(in srgb, var(--charm-accent) 14%, var(--arcade-black));
+  color: var(--arcade-white);
+  animation: fate-reveal 360ms steps(5, end) both;
+}
+
+.fate-offer strong {
+  font-family: var(--arcade-font-display);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.fate-offer span,
+.fate-offer small {
+  font-family: var(--arcade-font-ui);
+  font-size: 0.48rem;
+  line-height: 1.25;
+}
+
+.charm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.charm-card {
+  min-height: 180px;
+  border: 2px solid var(--arcade-line-subtle);
+  background: #07070a;
+  padding: 8px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.charm-card.is-owned {
+  border-color: var(--charm-accent);
+  box-shadow: inset 3px 0 0 var(--charm-accent);
+}
+
+.charm-card.is-unknown .charm-icon {
+  filter: grayscale(1) brightness(0.22);
+}
+
+.charm-card > div:not(.charm-ranks) {
+  min-width: 0;
+}
+
+.charm-card h3 {
+  font-size: 0.65rem;
+}
+
+.charm-card span,
+.charm-card p {
+  margin: 0;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.52rem;
+  line-height: 1.3;
+}
+
+.charm-card button {
+  margin-top: auto;
+}
+
+.charm-icon {
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.combat-charms {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.combat-charms::-webkit-scrollbar {
+  display: none;
+}
+
+.combat-charm {
+  --charm-accent: var(--arcade-purple);
+  flex: 0 0 auto;
+  min-width: 94px;
+  height: 38px;
+  border: 1px solid var(--charm-accent);
+  background: color-mix(in srgb, var(--charm-accent) 12%, var(--arcade-black));
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.combat-charm div {
+  display: grid;
+  gap: 1px;
+}
+
+.combat-charm strong,
+.combat-charm span {
+  font-family: var(--arcade-font-ui);
+  font-size: 0.47rem;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.combat-charm span {
+  color: var(--charm-accent);
+  font-weight: 900;
+}
+
+.combat-charm.is-triggered {
+  color: var(--arcade-black);
+  background: var(--charm-accent);
+  animation: charm-proc 420ms steps(5, end) both;
+}
+
+.combat-charm.is-triggered span {
+  color: var(--arcade-black);
+}
+
+.hub-action--fate {
+  --action-color: var(--arcade-purple);
+}
+
+.resource-hud__item--fate,
+.outcome-reward--fate {
+  --reward-dark: #251044;
+  color: var(--arcade-purple);
+}
+
+.outcome-reward--fate {
+  grid-column: 1 / -1;
+}
+
+.outcome-charm-procs {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  background: var(--arcade-black);
+}
+
+.outcome-charm-procs > div {
+  border-left: 3px solid var(--arcade-purple);
+  padding: 4px 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #140c22;
+}
+
+.outcome-charm-procs p {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.outcome-charm-procs strong {
+  font-family: var(--arcade-font-display);
+  font-size: 0.65rem;
+}
+
+.outcome-charm-procs span {
+  color: var(--arcade-purple);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.54rem;
+}
+
+@keyframes fate-reveal {
+  0% { opacity: 0; transform: translateY(12px) rotate(-2deg); }
+  60% { opacity: 1; transform: translateY(-3px) rotate(1deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+@keyframes charm-proc {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 0); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, 1px); }
+}
+
+@media (max-width: 360px) {
+  .fate-offers {
+    grid-template-columns: 1fr;
+  }
+
+  .fate-offer {
+    min-height: 128px;
+  }
+}

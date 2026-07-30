@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Bot, DoorOpen, Heart, Pause, Swords, Trophy } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
+import { CharmIcon } from '../components/newgame/CharmIcon'
 import { OutcomeRewards } from '../components/newgame/OutcomeRewards'
 import { AUTO_COMBAT_VICTORY_PAUSE_MS } from '../game/automation/autoCombat'
 import { DUNGEONS } from '../game/content/dungeons'
@@ -30,6 +31,7 @@ export function PostCombatScreen() {
   })))
   const profile = useNewGameStore(useShallow((state) => ({
     bankedSouls: state.profile.bankedSouls,
+    fateTokens: state.profile.fateTokens,
     autoCombat: state.profile.settings.autoCombat,
     xp: state.profile.xp,
   })))
@@ -68,6 +70,12 @@ export function PostCombatScreen() {
   const bonusSouls = dungeonComplete
     ? run.runStats.bonusSoulsEarned ?? 0
     : run.lastReward.bonusSouls ?? 0
+  const charmBonusSouls = dungeonComplete
+    ? run.runStats.charmBonusSoulsEarned ?? 0
+    : run.lastReward.charmBonusSouls ?? 0
+  const fateTokensEarned = dungeonComplete
+    ? run.runStats.fateTokensEarned ?? 0
+    : run.lastReward.fateTokens ?? 0
   const nextFloorNumber = run.lastReward.floor + 1
   const buttonTransition = prefersReducedMotion
     ? REDUCED_MOTION_TRANSITION
@@ -118,12 +126,37 @@ export function PostCombatScreen() {
       <OutcomeRewards
         bonusSouls={bonusSouls}
         bonusXp={bonusXp}
+        charmBonusSouls={charmBonusSouls}
+        fatePity={run.lastReward.fatePity}
+        fateTokensEarned={fateTokensEarned}
         heading={dungeonComplete ? 'This descent' : 'Battle rewards'}
         soulsEarned={rewardSouls}
         totalSouls={profile.bankedSouls}
+        totalFateTokens={run.lastReward.fatePity !== undefined ? profile.fateTokens : undefined}
         totalXp={profile.xp}
         xpEarned={rewardXp}
       />
+
+      {run.lastReward.charmTriggers && run.lastReward.charmTriggers.length > 0 ? (
+        <section aria-label="Charm effects triggered" className="outcome-charm-procs">
+          <span className="eyebrow">Fate answered</span>
+          {run.lastReward.charmTriggers.map((trigger) => {
+            const triggerMessage = trigger.kind === 'roll_bonus'
+              ? `+${trigger.amount} ${trigger.targetType ?? 'output'}`
+              : trigger.kind === 'shield'
+                ? `+${trigger.amount} Shield`
+                : trigger.kind === 'heal'
+                  ? `Healed ${trigger.amount} HP`
+                  : `+${trigger.amount} Souls`
+            return (
+              <div key={`${trigger.charmId}-${trigger.kind}-${trigger.amount}`}>
+                <CharmIcon charmId={trigger.charmId} size={28} />
+                <p><strong>{trigger.charmName}</strong><span>{triggerMessage}</span></p>
+              </div>
+            )
+          })}
+        </section>
+      ) : null}
 
       <section aria-label="Current run status" className="outcome-run-status">
         <div className="outcome-health">

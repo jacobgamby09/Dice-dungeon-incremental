@@ -1,5 +1,11 @@
 import type { DieInstance } from './dice'
 import type { EnemyDieId, EnemyRollResult } from './enemyDice'
+import type {
+  CharmRunState,
+  CharmSnapshot,
+  CharmTrigger,
+  FateRewardTier,
+} from './charms'
 
 export type EnemyId =
   | 'slime'
@@ -50,6 +56,7 @@ export interface EncounterDefinition {
   dieIds: EnemyDieId[]
   xpReward: number
   soulReward: number
+  rewardTier?: FateRewardTier
 }
 
 export interface EnemyState {
@@ -66,6 +73,7 @@ export interface EnemyState {
   intentRolls: EnemyRollResult[]
   xpReward: number
   soulReward: number
+  rewardTier: FateRewardTier
   rewardClaimed: boolean
 }
 
@@ -97,6 +105,12 @@ export interface EncounterReward {
   baseSouls?: number
   bonusXp?: number
   bonusSouls?: number
+  charmBonusSouls?: number
+  charmHealing?: number
+  charmTriggers?: CharmTrigger[]
+  fateTokens?: number
+  fatePity?: number
+  fatePityTriggered?: boolean
   dungeonComplete: boolean
 }
 
@@ -110,6 +124,8 @@ export interface RunStats {
   baseSoulsEarned?: number
   bonusXpEarned?: number
   bonusSoulsEarned?: number
+  charmBonusSoulsEarned?: number
+  fateTokensEarned?: number
 }
 
 export interface RunState {
@@ -120,6 +136,8 @@ export interface RunState {
   playerMaxHp: number
   runStats: RunStats
   equippedDiceSnapshot: DieInstance[]
+  equippedCharmSnapshot: CharmSnapshot[]
+  charmState: CharmRunState
   enemy: EnemyState | null
   lastReward: EncounterReward | null
 }

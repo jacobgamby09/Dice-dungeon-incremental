@@ -3,6 +3,7 @@ import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
 import type { PlayerProfile, TalentRanks } from '../types/progression'
 import {
   canPurchaseTalent,
+  getCharmCapacity,
   getDiceCapacity,
   getPlayerMaxHp,
   getTalentPurchaseReason,
@@ -17,9 +18,11 @@ import {
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 15,
+    saveVersion: 16,
     xp,
     bankedSouls: 0,
+    fateTokens: 0,
+    fatePity: 0,
     talentRanks,
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
@@ -29,6 +32,10 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     diceCollection: [],
     equippedDieIds: [],
     recentForgeOperationIds: [],
+    charmRanks: {},
+    equippedCharmIds: [],
+    pendingFateDraw: null,
+    recentFateOperationIds: [],
     pendingWorkshopForge: null,
     settings: { rollSpeed: 1, autoCombat: false },
   }
@@ -119,12 +126,11 @@ describe('Classic V2 directional talent progression', () => {
     expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 3 })).toBeCloseTo(0.512)
   })
 
-  it('keeps Fatecraft as a visible but unpurchasable future system', () => {
+  it('opens Fatecraft after Dungeon 1 through either efficiency branch', () => {
     const talent = TALENTS_BY_ID[TALENT_IDS.fatecraft]
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,
       [TALENT_IDS.fieldStudies]: 1,
-      [TALENT_IDS.soulHarvest]: 1,
     }
     const uncleared = createProfile(ranks, 999)
     const cleared = {
@@ -135,9 +141,17 @@ describe('Classic V2 directional talent progression', () => {
       },
     }
 
-    expect(getTalentPurchaseReason(uncleared, talent)).toBe('prerequisite')
-    expect(getTalentPurchaseReason(cleared, talent)).toBe('prerequisite')
-    expect(hasCharmsUnlocked({ ...ranks, [TALENT_IDS.fatecraft]: 1 })).toBe(true)
+    expect(getTalentPurchaseReason(uncleared, talent)).toBe('dungeon')
+    expect(getTalentPurchaseReason(cleared, talent)).toBeNull()
+
+    const charmRanks = { ...ranks, [TALENT_IDS.fatecraft]: 1 }
+    expect(hasCharmsUnlocked(charmRanks)).toBe(true)
+    expect(getCharmCapacity(charmRanks)).toBe(1)
+    expect(getCharmCapacity({
+      ...charmRanks,
+      [TALENT_IDS.wovenPair]: 1,
+      [TALENT_IDS.trinityKnot]: 1,
+    })).toBe(3)
   })
 
   it('caps and cleans persisted ranks against the V2 registry', () => {
@@ -172,7 +186,7 @@ describe('radial fog and silhouette visibility', () => {
     expect(getTalentVisibility(
       {},
       TALENTS_BY_ID[TALENT_IDS.fatecraft],
-    )).toBe('silhouette')
+    )).toBe('hidden')
   })
 
   it('reveals only one deeper layer along a purchased direction', () => {

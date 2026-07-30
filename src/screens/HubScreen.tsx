@@ -5,6 +5,7 @@ import {
   DoorOpen,
   FastForward,
   Hammer,
+  Gem,
   RotateCcw,
   Rocket,
   Sparkles,
@@ -21,12 +22,14 @@ import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { POST_DUNGEON_ONE_DEV_PRESET } from '../game/dev/postDungeonOnePreset'
 import { EARLY_QOL_TEST_XP } from '../game/dev/earlyQolPreset'
+import { CHARM_TEST_DEV_PRESET } from '../game/dev/charmTestPreset'
 import { getDiceCapacity } from '../game/progression/talents'
+import { hasCharmsUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function HubScreen() {
-  const [devAction, setDevAction] = useState<'early-qol' | 'preset' | 'reset' | null>(null)
-  const [loadedPreset, setLoadedPreset] = useState<'early-qol' | 'dungeon-two' | null>(null)
+  const [devAction, setDevAction] = useState<'charm' | 'early-qol' | 'preset' | 'reset' | null>(null)
+  const [loadedPreset, setLoadedPreset] = useState<'charm' | 'early-qol' | 'dungeon-two' | null>(null)
   const [isRackDragging, setIsRackDragging] = useState(false)
   const rackDrag = useRef({
     pointerId: null as number | null,
@@ -35,6 +38,7 @@ export function HubScreen() {
   })
   const profile = useNewGameStore(useShallow((state) => ({
     bankedSouls: state.profile.bankedSouls,
+    fateTokens: state.profile.fateTokens,
     diceCollection: state.profile.diceCollection,
     equippedDieIds: state.profile.equippedDieIds,
     talentRanks: state.profile.talentRanks,
@@ -42,14 +46,17 @@ export function HubScreen() {
   })))
   const openDungeonSelect = useNewGameStore((state) => state.openDungeonSelect)
   const openWorkshop = useNewGameStore((state) => state.openWorkshop)
+  const openFateSanctum = useNewGameStore((state) => state.openFateSanctum)
   const openTalentTree = useNewGameStore((state) => state.openTalentTree)
   const openLoadout = useNewGameStore((state) => state.openLoadout)
   const loadPostDungeonOneDevPreset = useNewGameStore(
     (state) => state.loadPostDungeonOneDevPreset,
   )
   const loadEarlyQolDevPreset = useNewGameStore((state) => state.loadEarlyQolDevPreset)
+  const loadCharmTestDevPreset = useNewGameStore((state) => state.loadCharmTestDevPreset)
   const resetProgress = useNewGameStore((state) => state.resetProgress)
   const diceCapacity = getDiceCapacity(profile.talentRanks)
+  const charmsUnlocked = hasCharmsUnlocked(profile.talentRanks)
 
   useEffect(() => {
     window.scrollTo({ left: 0, top: 0 })
@@ -71,6 +78,12 @@ export function HubScreen() {
     loadEarlyQolDevPreset()
     setDevAction(null)
     setLoadedPreset('early-qol')
+  }
+
+  const confirmCharmTestPreset = () => {
+    loadCharmTestDevPreset()
+    setDevAction(null)
+    setLoadedPreset('charm')
   }
 
   const startRackDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -144,7 +157,11 @@ export function HubScreen() {
         <p>Fail, forge a random face, and return stronger. Every run moves the wall.</p>
       </section>
 
-      <PermanentResourceHud bankedSouls={profile.bankedSouls} xp={profile.xp} />
+      <PermanentResourceHud
+        bankedSouls={profile.bankedSouls}
+        fateTokens={charmsUnlocked ? profile.fateTokens : undefined}
+        xp={profile.xp}
+      />
 
       <section className="loadout-vault" aria-labelledby="loadout-title">
         <header className="loadout-vault__heading">
@@ -192,6 +209,12 @@ export function HubScreen() {
           <span className="hub-action__icon"><Backpack aria-hidden="true" size={22} /></span>
           <span><small>Choose your dice</small><strong>Loadout</strong></span>
         </button>
+        {charmsUnlocked ? (
+          <button className="hub-action hub-action--fate" onClick={openFateSanctum} type="button">
+            <span className="hub-action__icon"><Gem aria-hidden="true" size={22} /></span>
+            <span><small>Bind strange rules</small><strong>Fate Sanctum</strong></span>
+          </button>
+        ) : null}
       </footer>
 
       <section
@@ -203,11 +226,38 @@ export function HubScreen() {
           <p aria-live="polite" className="dev-tools__status">
             {loadedPreset === 'early-qol'
               ? `Fresh QoL test save loaded with ${EARLY_QOL_TEST_XP} XP.`
-              : 'Dungeon 2 test profile loaded.'}
+              : loadedPreset === 'charm'
+                ? 'Charm test profile loaded.'
+                : 'Dungeon 2 test profile loaded.'}
           </p>
         ) : null}
 
-        {devAction === 'early-qol' ? (
+        {devAction === 'charm' ? (
+          <div className="dev-preset__confirmation">
+            <Gem aria-hidden="true" size={19} />
+            <div>
+              <strong>Load Charm test profile?</strong>
+              <p>
+                Replaces the current save with Fatecraft, two Charm slots and a
+                near-pity Fate Draw ready for focused testing.
+              </p>
+            </div>
+            <dl className="dev-preset__summary">
+              <div><dt>Fate Tokens</dt><dd>{CHARM_TEST_DEV_PRESET.fateTokens}</dd></div>
+              <div><dt>Charms</dt><dd>{CHARM_TEST_DEV_PRESET.ownedCharms} owned</dd></div>
+              <div><dt>Slots</dt><dd>{CHARM_TEST_DEV_PRESET.equippedCharms} equipped</dd></div>
+              <div><dt>Pity</dt><dd>{CHARM_TEST_DEV_PRESET.pity}/5</dd></div>
+            </dl>
+            <div className="dev-reset__actions">
+              <button className="dev-reset__cancel" onClick={() => setDevAction(null)} type="button">
+                Cancel
+              </button>
+              <button className="dev-preset__confirm" onClick={confirmCharmTestPreset} type="button">
+                Load Charm test
+              </button>
+            </div>
+          </div>
+        ) : devAction === 'early-qol' ? (
           <div className="dev-preset__confirmation">
             <Rocket aria-hidden="true" size={19} />
             <div>
@@ -305,6 +355,14 @@ export function HubScreen() {
           </div>
         ) : (
           <div className="dev-tools__triggers">
+            <button
+              className="dev-preset__trigger"
+              onClick={() => setDevAction('charm')}
+              type="button"
+            >
+              <Gem aria-hidden="true" size={15} />
+              DEV · Load Charm profile
+            </button>
             <button
               className="dev-preset__trigger"
               onClick={() => setDevAction('early-qol')}

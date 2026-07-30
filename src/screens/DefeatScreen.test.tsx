@@ -6,6 +6,9 @@ const mockedStore = vi.hoisted(() => ({
   state: {
     profile: {
       bankedSouls: 15,
+      fatePity: 0,
+      fateTokens: 0,
+      talentRanks: {},
       xp: 24,
     },
     run: {

@@ -77,6 +77,13 @@ export function hasAutoCombatUnlocked(talentRanks: Readonly<TalentRanks>): boole
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_combat')
 }
 
+export function getCharmCapacity(talentRanks: Readonly<TalentRanks>): number {
+  return getPurchasedEffects(talentRanks).reduce(
+    (total, effect) => total + (effect.type === 'charm_slots' ? effect.amount : 0),
+    0,
+  )
+}
+
 export function getWorkshopDieFaces(
   talentRanks: Readonly<TalentRanks>,
 ): WorkshopDieFace[] {

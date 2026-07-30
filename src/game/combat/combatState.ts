@@ -22,6 +22,8 @@ export function createCombatState(
     totals: { ...EMPTY_TOTALS },
     pendingMomentum: 0,
     pendingFortify: 0,
+    lastCharmTriggers: [],
+    charmTriggerVersion: 0,
     carriedShield: Math.max(0, carried.shield ?? 0),
     carriedHeal: Math.max(0, carried.heal ?? 0),
     lastResolution: null,

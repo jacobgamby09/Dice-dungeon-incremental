@@ -1,6 +1,7 @@
 import type { DieInstance } from './dice'
 import type { DungeonId, DungeonProgress } from './dungeon'
 import type { PendingWorkshopForge, WorkshopDieValues } from './workshop'
+import type { CharmId, CharmRanks, PendingFateDraw } from './charms'
 
 export const TALENT_TRACKS = [
   'core',
@@ -31,6 +32,8 @@ export const TALENT_ICON_KEYS = [
   'soul-efficiency',
   'xp-efficiency',
   'workshop-efficiency',
+  'charm-pair',
+  'charm-trinity',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -44,6 +47,7 @@ export type TalentEffect =
   | { type: 'xp_per_kill'; amount: number }
   | { type: 'souls_per_kill'; amount: number }
   | { type: 'workshop_cost_multiplier'; multiplier: number }
+  | { type: 'charm_slots'; amount: number }
   | { type: 'unlock_auto_combat' }
   | { type: 'unlock_charms' }
   | { type: 'unlock_dungeon'; dungeonId: DungeonId }
@@ -83,12 +87,18 @@ export interface PlayerProfile {
   saveVersion: number
   xp: number
   bankedSouls: number
+  fateTokens: number
+  fatePity: number
   talentRanks: TalentRanks
   unlockedDungeonIds: DungeonId[]
   dungeonProgress: Record<DungeonId, DungeonProgress>
   diceCollection: DieInstance[]
   equippedDieIds: string[]
   recentForgeOperationIds: string[]
+  charmRanks: CharmRanks
+  equippedCharmIds: CharmId[]
+  pendingFateDraw: PendingFateDraw | null
+  recentFateOperationIds: string[]
   pendingWorkshopForge: PendingWorkshopForge | null
   settings: PlayerSettings
 }

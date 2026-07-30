@@ -123,6 +123,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     dieIds: ['skeleton-elite-attack'],
     xpReward: 38,
     soulReward: 49,
+    rewardTier: 'elite',
   },
   'descent-1-demon': {
     id: 'descent-1-demon',
@@ -132,6 +133,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     dieIds: ['demon-attack'],
     xpReward: 55,
     soulReward: 65,
+    rewardTier: 'boss',
   },
 
   'descent-2-shieldbearer-l1': {
@@ -214,6 +216,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     dieIds: ['blood-orc-elite-attack', 'blood-orc-elite-shield'],
     xpReward: 118,
     soulReward: 112,
+    rewardTier: 'elite',
   },
   'descent-2-spiked-behemoth': {
     id: 'descent-2-spiked-behemoth',
@@ -227,6 +230,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     ],
     xpReward: 160,
     soulReward: 160,
+    rewardTier: 'boss',
   },
 }
 
@@ -259,6 +263,7 @@ export function createEnemyState(
     intentRolls,
     xpReward: encounter.xpReward,
     soulReward: encounter.soulReward,
+    rewardTier: encounter.rewardTier ?? 'normal',
     rewardClaimed: false,
   }
 }

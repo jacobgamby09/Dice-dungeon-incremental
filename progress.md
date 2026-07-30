@@ -38,7 +38,8 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies` og `Soul Harvest`, mens Fatecraft forbliver en ukøbbar fremtidssilhuet. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 15 migrerer det gamle Twin Arsenal uden tab.
+- **Charm System v1 er implementeret lokalt på `codex/arcade-foundation-v1`:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Harvest og giver profile-level Fate Token-drops, 5-kill pity, Fate Sanctum samt første Charm-slot. Et atomisk 5-Token Fate Draw viser tre persisterede offers, beskytter de første tre acquisitions mod duplicates og kan ranke seks permanente Charms til rank 3. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, equipped Charms snapshots ved run-start, og alle seks effekter har pure combat/progression-tests, counters og proc-feedback. Otte nye pixel-assets dækker seks Charms, Fate Token og reliquary.
+- **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies`, `Soul Harvest` og den nu aktive Fatecraft/Woven Pair/Trinity Knot-gren. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 16 migrerer Charm/Fate-defaults uden progressionstab.
 - **Offline-fremdrift er fjernet:** Auto Combat kører kun, mens spillet er åbent. Background fast-forward, away recap, checkpoints, simulatorlogik, state og CSS er fjernet; aktive runs persisteres stadig præcist.
 - **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Det store roll-felt forbliver rent sort i alle states; feedback er afgrænset til terning, transfer og destination. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
 - **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.1 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer, fysiske 3D-terninger som hero-objekter og Arcade Polish-kontrakten for læsbar feedback. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
@@ -98,9 +99,12 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Fresh-save-playtest de syv samtidige valg efter Inner Spark og mål, om `Field Studies`, `Soul Harvest`, Auto Combat, Workshop og Arsenal alle føles konkurrencedygtige.
-2. Mål om spillere reelt vælger mellem `Second Grip` og `Striker Pattern`, eller om de to 16-XP-køb stadig opleves som ét obligatorisk 32-XP-køb.
-3. Balancér payback-tid for `Field Studies`, `Soul Harvest` og `Efficient Tools` mod de faktiske Dungeon 1-rewards og Workshop-priser.
+1. Playtest første Fatecraft-unlock, første Fate Draw og de første 3–5 Charm-acquisitions på et fresh save; mål Token-tempo, pity-forståelse og duplicate-friktion.
+2. Test to samtidig equipped Charms under både manuel og hurtig Auto Combat og vurder, om counters/procs er læsbare uden at skabe combat-støj.
+3. Balancér Fatecraft/Woven Pair-priser og Charm rank-up-tempo mod de faktiske Dungeon 1/2-runs, før Charm-poolen udvides.
+4. Fresh-save-playtest de syv samtidige valg efter Inner Spark og mål, om `Field Studies`, `Soul Harvest`, Auto Combat, Workshop og Arsenal alle føles konkurrencedygtige.
+5. Mål om spillere reelt vælger mellem `Second Grip` og `Striker Pattern`, eller om de to 16-XP-køb stadig opleves som ét obligatorisk 32-XP-køb.
+6. Balancér payback-tid for `Field Studies`, `Soul Harvest` og `Efficient Tools` mod de faktiske Dungeon 1-rewards og Workshop-priser.
 1. Gennemfør en fysisk iPhone/Safari-pass af den pushed Arcade Foundation + Arcade Polish: Hub, manuel/automatisk Combat, Workshop, Talent-køb samt Victory/Defeat.
 2. Stress seks samtidige player-dice fysisk under hurtig Auto Combat; DOM-regressioner dækker allerede seks player-dice og tre enemy-dice.
 3. Fresh-save-playtest V2 på iPhone og mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
@@ -122,7 +126,8 @@ Brug denne skabelon:
 - Talent Tree v3 giver syv købsmuligheder umiddelbart efter Inner Spark. Det øger agency markant, men kan være for bredt som første beslutningslag og skal fresh-save-testes.
 - Flat +XP/+Souls er bevidst valgt for at være synligt på lave Dungeon 1-rewards. De tre ranks kan blive for stærke i lange dungeons og skal sammenlignes med procentbaseret eller capped scaling efter fysisk test.
 - `Efficient Tools` stacker 20% multiplicativt per rank og afrunder hvert køb op. Det er læsbart og aldrig gratis, men enkelte lave priser kan give samme afrundede pris på to ranks.
-- Fatecraft er nu eksplicit ukøbbar fremtidsindhold. Charms og Charm currency findes stadig ikke.
+- Fatecraft og seks Charms er nu funktionelle, men 20% normal dropchance, fem-kill pity, 5-Token draw-pris og tre-offer agency er første balancepass og skal valideres gennem længere fresh-save-spil.
+- Generated Charm-assets er visuelt verificeret ved 384×844, men de er mere detaljerede end de simpleste arcade-ikoner; fysisk iPhone-læsbarhed ved 32–48 px er fortsat en åben art-direction-risiko.
 - Arcade Polish v1 er browser-verificeret ved 320×700, 384×844 og 430×932 uden horisontal overflow eller console warnings/errors. Fysisk Safari-timing, touch-følelse og seks samtidige player-dice under hurtig automation er fortsat den vigtigste åbne visuelle risiko.
 - Den canonical Pixel Arcade-layer er nu opdelt i screen- og tokenfiler, men `src/newGame.css` indeholder fortsat det ældre strukturelle layout under præsentationslaget. Nye arcade-regler skal blive i `src/styles/arcade/`; en senere strukturel konsolidering skal ske gradvist med visuelle regressionstests.
 - De nuværende detaljerede enemy-sprites er bevaret som aftalt. Det skal vurderes på fysisk mobil, om deres billedsprog passer til den simplere sort/hvide arcade-shell, før der bestilles eller bygges ny sprite-art.
@@ -161,7 +166,7 @@ Brug denne skabelon:
 - Inner Spark har fem valgfrie +1 HP-ranks. Rank 1 alene åbner alle fire retninger.
 - V2 Auto Combat koster 6 XP efter Inner Spark og automatiserer både roll, resolve, rounds og normale floor-transitions.
 - V2 Twin Arsenal koster 32 XP og giver samtidig slot 2 og én unik Striker Die.
-- Charms, Fate Tokens og random Charm-loot er en senere selvstændig systemgren og må ikke erstattes af skæve proc-talenter.
+- Skæve proc-regler tilhører Charms, ikke Talent Tree. Fatecraft giver første slot og Token-drops; Woven Pair/Trinity Knot giver slot 2/3. Fate Draw er et persisteret choose-one-of-three-køb, og equipped Charms snapshots ved run-start.
 
 ### Production-reference
 
@@ -216,6 +221,19 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-30 — Charm System v1 og Fate Sanctum
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Fatecraft er blevet en fuld østlig progressiongren med Fate Token-drops, profile-level pity, atomisk Choose-One-of-Three Fate Draw, permanent Charm collection, ranks, 1–3 loadout-slots, run-snapshots, combat-counters og outcome-procs. Seks første Charms er implementeret: Blade Rhythm, Echo Knot, Low Omen, Ward Clock, Bloodroot og Soul Prism.
+- Beslutninger: Normale kills har 20% Token-drop og fem-kill pity; elite giver 1 og boss giver 3. Et draw koster 5, early acquisition beskytter de første tre ejede Charms mod duplicates, senere offers vægter unowned højere, og max-rank Charms ekskluderes. Fatecraft kræver Dungeon 1-clear og Field Studies eller Soul Harvest; Woven Pair og Trinity Knot giver slot 2/3.
+- Berørte områder: Save-version 16, profile/run/combat-types, Zustand-store, pure Charm/Fate progression, enemy reward tiers, Talent Tree, Hub/dev-preset, Fate Sanctum, Combat, outcomes, Pixel Arcade CSS, `AGENTS.md` og `CLASSIC_INCREMENTAL_V2.md`.
+- Assets: Otte genererede, chroma-key-rensede pixel-assets i `public/sprites/charms/`: seks Charm-trinkets, Fate Token og Fate Reliquary.
+- Validering: `npx tsc --noEmit`, 144/144 Vitest-tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 verificerede Hub → Charm dev-profile → Fate Sanctum → draw → claim → unbind/equip → Dungeon 1 combat; ingen console-errors, error-overlay eller horisontal overflow.
+- Kendte mangler: Drop-/draw-/rank-tempo er første balancepass; fysisk iPhone-læsbarhed og længere Auto Combat med flere samtidige proc-Charms er ikke endnu playtestet.
+- Git: Leveres som commit `Implement Charm System v1` på branch `codex/arcade-foundation-v1`.
 
 ### 2026-07-30 — Talent Tree v3, efficiency economy og live-only Auto Combat
 

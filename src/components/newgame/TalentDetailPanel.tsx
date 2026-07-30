@@ -14,6 +14,7 @@ import {
   BookOpen,
   Coins,
   Hammer,
+  Link2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
@@ -53,6 +54,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   xp_per_kill: BookOpen,
   souls_per_kill: Coins,
   workshop_cost_multiplier: Hammer,
+  charm_slots: Link2,
 }
 
 function getEffectLabel(effect: TalentEffect): string {
@@ -81,6 +83,8 @@ function getEffectLabel(effect: TalentEffect): string {
       return `+${effect.amount} Soul per Enemy`
     case 'workshop_cost_multiplier':
       return `${Math.round((1 - effect.multiplier) * 100)}% Cheaper Workshop`
+    case 'charm_slots':
+      return `+${effect.amount} Charm Slot`
   }
 }
 

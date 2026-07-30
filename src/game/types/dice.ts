@@ -61,6 +61,8 @@ export interface RollResult {
   faceIndex: number
   type: FaceType
   value: number
+  charmBonus?: number
+  charmTriggers?: import('./charms').CharmTrigger[]
   evolution?: FaceEvolution
   signature?: FaceSignature
 }

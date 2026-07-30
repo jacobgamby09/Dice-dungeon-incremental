@@ -1,4 +1,5 @@
 import type { RollResult } from './dice'
+import type { CharmTrigger } from './charms'
 
 export interface RoundTotals {
   attack: number
@@ -54,6 +55,8 @@ export interface CombatState {
   totals: RoundTotals
   pendingMomentum: number
   pendingFortify: number
+  lastCharmTriggers: CharmTrigger[]
+  charmTriggerVersion: number
   carriedShield: number
   carriedHeal: number
   lastResolution: RoundResolution | null

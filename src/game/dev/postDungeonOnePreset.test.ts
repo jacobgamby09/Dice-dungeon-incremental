@@ -14,6 +14,8 @@ function createBaseProfile(): PlayerProfile {
     saveVersion: 11,
     xp: 0,
     bankedSouls: 0,
+    fateTokens: 0,
+    fatePity: 0,
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
@@ -23,6 +25,10 @@ function createBaseProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    charmRanks: {},
+    equippedCharmIds: [],
+    pendingFateDraw: null,
+    recentFateOperationIds: [],
     pendingWorkshopForge: null,
     settings: {
       rollSpeed: 1,

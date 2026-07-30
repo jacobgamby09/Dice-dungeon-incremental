@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { Flame, Sparkles } from 'lucide-react'
+import { FateTokenIcon } from './FateTokenIcon'
 
 interface OutcomeRewardsProps {
   heading: string
@@ -9,6 +10,10 @@ interface OutcomeRewardsProps {
   xpEarned: number
   bonusSouls?: number
   bonusXp?: number
+  charmBonusSouls?: number
+  fatePity?: number
+  fateTokensEarned?: number
+  totalFateTokens?: number
 }
 
 const REWARD_INITIAL = { opacity: 0, y: 14 }
@@ -24,6 +29,10 @@ export function OutcomeRewards({
   xpEarned,
   bonusSouls = 0,
   bonusXp = 0,
+  charmBonusSouls = 0,
+  fatePity,
+  fateTokensEarned = 0,
+  totalFateTokens,
 }: OutcomeRewardsProps) {
   const prefersReducedMotion = useReducedMotion()
 
@@ -57,8 +66,21 @@ export function OutcomeRewards({
           <span>Souls</span>
           <strong>+{soulsEarned}</strong>
           {bonusSouls > 0 && <em>Includes +{bonusSouls} from talents</em>}
+          {charmBonusSouls > 0 && <em>Includes +{charmBonusSouls} from Charms</em>}
           <small>{totalSouls} total</small>
         </div>
+
+        {totalFateTokens !== undefined ? (
+          <div className="outcome-reward outcome-reward--fate">
+            <span aria-hidden="true" className="outcome-reward__icon">
+              <FateTokenIcon size={27} />
+            </span>
+            <span>Fate</span>
+            <strong>{fateTokensEarned > 0 ? `+${fateTokensEarned}` : `${fatePity ?? 0}/5`}</strong>
+            <em>{fateTokensEarned > 0 ? 'Token found' : 'Pity progress'}</em>
+            <small>{totalFateTokens} total</small>
+          </div>
+        ) : null}
       </div>
     </motion.section>
   )

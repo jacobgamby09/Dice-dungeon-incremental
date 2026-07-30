@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(15)
+    expect(profile.saveVersion).toBe(16)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -112,6 +112,59 @@ describe('Classic V2 store progression loop', () => {
       soulsEarned: 5,
       xpEarned: 4,
     })
+  })
+
+  it('persists Fate pity, resolves a paid draw once and snapshots equipped Charms', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        fatePity: 4,
+        fateTokens: 4,
+        talentRanks: {
+          [TALENT_IDS.battleHardenedOne]: 1,
+          [TALENT_IDS.fieldStudies]: 1,
+          [TALENT_IDS.fatecraft]: 1,
+        },
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+    prepareResolvedRound({ attack: 99, shield: 0, heal: 0 })
+    useNewGameStore.getState().beginRoundResolution(() => 0.99)
+    expect(useNewGameStore.getState().profile).toMatchObject({
+      fatePity: 0,
+      fateTokens: 5,
+    })
+
+    useNewGameStore.getState().resetProgress()
+    const fresh = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...fresh.profile,
+        fateTokens: 5,
+        talentRanks: {
+          [TALENT_IDS.battleHardenedOne]: 1,
+          [TALENT_IDS.fieldStudies]: 1,
+          [TALENT_IDS.fatecraft]: 1,
+        },
+      },
+    })
+    const draw = useNewGameStore.getState().beginFateDraw('fate-op', () => 0)
+    expect(draw?.offeredCharmIds).toEqual([
+      'blade-rhythm',
+      'echo-knot',
+      'low-omen',
+    ])
+    expect(useNewGameStore.getState().profile.fateTokens).toBe(0)
+    expect(useNewGameStore.getState().beginFateDraw('another-op', () => 0)).toBeNull()
+    expect(useNewGameStore.getState().claimFateCharm('blade-rhythm')).toBe(true)
+    expect(useNewGameStore.getState().claimFateCharm('blade-rhythm')).toBe(false)
+    expect(useNewGameStore.getState().equipCharm('blade-rhythm')).toBe(true)
+
+    useNewGameStore.getState().startRun('prototype-depths')
+    expect(useNewGameStore.getState().run.equippedCharmSnapshot).toEqual([
+      { id: 'blade-rhythm', rank: 1 },
+    ])
   })
 
   it('keeps all earned currency after defeat or a voluntary exit', () => {
@@ -395,7 +448,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 15,
+        saveVersion: 16,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
@@ -437,7 +490,7 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 15,
+        saveVersion: 16,
         xp: 27,
       })
     } finally {
@@ -479,7 +532,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       const profile = useNewGameStore.getState().profile
-      expect(profile.saveVersion).toBe(15)
+      expect(profile.saveVersion).toBe(16)
       expect(profile.talentRanks).toMatchObject({
         [TALENT_IDS.twinArsenal]: 1,
         [TALENT_IDS.strikerPattern]: 1,

@@ -47,6 +47,8 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.fieldStudies]: { x: 1010, y: 850 },
   [TALENT_IDS.soulHarvest]: { x: 1010, y: 950 },
   [TALENT_IDS.fatecraft]: { x: 1140, y: 900 },
+  [TALENT_IDS.wovenPair]: { x: 1270, y: 850 },
+  [TALENT_IDS.trinityKnot]: { x: 1400, y: 900 },
 }
 
 const TALENT_LAYOUT_VALUES = Object.values(TALENT_TREE_LAYOUT)

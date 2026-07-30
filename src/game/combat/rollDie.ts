@@ -22,7 +22,7 @@ export function addRollToTotals(totals: RoundTotalsInput, result: RollResult): R
   const normalizedTotals = normalizeRoundTotals(totals)
   return {
     ...normalizedTotals,
-    [result.type]: normalizedTotals[result.type] + result.value,
+    [result.type]: normalizedTotals[result.type] + result.value + (result.charmBonus ?? 0),
   }
 }
 

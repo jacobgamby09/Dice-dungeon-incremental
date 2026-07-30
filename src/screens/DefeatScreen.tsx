@@ -3,6 +3,7 @@ import { DoorOpen, Skull, Swords } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { OutcomeRewards } from '../components/newgame/OutcomeRewards'
 import { DUNGEONS } from '../game/content/dungeons'
+import { hasCharmsUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 const DEFEAT_INITIAL = { opacity: 0, scale: 0.9, y: -12 }
@@ -16,6 +17,9 @@ const REDUCED_MOTION_TRANSITION = { duration: 0 }
 export function DefeatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
     souls: state.profile.bankedSouls,
+    fateTokens: state.profile.fateTokens,
+    fatePity: state.profile.fatePity,
+    talentRanks: state.profile.talentRanks,
     xp: state.profile.xp,
   })))
   const run = useNewGameStore(useShallow((state) => ({
@@ -25,6 +29,7 @@ export function DefeatScreen() {
   })))
   const returnToHub = useNewGameStore((state) => state.returnToHubAfterDefeat)
   const prefersReducedMotion = useReducedMotion()
+  const charmsUnlocked = hasCharmsUnlocked(profile.talentRanks)
 
   const totalFloors = run.dungeonId ? DUNGEONS[run.dungeonId].floors.length : 0
   const reachedFloor = totalFloors > 0
@@ -67,9 +72,13 @@ export function DefeatScreen() {
       <OutcomeRewards
         bonusSouls={run.runStats.bonusSoulsEarned ?? 0}
         bonusXp={run.runStats.bonusXpEarned ?? 0}
+        charmBonusSouls={run.runStats.charmBonusSoulsEarned ?? 0}
+        fatePity={charmsUnlocked ? profile.fatePity : undefined}
+        fateTokensEarned={run.runStats.fateTokensEarned ?? 0}
         heading="This descent"
         soulsEarned={run.runStats.soulsEarned}
         totalSouls={profile.souls}
+        totalFateTokens={charmsUnlocked ? profile.fateTokens : undefined}
         totalXp={profile.xp}
         xpEarned={run.runStats.xpEarned}
       />

@@ -2,6 +2,12 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
 import { createCombatState } from '../game/combat/combatState'
+import {
+  applyKillCharms,
+  applyRollCharms,
+  beginCharmRound,
+  createCharmRunState,
+} from '../game/combat/charms'
 import { addRollEffects, rollDie } from '../game/combat/rollDie'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { resolveRound } from '../game/combat/resolveRound'
@@ -21,9 +27,11 @@ import {
 } from '../game/forge/forge'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
 import { createEarlyQolTestProfile } from '../game/dev/earlyQolPreset'
+import { createCharmTestProfile } from '../game/dev/charmTestPreset'
 import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
+  getCharmCapacity,
   getDiceCapacity,
   getNextTalentRank,
   getPlayerMaxHp,
@@ -32,9 +40,16 @@ import {
   getWorkshopFaceCap,
   getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
+  hasCharmsUnlocked,
   normalizeTalentRanks,
 } from '../game/progression/talents'
 import { getEnemyRewardBreakdown } from '../game/progression/rewards'
+import {
+  claimFateDraw,
+  createFateDraw,
+  FATE_DRAW_COST,
+  rollFateDrop,
+} from '../game/progression/fate'
 import type { CombatState, RoundResolution } from '../game/types/combat'
 import type { DieFaces, DieInstance, FaceEvolutionId, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
@@ -48,6 +63,7 @@ import type {
 } from '../game/types/dungeon'
 import type { PlayerProfile, TalentRanks } from '../game/types/progression'
 import type { PendingWorkshopForge } from '../game/types/workshop'
+import type { CharmId, CharmSnapshot, PendingFateDraw } from '../game/types/charms'
 
 export type AppScreen =
   | 'hub'
@@ -55,6 +71,7 @@ export type AppScreen =
   | 'combat'
   | 'post_combat'
   | 'workshop'
+  | 'fate_sanctum'
   | 'talent_tree'
   | 'loadout'
   | 'defeat'
@@ -67,13 +84,14 @@ export interface NewGameState {
   runMenuOpen: boolean
   openDungeonSelect: () => void
   openWorkshop: () => void
+  openFateSanctum: () => void
   openTalentTree: () => void
   openLoadout: () => void
   goToHub: () => void
   startRun: (dungeonId: DungeonId) => void
   finishEnemyIntentReveal: () => void
   drawNextDie: () => RollResult | null
-  beginRoundResolution: () => RoundResolution | null
+  beginRoundResolution: (random?: () => number) => RoundResolution | null
   advanceRoundResolution: () => void
   finishRoundResolution: () => void
   advanceToNextFloor: () => void
@@ -94,12 +112,18 @@ export interface NewGameState {
   completePendingWorkshopForge: (operationId: string) => ForgeResult | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
   evolveFace: (dieId: string, faceId: string, evolutionId: FaceEvolutionId) => boolean
+  beginFateDraw: (operationId: string, random?: () => number) => PendingFateDraw | null
+  claimFateCharm: (charmId: CharmId) => boolean
+  equipCharm: (charmId: CharmId) => boolean
+  unequipCharm: (charmId: CharmId) => boolean
   loadEarlyQolDevPreset: () => void
+  loadCharmTestDevPreset: () => void
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 15
+const SAVE_VERSION = 16
+const LEGACY_FATECRAFT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -113,12 +137,18 @@ function createInitialProfile(): PlayerProfile {
     saveVersion: SAVE_VERSION,
     xp: 0,
     bankedSouls: 0,
+    fateTokens: 0,
+    fatePity: 0,
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: createInitialDungeonProgress(),
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    charmRanks: {},
+    equippedCharmIds: [],
+    pendingFateDraw: null,
+    recentFateOperationIds: [],
     pendingWorkshopForge: null,
     settings: {
       rollSpeed: 1,
@@ -149,6 +179,8 @@ function createEmptyRunStats(): RunStats {
     baseXpEarned: 0,
     bonusSoulsEarned: 0,
     bonusXpEarned: 0,
+    charmBonusSoulsEarned: 0,
+    fateTokensEarned: 0,
   }
 }
 
@@ -161,6 +193,8 @@ function createInactiveRun(): RunState {
     playerMaxHp: BASE_PLAYER_HP,
     runStats: createEmptyRunStats(),
     equippedDiceSnapshot: [],
+    equippedCharmSnapshot: [],
+    charmState: createCharmRunState(),
     enemy: null,
     lastReward: null,
   }
@@ -305,6 +339,36 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 15) {
+    const persisted = persistedState as NewGameState
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        fateTokens: 0,
+        fatePity: 0,
+        charmRanks: {},
+        equippedCharmIds: [],
+        pendingFateDraw: null,
+        recentFateOperationIds: [],
+      },
+      run: {
+        ...persisted.run,
+        equippedCharmSnapshot: [],
+        charmState: createCharmRunState(),
+        runStats: {
+          ...createEmptyRunStats(),
+          ...persisted.run?.runStats,
+        },
+      },
+      combat: {
+        ...persisted.combat,
+        lastCharmTriggers: [],
+        charmTriggerVersion: 0,
+      },
+    }
+  }
   if (version === 14) {
     const persisted = persistedState as NewGameState
     const existingRanks = normalizeTalentRanks(persisted.profile?.talentRanks)
@@ -328,16 +392,29 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         ...persisted.profile,
         saveVersion: SAVE_VERSION,
         xp: (persisted.profile?.xp ?? 0)
-          + (hadFatecraft ? TALENTS_BY_ID[TALENT_IDS.fatecraft].ranks[0].cost : 0),
+          + (hadFatecraft ? LEGACY_FATECRAFT_REFUND : 0),
         talentRanks,
         diceCollection,
+        fateTokens: 0,
+        fatePity: 0,
+        charmRanks: {},
+        equippedCharmIds: [],
+        pendingFateDraw: null,
+        recentFateOperationIds: [],
       },
       run: {
         ...persisted.run,
+        equippedCharmSnapshot: [],
+        charmState: createCharmRunState(),
         runStats: {
           ...createEmptyRunStats(),
           ...persisted.run?.runStats,
         },
+      },
+      combat: {
+        ...persisted.combat,
+        lastCharmTriggers: [],
+        charmTriggerVersion: 0,
       },
     }
   }
@@ -358,7 +435,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         ...existingProfile,
         saveVersion: SAVE_VERSION,
         xp: (existingProfile?.xp ?? 0)
-          + (hadFatecraft ? TALENTS_BY_ID[TALENT_IDS.fatecraft].ranks[0].cost : 0),
+          + (hadFatecraft ? LEGACY_FATECRAFT_REFUND : 0),
         talentRanks,
         pendingWorkshopForge: null,
       },
@@ -486,6 +563,8 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         equippedDiceSnapshot: (existingRun.equippedDiceSnapshot ?? [])
           .map(migrateDieInstance)
           .filter((die): die is DieInstance => die !== null),
+        equippedCharmSnapshot: [],
+        charmState: createCharmRunState(),
         enemy: migratedEnemy,
         lastReward: existingRun.lastReward
           ? {
@@ -523,6 +602,8 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
             : existingCombat.resolutionStep ?? null,
           pendingMomentum: Math.max(0, existingCombat.pendingMomentum ?? 0),
           pendingFortify: Math.max(0, existingCombat.pendingFortify ?? 0),
+          lastCharmTriggers: [],
+          charmTriggerVersion: 0,
           carriedShield: Math.max(0, existingCombat.carriedShield ?? 0),
           carriedHeal: Math.max(0, existingCombat.carriedHeal ?? 0),
         }
@@ -542,6 +623,15 @@ function getEquippedDice(profile: PlayerProfile): DieInstance[] {
     .map((dieId) => profile.diceCollection.find((die) => die.id === dieId))
     .filter((die): die is DieInstance => die !== undefined)
     .map(cloneDie)
+}
+
+function getEquippedCharms(profile: PlayerProfile): CharmSnapshot[] {
+  return profile.equippedCharmIds
+    .map((charmId) => ({
+      id: charmId,
+      rank: profile.charmRanks[charmId] ?? 0,
+    }))
+    .filter((snapshot) => snapshot.rank > 0)
 }
 
 const initialState = {
@@ -567,6 +657,13 @@ export const useNewGameStore = create<NewGameState>()(
         set({ screen: 'workshop' })
       },
 
+      openFateSanctum: () => {
+        const state = get()
+        if (state.run.status !== 'inactive') return
+        if (!hasCharmsUnlocked(state.profile.talentRanks)) return
+        set({ screen: 'fate_sanctum' })
+      },
+
       openTalentTree: () => {
         if (get().run.status !== 'inactive') return
         set({ screen: 'talent_tree' })
@@ -588,8 +685,13 @@ export const useNewGameStore = create<NewGameState>()(
         const dungeon = DUNGEONS[dungeonId]
         const firstEncounterId = dungeon.floors[0].encounterId
         const equippedDiceSnapshot = getEquippedDice(state.profile)
+        const equippedCharmSnapshot = getEquippedCharms(state.profile)
         if (equippedDiceSnapshot.length === 0) return
         const playerMaxHp = getPlayerMaxHp(state.profile.talentRanks)
+        const firstCharmRound = beginCharmRound(
+          equippedCharmSnapshot,
+          createCharmRunState(),
+        )
         set({
           screen: 'combat',
           runMenuOpen: false,
@@ -601,6 +703,8 @@ export const useNewGameStore = create<NewGameState>()(
             playerMaxHp,
             runStats: createEmptyRunStats(),
             equippedDiceSnapshot,
+            equippedCharmSnapshot,
+            charmState: firstCharmRound.state,
             enemy: createEnemyState(firstEncounterId),
             lastReward: null,
           },
@@ -609,6 +713,8 @@ export const useNewGameStore = create<NewGameState>()(
             1,
             state.combat.resolutionVersion,
             true,
+            Math.random,
+            { shield: firstCharmRound.shield },
           ),
         })
       },
@@ -634,7 +740,13 @@ export const useNewGameStore = create<NewGameState>()(
         const die = state.run.equippedDiceSnapshot.find((candidate) => candidate.id === nextDieId)
         if (!die) return null
 
-        const result = rollDie(die)
+        const rolledResult = rollDie(die)
+        const charmRoll = applyRollCharms(
+          rolledResult,
+          state.run.equippedCharmSnapshot,
+          state.run.charmState,
+        )
+        const result = charmRoll.result
         const allDiceDrawn = remainingDieIds.length === 0
         const rollEffects = addRollEffects(
           state.combat.totals,
@@ -649,6 +761,10 @@ export const useNewGameStore = create<NewGameState>()(
         )
 
         set({
+          run: {
+            ...state.run,
+            charmState: charmRoll.state,
+          },
           combat: {
             ...state.combat,
             phase: allDiceDrawn ? 'awaiting_resolve' : 'awaiting_roll',
@@ -657,12 +773,15 @@ export const useNewGameStore = create<NewGameState>()(
             totals: rollEffects.totals,
             pendingMomentum: rollEffects.pendingMomentum,
             pendingFortify: rollEffects.pendingFortify,
+            lastCharmTriggers: charmRoll.triggers,
+            charmTriggerVersion: state.combat.charmTriggerVersion
+              + (charmRoll.triggers.length > 0 ? 1 : 0),
           },
         })
         return result
       },
 
-      beginRoundResolution: () => {
+      beginRoundResolution: (random = Math.random) => {
         const state = get()
         const enemy = state.run.enemy
         if (state.screen !== 'combat' || state.run.status !== 'active' || !enemy) return null
@@ -693,6 +812,31 @@ export const useNewGameStore = create<NewGameState>()(
                 enemy.soulReward,
                 state.profile.talentRanks,
               )
+          const charmKill = rewardAlreadyClaimed
+            ? {
+                heal: 0,
+                soulBonus: 0,
+                state: state.run.charmState,
+                triggers: [],
+              }
+            : applyKillCharms(
+                state.run.equippedCharmSnapshot,
+                state.run.charmState,
+                reward.baseSouls,
+              )
+          const fateDrop = !rewardAlreadyClaimed
+            && hasCharmsUnlocked(state.profile.talentRanks)
+            ? rollFateDrop(enemy.rewardTier, state.profile.fatePity, random)
+            : {
+                tokens: 0,
+                nextPity: state.profile.fatePity,
+                pityTriggered: false,
+              }
+          const totalSouls = reward.souls + charmKill.soulBonus
+          const playerHpAfterCharms = Math.min(
+            state.run.playerMaxHp,
+            resolution.playerHp + charmKill.heal,
+          )
           const floorDefinition = dungeon.floors[state.run.encounterIndex]
           const dungeonComplete = floorDefinition.isBoss
           const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
@@ -711,23 +855,30 @@ export const useNewGameStore = create<NewGameState>()(
             profile: {
               ...state.profile,
               xp: state.profile.xp + reward.xp,
-              bankedSouls: state.profile.bankedSouls + reward.souls,
+              bankedSouls: state.profile.bankedSouls + totalSouls,
+              fateTokens: state.profile.fateTokens + fateDrop.tokens,
+              fatePity: fateDrop.nextPity,
               dungeonProgress,
             },
             run: {
               ...state.run,
               status: 'victory',
-              playerHp: resolution.playerHp,
+              playerHp: playerHpAfterCharms,
+              charmState: charmKill.state,
               runStats: rewardAlreadyClaimed
                 ? state.run.runStats
                 : {
                     enemiesDefeated: state.run.runStats.enemiesDefeated + 1,
-                    soulsEarned: state.run.runStats.soulsEarned + reward.souls,
+                    soulsEarned: state.run.runStats.soulsEarned + totalSouls,
                     xpEarned: state.run.runStats.xpEarned + reward.xp,
                     baseSoulsEarned: (state.run.runStats.baseSoulsEarned ?? 0) + reward.baseSouls,
                     baseXpEarned: (state.run.runStats.baseXpEarned ?? 0) + reward.baseXp,
                     bonusSoulsEarned: (state.run.runStats.bonusSoulsEarned ?? 0) + reward.bonusSouls,
                     bonusXpEarned: (state.run.runStats.bonusXpEarned ?? 0) + reward.bonusXp,
+                    charmBonusSoulsEarned: (state.run.runStats.charmBonusSoulsEarned ?? 0)
+                      + charmKill.soulBonus,
+                    fateTokensEarned: (state.run.runStats.fateTokensEarned ?? 0)
+                      + fateDrop.tokens,
                   },
               enemy: {
                 ...enemy,
@@ -741,11 +892,17 @@ export const useNewGameStore = create<NewGameState>()(
                 floor: floorDefinition.floor,
                 isBoss: floorDefinition.isBoss,
                 xp: reward.xp,
-                souls: reward.souls,
+                souls: totalSouls,
                 baseXp: reward.baseXp,
                 baseSouls: reward.baseSouls,
                 bonusXp: reward.bonusXp,
                 bonusSouls: reward.bonusSouls,
+                charmBonusSouls: charmKill.soulBonus,
+                charmHealing: playerHpAfterCharms - resolution.playerHp,
+                charmTriggers: charmKill.triggers,
+                fateTokens: fateDrop.tokens,
+                fatePity: fateDrop.nextPity,
+                fatePityTriggered: fateDrop.pityTriggered,
                 dungeonComplete,
               },
             },
@@ -755,6 +912,9 @@ export const useNewGameStore = create<NewGameState>()(
               lastResolution: resolution,
               resolutionVersion,
               resolutionStep: 'player',
+              lastCharmTriggers: charmKill.triggers,
+              charmTriggerVersion: state.combat.charmTriggerVersion
+                + (charmKill.triggers.length > 0 ? 1 : 0),
             },
           })
           return resolution
@@ -880,22 +1040,32 @@ export const useNewGameStore = create<NewGameState>()(
 
         const enemy = state.run.enemy
         if (!enemy) return
+        const charmRound = beginCharmRound(
+          state.run.equippedCharmSnapshot,
+          state.run.charmState,
+        )
         set({
           run: {
             ...state.run,
             enemy: rollNextEnemyIntent(enemy),
+            charmState: charmRound.state,
           },
-          combat: createCombatState(
+          combat: {
+            ...createCombatState(
             state.run.equippedDiceSnapshot,
             state.combat.roundNumber + 1,
             state.combat.resolutionVersion,
             true,
             Math.random,
             {
-              shield: state.combat.lastResolution.nextRoundShield,
+              shield: state.combat.lastResolution.nextRoundShield + charmRound.shield,
               heal: state.combat.lastResolution.nextRoundHeal,
             },
-          ),
+            ),
+            lastCharmTriggers: charmRound.triggers,
+            charmTriggerVersion: state.combat.charmTriggerVersion
+              + (charmRound.triggers.length > 0 ? 1 : 0),
+          },
         })
       },
 
@@ -906,6 +1076,10 @@ export const useNewGameStore = create<NewGameState>()(
         const nextEncounterIndex = state.run.encounterIndex + 1
         const nextFloor = dungeon.floors[nextEncounterIndex]
         if (!nextFloor) return
+        const charmRound = beginCharmRound(
+          state.run.equippedCharmSnapshot,
+          state.run.charmState,
+        )
 
         set({
           screen: 'combat',
@@ -913,15 +1087,23 @@ export const useNewGameStore = create<NewGameState>()(
             ...state.run,
             status: 'active',
             encounterIndex: nextEncounterIndex,
+            charmState: charmRound.state,
             enemy: createEnemyState(nextFloor.encounterId),
             lastReward: null,
           },
-          combat: createCombatState(
+          combat: {
+            ...createCombatState(
             state.run.equippedDiceSnapshot,
             1,
             state.combat.resolutionVersion,
             true,
-          ),
+            Math.random,
+            { shield: charmRound.shield },
+            ),
+            lastCharmTriggers: charmRound.triggers,
+            charmTriggerVersion: state.combat.charmTriggerVersion
+              + (charmRound.triggers.length > 0 ? 1 : 0),
+          },
         })
       },
 
@@ -1169,11 +1351,100 @@ export const useNewGameStore = create<NewGameState>()(
         return true
       },
 
+      beginFateDraw: (operationId, random = Math.random) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return null
+        if (!hasCharmsUnlocked(state.profile.talentRanks)) return null
+        if (!operationId || state.profile.recentFateOperationIds.includes(operationId)) return null
+        if (state.profile.pendingFateDraw) return null
+        if (state.profile.fateTokens < FATE_DRAW_COST) return null
+
+        const pendingFateDraw = createFateDraw(
+          state.profile.charmRanks,
+          operationId,
+          random,
+        )
+        if (!pendingFateDraw) return null
+        set({
+          profile: {
+            ...state.profile,
+            fateTokens: state.profile.fateTokens - pendingFateDraw.cost,
+            pendingFateDraw,
+          },
+        })
+        return pendingFateDraw
+      },
+
+      claimFateCharm: (charmId) => {
+        const state = get()
+        const pendingDraw = state.profile.pendingFateDraw
+        if (state.run.status !== 'inactive' || !pendingDraw) return false
+        if (state.profile.recentFateOperationIds.includes(pendingDraw.operationId)) return false
+        const charmRanks = claimFateDraw(state.profile.charmRanks, pendingDraw, charmId)
+        if (!charmRanks) return false
+        set({
+          profile: {
+            ...state.profile,
+            charmRanks,
+            pendingFateDraw: null,
+            recentFateOperationIds: [
+              ...state.profile.recentFateOperationIds,
+              pendingDraw.operationId,
+            ].slice(-20),
+          },
+        })
+        return true
+      },
+
+      equipCharm: (charmId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return false
+        if ((state.profile.charmRanks[charmId] ?? 0) <= 0) return false
+        if (state.profile.equippedCharmIds.includes(charmId)) return false
+        if (
+          state.profile.equippedCharmIds.length
+          >= getCharmCapacity(state.profile.talentRanks)
+        ) return false
+        set({
+          profile: {
+            ...state.profile,
+            equippedCharmIds: [...state.profile.equippedCharmIds, charmId],
+          },
+        })
+        return true
+      },
+
+      unequipCharm: (charmId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return false
+        if (!state.profile.equippedCharmIds.includes(charmId)) return false
+        set({
+          profile: {
+            ...state.profile,
+            equippedCharmIds: state.profile.equippedCharmIds.filter(
+              (candidate) => candidate !== charmId,
+            ),
+          },
+        })
+        return true
+      },
+
       loadEarlyQolDevPreset: () => {
         const state = get()
         set({
           ...initialState,
           profile: createEarlyQolTestProfile(createInitialProfile()),
+          run: createInactiveRun(),
+          combat: createCombatState([], 1, state.combat.resolutionVersion),
+          runMenuOpen: false,
+        })
+      },
+
+      loadCharmTestDevPreset: () => {
+        const state = get()
+        set({
+          ...initialState,
+          profile: createCharmTestProfile(createInitialProfile()),
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
           runMenuOpen: false,

@@ -18,6 +18,8 @@ import {
   Coins,
   Hammer,
   Sword,
+  Link2,
+  Network,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -42,6 +44,8 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'soul-efficiency': Coins,
   'xp-efficiency': BookOpen,
   'workshop-efficiency': Hammer,
+  'charm-pair': Link2,
+  'charm-trinity': Network,
 }
 
 interface TalentIconProps {
