@@ -1,7 +1,7 @@
 # Dice Dungeon — Pixel Arcade Design System
 
 Status: gældende visuel og interaktiv produktionsreference.
-Version: 2.0 — 2026-07-30.
+Version: 2.1 — 2026-07-30.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes.
 `CLASSIC_INCREMENTAL_V2.md` bestemmer gameplay, progression og økonomi. Dette
@@ -90,12 +90,21 @@ Det flade UI må aldrig gøre dem til almindelige kort eller ikoner.
 
 ## Typografi og ikoner
 
+- `--arcade-font-display` bruges til titler, labels og handlinger med tydelig
+  arcade-identitet.
+- `--arcade-font-ui` bruges til forklarende tekst, status og længere copy, hvor
+  læsbarhed er vigtigere end karakter.
+- `--arcade-font-numeric` bruges til HP, resources, round totals og andre tal;
+  numeriske kolonner bruger tabular figures.
 - Displaytitler må være pixelprægede; brødtekst og kompakt data skal være klart
   læseligt ved 320 px.
 - Store tal og aktuelle resultater har højere vægt end labels.
 - Eyebrows er korte, sekundære og må ikke bære nødvendig information alene.
 - UI-copy skal være konkret: `Roll`, `Resolve`, `Buy`, `Enter`, `Leave`.
 - Lucide er tilladt som midlertidigt ikonbibliotek.
+- Funktionelle Lucide-ikoner normaliseres gennem deres afgrænsede UI-container,
+  så stroke-vægt og størrelse er ens. Face-, evolution- og signature-ikoner
+  forbliver data-drevne gennem den centrale face registry.
 - Permanente gameplayikoner skal følge samme pixel-grid og outline-vægt.
 
 En senere font- og ikonpass må ikke forsinke layout, hierarchy eller
@@ -116,6 +125,27 @@ Gameplaymotion følger:
 
 Et resultat må aldrig kræve animation for at kunne forstås. Reduceret motion
 skal stadig vise samme sluttilstand og rækkefølge.
+
+### Arcade Polish v1-kontrakt
+
+- Presentation layer læser kun allerede fastlåste og persisterede resultater;
+  animation må aldrig vælge eller ændre et roll.
+- Et player-roll bevæger sig gennem de læsbare states `rolling`, `landed`,
+  `scoring` og `idle`.
+- Landingen får en kort familie-farvet impact. Evolution- og signature-faces
+  må få en stærkere separat effekt, men den frontvendte face skal forblive klar.
+- Score-feedback skal vise source, bevægelse og arrival: effekten forlader
+  terningen, rejser mod den relevante total og udløser en kort reaktion dér.
+- HP-feedback ligger i et separat overlay og skelner mellem damage, heal og
+  block. Ved partial block vises både blokeret skade og faktisk HP-skade.
+- Resolution-states har forskellige toner for victory, heal, full block,
+  player impact og enemy impact.
+- Quick Draw reducerer presentation delays, men bevarer minimumspauser ved
+  landing, score-transfer og resolution, så resultatet fortsat kan aflæses.
+- Auto Combat er en cyan player-styret mode med en eksplicit `Pause`-handling.
+  Dens primære statusknap må ikke ligne en almindelig utilgængelig knap.
+- `prefers-reduced-motion` fjerner rejse og pulser, men bevarer alle settled
+  states, værdier og semantiske forskelle.
 
 ## Mobile-first layout
 

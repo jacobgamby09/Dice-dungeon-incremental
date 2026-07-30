@@ -110,6 +110,12 @@ export const RollDieTile = memo(function RollDieTile({
           ) : null}
         </div>
       )}
+      {stage === 'landed' ? (
+        <span
+          aria-hidden="true"
+          className={`roll-die__landing-ring${result.evolution ? ' roll-die__landing-ring--evolution' : ''}${result.signature ? ' roll-die__landing-ring--signature' : ''}`}
+        />
+      ) : null}
       {stage === 'landed' && result.evolution ? (
         <motion.div
           animate={{ opacity: [0, 1, 1, 0], scale: [0.72, 1.08, 1, 1.12], y: [8, -6, -7, -10] }}

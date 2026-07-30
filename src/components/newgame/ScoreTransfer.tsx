@@ -66,6 +66,21 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
       className={`score-transfer-origin score-transfer-origin--${path.type}${path.evolution ? ` score-transfer-origin--evolution score-transfer-origin--${path.evolution.id}` : ''}${path.signature ? ` score-transfer-origin--signature score-transfer-origin--${path.signature.id}` : ''}`}
       style={scoreStyle}
     >
+      <motion.span
+        animate={{
+          opacity: [0, 0.9, 0.62, 0],
+          scale: [0.35, 0.8, 0.55, 0.15],
+          x: path.toX - path.fromX,
+          y: [0, -20, path.toY - path.fromY],
+        }}
+        className="score-transfer__trail"
+        initial={{ opacity: 0, scale: 0.35, x: 0, y: 0 }}
+        transition={{
+          duration: path.duration,
+          ease: [0.2, 0.8, 0.25, 1],
+          times: [0, 0.18, 0.76, 1],
+        }}
+      />
       <motion.div
         animate={{
           opacity: [0, 1, 1, 1, 0],
@@ -100,6 +115,7 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
         <span className="score-transfer__spark score-transfer__spark--one" />
         <span className="score-transfer__spark score-transfer__spark--two" />
         <span className="score-transfer__spark score-transfer__spark--three" />
+        <span className="score-transfer__arrival" />
       </motion.div>
     </div>
   )

@@ -42,7 +42,9 @@
 
 .hub-sign > span {
   color: var(--arcade-purple);
-  font-size: 0.58rem;
+  font-family: var(--arcade-font-display);
+  font-size: 0.62rem;
+  font-weight: 900;
   letter-spacing: 0.12em;
 }
 
@@ -59,8 +61,9 @@
   width: min(100%, 306px);
   margin: 0 auto;
   color: var(--arcade-muted);
-  font-size: 0.58rem;
-  line-height: 1.45;
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -85,6 +88,9 @@
 
 .resource-hud__item span {
   color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.58rem;
+  font-weight: 800;
 }
 
 .loadout-vault {
@@ -171,10 +177,15 @@
 
 .hub-action small {
   color: var(--arcade-muted);
+  font-size: 0.54rem;
+  font-weight: 750;
+  line-height: 1.15;
 }
 
 .hub-action strong {
   color: var(--arcade-white);
+  font-size: 0.72rem;
+  line-height: 1.15;
 }
 
 .dev-tools {

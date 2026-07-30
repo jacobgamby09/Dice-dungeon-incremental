@@ -38,7 +38,8 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.0 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer og fysiske 3D-terninger som hero-objekter. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
+- **Arcade Polish v1 er implementeret lokalt før branchens første push:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
+- **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.1 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer, fysiske 3D-terninger som hero-objekter og Arcade Polish-kontrakten for læsbar feedback. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
 - **Den canonical presentation layer er nu modulariseret på `codex/arcade-foundation-v1`:** det tidligere 1.100+ linjers test-override er flyttet fra `src/newGame.css` til tokens, shared, dice og screen-specifikke filer i `src/styles/arcade/`. Hubben viser ikke længere test/V2-copy, og Combat, Hub, Workshop, Talent Tree samt outcomes bruger et roligere sektion/handling-hierarki uden gameplay- eller saveændringer.
 - **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
 - V2 bruger save-version 14 og starter med én `Worn Blade Die` på præcis `1,1,1,1,1,1 Attack`. Version 13 migreres uden progressionstab; ældre production-saves nulstilles fortsat bevidst til en frisk V2-profil på denne branch.
@@ -95,12 +96,12 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Gennemfør en fysisk iPhone-pass af den canonical Pixel Arcade-foundation: Hub, én fuld manuel/automatisk combat, et gentaget Workshop-ritual, et Talent-køb og både Victory/Defeat.
-2. Mål visuel læsbarhed og timing ved 1–6 player-dice samt 1–3 enemy-dice; 320 px Dungeon 2 er browsergodkendt, men seks player-dice skal stadig fysisk stresses under hurtig Auto Combat.
-3. Gennemfør en fokuseret typografi- og ikonpass uden at ændre den nu fastlåste layout- og framearkitektur.
-4. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
-5. Vurder subjektivt om target-flicker, det efterfølgende Workshop-roll og `+2`-øjeblikket giver nok spænding uden at gøre gentagne Forge-køb langsomme; test mindst 15–25 upgrades.
-6. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
+1. Push Arcade Foundation + Arcade Polish samlet, og gennemfør derefter en fysisk iPhone/Safari-pass af Hub, manuel/automatisk Combat, Workshop, Talent-køb samt Victory/Defeat.
+2. Stress seks samtidige player-dice fysisk under hurtig Auto Combat; DOM-regressioner dækker allerede seks player-dice og tre enemy-dice.
+3. Fresh-save-playtest V2 på iPhone og mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
+4. Test Workshop-ritualet gennem mindst 15–25 upgrades og vurder target-flicker, varighed samt `+2/+3`-øjeblikket.
+5. Rebalancér Dungeon 2 specifikt til den langsommere V2-kurve.
+6. Bestil eller byg først custom font, permanent ikonpakke og nye enemy-sprites efter den fysiske polish- og pacinggodkendelse.
 
 ### Production-reference
 
@@ -113,6 +114,7 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Arcade Polish v1 er browser-verificeret ved 320×700, 384×844 og 430×932 uden horisontal overflow eller console warnings/errors. Fysisk Safari-timing, touch-følelse og seks samtidige player-dice under hurtig automation er fortsat den vigtigste åbne visuelle risiko.
 - Den canonical Pixel Arcade-layer er nu opdelt i screen- og tokenfiler, men `src/newGame.css` indeholder fortsat det ældre strukturelle layout under præsentationslaget. Nye arcade-regler skal blive i `src/styles/arcade/`; en senere strukturel konsolidering skal ske gradvist med visuelle regressionstests.
 - De nuværende detaljerede enemy-sprites er bevaret som aftalt. Det skal vurderes på fysisk mobil, om deres billedsprog passer til den simplere sort/hvide arcade-shell, før der bestilles eller bygges ny sprite-art.
 - V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–45-grænser skal derfor fysisk valideres.
@@ -205,6 +207,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-30 — Arcade Polish v1
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Combat-feedbacken er gjort mere fysisk og læsbar med fire roll-states, familie-farvede landinger, source/travel/arrival-scorefeedback, separate damage/heal/block-reaktioner på HP, tydelig full/partial block, resolution-toner og en eksplicit cyan Auto Combat/Pause-mode. Hub, Workshop, Talent Tree og outcomes har samtidig fået større, mere konsekvent tekst, numeriske styles, touch targets og funktionelle ikoner.
+- Beslutninger: Polish-laget orkestrerer kun animation oven på allerede fastlåste resultater. Gameplay, combat-resolution, rewards, economy og save-format ændres ikke. Custom font, permanent ikonpakke, Charms og nye sprites er fortsat ude af denne leverance.
+- Berørte områder: `DESIGN.md`, `progress.md`, Combat-skærmen, HP/roll/score/damage/totals-komponenterne, arcade tokens/shared/dice/combat samt Hub-, Workshop-, Talent Tree- og outcome-styles.
+- Validering: Browserpass ved 320×700, 384×844 og 430×932 dækkede Dungeon 2 med player/enemy multi-dice, rolling/landed/scoring, Auto Combat, Workshop, Hub, Talent Tree, inspector-overlay, Loadout og Defeat uden horisontal overflow eller console warnings/errors. DOM-tests dækker seks settled player-dice og Spiked Behemoths tre enemy-dice. `npx tsc --noEmit`, 27 testfiler med 130 tests, ESLint, production-build og `git diff --check` består.
+- Kendte mangler: Fysisk iPhone/Safari og den subjektive timing med seks samtidige player-dice mangler stadig. Victory blev ikke fastholdt manuelt i browserpasset, fordi aktiv Auto Combat fortsatte, men eksisterende outcome-regressioner og de delte outcome-styles dækker state/layout.
+- Git: Ikke committed eller pushed endnu på `codex/arcade-foundation-v1`.
 
 ### 2026-07-30 — Pixel Arcade foundation v1
 

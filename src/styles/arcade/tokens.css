@@ -1,4 +1,7 @@
 :root {
+  --arcade-font-display: "Courier New", ui-monospace, monospace;
+  --arcade-font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --arcade-font-numeric: "Courier New", ui-monospace, monospace;
   --arcade-black: #000;
   --arcade-surface: #08080d;
   --arcade-surface-raised: #11111a;
@@ -15,6 +18,9 @@
   --arcade-frame-strong: 3px;
   --arcade-frame-section: 2px;
   --arcade-frame-subtle: 1px;
+  --arcade-motion-fast: 120ms;
+  --arcade-motion-impact: 240ms;
+  --arcade-motion-settle: 360ms;
   --bg: var(--arcade-black);
   --panel: var(--arcade-surface);
   --panel-raised: var(--arcade-surface-raised);

@@ -1,4 +1,8 @@
 /* Shared physical die skin */
+.roll-die {
+  isolation: isolate;
+}
+
 .roll-die__cube {
   filter: none;
 }

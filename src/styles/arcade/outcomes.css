@@ -28,6 +28,50 @@
   box-shadow: none;
 }
 
+.screen-header h1,
+.collection-header h1,
+.forge-header h1 {
+  font-family: var(--arcade-font-display);
+  font-size: 1.3rem;
+}
+
+.screen-header p,
+.collection-header p,
+.forge-header p,
+.dungeon-card p,
+.collection-die p,
+.outcome-summary p,
+.run-menu p,
+.away-recap p,
+.die-details-panel p {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.screen-header button,
+.collection-header button,
+.forge-header button,
+.run-menu button,
+.away-recap button,
+.collection-details,
+.dungeon-card button {
+  min-height: 44px;
+  font-family: var(--arcade-font-display);
+  font-weight: 900;
+}
+
+.dungeon-card,
+.collection-die,
+.outcome-summary,
+.run-menu,
+.away-recap,
+.die-details-panel {
+  border-width: var(--arcade-frame-section);
+}
+
 .outcome-screen,
 .dungeon-select-screen,
 .loadout-screen {
@@ -65,6 +109,8 @@
 
 .outcome-banner h1 {
   color: var(--arcade-green);
+  font-family: var(--arcade-font-display);
+  font-size: 1.55rem;
   text-shadow: 2px 2px 0 var(--arcade-black);
 }
 
@@ -84,6 +130,7 @@
   border: 2px solid var(--arcade-white);
   background: var(--arcade-black);
   box-shadow: none;
+  font-family: var(--arcade-font-ui);
 }
 
 .outcome-reward__icon {

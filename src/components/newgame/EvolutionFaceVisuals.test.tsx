@@ -60,6 +60,7 @@ describe('evolution face visuals', () => {
       expect(markup).toContain(`Worn Blade Die rolled ${value} Attack, ${name} evolution`)
       expect(markup).toContain(`roll-die--evolution-${id}`)
       expect(markup).toContain(`evolution-impact--${id}`)
+      expect(markup).toContain('roll-die__landing-ring--evolution')
       expect(markup).toContain(`data-evolution-icon="${id}"`)
 
       EVOLUTIONS.filter((candidate) => candidate.id !== id).forEach((candidate) => {
@@ -97,6 +98,8 @@ describe('evolution face visuals', () => {
     expect(markup).toContain('Momentum +2')
     expect(markup).toContain('+2 Bleed')
     expect(markup).toContain('Next +2')
+    expect(markup).toContain('score-transfer__trail')
+    expect(markup).toContain('score-transfer__arrival')
   })
 
   it('keeps an armed Momentum bonus visible between rolls', () => {

@@ -22,6 +22,7 @@
 
 .workshop-ritual__header h1 {
   color: var(--arcade-white);
+  font-size: 1.08rem;
 }
 
 .workshop-ritual__header header span {
@@ -50,6 +51,7 @@
 .workshop-ritual__rack > header span,
 .workshop-ritual__rack > header strong {
   color: var(--arcade-white);
+  font-size: 0.58rem;
 }
 
 .workshop-ritual__tab {
@@ -66,6 +68,8 @@
 
 .workshop-ritual__tab small {
   color: var(--arcade-muted);
+  font-size: 0.52rem;
+  font-weight: 750;
 }
 
 .workshop-ritual__die-heading {
@@ -98,6 +102,11 @@
 .workshop-power h3,
 .workshop-power > header > div:last-child strong {
   color: var(--arcade-white);
+}
+
+.workshop-target h3,
+.workshop-power h3 {
+  font-size: 0.82rem;
 }
 
 .workshop-target__face {
@@ -170,11 +179,16 @@
 
 .workshop-ritual__status {
   color: var(--arcade-muted);
+  font-size: 0.58rem;
+  font-weight: 750;
+  line-height: 1.35;
 }
 
 .workshop-ritual__action {
+  min-height: 48px;
   background: #685400;
   color: var(--arcade-white);
+  font-size: 0.7rem;
 }
 
 .workshop-ritual__action--power {
@@ -183,4 +197,7 @@
 
 .workshop-ritual__odds {
   color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.5rem;
+  line-height: 1.35;
 }

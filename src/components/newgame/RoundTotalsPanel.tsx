@@ -86,6 +86,11 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
             {normalizedTotals[type]}
           </motion.strong>
           <span className="round-total__label">{FACE_META[type].label}</span>
+          <span
+            aria-hidden="true"
+            className="round-total__impact"
+            key={`${type}-${normalizedTotals[type]}-impact`}
+          />
         </motion.div>
       ))}
       {normalizedTotals.bleed > 0 ? (

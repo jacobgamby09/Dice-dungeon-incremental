@@ -21,6 +21,8 @@
 
 .combat-meta span {
   color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.52rem;
 }
 
 .combat-meta strong,
@@ -68,6 +70,8 @@
 
 .enemy-zone__level {
   color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.5rem;
 }
 
 .enemy-zone__sprite {
@@ -82,10 +86,13 @@
 
 .hp-label {
   color: var(--arcade-white);
+  font-size: 0.58rem;
 }
 
 .enemy-intent-tray__label {
   color: var(--arcade-red);
+  font-family: var(--arcade-font-display);
+  font-size: 0.5rem;
 }
 
 .enemy-intent-die__button,
@@ -110,6 +117,14 @@
   box-shadow: none;
 }
 
+.enemy-zone--impact-damage .enemy-zone__vitals {
+  animation: arcade-enemy-vitals-hit var(--arcade-motion-impact) steps(3, end);
+}
+
+.enemy-zone--impact-heal .enemy-zone__vitals {
+  animation: arcade-enemy-vitals-heal var(--arcade-motion-settle) steps(4, end);
+}
+
 .player-zone {
   min-height: 92px;
   border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
@@ -128,6 +143,15 @@
 
 .player-health span {
   color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+}
+
+.player-zone--impact-damage .player-health {
+  animation: arcade-player-hit var(--arcade-motion-impact) steps(3, end);
+}
+
+.player-zone--impact-block .player-health {
+  animation: arcade-player-block var(--arcade-motion-impact) steps(3, end);
 }
 
 .player-zone--with-totals .round-totals-stage {
@@ -145,10 +169,46 @@
   box-shadow: inset 0 0 0 2px var(--arcade-black);
 }
 
+.round-total__label {
+  font-family: var(--arcade-font-ui);
+  font-size: 0.44rem;
+}
+
+.round-total__impact {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--total-color);
+  pointer-events: none;
+  animation: arcade-total-impact var(--arcade-motion-settle) steps(4, end) both;
+}
+
 .resolution-banner {
   border: var(--arcade-frame-strong) solid var(--arcade-white);
   background: var(--arcade-black);
   box-shadow: none;
+  font-family: var(--arcade-font-display);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.resolution-banner--victory {
+  border-color: var(--arcade-green);
+  background: #063b18;
+  color: var(--arcade-white);
+}
+
+.resolution-banner--heal {
+  border-color: var(--arcade-green);
+  background: #052e16;
+  color: #bbf7d0;
+}
+
+.resolution-banner--block {
+  border-color: var(--arcade-blue);
+  background: #082f49;
+  color: #bfdbfe;
 }
 
 .roll-zone {
@@ -166,6 +226,7 @@
 
 .dice-stage-header h2 {
   color: var(--arcade-white);
+  font-size: 0.88rem;
 }
 
 .bag-counter {
@@ -186,11 +247,102 @@
 
 .roll-pedestal {
   background: var(--arcade-black);
+  transition: background-color var(--arcade-motion-fast) steps(2, end);
 }
 
 .roll-pedestal::before,
 .roll-pedestal::after {
   display: none;
+}
+
+.roll-pedestal--rolling {
+  background:
+    linear-gradient(90deg, transparent 0 46%, rgba(48, 232, 255, 0.12) 46% 54%, transparent 54%),
+    var(--arcade-black);
+}
+
+.roll-pedestal--landed {
+  background:
+    linear-gradient(90deg, transparent 0 40%, rgba(255, 255, 255, 0.08) 40% 60%, transparent 60%),
+    var(--arcade-black);
+}
+
+.roll-pedestal--scoring {
+  background:
+    linear-gradient(0deg, rgba(48, 232, 255, 0.08), transparent 58%),
+    var(--arcade-black);
+}
+
+.roll-die__landing-ring {
+  position: absolute;
+  z-index: -1;
+  width: 104px;
+  height: 34px;
+  border: 3px solid var(--die-color);
+  background: color-mix(in srgb, var(--die-color) 18%, transparent);
+  pointer-events: none;
+  transform: translateY(42px);
+  animation: arcade-die-land var(--arcade-motion-settle) steps(4, end) both;
+}
+
+.roll-die__landing-ring--evolution,
+.roll-die__landing-ring--signature {
+  border-color: var(--evolution-highlight, var(--signature-highlight, var(--die-color)));
+  box-shadow: 0 0 0 3px var(--arcade-black);
+}
+
+.score-transfer__trail {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--score-color);
+  box-shadow:
+    0 0 0 3px var(--arcade-black),
+    -10px 0 0 color-mix(in srgb, var(--score-color) 62%, transparent),
+    -20px 0 0 color-mix(in srgb, var(--score-color) 30%, transparent);
+  pointer-events: none;
+}
+
+.score-transfer__arrival {
+  position: absolute;
+  inset: -6px;
+  border: 3px solid var(--score-color);
+  opacity: 0;
+  pointer-events: none;
+  animation: arcade-score-arrival var(--arcade-motion-impact) steps(3, end) 180ms both;
+}
+
+.enemy-damage-transfer {
+  border-color: var(--arcade-red);
+  background: #6b0f1b;
+  box-shadow:
+    4px 4px 0 var(--arcade-white),
+    inset 0 0 0 2px var(--arcade-black);
+}
+
+.enemy-damage-transfer--blocked {
+  border-color: var(--arcade-blue);
+  background: #0a315f;
+  color: #bfdbfe;
+}
+
+.enemy-damage-transfer--partial {
+  border-color: var(--arcade-blue);
+  background: linear-gradient(90deg, #0a315f 0 42%, #6b0f1b 42%);
+}
+
+.enemy-damage-transfer small {
+  color: var(--arcade-white);
+}
+
+.enemy-damage-transfer__burst {
+  position: absolute;
+  inset: -7px;
+  border: 3px solid currentColor;
+  pointer-events: none;
+  animation: arcade-damage-burst var(--arcade-motion-settle) steps(4, end) both;
 }
 
 .played-dice-rack {
@@ -200,6 +352,16 @@
 
 .played-dice-rack__label {
   color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.5rem;
+}
+
+.roll-grid {
+  scroll-snap-type: x proximity;
+}
+
+.roll-grid > .roll-die {
+  scroll-snap-align: start;
 }
 
 .combat-actions {
@@ -211,14 +373,155 @@
 }
 
 .auto-combat-toggle {
+  min-height: 38px;
   border: 2px solid var(--arcade-white);
   background: var(--arcade-black);
   box-shadow: none;
   color: var(--arcade-muted);
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.auto-combat-toggle > span {
+  display: grid;
+  gap: 1px;
+}
+
+.auto-combat-toggle strong {
+  color: var(--arcade-white);
+  font-size: 0.6rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.auto-combat-toggle small {
+  color: var(--arcade-muted);
+  font-size: 0.48rem;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 .auto-combat-toggle--active {
   background: #073d47;
   box-shadow: inset 0 0 0 2px var(--arcade-black);
   color: var(--arcade-cyan);
+}
+
+.auto-combat-toggle--active strong,
+.auto-combat-toggle--active small {
+  color: var(--arcade-white);
+}
+
+.auto-combat-toggle--active > svg {
+  animation: arcade-auto-pulse 720ms steps(3, end) infinite;
+}
+
+.combat-actions .pixel-button--automation:disabled {
+  border-color: var(--arcade-cyan);
+  background: #0a3446;
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+  color: var(--arcade-white);
+  opacity: 1;
+}
+
+@keyframes arcade-die-land {
+  0% { opacity: 0; transform: translateY(42px) scaleX(0.3); }
+  34% { opacity: 1; transform: translateY(42px) scaleX(1); }
+  68% { opacity: 0.62; transform: translateY(42px) scaleX(0.82); }
+  100% { opacity: 0; transform: translateY(42px) scaleX(1.2); }
+}
+
+@keyframes arcade-total-impact {
+  0% { opacity: 0; transform: scale(0.78); }
+  32% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+@keyframes arcade-score-arrival {
+  0% { opacity: 0; transform: scale(0.72); }
+  40% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 0; transform: scale(1.22); }
+}
+
+@keyframes arcade-damage-burst {
+  0% { opacity: 0; transform: scale(0.72); }
+  38% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.28); }
+}
+
+@keyframes arcade-enemy-vitals-hit {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(-5px); }
+  68% { transform: translateX(3px); }
+}
+
+@keyframes arcade-enemy-vitals-heal {
+  0%, 100% { color: inherit; transform: translateY(0); }
+  42% { color: var(--arcade-green); transform: translateY(-2px); }
+}
+
+@keyframes arcade-player-hit {
+  0%, 100% { color: var(--arcade-green); transform: translateX(0); }
+  35% { color: var(--arcade-red); transform: translateX(4px); }
+  68% { transform: translateX(-2px); }
+}
+
+@keyframes arcade-player-block {
+  0%, 100% { color: var(--arcade-green); transform: scale(1); }
+  45% { color: var(--arcade-blue); transform: scale(1.04); }
+}
+
+@keyframes arcade-auto-pulse {
+  0%, 100% { opacity: 0.58; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(2px); }
+}
+
+@media (max-height: 700px) {
+  .enemy-zone {
+    min-height: 184px;
+  }
+
+  .enemy-zone--boss {
+    min-height: 190px;
+  }
+
+  .player-zone {
+    min-height: 76px;
+  }
+
+  .dice-arena {
+    min-height: 176px;
+  }
+
+  .roll-pedestal {
+    min-height: 112px;
+    padding-top: 32px;
+  }
+
+  .played-dice-rack {
+    min-height: 66px;
+  }
+
+  .auto-combat-toggle small {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-pedestal,
+  .roll-die__landing-ring,
+  .round-total__impact,
+  .score-transfer__arrival,
+  .enemy-damage-transfer__burst,
+  .enemy-zone__vitals,
+  .player-health,
+  .auto-combat-toggle--active > svg {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }

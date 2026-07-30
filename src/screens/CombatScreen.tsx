@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Dices, DoorOpen, Droplets, Flame, Heart, Swords } from 'lucide-react'
+import {
+  Dices,
+  DoorOpen,
+  Droplets,
+  FastForward,
+  Flame,
+  Heart,
+  Pause,
+  Swords,
+} from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { EnemyDamageTransfer } from '../components/newgame/EnemyDamageTransfer'
@@ -30,6 +39,16 @@ interface ActiveRoll {
 const ENEMY_INTENT_ROLL_MS = 480
 const ENEMY_INTENT_LANDING_PAUSE_MS = 200
 const ENEMY_INTENT_STAGGER_MS = 90
+const MIN_STANDARD_LANDING_PAUSE_MS = 120
+const MIN_HERO_LANDING_PAUSE_MS = 260
+
+function scaledPresentationDelay(
+  baseMilliseconds: number,
+  minimumMilliseconds: number,
+  speed: number,
+) {
+  return Math.max(minimumMilliseconds, baseMilliseconds / speed)
+}
 
 export function CombatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
@@ -97,6 +116,11 @@ export function CombatScreen() {
     setEnemyDamageTransfer(null)
   }, [])
 
+  const rollSpeed = getRollSpeed(
+    profile.talentRanks,
+    profile.settings.rollSpeed,
+  )
+
   useEffect(() => {
     const resolution = combat.lastResolution
     if (combat.phase !== 'resolving' || !resolution) return
@@ -115,12 +139,12 @@ export function CombatScreen() {
       timers.push(window.setTimeout(() => {
         advanceRoundResolution()
         checkpointAutoCombat()
-      }, 720))
+      }, scaledPresentationDelay(720, 420, rollSpeed)))
     } else if (resolutionStep === 'enemy_heal') {
       timers.push(window.setTimeout(() => {
         advanceRoundResolution()
         checkpointAutoCombat()
-      }, 620))
+      }, scaledPresentationDelay(620, 360, rollSpeed)))
     } else if (resolutionStep === 'enemy_attack') {
       timers.push(window.setTimeout(() => {
         setEnemyAttackVersion((version) => version + 1)
@@ -141,12 +165,12 @@ export function CombatScreen() {
       timers.push(window.setTimeout(() => {
         finishRoundResolution()
         checkpointAutoCombat()
-      }, 860))
+      }, scaledPresentationDelay(860, 520, rollSpeed)))
     } else {
       timers.push(window.setTimeout(() => {
         finishRoundResolution()
         checkpointAutoCombat()
-      }, 900))
+      }, scaledPresentationDelay(900, 480, rollSpeed)))
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
@@ -158,12 +182,8 @@ export function CombatScreen() {
     combat.resolutionStep,
     combat.resolutionVersion,
     finishRoundResolution,
+    rollSpeed,
   ])
-
-  const rollSpeed = getRollSpeed(
-    profile.talentRanks,
-    profile.settings.rollSpeed,
-  )
 
   useEffect(() => {
     if (combat.phase !== 'revealing_enemy_intent') return
@@ -258,10 +278,50 @@ export function CombatScreen() {
     || displayedTotals.ward > 0
     || displayedTotals.regrowth > 0
     || displayedTotals.overflow > 0
-  const resolutionTone = combat.resolutionStep === 'enemy_attack'
-    || combat.resolutionStep === 'enemy_heal'
-    ? 'enemy'
-    : combat.resolutionStep ?? 'player'
+  const resolution = combat.lastResolution
+  const resolutionTone = resolution?.outcome === 'victory'
+    ? 'victory'
+    : combat.resolutionStep === 'enemy_heal'
+      ? 'heal'
+      : combat.resolutionStep === 'enemy_attack'
+        ? resolution?.enemyDamageBlocked && !resolution.playerDamageTaken
+          ? 'block'
+          : 'enemy'
+        : 'player'
+  const enemyHpImpact = combat.phase === 'resolving'
+    ? combat.resolutionStep === 'enemy_heal'
+      ? 'heal'
+      : combat.resolutionStep === 'player'
+        && resolution
+        && resolution.attackDamageToEnemy + resolution.bleedDamageToEnemy > 0
+        ? 'damage'
+        : null
+    : null
+  const playerHpImpact = combat.phase === 'resolving'
+    && combat.resolutionStep === 'enemy_attack'
+    && resolution
+    ? resolution.playerDamageTaken > 0
+      ? 'damage'
+      : resolution.enemyDamageBlocked > 0
+        ? 'block'
+        : null
+    : null
+  const rollState = activeRoll?.stage ?? (scoreTransfer ? 'scoring' : 'idle')
+  const resolutionMessage = resolution
+    ? resolution.outcome === 'victory'
+      ? 'Enemy defeated — intent cancelled'
+      : combat.resolutionStep === 'enemy_heal'
+        ? `${run.enemy?.name ?? 'Enemy'} heals ${resolution.enemyHealApplied}`
+        : combat.resolutionStep === 'enemy_attack'
+          ? resolution.enemyDamageBlocked > 0 && resolution.playerDamageTaken > 0
+            ? `${resolution.enemyDamageBlocked} blocked · ${resolution.playerDamageTaken} damage`
+            : resolution.enemyDamageBlocked > 0
+              ? `Blocked ${resolution.enemyDamageBlocked} damage`
+              : `${resolution.playerDamageTaken} damage taken`
+          : resolution.bleedDamageToEnemy > 0
+            ? `Bleed ${resolution.bleedDamageToEnemy} · Attack ${resolution.attackDamageToEnemy}`
+            : `Attack lands for ${resolution.attackDamageToEnemy}`
+    : ''
 
   const handleDraw = useCallback(() => {
     if (isScoreAnimating) return
@@ -319,10 +379,12 @@ export function CombatScreen() {
           fromY,
           toX,
           toY,
-          duration: Math.max(0.34, 0.46 / rollSpeed),
+          duration: Math.max(0.3, 0.46 / rollSpeed),
         })
         setActiveRoll(null)
-      }, result.evolution ? Math.max(360, 260 / rollSpeed) : 260 / rollSpeed)
+      }, result.evolution || result.signature
+        ? scaledPresentationDelay(360, MIN_HERO_LANDING_PAUSE_MS, rollSpeed)
+        : scaledPresentationDelay(260, MIN_STANDARD_LANDING_PAUSE_MS, rollSpeed))
 
       rollTimers.current.push(collectionTimer)
     }, rollDurationMilliseconds)
@@ -343,7 +405,10 @@ export function CombatScreen() {
   useEffect(() => {
     if (!profile.settings.autoCombat || profile.automationPaused) return
     if (combat.phase !== 'awaiting_roll' || diceLeft <= 0 || isScoreAnimating) return
-    const timer = window.setTimeout(handleDraw, AUTO_COMBAT_DRAW_PAUSE_MS)
+    const timer = window.setTimeout(
+      handleDraw,
+      scaledPresentationDelay(AUTO_COMBAT_DRAW_PAUSE_MS, 80, rollSpeed),
+    )
     return () => window.clearTimeout(timer)
   }, [
     combat.phase,
@@ -352,6 +417,7 @@ export function CombatScreen() {
     isScoreAnimating,
     profile.automationPaused,
     profile.settings.autoCombat,
+    rollSpeed,
   ])
 
   useEffect(() => {
@@ -360,7 +426,7 @@ export function CombatScreen() {
     const timer = window.setTimeout(() => {
       beginRoundResolution()
       checkpointAutoCombat()
-    }, AUTO_COMBAT_RESOLVE_PAUSE_MS)
+    }, scaledPresentationDelay(AUTO_COMBAT_RESOLVE_PAUSE_MS, 120, rollSpeed))
     return () => window.clearTimeout(timer)
   }, [
     beginRoundResolution,
@@ -369,6 +435,7 @@ export function CombatScreen() {
     isScoreAnimating,
     profile.automationPaused,
     profile.settings.autoCombat,
+    rollSpeed,
   ])
 
   const enemy = run.enemy
@@ -389,7 +456,10 @@ export function CombatScreen() {
         : 'landed'
 
   return (
-    <main className="game-shell combat-screen">
+    <main
+      className={`game-shell combat-screen combat-screen--${combat.phase}${profile.settings.autoCombat ? ' combat-screen--auto' : ''}`}
+      data-roll-state={rollState}
+    >
       <header className="combat-meta">
         <button
           aria-label="Open run menu"
@@ -411,6 +481,7 @@ export function CombatScreen() {
           'enemy-zone',
           floor.isBoss ? 'enemy-zone--boss' : '',
           `enemy-zone--${enemyDefeated ? 'defeated' : combat.resolutionStep ?? 'watching'}`,
+          enemyHpImpact ? `enemy-zone--impact-${enemyHpImpact}` : '',
         ].filter(Boolean).join(' ')}
         aria-label={`${enemy.name}, ${enemy.hp} health`}
       >
@@ -457,12 +528,18 @@ export function CombatScreen() {
             ) : null}
             <strong>{enemy.hp}/{enemy.maxHp}</strong>
           </div>
-          <HpBar current={enemy.hp} max={enemy.maxHp} tone="enemy" />
+          <HpBar
+            current={enemy.hp}
+            impact={enemyHpImpact}
+            impactVersion={combat.resolutionVersion}
+            max={enemy.maxHp}
+            tone="enemy"
+          />
         </div>
       </section>
 
       <section
-        className={`player-zone${hasVisibleRoundPower ? ' player-zone--with-totals' : ''}`}
+        className={`player-zone${hasVisibleRoundPower ? ' player-zone--with-totals' : ''}${playerHpImpact ? ` player-zone--impact-${playerHpImpact}` : ''}`}
         aria-label="Adventurer status and round power"
       >
         <div className="player-vitals">
@@ -473,7 +550,12 @@ export function CombatScreen() {
             <span>/ {run.playerMaxHp} HP</span>
           </div>
         </div>
-        <HpBar current={run.playerHp} max={run.playerMaxHp} />
+        <HpBar
+          current={run.playerHp}
+          impact={playerHpImpact}
+          impactVersion={combat.resolutionVersion}
+          max={run.playerMaxHp}
+        />
         <div className="round-totals-stage" ref={scoreStageElement}>
           <RoundTotalsPanel
             carriedHeal={combat.carriedHeal}
@@ -487,15 +569,7 @@ export function CombatScreen() {
         </div>
         {combat.phase === 'resolving' && combat.lastResolution && (
           <div className={`resolution-banner resolution-banner--${resolutionTone}`} role="status">
-            {combat.lastResolution.outcome === 'victory'
-              ? 'Enemy defeated — its intent is cancelled!'
-              : combat.resolutionStep === 'enemy_heal'
-                ? `${enemy.name} heals ${combat.lastResolution.enemyHealApplied}`
-                : combat.resolutionStep === 'enemy_attack'
-                ? `${combat.lastResolution.enemyDamageBlocked} blocked · ${combat.lastResolution.playerDamageTaken} damage taken`
-                : combat.lastResolution.bleedDamageToEnemy > 0
-                  ? `Bleed ${combat.lastResolution.bleedDamageToEnemy} · Attack ${combat.lastResolution.attackDamageToEnemy}`
-                  : `Your attack lands for ${combat.lastResolution.attackDamageToEnemy}`}
+            {resolutionMessage}
           </div>
         )}
       </section>
@@ -514,7 +588,7 @@ export function CombatScreen() {
         </header>
 
         <div className="dice-arena">
-          <div className={`roll-pedestal${activeDie ? ' roll-pedestal--active' : ''}`}>
+          <div className={`roll-pedestal roll-pedestal--${rollState}${activeDie ? ' roll-pedestal--active' : ''}`}>
             {activeDie && pendingResult && activeRoll ? (
               <RollDieTile
                 activeElementRef={activeDieElement}
@@ -552,17 +626,24 @@ export function CombatScreen() {
       <footer className="combat-actions">
         {autoCombatUnlocked && (
           <button
+            aria-label={profile.settings.autoCombat ? 'Pause Auto Combat' : 'Enable Auto Combat'}
             aria-pressed={profile.settings.autoCombat}
             className={`auto-combat-toggle${profile.settings.autoCombat ? ' auto-combat-toggle--active' : ''}`}
             onClick={() => setAutoCombat(!profile.settings.autoCombat)}
             type="button"
           >
-            Auto Combat {profile.settings.autoCombat ? 'On' : 'Off'}
+            {profile.settings.autoCombat
+              ? <Pause aria-hidden="true" size={16} />
+              : <FastForward aria-hidden="true" size={16} />}
+            <span>
+              <strong>Auto Combat</strong>
+              <small>{profile.settings.autoCombat ? 'Running · tap to pause' : 'Off · tap to enable'}</small>
+            </span>
           </button>
         )}
         {combat.phase === 'awaiting_resolve' ? (
           <button
-            className="pixel-button pixel-button--resolve"
+            className={`pixel-button pixel-button--resolve${profile.settings.autoCombat ? ' pixel-button--automation' : ''}`}
             disabled={isScoreAnimating || profile.settings.autoCombat}
             onClick={beginRoundResolution}
             type="button"
@@ -576,7 +657,7 @@ export function CombatScreen() {
           </button>
         ) : (
           <button
-            className="pixel-button pixel-button--primary"
+            className={`pixel-button pixel-button--primary${profile.settings.autoCombat ? ' pixel-button--automation' : ''}`}
             disabled={combat.phase !== 'awaiting_roll' || isScoreAnimating || profile.settings.autoCombat}
             onClick={handleDraw}
             type="button"

@@ -199,10 +199,15 @@
 
 .talent-canvas-inspector h2 {
   color: var(--arcade-white);
+  font-size: 1.2rem;
+  line-height: 1.12;
 }
 
 .talent-canvas-inspector__state {
   border-color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.56rem;
+  font-weight: 850;
 }
 
 .talent-canvas-inspector__state--ready {
@@ -221,10 +226,16 @@
   border-left: 5px solid var(--arcade-purple);
   background: var(--arcade-black);
   color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .talent-canvas-inspector__purchase {
+  min-height: 48px;
   background: #45328f;
+  font-size: 0.68rem;
 }
 
 .talent-canvas-inspector__purchase:disabled {
