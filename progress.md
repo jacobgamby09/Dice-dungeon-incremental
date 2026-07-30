@@ -218,7 +218,7 @@ Brug denne skabelon:
 - Berørte områder: `HubScreen.tsx`, `HubScreen.test.tsx`, `src/styles/arcade/hub.css`, `DESIGN.md` og `progress.md`.
 - Validering: Lokal desktop-browser viste `336 px` viewport mod `956 px` rack-content, synlig scrollbar og keyboard-navigation fra første til anden og tredje die. Mobilpasset ved 384×844 viste `touch-action: pan-x`, bevaret intern overflow og ingen sidebred overflow.
 - Kendte mangler: Fysisk iOS-swipe skal fortsat indgå i den samlede iPhone-pass.
-- Git: Ikke committed eller pushed endnu på `codex/arcade-foundation-v1`.
+- Git: `ee1372f` — `Make Hub dice rack fully scrollable` på `codex/arcade-foundation-v1`; pushed til `origin`.
 
 ### 2026-07-30 — Rene roll-felter uden state-striber
 
