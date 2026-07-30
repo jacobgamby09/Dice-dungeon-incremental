@@ -1,0 +1,15 @@
+/*
+ * Canonical Pixel Arcade presentation layer.
+ *
+ * Keep this import order stable: shared tokens and primitives establish the
+ * visual language, screen modules specialize it, and responsive rules win last.
+ */
+@import './tokens.css';
+@import './shared.css';
+@import './dice.css';
+@import './hub.css';
+@import './combat.css';
+@import './workshop.css';
+@import './talent-tree.css';
+@import './outcomes.css';
+@import './responsive.css';

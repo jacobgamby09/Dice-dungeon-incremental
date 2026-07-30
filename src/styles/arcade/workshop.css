@@ -1,0 +1,186 @@
+/* Workshop */
+.workshop-ritual {
+  gap: 8px;
+  padding: 8px 8px max(18px, env(safe-area-inset-bottom));
+  background: var(--arcade-black);
+}
+
+.workshop-ritual__header {
+  min-height: 58px;
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 7px 9px;
+}
+
+.workshop-ritual__back {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__header h1 {
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__header header span {
+  color: var(--arcade-yellow);
+}
+
+.workshop-ritual__header .resource-hud--compact {
+  position: static;
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-ritual__rack {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 9px;
+}
+
+.workshop-ritual__rack > header {
+  border-bottom: 2px solid var(--arcade-white);
+  padding-bottom: 7px;
+}
+
+.workshop-ritual__rack > header span,
+.workshop-ritual__rack > header strong {
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__tab {
+  border: 2px solid #686873;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-ritual__tab[aria-pressed="true"] {
+  border-color: var(--arcade-white);
+  background: color-mix(in srgb, var(--workshop-family) 25%, var(--arcade-black));
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.workshop-ritual__tab small {
+  color: var(--arcade-muted);
+}
+
+.workshop-ritual__die-heading {
+  min-height: 62px;
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  padding: 9px;
+}
+
+.workshop-target,
+.workshop-power {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-target > header,
+.workshop-power > header {
+  border-bottom: 2px solid var(--arcade-white);
+}
+
+.workshop-target > header > span,
+.workshop-power > header > span {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-yellow);
+}
+
+.workshop-target h3,
+.workshop-power h3,
+.workshop-power > header > div:last-child strong {
+  color: var(--arcade-white);
+}
+
+.workshop-target__face {
+  border: 2px solid #666673;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-target__face--highlighted {
+  border-color: var(--arcade-white);
+  background: color-mix(in srgb, var(--target-color) 26%, var(--arcade-black));
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    0 0 0 2px var(--target-color);
+}
+
+.workshop-target__face--locked::after {
+  border-color: var(--arcade-white);
+  background: transparent;
+  color: var(--arcade-yellow);
+}
+
+.workshop-ritual__conduit {
+  color: var(--arcade-yellow);
+}
+
+.workshop-ritual__conduit span {
+  border-color: var(--arcade-black);
+  background: var(--arcade-white);
+}
+
+.workshop-power__stage {
+  background: var(--arcade-black);
+}
+
+.workshop-power__distribution > span {
+  border: 2px solid #77776a;
+  background: var(--arcade-black);
+  color: var(--arcade-yellow);
+}
+
+.workshop-power__distribution-face--rolled {
+  border-color: var(--arcade-white) !important;
+  background: #534b00 !important;
+  box-shadow: none;
+}
+
+.workshop-power-die__side {
+  border-color: var(--arcade-white);
+  background: #8a6414;
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    inset 4px 4px 0 #c7992f;
+}
+
+.workshop-power-die__jackpot-glow {
+  border-color: var(--arcade-yellow);
+  background: rgba(255, 229, 0, 0.08);
+  box-shadow:
+    0 0 0 3px var(--arcade-black),
+    0 0 0 5px var(--arcade-yellow);
+}
+
+.workshop-impact {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border-left-color: var(--workshop-family);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.workshop-ritual__status {
+  color: var(--arcade-muted);
+}
+
+.workshop-ritual__action {
+  background: #685400;
+  color: var(--arcade-white);
+}
+
+.workshop-ritual__action--power {
+  background: #7a6200;
+}
+
+.workshop-ritual__odds {
+  color: var(--arcade-muted);
+}

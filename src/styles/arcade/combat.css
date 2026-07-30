@@ -1,0 +1,224 @@
+/* Combat */
+.combat-screen {
+  height: 100dvh;
+  min-height: 640px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--arcade-black);
+}
+
+.combat-meta {
+  min-height: 44px;
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding-inline: 8px;
+}
+
+.combat-meta div {
+  border: 0;
+}
+
+.combat-meta span {
+  color: var(--arcade-muted);
+}
+
+.combat-meta strong,
+.combat-meta .permanent-souls strong {
+  color: var(--arcade-white);
+}
+
+.combat-meta .permanent-souls {
+  color: var(--arcade-purple);
+}
+
+.run-menu-trigger {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.enemy-zone {
+  min-height: 218px;
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.enemy-zone--boss {
+  min-height: 228px;
+}
+
+.enemy-zone__title {
+  font-family: inherit;
+}
+
+.enemy-zone__title .eyebrow {
+  color: var(--arcade-red);
+  font-family: inherit;
+}
+
+.enemy-zone__title h1 {
+  color: var(--arcade-white);
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 900;
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.enemy-zone__level {
+  color: var(--arcade-white);
+}
+
+.enemy-zone__sprite {
+  bottom: 26px;
+  width: 154px;
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.enemy-zone__vitals {
+  bottom: 7px;
+}
+
+.hp-label {
+  color: var(--arcade-white);
+}
+
+.enemy-intent-tray__label {
+  color: var(--arcade-red);
+}
+
+.enemy-intent-die__button,
+.enemy-intent-die__face {
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.enemy-intent-die__cube .roll-die__side {
+  border-color: var(--arcade-white);
+}
+
+.enemy-intent-total {
+  border-bottom: 2px solid currentColor;
+  background: var(--arcade-black);
+}
+
+.enemy-intent-tray__details {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.player-zone {
+  min-height: 92px;
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 9px 12px;
+}
+
+.player-vitals__label {
+  color: var(--arcade-muted);
+}
+
+.player-health {
+  color: var(--arcade-green);
+}
+
+.player-health span {
+  color: var(--arcade-white);
+}
+
+.player-zone--with-totals .round-totals-stage {
+  border-top-color: var(--arcade-white);
+}
+
+.round-totals {
+  gap: 5px;
+}
+
+.round-total {
+  min-width: 69px;
+  border: 2px solid var(--arcade-white);
+  background: var(--total-surface);
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.resolution-banner {
+  border: var(--arcade-frame-strong) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.roll-zone {
+  flex: 1;
+  border: 0;
+  background: var(--arcade-black);
+}
+
+.dice-stage-header {
+  min-height: 48px;
+  border-bottom: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.dice-stage-header h2 {
+  color: var(--arcade-white);
+}
+
+.bag-counter {
+  border: 2px solid var(--arcade-white);
+  background: #111128;
+  box-shadow: none;
+  color: var(--arcade-cyan);
+}
+
+.bag-counter span {
+  color: var(--arcade-white);
+}
+
+.dice-arena {
+  min-height: 190px;
+  background: var(--arcade-black);
+}
+
+.roll-pedestal {
+  background: var(--arcade-black);
+}
+
+.roll-pedestal::before,
+.roll-pedestal::after {
+  display: none;
+}
+
+.played-dice-rack {
+  border-top: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.played-dice-rack__label {
+  color: var(--arcade-muted);
+}
+
+.combat-actions {
+  min-height: 78px;
+  border-top: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+}
+
+.auto-combat-toggle {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-muted);
+}
+
+.auto-combat-toggle--active {
+  background: #073d47;
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+  color: var(--arcade-cyan);
+}

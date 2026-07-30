@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-29.
+Senest opdateret: 2026-07-30.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,7 +38,8 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **En separat Pixel Arcade-visual test findes på `codex/pixel-arcade-visual-test`:** Hub, Combat, Workshop, Talent Tree og de vigtigste bro-skærme bruger nu ren sort canvas, hårde hvide pixelrammer og mættede gameplayfarver. Gameplay, saves, enemy-sprites og de fysiske 3D-terninger er uændrede; retningen er dokumenteret i `PIXEL_ARCADE_VISUAL_TEST.md`.
+- **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.0 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer og fysiske 3D-terninger som hero-objekter. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
+- **Den canonical presentation layer er nu modulariseret på `codex/arcade-foundation-v1`:** det tidligere 1.100+ linjers test-override er flyttet fra `src/newGame.css` til tokens, shared, dice og screen-specifikke filer i `src/styles/arcade/`. Hubben viser ikke længere test/V2-copy, og Combat, Hub, Workshop, Talent Tree samt outcomes bruger et roligere sektion/handling-hierarki uden gameplay- eller saveændringer.
 - **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
 - V2 bruger save-version 14 og starter med én `Worn Blade Die` på præcis `1,1,1,1,1,1 Attack`. Version 13 migreres uden progressionstab; ældre production-saves nulstilles fortsat bevidst til en frisk V2-profil på denne branch.
 - Første Slime har 3 HP og fast 2 Attack. Den friske spiller slår tre gange, vinder med 6/10 HP og får præcis 4 XP + 5 Souls; floor 2 er den første sikre væg.
@@ -94,12 +95,12 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Sammenlign Pixel Arcade-branchen direkte med `codex/classic-incremental-v2` på en fysisk iPhone med samme save: Hub-overblik, én fuld combat, et `+2`-Forge og et Talent Tree-køb.
-2. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
-3. Vurder subjektivt om target-flicker, det efterfølgende Workshop-roll og `+2`-øjeblikket giver nok spænding uden at gøre gentagne Forge-køb langsomme; test mindst 15–25 upgrades.
-4. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
-5. Brainstorm og specificér Fate Token/Charm-loot som V2's næste selvstændige progressiongren; implementér den ikke som Talent Tree-stat-bonusser.
-6. Beslut efter V2-playtest om branchen skal fortsætte som separat mode, erstatte production eller levere enkelte systemer tilbage til den nuværende version.
+1. Gennemfør en fysisk iPhone-pass af den canonical Pixel Arcade-foundation: Hub, én fuld manuel/automatisk combat, et gentaget Workshop-ritual, et Talent-køb og både Victory/Defeat.
+2. Mål visuel læsbarhed og timing ved 1–6 player-dice samt 1–3 enemy-dice; 320 px Dungeon 2 er browsergodkendt, men seks player-dice skal stadig fysisk stresses under hurtig Auto Combat.
+3. Gennemfør en fokuseret typografi- og ikonpass uden at ændre den nu fastlåste layout- og framearkitektur.
+4. Fysisk fresh-save-playtest af V2 på iPhone: mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
+5. Vurder subjektivt om target-flicker, det efterfølgende Workshop-roll og `+2`-øjeblikket giver nok spænding uden at gøre gentagne Forge-køb langsomme; test mindst 15–25 upgrades.
+6. Rebalancér Dungeon 2 specifikt til den nye langsommere V2-kurve, før Charms eller flere dice-familier bygges.
 
 ### Production-reference
 
@@ -112,7 +113,7 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
-- Pixel Arcade-retningen er implementeret som et isoleret override-lag oven på den eksisterende store stylesheet. Det gør A/B-testen sikker og hurtig, men efterlader bevidst ældre CSS under laget; ved en mergebeslutning bør stilen konsolideres i mindre screen- og tokenfiler.
+- Den canonical Pixel Arcade-layer er nu opdelt i screen- og tokenfiler, men `src/newGame.css` indeholder fortsat det ældre strukturelle layout under præsentationslaget. Nye arcade-regler skal blive i `src/styles/arcade/`; en senere strukturel konsolidering skal ske gradvist med visuelle regressionstests.
 - De nuværende detaljerede enemy-sprites er bevaret som aftalt. Det skal vurderes på fysisk mobil, om deres billedsprog passer til den simplere sort/hvide arcade-shell, før der bestilles eller bygges ny sprite-art.
 - V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–45-grænser skal derfor fysisk valideres.
 - Workshop-ritualet er browser-verificeret ved 384 px, inklusive reload efter target-roll og før power-roll. Den subjektive varighed og gentagelsesværdi ved mange køb skal stadig afprøves på fysisk mobil.
@@ -197,13 +198,25 @@ Brug denne skabelon:
 - Player resolution sker før enemy resolution.
 - En død enemy angriber aldrig.
 - Player death har prioritet ved reel samtidig død.
-- Visuel retning er et fysisk dark-fantasy 3D-pixel-diorama, ikke en samling web-cards.
+- Visuel retning er Pixel Arcade: ren sort canvas, funktionelle mættede farver, hårde frame-niveauer og fysiske 3D-terninger. Det tidligere dark-fantasy-diorama er kun arkiveret reference.
 - Combat-roll-fladen bruger næsten-sort negativ plads uden runer, tom piedestal eller idle-copy; kun et aktivt roll må dominere området.
 - Enemy-navne bruger en ren sans-serif uden display-shadow, og stabile compact content-navne skal mappe direkte til deres egne sprite-sheets uden den gamle hardcodede placeholder.
 - Enemy-stage bruger samme næsten-sorte negative plads som roll-fladen uden murværk, bue eller piedestal; sprite, intent og HP er de eneste højkontrastelementer.
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-30 — Pixel Arcade foundation v1
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Pixel Arcade er gjort til spillets officielle visuelle foundation. Testmærkningen er fjernet fra Hubben, og det store arcade-override er flyttet ud af `src/newGame.css` til ni vedligeholdelige CSS-moduler med stabile importlag. Primære handlinger beholder en tung arcade-frame, mens gameplaysektioner og sekundære detaljer bruger roligere frame-vægte.
+- Beslutninger: Den flade sorte UI-shell og de fysiske 3D-terninger er canonical. Gameplay, balance, saves, dice-logik og enemy-sprites ændres ikke. Den gamle diorama-designreference bevares kun i `DESIGN_LEGACY_DIORAMA.md`.
+- Berørte områder: `DESIGN.md`, `PIXEL_ARCADE_VISUAL_TEST.md`, `DESIGN_LEGACY_DIORAMA.md`, Hub-copy/test, `src/App.tsx`, `src/newGame.css` og `src/styles/arcade/`.
+- Validering: Browser ved 320, 384 og 430 px verificerede Hub, Dungeon Select, Dungeon 1 Combat, Dungeon 2 Combat med tre player-dice og Attack+Shield-intent, Workshop, Talent Tree, Talent-overlay og Run Menu uden horisontal overflow eller console warnings/errors. `npx tsc --noEmit`, 26 testfiler med 125 tests, ESLint og production-build består.
+- Kendte mangler: Fysisk iPhone/Safari og seks samtidige player-dice under hurtig Auto Combat er stadig næste stress-test. Custom font, ikonbibliotek og nye enemy-sprites er bevidst udskudt.
+- Git: Arbejdet ligger på `codex/arcade-foundation-v1`; commit og push afsluttes i dette arbejdsforløb.
 
 ### 2026-07-29 — Workshop target og skjult roll-resultat
 

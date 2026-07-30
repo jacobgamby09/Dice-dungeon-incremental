@@ -1,0 +1,84 @@
+.game-shell {
+  width: min(100%, 384px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  border-inline: 2px solid var(--arcade-white);
+  color: var(--arcade-white);
+  background: var(--arcade-black);
+}
+
+.game-shell h1,
+.game-shell h2,
+.game-shell h3,
+.game-shell strong,
+.game-shell button {
+  font-weight: 900;
+}
+
+.game-shell h1,
+.game-shell h2,
+.game-shell h3 {
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.eyebrow {
+  color: var(--arcade-muted);
+  letter-spacing: 0.12em;
+}
+
+.pixel-button,
+.loadout-manage,
+.hub-action,
+.workshop-ritual__action,
+.talent-canvas-inspector__purchase {
+  border: var(--arcade-frame-strong) solid var(--arcade-white);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    4px 4px 0 var(--arcade-white);
+  color: var(--arcade-white);
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.pixel-button:active:not(:disabled),
+.loadout-manage:active:not(:disabled),
+.hub-action:active:not(:disabled),
+.workshop-ritual__action:active:not(:disabled),
+.talent-canvas-inspector__purchase:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.pixel-button:focus-visible,
+.loadout-manage:focus-visible,
+.hub-action:focus-visible,
+.workshop-ritual__action:focus-visible,
+.talent-canvas-inspector__purchase:focus-visible {
+  outline: 3px solid var(--arcade-yellow);
+  outline-offset: 3px;
+}
+
+.pixel-button--primary,
+.pixel-button--resolve {
+  background: #4338ca;
+}
+
+.hp-bar {
+  height: 14px;
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: #17171f;
+  box-shadow: none;
+}
+
+.hp-bar__fill {
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45);
+}
+
+.hp-bar__fill--player {
+  background: var(--arcade-green);
+}
+
+.hp-bar__fill--enemy {
+  background: var(--arcade-red);
+}

@@ -1,0 +1,35 @@
+/* Shared physical die skin */
+.roll-die__cube {
+  filter: none;
+}
+
+.roll-die__side {
+  border: 3px solid var(--arcade-white);
+  background: var(--side-surface);
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    inset 4px 4px 0 color-mix(in srgb, var(--side-color) 62%, transparent);
+  color: var(--arcade-white);
+}
+
+.roll-die__side strong {
+  color: var(--arcade-white);
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.roll-die__body {
+  border: 3px solid var(--arcade-white);
+  background: var(--die-surface);
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.roll-die__body::before,
+.roll-die__body::after {
+  background: var(--arcade-white);
+}
+
+.face-cell {
+  border: 2px solid var(--arcade-white);
+  background: #0b0b12;
+  box-shadow: inset 0 0 0 1px var(--arcade-black);
+}

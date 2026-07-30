@@ -1,0 +1,29 @@
+:root {
+  --arcade-black: #000;
+  --arcade-surface: #08080d;
+  --arcade-surface-raised: #11111a;
+  --arcade-white: #fff;
+  --arcade-muted: #9a9aa8;
+  --arcade-line-subtle: #575764;
+  --arcade-purple: #8b5cf6;
+  --arcade-red: #ff334f;
+  --arcade-blue: #2498ff;
+  --arcade-green: #31e85f;
+  --arcade-yellow: #ffe500;
+  --arcade-cyan: #30e8ff;
+  --arcade-orange: #ff9b32;
+  --arcade-frame-strong: 3px;
+  --arcade-frame-section: 2px;
+  --arcade-frame-subtle: 1px;
+  --bg: var(--arcade-black);
+  --panel: var(--arcade-surface);
+  --panel-raised: var(--arcade-surface-raised);
+  --line: var(--arcade-white);
+  --muted: var(--arcade-muted);
+  --text: var(--arcade-white);
+  --purple: var(--arcade-purple);
+  --yellow: var(--arcade-yellow);
+  --red: var(--arcade-red);
+  --green: var(--arcade-green);
+  --blue: var(--arcade-blue);
+}

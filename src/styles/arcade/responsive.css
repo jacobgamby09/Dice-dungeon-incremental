@@ -1,0 +1,57 @@
+@media (min-width: 430px) {
+  .game-shell {
+    box-shadow:
+      0 0 0 4px var(--arcade-black),
+      0 0 0 7px var(--arcade-white);
+  }
+}
+
+@media (max-width: 340px) {
+  .hub-screen,
+  .workshop-ritual {
+    padding-inline: 6px;
+  }
+
+  .hub-sign h1 {
+    font-size: 1.42rem;
+  }
+
+  .hub-action {
+    min-height: 70px;
+    padding-inline: 6px;
+  }
+
+  .hub-action small {
+    display: none;
+  }
+
+  .enemy-zone__sprite {
+    left: 3px;
+    width: 135px;
+  }
+
+  .enemy-zone__intel {
+    right: 8px;
+    width: 165px;
+  }
+
+  .enemy-zone__vitals {
+    right: 8px;
+    width: 172px;
+  }
+
+  .talent-canvas__node-position {
+    width: 64px;
+    height: 64px;
+  }
+
+  .talent-canvas-node {
+    width: 62px;
+    height: 62px;
+  }
+
+  .talent-canvas-node__face {
+    width: 48px;
+    height: 48px;
+  }
+}

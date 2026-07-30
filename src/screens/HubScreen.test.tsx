@@ -15,7 +15,7 @@ describe('HubScreen developer tools', () => {
     expect(markup).toContain('DEV · Fresh QoL test · 20 XP')
     expect(markup).toContain('DEV · Load Dungeon 2 profile')
     expect(markup).toContain('DEV · Reset game')
-    expect(markup).toContain('Classic Incremental V2')
+    expect(markup).toContain('Permanent Dice Incremental')
     expect(markup).not.toContain('Extraction runner')
     expect(markup).not.toContain('Load test profile')
     expect(markup).not.toContain('Reset everything')

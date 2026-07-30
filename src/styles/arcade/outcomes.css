@@ -1,0 +1,93 @@
+/* Bridge surfaces */
+.screen-header,
+.collection-header,
+.forge-header,
+.dungeon-card,
+.collection-die,
+.outcome-stage,
+.outcome-summary,
+.run-menu,
+.away-recap,
+.die-details-panel {
+  border-color: var(--arcade-white);
+  border-radius: 0;
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.screen-header button,
+.collection-header button,
+.forge-header button,
+.run-menu button,
+.away-recap button,
+.collection-details,
+.dungeon-card button {
+  border-color: var(--arcade-white);
+  border-radius: 0;
+  background-color: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-screen,
+.dungeon-select-screen,
+.loadout-screen {
+  background: var(--arcade-black);
+}
+
+.outcome-screen {
+  gap: 8px;
+}
+
+.outcome-stage {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-stage::before,
+.outcome-stage::after,
+.outcome-stage__rays,
+.outcome-stage__danger-glow,
+.outcome-stage__platform {
+  display: none;
+}
+
+.outcome-banner {
+  border: var(--arcade-frame-strong) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-banner::before,
+.outcome-banner::after {
+  display: none;
+}
+
+.outcome-banner h1 {
+  color: var(--arcade-green);
+  text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.outcome-banner--defeat h1 {
+  color: var(--arcade-red);
+}
+
+.outcome-rewards,
+.outcome-run-status,
+.outcome-clear-summary {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-reward {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.outcome-reward__icon {
+  border: 2px solid var(--arcade-white);
+  background: var(--reward-dark);
+  box-shadow: none;
+}

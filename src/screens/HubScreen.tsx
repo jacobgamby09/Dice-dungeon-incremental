@@ -66,7 +66,7 @@ export function HubScreen() {
     <main className="game-shell hub-screen">
       <section className="hub-gate hub-header" aria-labelledby="hub-title">
         <header className="hub-sign">
-          <span>Classic Incremental V2 · Pixel Arcade Test</span>
+          <span>Permanent Dice Incremental</span>
           <h1 id="hub-title">Dice Dungeon</h1>
         </header>
         <p>Fail, forge a random face, and return stronger. Every run moves the wall.</p>

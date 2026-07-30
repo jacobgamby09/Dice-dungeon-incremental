@@ -1,0 +1,234 @@
+/* Spatial Talent Tree */
+.talent-canvas-screen,
+.talent-canvas {
+  background: var(--arcade-black);
+}
+
+.talent-canvas {
+  background-image: none;
+}
+
+.talent-canvas-hud__button,
+.talent-canvas-recenter {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.talent-canvas-xp {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-purple);
+}
+
+.talent-canvas-xp strong,
+.talent-canvas-xp span {
+  color: var(--arcade-white);
+}
+
+.talent-canvas-zoom {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.talent-canvas-zoom button {
+  border-color: var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-sector {
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.talent-canvas-sector::before {
+  display: none;
+}
+
+.talent-canvas-sector--north {
+  color: rgba(36, 152, 255, 0.4);
+}
+
+.talent-canvas-sector--west {
+  color: rgba(255, 155, 50, 0.4);
+}
+
+.talent-canvas-sector--south {
+  color: rgba(49, 232, 95, 0.38);
+}
+
+.talent-canvas-sector--east {
+  color: rgba(139, 92, 246, 0.42);
+}
+
+.talent-canvas-connection__base,
+.talent-canvas-connection--dormant .talent-canvas-connection__base {
+  stroke: #4c4c56;
+  stroke-width: 3;
+}
+
+.talent-canvas-connection--veiled .talent-canvas-connection__base {
+  stroke: #222229;
+  opacity: 1;
+}
+
+.talent-canvas-connection--open .talent-canvas-connection__base {
+  stroke: var(--arcade-white);
+  filter: none;
+}
+
+.talent-canvas-connection--active .talent-canvas-connection__base {
+  stroke: var(--arcade-yellow);
+  filter: none;
+}
+
+.talent-canvas-connection__charge {
+  stroke: var(--arcade-white);
+  filter: none;
+}
+
+.talent-canvas__node-position {
+  width: 70px;
+  height: 70px;
+}
+
+.talent-canvas-node {
+  width: 68px;
+  height: 68px;
+  padding: 8px;
+}
+
+.talent-canvas-node__face {
+  width: 52px;
+  height: 52px;
+  border: var(--arcade-frame-section) solid var(--arcade-line-subtle);
+  background: var(--arcade-black);
+  box-shadow: inset 0 0 0 2px #16161d;
+}
+
+.talent-canvas-node__face::before,
+.talent-canvas-node__face::after {
+  background: var(--arcade-white);
+}
+
+.talent-canvas-node--ready .talent-canvas-node__face,
+.talent-canvas-node--affordable .talent-canvas-node__face {
+  border-color: var(--arcade-yellow);
+  background: var(--arcade-black);
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    0 0 0 2px var(--arcade-white);
+}
+
+.talent-canvas-node--active .talent-canvas-node__face,
+.talent-canvas-node--maxed .talent-canvas-node__face {
+  border-color: var(--arcade-white);
+  background: color-mix(in srgb, var(--talent-track-color) 58%, var(--arcade-black));
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+}
+
+.talent-canvas-node--unaffordable .talent-canvas-node__face {
+  border-color: var(--talent-track-color);
+  background: var(--arcade-black);
+  box-shadow: none;
+}
+
+.talent-canvas-node--locked .talent-canvas-node__face {
+  border-color: #303038;
+  background: #07070a;
+  box-shadow: none;
+  filter: grayscale(1);
+}
+
+.talent-canvas-node--silhouette .talent-canvas-node__face {
+  border-color: #202027;
+  background: #050507;
+  box-shadow: none;
+  filter: none;
+}
+
+.talent-canvas-node__fog {
+  background: #111116;
+  filter: none;
+  opacity: 0.72;
+}
+
+.talent-canvas-node--activating .talent-canvas-node__face {
+  filter: none;
+  box-shadow:
+    inset 0 0 0 2px var(--arcade-black),
+    0 0 0 3px var(--arcade-white);
+}
+
+.talent-canvas-node__particles > span {
+  background: var(--arcade-yellow);
+  box-shadow: none;
+}
+
+.roll-die--landed.roll-die--evolution .roll-die__cube,
+.roll-die--landed.roll-die--signature .roll-die__cube {
+  animation: none;
+}
+
+.talent-canvas-dialog-backdrop {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.talent-canvas-inspector {
+  border: 4px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: 6px 6px 0 var(--arcade-white);
+}
+
+.talent-canvas-inspector__close {
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: none;
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__icon {
+  border: 3px solid var(--arcade-white);
+  background: #25164f;
+  box-shadow: inset 0 0 0 2px var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector h2 {
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__state {
+  border-color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__state--ready {
+  border-color: var(--arcade-yellow);
+  color: var(--arcade-yellow);
+}
+
+.talent-canvas-inspector__state--active,
+.talent-canvas-inspector__state--maxed {
+  border-color: var(--arcade-green);
+  color: var(--arcade-green);
+}
+
+.talent-canvas-inspector__effects span {
+  border: 2px solid var(--arcade-white);
+  border-left: 5px solid var(--arcade-purple);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__purchase {
+  background: #45328f;
+}
+
+.talent-canvas-inspector__purchase:disabled {
+  border-color: #45454f;
+  background: #111116;
+  box-shadow: none;
+}

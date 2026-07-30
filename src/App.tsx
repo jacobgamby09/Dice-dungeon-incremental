@@ -11,6 +11,7 @@ import { TalentTreeScreen } from './screens/TalentTreeScreen'
 import { WorkshopScreen } from './screens/WorkshopScreen'
 import { useNewGameStore } from './store/newGameStore'
 import './newGame.css'
+import './styles/arcade/index.css'
 
 export function App() {
   const screen = useNewGameStore((state) => state.screen)
