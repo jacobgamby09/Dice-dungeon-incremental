@@ -218,7 +218,7 @@ Brug denne skabelon:
 - Berørte områder: `src/styles/arcade/combat.css`, `DESIGN.md` og `progress.md`.
 - Validering: Lokal browser ved 384×844 bekræftede `background-image: none` og sort baggrund under både `rolling` og `scoring`; visuel screenshot-pass viste et rent roll-felt uden striber.
 - Kendte mangler: Ingen.
-- Git: Ikke committed eller pushed endnu på `codex/arcade-foundation-v1`.
+- Git: `3faad59` — `Remove combat roll field stripes` på `codex/arcade-foundation-v1`; pushed til `origin`.
 
 ### 2026-07-30 — Arcade Polish v1
 
