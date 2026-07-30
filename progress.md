@@ -227,7 +227,7 @@ Brug denne skabelon:
 - Berørte områder: Talent content/types/layout/icons/detail-overlay, reward pipeline og outcome-feedback, Workshop economy, simulator/dev-profiler, save-migration 15, Auto Combat, GDD, tests og Arcade CSS.
 - Validering: `npx tsc --noEmit`, 132 Vitest-tests, ESLint og production build grønne. Browser-verificeret på fresh QoL-save: Inner Spark afslører syv valg, Shieldcraft viser `Requires any 1`, Field Studies giver +1 XP og Victory viser `Includes +1 from talents`; ingen browser warnings/errors.
 - Kendte mangler: Fysisk mobil-playtest og endelig balance af efficiency-ranks mangler. Charm-systemet er fortsat deferred.
-- Git: Ikke committed.
+- Git: `26d0fc5` — `Build Talent Tree v3 progression mesh` på `codex/arcade-foundation-v1`; leveringsloggen færdiggøres og branchen pushes i dette arbejdsforløb.
 
 ### 2026-07-30 — Interaktiv Hub dice-carousel
 
