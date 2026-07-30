@@ -1,6 +1,6 @@
 # Dice Dungeon — Legacy Diorama Visual Design System
 
-Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.  
+Status: gældende visuel og interaktiv designreference for **Dice Dungeon Incremental**.
 Version: 1.10 — 2026-07-28.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes. `NEW_GAME_GDD.md` bestemmer spillets regler og progression; dette dokument bestemmer, hvordan spillet skal føles og se ud. `DESIGN_STATE.md` beskriver det gamle Dice Dungeon og er kun legacy-kontekst.
