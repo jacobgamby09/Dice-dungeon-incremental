@@ -132,6 +132,9 @@ skal stadig vise samme sluttilstand og rækkefølge.
   animation må aldrig vælge eller ændre et roll.
 - Et player-roll bevæger sig gennem de læsbare states `rolling`, `landed`,
   `scoring` og `idle`.
+- Roll-feltets baggrund forbliver ren sort i alle states. Motion og state-feedback
+  må kun ligge omkring den aktive terning, dens score-transfer og destinationen;
+  der bruges ingen helflade-striber eller gradients i det tomme roll-felt.
 - Landingen får en kort familie-farvet impact. Evolution- og signature-faces
   må få en stærkere separat effekt, men den frontvendte face skal forblive klar.
 - Score-feedback skal vise source, bevægelse og arrival: effekten forlader

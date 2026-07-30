@@ -38,7 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
+- **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Det store roll-felt forbliver rent sort i alle states; feedback er afgrænset til terning, transfer og destination. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
 - **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.1 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer, fysiske 3D-terninger som hero-objekter og Arcade Polish-kontrakten for læsbar feedback. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
 - **Den canonical presentation layer er nu modulariseret på `codex/arcade-foundation-v1`:** det tidligere 1.100+ linjers test-override er flyttet fra `src/newGame.css` til tokens, shared, dice og screen-specifikke filer i `src/styles/arcade/`. Hubben viser ikke længere test/V2-copy, og Combat, Hub, Workshop, Talent Tree samt outcomes bruger et roligere sektion/handling-hierarki uden gameplay- eller saveændringer.
 - **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
@@ -207,6 +207,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-30 — Rene roll-felter uden state-striber
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: De nye helflade-gradients og lysstriber er fjernet fra Combat-rollfeltets `rolling`, `landed` og `scoring` states. Feltet er nu konsekvent rent sort, mens de afgrænsede landing-, score-transfer- og total-effekter bevares.
+- Beslutninger: Roll-state må ikke visualiseres ved at dekorere hele det tomme felt; feedback skal følge den aktive terning og dens konkrete destination.
+- Berørte områder: `src/styles/arcade/combat.css`, `DESIGN.md` og `progress.md`.
+- Validering: Lokal browser ved 384×844 bekræftede `background-image: none` og sort baggrund under både `rolling` og `scoring`; visuel screenshot-pass viste et rent roll-felt uden striber.
+- Kendte mangler: Ingen.
+- Git: Ikke committed eller pushed endnu på `codex/arcade-foundation-v1`.
 
 ### 2026-07-30 — Arcade Polish v1
 
