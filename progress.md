@@ -208,6 +208,18 @@ Brug denne skabelon:
 
 ## Historik
 
+### 2026-07-30 — Interaktiv Hub dice-carousel
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hub-rækken med equipped permanent dice kan nu browses med native touch-swipe, mouse-drag, wheel/trackpad og piletaster. Desktop viser en kompakt cyan scrollbar, og hver terning snapper stabilt på plads.
+- Beslutninger: Horisontale dice-racks må ikke afhænge af skjult mobil-swipe alene; overflow skal både være synligt og tilgængeligt med touch, mus og keyboard.
+- Berørte områder: `HubScreen.tsx`, `HubScreen.test.tsx`, `src/styles/arcade/hub.css`, `DESIGN.md` og `progress.md`.
+- Validering: Lokal desktop-browser viste `336 px` viewport mod `956 px` rack-content, synlig scrollbar og keyboard-navigation fra første til anden og tredje die. Mobilpasset ved 384×844 viste `touch-action: pan-x`, bevaret intern overflow og ingen sidebred overflow.
+- Kendte mangler: Fysisk iOS-swipe skal fortsat indgå i den samlede iPhone-pass.
+- Git: Ikke committed eller pushed endnu på `codex/arcade-foundation-v1`.
+
 ### 2026-07-30 — Rene roll-felter uden state-striber
 
 **Status:** Færdig

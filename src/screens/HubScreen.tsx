@@ -10,7 +10,12 @@ import {
   Sparkles,
   TriangleAlert,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+  WheelEvent as ReactWheelEvent,
+} from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
@@ -22,6 +27,12 @@ import { useNewGameStore } from '../store/newGameStore'
 export function HubScreen() {
   const [devAction, setDevAction] = useState<'early-qol' | 'preset' | 'reset' | null>(null)
   const [loadedPreset, setLoadedPreset] = useState<'early-qol' | 'dungeon-two' | null>(null)
+  const [isRackDragging, setIsRackDragging] = useState(false)
+  const rackDrag = useRef({
+    pointerId: null as number | null,
+    startScrollLeft: 0,
+    startX: 0,
+  })
   const profile = useNewGameStore(useShallow((state) => ({
     bankedSouls: state.profile.bankedSouls,
     diceCollection: state.profile.diceCollection,
@@ -62,6 +73,67 @@ export function HubScreen() {
     setLoadedPreset('early-qol')
   }
 
+  const startRackDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return
+    rackDrag.current = {
+      pointerId: event.pointerId,
+      startScrollLeft: event.currentTarget.scrollLeft,
+      startX: event.clientX,
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setIsRackDragging(true)
+  }
+
+  const moveRackDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (rackDrag.current.pointerId !== event.pointerId) return
+    event.preventDefault()
+    event.currentTarget.scrollLeft = (
+      rackDrag.current.startScrollLeft + rackDrag.current.startX - event.clientX
+    )
+  }
+
+  const finishRackDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (rackDrag.current.pointerId !== event.pointerId) return
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    rackDrag.current.pointerId = null
+    setIsRackDragging(false)
+  }
+
+  const scrollRackWithWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
+    const rack = event.currentTarget
+    const maxScrollLeft = rack.scrollWidth - rack.clientWidth
+    if (maxScrollLeft <= 0) return
+
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+      ? event.deltaX
+      : event.deltaY
+    const nextScrollLeft = Math.max(0, Math.min(maxScrollLeft, rack.scrollLeft + delta))
+    if (nextScrollLeft === rack.scrollLeft) return
+
+    event.preventDefault()
+    rack.scrollLeft = nextScrollLeft
+  }
+
+  const navigateRackWithKeyboard = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const rack = event.currentTarget
+    const page = Math.max(180, rack.clientWidth * 0.82)
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      rack.scrollBy({ behavior: 'smooth', left: -page })
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      rack.scrollBy({ behavior: 'smooth', left: page })
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      rack.scrollTo({ behavior: 'smooth', left: 0 })
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      rack.scrollTo({ behavior: 'smooth', left: rack.scrollWidth })
+    }
+  }
+
   return (
     <main className="game-shell hub-screen">
       <section className="hub-gate hub-header" aria-labelledby="hub-title">
@@ -82,7 +154,19 @@ export function HubScreen() {
           </div>
           <span className="loadout-count"><Dices aria-hidden="true" size={14} /> {profile.equippedDieIds.length}/{diceCapacity}</span>
         </header>
-        <div className="dice-rack">
+        <div
+          aria-label="Equipped permanent dice. Swipe, drag, scroll, or use arrow keys to browse."
+          className={`dice-rack${isRackDragging ? ' dice-rack--dragging' : ''}`}
+          onDragStart={(event) => event.preventDefault()}
+          onKeyDown={navigateRackWithKeyboard}
+          onPointerCancel={finishRackDrag}
+          onPointerDown={startRackDrag}
+          onPointerMove={moveRackDrag}
+          onPointerUp={finishRackDrag}
+          onWheel={scrollRackWithWheel}
+          role="region"
+          tabIndex={0}
+        >
           {profile.equippedDieIds.map((dieId) => {
             const die = profile.diceCollection.find((candidate) => candidate.id === dieId)
             return die ? <DieSummary die={die} key={die.id} /> : null

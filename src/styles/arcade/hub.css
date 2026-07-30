@@ -112,12 +112,34 @@
   color: var(--arcade-white);
 }
 
+.dice-rack {
+  cursor: grab;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  touch-action: pan-x;
+}
+
+.dice-rack:focus-visible {
+  outline: 3px solid var(--arcade-yellow);
+  outline-offset: 2px;
+}
+
+.dice-rack--dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
 .hub-screen .die-summary {
   min-width: min(100%, 310px);
   border: var(--arcade-frame-section) solid var(--arcade-white);
   background: #08080d;
   box-shadow: none;
   padding: 8px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .hub-screen .die-summary__pedestal {
@@ -192,4 +214,25 @@
   border: var(--arcade-frame-subtle) dashed var(--arcade-line-subtle);
   background: var(--arcade-black);
   box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dice-rack {
+    scrollbar-color: var(--arcade-cyan) #17171f;
+    scrollbar-width: thin;
+  }
+
+  .dice-rack::-webkit-scrollbar {
+    display: block;
+    height: 7px;
+  }
+
+  .dice-rack::-webkit-scrollbar-track {
+    background: #17171f;
+  }
+
+  .dice-rack::-webkit-scrollbar-thumb {
+    border: 1px solid var(--arcade-black);
+    background: var(--arcade-cyan);
+  }
 }

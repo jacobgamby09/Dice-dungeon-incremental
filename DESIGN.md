@@ -156,7 +156,9 @@ skal stadig vise samme sluttilstand og rækkefølge.
 - Understøttet kontrolbredde: 320–430 px.
 - Primære touch targets er mindst omtrent 44 × 44 px.
 - Ingen sidebred horisontal overflow.
-- Lokale dice-racks må scrolle vandret.
+- Lokale dice-racks må scrolle vandret. De skal understøtte native touch-swipe,
+  mouse-drag, wheel/trackpad og piletaster; på fine pointers skal en kompakt
+  scrollbar gøre overflow synligt.
 - Safe-area padding bevares ved bundhandlinger.
 - Desktop centrerer mobil-boardet; det udvider ikke informationsarkitekturen.
 - På korte viewports komprimeres sekundære paneler før den aktive die,
