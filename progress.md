@@ -38,7 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Arcade Polish v1 er implementeret lokalt før branchens første push:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
+- **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
 - **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.1 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer, fysiske 3D-terninger som hero-objekter og Arcade Polish-kontrakten for læsbar feedback. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
 - **Den canonical presentation layer er nu modulariseret på `codex/arcade-foundation-v1`:** det tidligere 1.100+ linjers test-override er flyttet fra `src/newGame.css` til tokens, shared, dice og screen-specifikke filer i `src/styles/arcade/`. Hubben viser ikke længere test/V2-copy, og Combat, Hub, Workshop, Talent Tree samt outcomes bruger et roligere sektion/handling-hierarki uden gameplay- eller saveændringer.
 - **Classic Incremental V2 er nu en separat, spilbar eksperiment-branch:** `codex/classic-incremental-v2`. `main` og den nuværende production-version er bevidst urørte, indtil V2-pacingen er fysisk godkendt.
@@ -96,7 +96,7 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Push Arcade Foundation + Arcade Polish samlet, og gennemfør derefter en fysisk iPhone/Safari-pass af Hub, manuel/automatisk Combat, Workshop, Talent-køb samt Victory/Defeat.
+1. Gennemfør en fysisk iPhone/Safari-pass af den pushed Arcade Foundation + Arcade Polish: Hub, manuel/automatisk Combat, Workshop, Talent-køb samt Victory/Defeat.
 2. Stress seks samtidige player-dice fysisk under hurtig Auto Combat; DOM-regressioner dækker allerede seks player-dice og tre enemy-dice.
 3. Fresh-save-playtest V2 på iPhone og mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
 4. Test Workshop-ritualet gennem mindst 15–25 upgrades og vurder target-flicker, varighed samt `+2/+3`-øjeblikket.
@@ -218,7 +218,7 @@ Brug denne skabelon:
 - Berørte områder: `DESIGN.md`, `progress.md`, Combat-skærmen, HP/roll/score/damage/totals-komponenterne, arcade tokens/shared/dice/combat samt Hub-, Workshop-, Talent Tree- og outcome-styles.
 - Validering: Browserpass ved 320×700, 384×844 og 430×932 dækkede Dungeon 2 med player/enemy multi-dice, rolling/landed/scoring, Auto Combat, Workshop, Hub, Talent Tree, inspector-overlay, Loadout og Defeat uden horisontal overflow eller console warnings/errors. DOM-tests dækker seks settled player-dice og Spiked Behemoths tre enemy-dice. `npx tsc --noEmit`, 27 testfiler med 130 tests, ESLint, production-build og `git diff --check` består.
 - Kendte mangler: Fysisk iPhone/Safari og den subjektive timing med seks samtidige player-dice mangler stadig. Victory blev ikke fastholdt manuelt i browserpasset, fordi aktiv Auto Combat fortsatte, men eksisterende outcome-regressioner og de delte outcome-styles dækker state/layout.
-- Git: `81ee84d` — `Polish pixel arcade combat feedback` på `codex/arcade-foundation-v1`; branchen er bevidst ikke pushed endnu.
+- Git: `81ee84d` — `Polish pixel arcade combat feedback` og `3b0ee89` — `Record arcade polish delivery` på `codex/arcade-foundation-v1`; branchen er pushed til `origin`.
 
 ### 2026-07-30 — Pixel Arcade foundation v1
 
