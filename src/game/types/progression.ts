@@ -1,4 +1,5 @@
 import type { DieInstance } from './dice'
+import type { SoulDieState, SoulDieValues } from './dice'
 import type { DungeonId, DungeonProgress } from './dungeon'
 import type { PendingWorkshopForge, WorkshopDieValues } from './workshop'
 import type { CharmId, CharmRanks, PendingFateDraw } from './charms'
@@ -45,7 +46,7 @@ export type TalentEffect =
   | { type: 'workshop_die_faces'; values: WorkshopDieValues }
   | { type: 'face_cap'; amount: number }
   | { type: 'xp_per_kill'; amount: number }
-  | { type: 'souls_per_kill'; amount: number }
+  | { type: 'soul_die_faces'; values: SoulDieValues }
   | { type: 'workshop_cost_multiplier'; multiplier: number }
   | { type: 'charm_slots'; amount: number }
   | { type: 'unlock_auto_combat' }
@@ -89,6 +90,7 @@ export interface PlayerProfile {
   bankedSouls: number
   fateTokens: number
   fatePity: number
+  soulDie: SoulDieState
   talentRanks: TalentRanks
   unlockedDungeonIds: DungeonId[]
   dungeonProgress: Record<DungeonId, DungeonProgress>

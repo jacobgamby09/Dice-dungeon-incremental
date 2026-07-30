@@ -20,10 +20,11 @@ import type {
 import { useShallow } from 'zustand/react/shallow'
 import { DieSummary } from '../components/newgame/DieSummary'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
+import { SoulDieSummary } from '../components/newgame/SoulDieSummary'
 import { POST_DUNGEON_ONE_DEV_PRESET } from '../game/dev/postDungeonOnePreset'
 import { EARLY_QOL_TEST_XP } from '../game/dev/earlyQolPreset'
 import { CHARM_TEST_DEV_PRESET } from '../game/dev/charmTestPreset'
-import { getDiceCapacity } from '../game/progression/talents'
+import { getDiceCapacity, getSoulDieValues } from '../game/progression/talents'
 import { hasCharmsUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -57,6 +58,7 @@ export function HubScreen() {
   const resetProgress = useNewGameStore((state) => state.resetProgress)
   const diceCapacity = getDiceCapacity(profile.talentRanks)
   const charmsUnlocked = hasCharmsUnlocked(profile.talentRanks)
+  const soulDieValues = getSoulDieValues(profile.talentRanks)
 
   useEffect(() => {
     window.scrollTo({ left: 0, top: 0 })
@@ -162,6 +164,8 @@ export function HubScreen() {
         fateTokens={charmsUnlocked ? profile.fateTokens : undefined}
         xp={profile.xp}
       />
+
+      <SoulDieSummary values={soulDieValues} />
 
       <section className="loadout-vault" aria-labelledby="loadout-title">
         <header className="loadout-vault__heading">

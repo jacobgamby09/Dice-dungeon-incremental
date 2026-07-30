@@ -7,7 +7,6 @@ import { FateTokenIcon } from '../components/newgame/FateTokenIcon'
 import { CHARMS, CHARM_DEFINITIONS } from '../game/content/charms'
 import {
   FATE_DRAW_COST,
-  FATE_PITY_THRESHOLD,
   MAX_CHARM_RANK,
 } from '../game/progression/fate'
 import { getCharmCapacity } from '../game/progression/talents'
@@ -24,7 +23,6 @@ export function FateSanctumScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
     charmRanks: state.profile.charmRanks,
     equippedCharmIds: state.profile.equippedCharmIds,
-    fatePity: state.profile.fatePity,
     fateTokens: state.profile.fateTokens,
     pendingFateDraw: state.profile.pendingFateDraw,
     talentRanks: state.profile.talentRanks,
@@ -81,19 +79,6 @@ export function FateSanctumScreen() {
           <strong>{profile.fateTokens}</strong>
         </div>
       </header>
-
-      <section className="fate-pity" aria-label={`Fate pity ${profile.fatePity} of ${FATE_PITY_THRESHOLD}`}>
-        <div>
-          <span>Fate signal</span>
-          <strong>{profile.fatePity}/{FATE_PITY_THRESHOLD}</strong>
-        </div>
-        <div className="fate-pity__pips" aria-hidden="true">
-          {Array.from({ length: FATE_PITY_THRESHOLD }, (_, index) => (
-            <span className={index < profile.fatePity ? 'is-filled' : ''} key={index} />
-          ))}
-        </div>
-        <p>A Token is guaranteed on the fifth eligible kill without a drop.</p>
-      </section>
 
       <section className="charm-loadout" aria-labelledby="equipped-charms-title">
         <header>

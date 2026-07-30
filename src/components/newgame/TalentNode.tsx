@@ -151,6 +151,12 @@ export function TalentNode({
         )}
       </motion.span>
 
+      {nextCost !== null && state !== 'maxed' ? (
+        <span aria-hidden="true" className="talent-canvas-node__cost">
+          {nextCost}
+        </span>
+      ) : null}
+
     </motion.button>
   )
 }

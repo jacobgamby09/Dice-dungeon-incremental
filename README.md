@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental
 
-Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og permanente Souls; XP åbner nye muligheder, mens Souls former konkrete dice gennem en billig tilfældig Chaos Forge eller en dyr præcis Forge.
+Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og ruller den permanente Soul Die mod enemyens Soul Value; XP åbner nye muligheder, mens Souls former konkrete dice gennem en billig tilfældig Chaos Forge eller en dyr præcis Forge.
 
 Den nuværende milepæl rummer to fulde incremental dungeons: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run. Dungeon 1 lærer det basale Attack-loop; Dungeon 2 introducerer enemies med Attack + Shield og en Spiked Behemoth-boss med Attack + Shield + Heal.
 
@@ -56,7 +56,7 @@ Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + w
 - Combat viser ingen tomme typebokse; totals og ikoner opstår først, når en face-type bliver rullet.
 - Spillede dice genkendes på face-farve og ikon frem for ydre typekort.
 - XP er permanent og mistes aldrig.
-- Hvert mob giver et fast permanent Soul-drop; Souls mistes aldrig og bruges i Workshop.
+- Hvert mob har en fast Soul Value. Den persisterede Soul Die trækker alle seks faces én gang per shuffle-cycle og omsætter værdien til permanent Soul-loot; Souls mistes aldrig og bruges i Workshop.
 - Workshop tilbyder controlled RNG: Chaos Forge forbedrer en tilfældig eligible face billigere, mens Precision Forge vælger den konkrete face til en premium.
 - Normale Attack-, Shield- og Heal-faces kan alle udvikles fra værdi 3 gennem hver sin pulje med tre evolutioner; identiteten følger face-ID'et permanent og virker i manuel, automatisk og suspenderet combat.
 - Evolution- og signature-faces har konsekvente hero-identiteter på tværs af Workshop, dice summaries, combat og score-transfer.

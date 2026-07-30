@@ -6,6 +6,7 @@ import {
   getCharmCapacity,
   getDiceCapacity,
   getPlayerMaxHp,
+  getSoulDieValues,
   getTalentPurchaseReason,
   getTalentVisibility,
   getWorkshopDieFaces,
@@ -15,14 +16,16 @@ import {
   hasCharmsUnlocked,
   normalizeTalentRanks,
 } from './talents'
+import { createSoulDieState } from './soulDie'
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 16,
+    saveVersion: 17,
     xp,
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    soulDie: createSoulDieState(),
     talentRanks,
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
@@ -99,6 +102,14 @@ describe('Classic V2 directional talent progression', () => {
     expect(getWorkshopDieFaces(ranks).map((face) => face.value))
       .toEqual([1, 1, 1, 2, 2, 3])
     expect(getWorkshopFaceCap(ranks)).toBe(7)
+  })
+
+  it('upgrades the same permanent Soul Die through three concrete distributions', () => {
+    expect(getSoulDieValues({})).toEqual([1, 1, 1, 2, 2, 2])
+    expect(getSoulDieValues({ [TALENT_IDS.soulHarvest]: 1 }))
+      .toEqual([1, 1, 2, 2, 2, 2])
+    expect(getSoulDieValues({ [TALENT_IDS.soulHarvest]: 3 }))
+      .toEqual([1, 2, 2, 2, 2, 3])
   })
 
   it('supports alternative and counted junction prerequisites', () => {

@@ -86,8 +86,10 @@ XP gør ikke eksisterende dice faces stærkere direkte. En XP-node kan give adga
 
 Souls repræsenterer den permanente kraft, hver besejret fjende efterlader som loot.
 
-- Hver enemy har et fast `soulReward` større end 0.
-- Rewarden lægges atomisk direkte til spillerens permanente Soul-beholdning ved et gyldigt kill.
+- Hver enemy har en fast `soulValue` større end 0.
+- Efter et gyldigt kill ruller den permanente Soul Die automatisk. Rewarden er `soulValue × Soul Die multiplier`.
+- Soul Die starter `×1–×1–×1–×2–×2–×2` og trækker alle seks stabile faces én gang i en persisteret shuffle-cycle, før den blandes igen.
+- Resultat, næste draw-pile og payout fastlåses atomisk, før animationen starter.
 - Souls mistes aldrig ved Defeat.
 - Souls bruges kun på konkrete permanente dice- og face-upgrades.
 
@@ -219,35 +221,35 @@ Hver dungeon har ti floors, og floor 10 er boss. Genbrugte enemies får et synli
 
 Dungeon 1 er den basale læsedungeon. Alle enemies har præcis én Attack Die; ingen har Shield eller Heal. Fire archetypes gentages, så progressionen aflæses som stærkere levels frem for ti engangsmobs.
 
-| Floor | Enemy | Level | HP | Dice | XP | Souls |
+| Floor | Enemy | Level | HP | Dice | XP | Soul Value |
 |---:|---|---:|---:|---|---:|---:|
-| 1 | Slime | 1 | 5 | Attack | 8 | 5 |
-| 2 | Slime Crawler | 1 | 7 | Attack | 10 | 7 |
-| 3 | Goblin | 1 | 9 | Attack | 12 | 9 |
-| 4 | Skeleton | 1 | 12 | Attack | 14 | 10 |
-| 5 | Slime | 2 | 14 | Attack | 18 | 15 |
-| 6 | Slime Crawler | 2 | 17 | Attack | 22 | 18 |
-| 7 | Goblin | 2 | 20 | Attack | 26 | 22 |
-| 8 | Skeleton | 2 | 24 | Attack | 32 | 28 |
-| 9 | Skeleton Elite | 3 | 29 | Attack | 40 | 36 |
-| 10 | Demon — Boss | Boss | 38 | Attack | 60 | 60 |
+| 1 | Slime | 1 | 5 | Attack | 8 | 1 |
+| 2 | Slime Crawler | 1 | 7 | Attack | 10 | 1 |
+| 3 | Goblin | 1 | 9 | Attack | 12 | 1 |
+| 4 | Skeleton | 1 | 12 | Attack | 14 | 1 |
+| 5 | Slime | 2 | 14 | Attack | 18 | 1 |
+| 6 | Slime Crawler | 2 | 17 | Attack | 22 | 1 |
+| 7 | Goblin | 2 | 20 | Attack | 26 | 1 |
+| 8 | Skeleton | 2 | 24 | Attack | 32 | 1 |
+| 9 | Skeleton Elite | 3 | 29 | Attack | 40 | 2 |
+| 10 | Demon — Boss | Boss | 38 | Attack | 60 | 3 |
 
 ### Dungeon 2 — The Iron Descent
 
 Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har én Attack Die og én Shield Die. Spiked Behemoth tilføjer som boss en Heal Die, så spilleren møder den samme Heal-mechanic, som allerede kan være lært gennem Healing Arts.
 
-| Floor | Enemy | Level | HP | Dice | XP | Souls |
+| Floor | Enemy | Level | HP | Dice | XP | Soul Value |
 |---:|---|---:|---:|---|---:|---:|
-| 1 | Shieldbearer | 1 | 22 | Attack + Shield | 48 | 44 |
-| 2 | Cultist | 1 | 26 | Attack + Shield | 52 | 48 |
-| 3 | Orc | 1 | 30 | Attack + Shield | 58 | 54 |
-| 4 | Blood Orc | 1 | 34 | Attack + Shield | 64 | 60 |
-| 5 | Shieldbearer | 2 | 39 | Attack + Shield | 72 | 68 |
-| 6 | Cultist | 2 | 44 | Attack + Shield | 80 | 76 |
-| 7 | Orc | 2 | 50 | Attack + Shield | 90 | 86 |
-| 8 | Blood Orc | 2 | 57 | Attack + Shield | 102 | 98 |
-| 9 | Blood Orc Elite | 3 | 65 | Attack + Shield | 118 | 112 |
-| 10 | Spiked Behemoth — Boss | Boss | 80 | Attack + Shield + Heal | 160 | 160 |
+| 1 | Shieldbearer | 1 | 22 | Attack + Shield | 48 | 5 |
+| 2 | Cultist | 1 | 26 | Attack + Shield | 52 | 5 |
+| 3 | Orc | 1 | 30 | Attack + Shield | 58 | 5 |
+| 4 | Blood Orc | 1 | 34 | Attack + Shield | 64 | 5 |
+| 5 | Shieldbearer | 2 | 39 | Attack + Shield | 72 | 6 |
+| 6 | Cultist | 2 | 44 | Attack + Shield | 80 | 6 |
+| 7 | Orc | 2 | 50 | Attack + Shield | 90 | 6 |
+| 8 | Blood Orc | 2 | 57 | Attack + Shield | 102 | 6 |
+| 9 | Blood Orc Elite | 3 | 65 | Attack + Shield | 118 | 8 |
+| 10 | Spiked Behemoth — Boss | Boss | 80 | Attack + Shield + Heal | 160 | 12 |
 
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
@@ -316,6 +318,7 @@ Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face l
 - Save version 10 erstatter den gamle Auto Roll-setting med Auto Combat, flytter talentet direkte efter Twin Arsenal, refunderer den gamle prisforskel én gang og persisterer automationens checkpoint, tidsbudget og random-seed.
 - Save version 11 tilføjer controlled Forge-operationer, idempotente operation-ID'er, Attack-evolutioner, Momentum-state og enemy Bleed. Eksisterende Attack-faces over 3 migreres til Power uden at miste investeret styrke.
 - Save version 12 tilføjer family-evolutioner til Shield/Heal, Execute/Fortify-signatures, Fortify-charge samt én-rundes Ward/Regrowth. Version-11 Executioner/Tower normaliseres til deres canonical fire normale og to signature-faces, mens kompatible normale face-investeringer bevares.
+- Save version 17 tilføjer den permanente Soul Die, dens persisterede draw-pile og det låste Soul-roll på encounter rewards. Version-16 XP, Souls, dice, talents, Fate Tokens og Charms bevares.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning

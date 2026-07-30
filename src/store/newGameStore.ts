@@ -36,6 +36,7 @@ import {
   getNextTalentRank,
   getPlayerMaxHp,
   getTalentRank,
+  getSoulDieValues,
   getWorkshopDieFaces,
   getWorkshopFaceCap,
   getWorkshopCostMultiplier,
@@ -44,6 +45,11 @@ import {
   normalizeTalentRanks,
 } from '../game/progression/talents'
 import { getEnemyRewardBreakdown } from '../game/progression/rewards'
+import {
+  createSoulDieState,
+  drawSoulDie,
+  normalizeSoulDieState,
+} from '../game/progression/soulDie'
 import {
   claimFateDraw,
   createFateDraw,
@@ -122,7 +128,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 16
+const SAVE_VERSION = 17
 const LEGACY_FATECRAFT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
@@ -139,6 +145,7 @@ function createInitialProfile(): PlayerProfile {
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    soulDie: createSoulDieState(),
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: createInitialDungeonProgress(),
@@ -300,7 +307,7 @@ function reconstructRunStats(
     enemiesDefeated: completedEnemies.length,
     soulsEarned: legacyRunSouls > 0
       ? legacyRunSouls
-      : completedEnemies.reduce((total, enemy) => total + enemy.soulReward, 0),
+      : completedEnemies.reduce((total, enemy) => total + enemy.soulValue, 0),
     xpEarned: completedEnemies.reduce((total, enemy) => total + enemy.xpReward, 0),
   }
 }
@@ -339,6 +346,27 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 16) {
+    const persisted = persistedState as NewGameState
+    const talentRanks = normalizeTalentRanks(persisted.profile?.talentRanks)
+    return {
+      ...persisted,
+      screen: persisted.screen === 'fate_sanctum' && !hasCharmsUnlocked(talentRanks)
+        ? 'hub'
+        : persisted.screen,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        soulDie: normalizeSoulDieState(persisted.profile?.soulDie),
+        fatePity: hasCharmsUnlocked(talentRanks)
+          ? Math.max(0, persisted.profile?.fatePity ?? 0)
+          : 0,
+        pendingFateDraw: hasCharmsUnlocked(talentRanks)
+          ? persisted.profile?.pendingFateDraw ?? null
+          : null,
+      },
+    }
+  }
   if (version === 15) {
     const persisted = persistedState as NewGameState
     return {
@@ -348,6 +376,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         saveVersion: SAVE_VERSION,
         fateTokens: 0,
         fatePity: 0,
+        soulDie: createSoulDieState(),
         charmRanks: {},
         equippedCharmIds: [],
         pendingFateDraw: null,
@@ -397,6 +426,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         diceCollection,
         fateTokens: 0,
         fatePity: 0,
+        soulDie: createSoulDieState(),
         charmRanks: {},
         equippedCharmIds: [],
         pendingFateDraw: null,
@@ -805,13 +835,17 @@ export const useNewGameStore = create<NewGameState>()(
         if (resolution.outcome === 'victory') {
           const dungeon = DUNGEONS[state.run.dungeonId!]
           const rewardAlreadyClaimed = enemy.rewardClaimed
-          const reward = rewardAlreadyClaimed
-            ? getEnemyRewardBreakdown(0, 0, {})
-            : getEnemyRewardBreakdown(
-                enemy.xpReward,
-                enemy.soulReward,
-                state.profile.talentRanks,
-              )
+          const soulDraw = drawSoulDie(
+            state.profile.soulDie,
+            getSoulDieValues(state.profile.talentRanks),
+            rewardAlreadyClaimed ? 0 : enemy.soulValue,
+            random,
+          )
+          const reward = getEnemyRewardBreakdown(
+            rewardAlreadyClaimed ? 0 : enemy.xpReward,
+            soulDraw.result,
+            rewardAlreadyClaimed ? {} : state.profile.talentRanks,
+          )
           const charmKill = rewardAlreadyClaimed
             ? {
                 heal: 0,
@@ -858,6 +892,7 @@ export const useNewGameStore = create<NewGameState>()(
               bankedSouls: state.profile.bankedSouls + totalSouls,
               fateTokens: state.profile.fateTokens + fateDrop.tokens,
               fatePity: fateDrop.nextPity,
+              soulDie: soulDraw.nextState,
               dungeonProgress,
             },
             run: {
@@ -872,6 +907,8 @@ export const useNewGameStore = create<NewGameState>()(
                     soulsEarned: state.run.runStats.soulsEarned + totalSouls,
                     xpEarned: state.run.runStats.xpEarned + reward.xp,
                     baseSoulsEarned: (state.run.runStats.baseSoulsEarned ?? 0) + reward.baseSouls,
+                    soulValueEarned: (state.run.runStats.soulValueEarned ?? 0)
+                      + reward.soulRoll.soulValue,
                     baseXpEarned: (state.run.runStats.baseXpEarned ?? 0) + reward.baseXp,
                     bonusSoulsEarned: (state.run.runStats.bonusSoulsEarned ?? 0) + reward.bonusSouls,
                     bonusXpEarned: (state.run.runStats.bonusXpEarned ?? 0) + reward.bonusXp,
@@ -898,6 +935,7 @@ export const useNewGameStore = create<NewGameState>()(
                 bonusXp: reward.bonusXp,
                 bonusSouls: reward.bonusSouls,
                 charmBonusSouls: charmKill.soulBonus,
+                soulRoll: reward.soulRoll,
                 charmHealing: playerHpAfterCharms - resolution.playerHp,
                 charmTriggers: charmKill.triggers,
                 fateTokens: fateDrop.tokens,

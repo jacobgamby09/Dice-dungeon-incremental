@@ -1,4 +1,5 @@
 import type { DieInstance } from './dice'
+import type { SoulDieRollResult } from './dice'
 import type { EnemyDieId, EnemyRollResult } from './enemyDice'
 import type {
   CharmRunState,
@@ -55,7 +56,7 @@ export interface EncounterDefinition {
   maxHp: number
   dieIds: EnemyDieId[]
   xpReward: number
-  soulReward: number
+  soulValue: number
   rewardTier?: FateRewardTier
 }
 
@@ -72,7 +73,7 @@ export interface EnemyState {
   dieIds: EnemyDieId[]
   intentRolls: EnemyRollResult[]
   xpReward: number
-  soulReward: number
+  soulValue: number
   rewardTier: FateRewardTier
   rewardClaimed: boolean
 }
@@ -106,6 +107,7 @@ export interface EncounterReward {
   bonusXp?: number
   bonusSouls?: number
   charmBonusSouls?: number
+  soulRoll?: SoulDieRollResult
   charmHealing?: number
   charmTriggers?: CharmTrigger[]
   fateTokens?: number
@@ -122,6 +124,7 @@ export interface RunStats {
   xpEarned: number
   baseXpEarned?: number
   baseSoulsEarned?: number
+  soulValueEarned?: number
   bonusXpEarned?: number
   bonusSoulsEarned?: number
   charmBonusSoulsEarned?: number

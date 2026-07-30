@@ -12,9 +12,9 @@ import {
 } from './forge'
 
 describe('Classic V2 Workshop Forge', () => {
-  it('starts with a five-Soul upgrade and scales every three applied points', () => {
+  it('starts with a one-Soul upgrade and scales every three applied points', () => {
     const die = createStartingDice()[0]
-    expect(getChaosForgeCost(die)).toBe(5)
+    expect(getChaosForgeCost(die)).toBe(1)
 
     let forged = die
     for (let index = 0; index < 3; index += 1) {
@@ -28,7 +28,7 @@ describe('Classic V2 Workshop Forge', () => {
     }
 
     expect(getDieUpgradeCount(forged)).toBe(3)
-    expect(getChaosForgeCost(forged)).toBe(7)
+    expect(getChaosForgeCost(forged)).toBe(2)
   })
 
   it('locks one stable target face and a separate Workshop Die face', () => {
@@ -49,7 +49,7 @@ describe('Classic V2 Workshop Forge', () => {
       rolledAmount: 2,
       appliedAmount: 2,
       previousValue: 1,
-      cost: 5,
+      cost: 1,
     })
 
     const result = completeWorkshopForge(die, pending!)
@@ -114,7 +114,7 @@ describe('Classic V2 Workshop Forge', () => {
 
   it('keeps Precision as an internal compatibility path but prices it above Workshop', () => {
     const die = createStartingDice()[0]
-    expect(getPrecisionForgeCost(die.faces[0])).toBe(10)
+    expect(getPrecisionForgeCost(die.faces[0])).toBe(2)
     expect(precisionForge(die, die.faces[0].id)?.die.faces[0].value).toBe(2)
   })
 

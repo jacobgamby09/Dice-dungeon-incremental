@@ -3,6 +3,8 @@ import type {
   DieFaces,
   DieFamily,
   DieInstance,
+  SoulDieDefinition,
+  SoulDieValues,
   SignatureFaceId,
 } from '../types/dice'
 import { cloneDie } from '../types/dice'
@@ -87,6 +89,26 @@ const DICE_CATALOG: DieInstance[] = [
   EXECUTIONER_DIE,
   TOWER_DIE,
 ]
+
+const SOUL_DIE_FACE_IDS = Array.from(
+  { length: 6 },
+  (_, index) => `soul-die-face-${index + 1}`,
+) as [string, string, string, string, string, string]
+
+export const BASE_SOUL_DIE_VALUES: SoulDieValues = [1, 1, 1, 2, 2, 2]
+
+export function createSoulDie(
+  values: SoulDieValues = BASE_SOUL_DIE_VALUES,
+): SoulDieDefinition {
+  return {
+    id: 'soul-die',
+    name: 'Soul Die',
+    faces: values.map((multiplier, index) => ({
+      id: SOUL_DIE_FACE_IDS[index],
+      multiplier,
+    })) as SoulDieDefinition['faces'],
+  }
+}
 
 export function createDiceCatalog(): DieInstance[] {
   return DICE_CATALOG.map(cloneDie)

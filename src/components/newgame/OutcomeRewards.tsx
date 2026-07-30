@@ -1,6 +1,8 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { Flame, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { FateTokenIcon } from './FateTokenIcon'
+import { SoulDieReward } from './SoulDieReward'
+import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
 
 interface OutcomeRewardsProps {
   heading: string
@@ -11,9 +13,11 @@ interface OutcomeRewardsProps {
   bonusSouls?: number
   bonusXp?: number
   charmBonusSouls?: number
-  fatePity?: number
   fateTokensEarned?: number
   totalFateTokens?: number
+  soulDieValues?: SoulDieValues
+  soulRoll?: SoulDieRollResult
+  fast?: boolean
 }
 
 const REWARD_INITIAL = { opacity: 0, y: 14 }
@@ -30,9 +34,11 @@ export function OutcomeRewards({
   bonusSouls = 0,
   bonusXp = 0,
   charmBonusSouls = 0,
-  fatePity,
   fateTokensEarned = 0,
   totalFateTokens,
+  soulDieValues,
+  soulRoll,
+  fast = false,
 }: OutcomeRewardsProps) {
   const prefersReducedMotion = useReducedMotion()
 
@@ -59,25 +65,29 @@ export function OutcomeRewards({
           <small>{totalXp} total</small>
         </div>
 
-        <div className="outcome-reward outcome-reward--souls">
-          <span aria-hidden="true" className="outcome-reward__icon">
-            <Flame size={23} />
-          </span>
+        <div className="outcome-reward outcome-reward--souls outcome-reward--soul-die">
           <span>Souls</span>
-          <strong>+{soulsEarned}</strong>
-          {bonusSouls > 0 && <em>Includes +{bonusSouls} from talents</em>}
+          {soulRoll && soulDieValues ? (
+            <SoulDieReward fast={fast} result={soulRoll} values={soulDieValues} />
+          ) : (
+            <strong>+{soulsEarned}</strong>
+          )}
+          {soulRoll && soulsEarned !== soulRoll.payout ? (
+            <em>+{soulsEarned} Souls across this descent</em>
+          ) : null}
+          {bonusSouls > 0 && !soulRoll ? <em>Includes +{bonusSouls}</em> : null}
           {charmBonusSouls > 0 && <em>Includes +{charmBonusSouls} from Charms</em>}
           <small>{totalSouls} total</small>
         </div>
 
-        {totalFateTokens !== undefined ? (
+        {totalFateTokens !== undefined && fateTokensEarned > 0 ? (
           <div className="outcome-reward outcome-reward--fate">
             <span aria-hidden="true" className="outcome-reward__icon">
               <FateTokenIcon size={27} />
             </span>
-            <span>Fate</span>
-            <strong>{fateTokensEarned > 0 ? `+${fateTokensEarned}` : `${fatePity ?? 0}/5`}</strong>
-            <em>{fateTokensEarned > 0 ? 'Token found' : 'Pity progress'}</em>
+            <span>Loot found</span>
+            <strong>+{fateTokensEarned}</strong>
+            <em>Fate Token{fateTokensEarned === 1 ? '' : 's'}</em>
             <small>{totalFateTokens} total</small>
           </div>
         ) : null}

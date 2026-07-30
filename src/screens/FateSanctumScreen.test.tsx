@@ -1,0 +1,40 @@
+import { describe, expect, it, vi } from 'vitest'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { FateSanctumScreen } from './FateSanctumScreen'
+
+const mockedStore = vi.hoisted(() => ({
+  state: {
+    profile: {
+      charmRanks: {},
+      equippedCharmIds: [],
+      fateTokens: 0,
+      pendingFateDraw: null,
+      talentRanks: {
+        fatecraft: 1,
+      },
+    },
+    beginFateDraw: () => null,
+    claimFateCharm: () => false,
+    equipCharm: () => false,
+    unequipCharm: () => false,
+    goToHub: () => undefined,
+  },
+}))
+
+vi.mock('../store/newGameStore', () => ({
+  useNewGameStore: <T,>(selector: (state: typeof mockedStore.state) => T): T => (
+    selector(mockedStore.state)
+  ),
+}))
+
+describe('Fate Sanctum player-facing rules', () => {
+  it('keeps pity protection hidden while explaining the draw', () => {
+    const markup = renderToStaticMarkup(<FateSanctumScreen />)
+
+    expect(markup).toContain('Spend Fate Tokens to reveal three permanent Charms')
+    expect(markup).not.toContain('Fate signal')
+    expect(markup).not.toContain('Pity')
+    expect(markup).not.toContain('guaranteed')
+    expect(markup).not.toContain('/5')
+  })
+})

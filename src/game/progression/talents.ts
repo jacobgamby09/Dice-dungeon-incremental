@@ -1,4 +1,5 @@
 import { TALENTS, TALENTS_BY_ID } from '../content/talents'
+import { BASE_SOUL_DIE_VALUES } from '../content/dice'
 import { createWorkshopDieFaces } from '../content/workshopDie'
 import { BASE_FACE_CAP } from '../content/upgradeCosts'
 import type {
@@ -7,6 +8,7 @@ import type {
   TalentEffect,
   TalentRanks,
 } from '../types/progression'
+import type { SoulDieValues } from '../types/dice'
 import type { WorkshopDieFace, WorkshopDieValues } from '../types/workshop'
 
 export const BASE_PLAYER_HP = 10
@@ -112,10 +114,10 @@ export function getXpRewardBonus(talentRanks: Readonly<TalentRanks>): number {
   )
 }
 
-export function getSoulRewardBonus(talentRanks: Readonly<TalentRanks>): number {
-  return getPurchasedEffects(talentRanks).reduce(
-    (total, effect) => total + (effect.type === 'souls_per_kill' ? effect.amount : 0),
-    0,
+export function getSoulDieValues(talentRanks: Readonly<TalentRanks>): SoulDieValues {
+  return getPurchasedEffects(talentRanks).reduce<SoulDieValues>(
+    (values, effect) => effect.type === 'soul_die_faces' ? effect.values : values,
+    BASE_SOUL_DIE_VALUES,
   )
 }
 

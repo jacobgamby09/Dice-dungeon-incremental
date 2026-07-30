@@ -38,8 +38,10 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Charm System v1 er implementeret lokalt på `codex/arcade-foundation-v1`:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Harvest og giver profile-level Fate Token-drops, 5-kill pity, Fate Sanctum samt første Charm-slot. Et atomisk 5-Token Fate Draw viser tre persisterede offers, beskytter de første tre acquisitions mod duplicates og kan ranke seks permanente Charms til rank 3. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, equipped Charms snapshots ved run-start, og alle seks effekter har pure combat/progression-tests, counters og proc-feedback. Otte nye pixel-assets dækker seks Charms, Fate Token og reliquary.
-- **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies`, `Soul Harvest` og den nu aktive Fatecraft/Woven Pair/Trinity Knot-gren. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 16 migrerer Charm/Fate-defaults uden progressionstab.
+- **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
+- **Fate og Talent Tree er strammet op i samme patch:** Fate Tokens og intern bad-luck protection aktiveres først efter Fatecraft; pity er fjernet fra alt player-facing UI. Talent Tree viser XP-pris på hver åben node, antal affordable upgrades i HUD, og alle prerequisites/layout-koordinater er omlagt til paths uden geometriske kryds.
+- **Charm System v1 er implementeret lokalt på `codex/arcade-foundation-v1`:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Die Mastery og giver profile-level Fate Token-drops, skjult bad-luck protection, Fate Sanctum samt første Charm-slot. Et atomisk 5-Token Fate Draw viser tre persisterede offers, beskytter de første tre acquisitions mod duplicates og kan ranke seks permanente Charms til rank 3. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, equipped Charms snapshots ved run-start, og alle seks effekter har pure combat/progression-tests, counters og proc-feedback. Otte nye pixel-assets dækker seks Charms, Fate Token og reliquary.
+- **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies`, `Soul Die Mastery` og den nu aktive Fatecraft/Woven Pair/Trinity Knot-gren. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 17 migrerer Soul Die- og Charm/Fate-defaults uden progressionstab.
 - **Offline-fremdrift er fjernet:** Auto Combat kører kun, mens spillet er åbent. Background fast-forward, away recap, checkpoints, simulatorlogik, state og CSS er fjernet; aktive runs persisteres stadig præcist.
 - **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Det store roll-felt forbliver rent sort i alle states; feedback er afgrænset til terning, transfer og destination. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
 - **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.1 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer, fysiske 3D-terninger som hero-objekter og Arcade Polish-kontrakten for læsbar feedback. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
@@ -99,12 +101,16 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Fresh-save-test de første 6–10 kills ved 384 px og vurder Soul Die-animationens tempo i både manuel og Auto Combat.
+2. Mål om Workshop-priserne `1, 2, 3...` giver et meningsfuldt valg efter hvert tidligt run uden at maxe Worn Blade for hurtigt.
+3. Playtest Soul Die Mastery mod Auto Combat, Field Studies og Loaded Alloy; ingen af de fire første economy/QoL-valg må føles obligatorisk.
+4. Verificér Fatecraft-unlock, første faktiske Token-drop og Fate Sanctum uden player-facing pity-information.
 1. Playtest første Fatecraft-unlock, første Fate Draw og de første 3–5 Charm-acquisitions på et fresh save; mål Token-tempo, pity-forståelse og duplicate-friktion.
 2. Test to samtidig equipped Charms under både manuel og hurtig Auto Combat og vurder, om counters/procs er læsbare uden at skabe combat-støj.
 3. Balancér Fatecraft/Woven Pair-priser og Charm rank-up-tempo mod de faktiske Dungeon 1/2-runs, før Charm-poolen udvides.
-4. Fresh-save-playtest de syv samtidige valg efter Inner Spark og mål, om `Field Studies`, `Soul Harvest`, Auto Combat, Workshop og Arsenal alle føles konkurrencedygtige.
+4. Fresh-save-playtest de syv samtidige valg efter Inner Spark og mål, om `Field Studies`, `Soul Die Mastery`, Auto Combat, Workshop og Arsenal alle føles konkurrencedygtige.
 5. Mål om spillere reelt vælger mellem `Second Grip` og `Striker Pattern`, eller om de to 16-XP-køb stadig opleves som ét obligatorisk 32-XP-køb.
-6. Balancér payback-tid for `Field Studies`, `Soul Harvest` og `Efficient Tools` mod de faktiske Dungeon 1-rewards og Workshop-priser.
+6. Balancér payback-tid for `Field Studies`, `Soul Die Mastery` og `Efficient Tools` mod de faktiske Dungeon 1-rewards og Workshop-priser.
 1. Gennemfør en fysisk iPhone/Safari-pass af den pushed Arcade Foundation + Arcade Polish: Hub, manuel/automatisk Combat, Workshop, Talent-køb samt Victory/Defeat.
 2. Stress seks samtidige player-dice fysisk under hurtig Auto Combat; DOM-regressioner dækker allerede seks player-dice og tre enemy-dice.
 3. Fresh-save-playtest V2 på iPhone og mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
@@ -221,6 +227,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-30 — Permanent Soul Die og loot-flow
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Enemy Souls er ændret fra faste drops til `Soul Value × Soul Die`. Den permanente `×1,×1,×1,×2,×2,×2`-die bruger en persisteret shuffle-cycle, vises på Hub og ruller automatisk i Victory; Auto Combat anvender samme låste resultat i hurtig timing.
+- Beslutninger: XP gives fortsat direkte. Soul Die Mastery erstatter flade Soul Harvest-bonusser, Soul Prism gentager fortsat enemyens Soul Value, Fate starter først efter Fatecraft, og bad-luck protection er skjult. Workshop-prisen starter ved 1 Soul og skalerer med 1 per tre applied face-points.
+- Berørte områder: Soul Die content/types/engine, enemy rewards, store/save v17, simulator og journey, Workshop economy, Hub/Victory/Defeat/Fate UI, Talent Tree prerequisites/layout/states, tests, GDD og README.
+- Validering: `npx tsc --noEmit`, 153/153 Vitest-tests, ESLint, Vite production build og `git diff --check` er grønne. Et frisk browser-pass ved 384×844 verificerede Hub, første Talent-køb, otte samtidige affordable nodes, tre manuelle combat-runder og det nye Soul Die-lootkort; ingen console warnings/errors eller horisontal overflow.
+- Kendte mangler: Soul Value- og Workshop-kurven er simulatorbeskyttet og den første 384 px-loop er verificeret, men længere Auto Combat-runs og den subjektive Soul Die-pause skal fortsat fysisk playtestes.
+- Git: Leveres som commit `Implement permanent Soul Die loot flow` på branch `codex/arcade-foundation-v1`.
 
 ### 2026-07-30 — Charm System v1 og Fate Sanctum
 

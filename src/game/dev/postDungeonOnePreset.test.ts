@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDiceCatalog, createStartingDice } from '../content/dice'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
 import { getDiceCapacity, getPlayerMaxHp } from '../progression/talents'
+import { createSoulDieState } from '../progression/soulDie'
 import type { PlayerProfile } from '../types/progression'
 import {
   createPostDungeonOneDevProfile,
@@ -11,11 +12,12 @@ import {
 function createBaseProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 11,
+    saveVersion: 17,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    soulDie: createSoulDieState(),
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
@@ -96,7 +98,7 @@ describe('post-Dungeon-1 developer preset', () => {
     ), 0)
     const upgradesPerDie = 6 * (POST_DUNGEON_ONE_DEV_PRESET.faceMinimum - 1)
     const soulsPerDie = Array.from({ length: upgradesPerDie }, (_, index) => (
-      5 + Math.floor(index / 3) * 2
+      1 + Math.floor(index / 3)
     )).reduce((total, cost) => total + cost, 0)
     const soulsSpent = soulsPerDie * profile.diceCollection.length
 

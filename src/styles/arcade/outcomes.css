@@ -142,3 +142,85 @@
   font-weight: 800;
   letter-spacing: 0.02em;
 }
+
+.outcome-reward--soul-die {
+  grid-column: 1 / -1;
+  display: block;
+}
+
+.outcome-reward--soul-die > span {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.outcome-reward--soul-die > em,
+.outcome-reward--soul-die > small {
+  display: block;
+  margin-top: 6px;
+}
+
+.soul-die-reward {
+  display: grid;
+  grid-template-columns: 1fr 88px 1fr;
+  align-items: center;
+  min-height: 104px;
+  border-block: 2px solid #5b416f;
+  background: #07050a;
+}
+
+.soul-die-reward__formula,
+.soul-die-reward__result {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.soul-die-reward__formula span,
+.soul-die-reward__result span,
+.soul-die-reward__result small {
+  color: var(--arcade-muted);
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.soul-die-reward__formula strong,
+.soul-die-reward__result strong {
+  color: #e9d5ff;
+  font-family: var(--arcade-font-display);
+  font-size: 1.28rem;
+}
+
+.soul-die-reward__die {
+  display: grid;
+  place-items: center;
+  min-height: 102px;
+  perspective: 420px;
+}
+
+.soul-die-reward__cube {
+  --cube-size: 58px;
+  --cube-depth: 29px;
+}
+
+.soul-die-reward__side {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  color: #f3e8ff;
+}
+
+.soul-die-reward__side strong {
+  font-size: 1.1rem;
+}
+
+.soul-die-reward--rolling .soul-die-reward__result {
+  opacity: 0.45;
+}
+
+.outcome-reward--fate {
+  grid-column: 1 / -1;
+}

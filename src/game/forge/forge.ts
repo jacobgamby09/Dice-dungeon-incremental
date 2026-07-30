@@ -38,7 +38,7 @@ export interface ForgeResult {
   becameEvolutionReady: boolean
 }
 
-export const BASE_CHAOS_FORGE_COST = 5
+export const BASE_CHAOS_FORGE_COST = 1
 
 export function canForgeFace(
   face: FaceInstance,
@@ -80,7 +80,7 @@ export function getChaosForgeCost(
   if (eligibleFaces.length === 0) return null
 
   const upgradeTier = Math.floor(getDieUpgradeCount(die) / 3)
-  const baseCost = BASE_CHAOS_FORGE_COST + upgradeTier * 2
+  const baseCost = BASE_CHAOS_FORGE_COST + upgradeTier
   return Math.max(1, Math.ceil(baseCost * Math.max(0, costMultiplier)))
 }
 

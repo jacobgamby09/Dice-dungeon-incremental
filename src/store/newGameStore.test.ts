@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(16)
+    expect(profile.saveVersion).toBe(17)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -97,21 +97,37 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().combat.phase).toBe('awaiting_resolve')
   })
 
-  it('awards the first enemy exactly four XP and five permanent Souls once', () => {
+  it('awards the first enemy four XP and one controlled Soul Die payout once', () => {
     useNewGameStore.getState().startRun('prototype-depths')
     prepareResolvedRound({ attack: 99, shield: 0, heal: 0 })
 
-    expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('victory')
+    expect(useNewGameStore.getState().beginRoundResolution(() => 0)?.outcome).toBe('victory')
     expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
 
     const state = useNewGameStore.getState()
     expect(state.profile.xp).toBe(4)
-    expect(state.profile.bankedSouls).toBe(5)
+    expect(state.profile.bankedSouls).toBe(1)
+    expect(state.run.lastReward?.soulRoll).toMatchObject({
+      multiplier: 1,
+      payout: 1,
+      soulValue: 1,
+    })
     expect(state.run.runStats).toMatchObject({
       enemiesDefeated: 1,
-      soulsEarned: 5,
+      soulsEarned: 1,
       xpEarned: 4,
     })
+  })
+
+  it('does not roll Fate or build hidden pity before Fatecraft is unlocked', () => {
+    useNewGameStore.getState().startRun('prototype-depths')
+    prepareResolvedRound({ attack: 99, shield: 0, heal: 0 })
+    useNewGameStore.getState().beginRoundResolution(() => 0.99)
+
+    const state = useNewGameStore.getState()
+    expect(state.profile.fateTokens).toBe(0)
+    expect(state.profile.fatePity).toBe(0)
+    expect(state.run.lastReward).not.toHaveProperty('fateTokens', 1)
   })
 
   it('persists Fate pity, resolves a paid draw once and snapshots equipped Charms', () => {
@@ -269,11 +285,11 @@ describe('Classic V2 store progression loop', () => {
     expect(pending).toMatchObject({
       operationId: 'loaded-op',
       appliedAmount: 2,
-      cost: 5,
+      cost: 1,
       targetFaceId: 'attack-die-1-face-1',
       workshopFaceId: 'workshop-die-face-6',
     })
-    expect(lockedProfile.bankedSouls).toBe(15)
+    expect(lockedProfile.bankedSouls).toBe(19)
     expect(lockedProfile.diceCollection[0].faces[0].value).toBe(1)
     expect(lockedProfile.pendingWorkshopForge).toEqual(pending)
 
@@ -305,15 +321,15 @@ describe('Classic V2 store progression loop', () => {
       () => 0.99,
     )
 
-    expect(first?.cost).toBe(5)
+    expect(first?.cost).toBe(1)
     expect(second).toBeNull()
-    expect(useNewGameStore.getState().profile.bankedSouls).toBe(95)
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(99)
     expect(useNewGameStore.getState().profile.pendingWorkshopForge).toEqual(first)
 
     expect(useNewGameStore.getState().completePendingWorkshopForge('wrong-op')).toBeNull()
     expect(useNewGameStore.getState().completePendingWorkshopForge('same-op')?.amount).toBe(1)
     expect(useNewGameStore.getState().completePendingWorkshopForge('same-op')).toBeNull()
-    expect(useNewGameStore.getState().profile.bankedSouls).toBe(95)
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(99)
   })
 
   it('rejects Workshop mutations while a run is active', () => {
@@ -406,11 +422,11 @@ describe('Classic V2 store progression loop', () => {
     })
     prepareResolvedRound({ attack: 999, shield: 0, heal: 0 })
 
-    expect(useNewGameStore.getState().beginRoundResolution()?.outcome).toBe('victory')
-    expect(useNewGameStore.getState().profile.bankedSouls).toBe(165)
+    expect(useNewGameStore.getState().beginRoundResolution(() => 0)?.outcome).toBe('victory')
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(103)
     expect(useNewGameStore.getState().profile.xp).toBe(55)
     expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
-    expect(useNewGameStore.getState().profile.bankedSouls).toBe(165)
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(103)
   })
 
   it('intentionally resets a V1 save when entering the isolated V2 branch', async () => {
@@ -448,11 +464,54 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 16,
+        saveVersion: 17,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
       expect(migrated.run.status).toBe('inactive')
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('migrates version 16 with a fresh Soul Die and removes inaccessible Fate state', async () => {
+    const current = useNewGameStore.getState()
+    const legacyProfile = {
+      ...current.profile,
+      saveVersion: 16,
+      fatePity: 4,
+      pendingFateDraw: null,
+      talentRanks: {},
+    } as Partial<NewGameState['profile']>
+    delete legacyProfile.soulDie
+    let saved: StorageValue<NewGameState> | null = {
+      state: {
+        ...current,
+        screen: 'fate_sanctum',
+        profile: legacyProfile as NewGameState['profile'],
+      },
+      version: 16,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState()
+      expect(migrated.screen).toBe('hub')
+      expect(migrated.profile.saveVersion).toBe(17)
+      expect(migrated.profile.soulDie).toEqual({ drawPileFaceIds: [] })
+      expect(migrated.profile.fatePity).toBe(0)
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()
@@ -490,7 +549,7 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 16,
+        saveVersion: 17,
         xp: 27,
       })
     } finally {
@@ -532,7 +591,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       const profile = useNewGameStore.getState().profile
-      expect(profile.saveVersion).toBe(16)
+      expect(profile.saveVersion).toBe(17)
       expect(profile.talentRanks).toMatchObject({
         [TALENT_IDS.twinArsenal]: 1,
         [TALENT_IDS.strikerPattern]: 1,

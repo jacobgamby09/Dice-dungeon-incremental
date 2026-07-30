@@ -35,7 +35,7 @@ describe('Talent Tree canvas layout', () => {
     )
 
     expect(offset.x).toBeCloseTo(-317.84)
-    expect(offset.y).toBe(-960)
+    expect(offset.y).toBe(-1050)
   })
 
   it('keeps connected nodes in a compact radial cluster', () => {
@@ -44,6 +44,43 @@ describe('Talent Tree canvas layout', () => {
       for (const prerequisiteId of talent.prerequisiteIds) {
         const source = getTalentTreePoint(prerequisiteId)
         expect(Math.hypot(target.x - source.x, target.y - source.y)).toBeLessThanOrEqual(185)
+      }
+    }
+  })
+
+  it('keeps independent progression paths from crossing', () => {
+    const connections = TALENTS.flatMap((talent) => talent.prerequisiteIds.map(
+      (prerequisiteId) => ({
+        sourceId: prerequisiteId,
+        source: getTalentTreePoint(prerequisiteId),
+        targetId: talent.id,
+        target: getTalentTreePoint(talent.id),
+      }),
+    ))
+    const cross = (
+      first: (typeof connections)[number],
+      second: (typeof connections)[number],
+    ) => {
+      const orientation = (
+        a: { x: number; y: number },
+        b: { x: number; y: number },
+        c: { x: number; y: number },
+      ) => Math.sign((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x))
+      return (
+        orientation(first.source, first.target, second.source)
+        !== orientation(first.source, first.target, second.target)
+        && orientation(second.source, second.target, first.source)
+        !== orientation(second.source, second.target, first.target)
+      )
+    }
+
+    for (const [index, first] of connections.entries()) {
+      for (const second of connections.slice(index + 1)) {
+        const sharesNode = [
+          first.sourceId,
+          first.targetId,
+        ].some((id) => id === second.sourceId || id === second.targetId)
+        if (!sharesNode) expect(cross(first, second)).toBe(false)
       }
     }
   })

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createStartingDice } from '../content/dice'
 import type { PlayerProfile } from '../types/progression'
+import { createSoulDieState } from '../progression/soulDie'
 import {
   createEarlyQolTestProfile,
   EARLY_QOL_TEST_TALENT_PATH,
@@ -10,11 +11,12 @@ import {
 function createBaseProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 11,
+    saveVersion: 17,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    soulDie: createSoulDieState(),
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {

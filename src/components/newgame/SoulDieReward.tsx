@@ -1,0 +1,87 @@
+import type { CSSProperties } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Flame } from 'lucide-react'
+import { useReducedMotion } from 'framer-motion'
+import { createSoulDie } from '../../game/content/dice'
+import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
+import { PhysicalDieCube } from './PhysicalDieCube'
+
+interface SoulDieRewardProps {
+  fast?: boolean
+  result: SoulDieRollResult
+  values: SoulDieValues
+}
+
+export function SoulDieReward({
+  fast = false,
+  result,
+  values,
+}: SoulDieRewardProps) {
+  return (
+    <SoulDieAnimation
+      fast={fast}
+      key={`${result.faceId}-${result.soulValue}-${result.payout}`}
+      result={result}
+      values={values}
+    />
+  )
+}
+
+function SoulDieAnimation({
+  fast = false,
+  result,
+  values,
+}: SoulDieRewardProps) {
+  const reduceMotion = useReducedMotion()
+  const [landed, setLanded] = useState(Boolean(reduceMotion))
+  const die = useMemo(() => createSoulDie(values), [values])
+  const stage = reduceMotion || landed ? 'landed' : 'rolling'
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const timer = window.setTimeout(
+      () => setLanded(true),
+      fast ? 260 : 680,
+    )
+    return () => window.clearTimeout(timer)
+  }, [fast, reduceMotion])
+
+  return (
+    <div
+      aria-label={`Soul Value ${result.soulValue}, Soul Die times ${result.multiplier}, ${result.payout} Souls`}
+      className={`soul-die-reward soul-die-reward--${stage}`}
+    >
+      <div className="soul-die-reward__formula">
+        <span>Soul Value</span>
+        <strong>{result.soulValue}</strong>
+      </div>
+      <div className="soul-die-reward__die">
+        <PhysicalDieCube
+          className="soul-die-reward__cube"
+          faceIndex={result.faceIndex}
+          faces={die.faces.map((face) => ({
+            className: 'soul-die-reward__side',
+            content: (
+              <>
+                <strong>×{face.multiplier}</strong>
+                <Flame aria-hidden="true" size={17} />
+              </>
+            ),
+            id: face.id,
+            style: {
+              '--side-color': '#c084fc',
+              '--side-surface': '#4c1d75',
+            } as CSSProperties,
+          }))}
+          rollDuration={fast ? 0.26 : 0.68}
+          stage={stage}
+        />
+      </div>
+      <div aria-live="polite" className="soul-die-reward__result">
+        <span>{stage === 'landed' ? `${result.soulValue} × ${result.multiplier}` : 'Rolling'}</span>
+        <strong>{stage === 'landed' ? `+${result.payout}` : '—'}</strong>
+        <small>Souls</small>
+      </div>
+    </div>
+  )
+}

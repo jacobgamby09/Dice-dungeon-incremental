@@ -52,7 +52,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   unlock_charms: Gem,
   unlock_dungeon: Map,
   xp_per_kill: BookOpen,
-  souls_per_kill: Coins,
+  soul_die_faces: Coins,
   workshop_cost_multiplier: Hammer,
   charm_slots: Link2,
 }
@@ -79,8 +79,8 @@ function getEffectLabel(effect: TalentEffect): string {
       return 'Unlock The Iron Descent'
     case 'xp_per_kill':
       return `+${effect.amount} XP per Enemy`
-    case 'souls_per_kill':
-      return `+${effect.amount} Soul per Enemy`
+    case 'soul_die_faces':
+      return `Soul Die · ${effect.values.map((value) => `×${value}`).join(' · ')}`
     case 'workshop_cost_multiplier':
       return `${Math.round((1 - effect.multiplier) * 100)}% Cheaper Workshop`
     case 'charm_slots':

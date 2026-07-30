@@ -151,6 +151,7 @@ En ny V2-profil starter med:
 | Souls | 0 |
 | Auto Combat | Låst |
 | Workshop Die | `1–1–1–1–1–2` |
+| Soul Die | `×1–×1–×1–×2–×2–×2` |
 | Normal face cap | 5 |
 | Unlocked dungeon | `The First Descent` |
 
@@ -161,20 +162,20 @@ Floor 1 er en Slime med:
 - 3 HP;
 - én deterministisk Attack Die på `2–2–2–2–2–2`;
 - 4 XP reward;
-- 5 Souls reward.
+- Soul Value 1.
 
 Den urørte spiller:
 
 1. bruger tre runder på at give 3 damage;
 2. modtager to enemy-angreb før lethal player attack;
 3. vinder med 6/10 HP;
-4. får 4 XP og 5 Souls permanent;
+4. får 4 XP og ruller Soul Die for 1–2 permanente Souls;
 5. rammer floor 2 som den første tydelige væg.
 
 Det første kill finansierer begge progressionslag:
 
 - 4 XP køber `Inner Spark` rank 1.
-- 5 Souls køber den første Workshop Forge.
+- selv et `×1`-roll køber den første Workshop Forge.
 
 ---
 
@@ -223,12 +224,15 @@ Talent Tree-noder.
 ### 6.3 Reward-regler
 
 - Rewards gives atomisk ved et gyldigt kill.
+- Hver enemy har en fast Soul Value. Soul-payout er `Soul Value × Soul Die`.
+- Soul Die bruger en persisteret shuffle-cycle: alle seks stabile faces trækkes én gang før reshuffle.
+- Soul-roll og payout gemmes før animationen; Auto Combat bruger samme resultat uden at pause.
 - Samme encounter-reward kan kun gives én gang.
 - Reload, dobbeltklik eller Auto Combat må ikke duplikere rewards.
 - Defeat bevarer alle kills fra det afsluttede run.
 - `Leave Dungeon` bevarer alle allerede optjente rewards og tæller ikke som Defeat.
 
-### 6.4 Fate Tokens, drops og pity
+### 6.4 Fate Tokens, drops og skjult bad-luck protection
 
 Fate Tokens begynder først at droppe, når `Fatecraft` er købt.
 
@@ -237,6 +241,7 @@ Fate Tokens begynder først at droppe, når `Fatecraft` er købt.
 - Elite-enemies giver altid 1 Token.
 - Bosses giver altid 3 Tokens.
 - Pity er permanent profil-state og bevares mellem runs.
+- Pity er aldrig player-facing. Før Fatecraft vises, rulles eller optjenes ingen Fate-state.
 - Dungeon 1's otte normale enemies, elite og boss giver mindst 5 Tokens selv ved
   værst mulige normale rolls, så ét Fate Draw altid kan finansieres.
 - Samme encounter kan aldrig udbetale Tokens to gange.
@@ -396,16 +401,16 @@ bagefter skjult reduceres.
 Prisen beregnes ud fra terningens samlede permanente face-vækst over startværdien 1:
 
 ```text
-Cost = 5 + 2 × floor(total applied face upgrades / 3)
+Cost = 1 + floor(total applied face upgrades / 3)
 ```
 
 | Samlet growth før køb | Pris |
 | ---: | ---: |
-| 0–2 | 5 Souls |
-| 3–5 | 7 Souls |
-| 6–8 | 9 Souls |
-| 9–11 | 11 Souls |
-| 12–14 | 13 Souls |
+| 0–2 | 1 Soul |
+| 3–5 | 2 Souls |
+| 6–8 | 3 Souls |
+| 9–11 | 4 Souls |
+| 12–14 | 5 Souls |
 
 Et `+2`-resultat øger den samlede growth med 2 og kan derfor krydse et pristrin
 hurtigere.
@@ -474,21 +479,21 @@ talenter, så centrale mål kan nås ad flere veje.
 | Second Grip | 16 XP | Inner Spark rank 1 | +1 slot |
 | Striker Pattern | 16 XP | Inner Spark rank 1 | Striker Die |
 | Shieldcraft | 42 XP | Second Grip **eller** Striker Pattern | Iron Guard Die |
-| Third Grip | 58 XP | To af Second Grip, Striker Pattern og Shieldcraft | +1 slot |
-| Healing Arts | 78 XP | Shieldcraft + Third Grip | Vitality Die |
+| Third Grip | 58 XP | Shieldcraft | +1 slot |
+| Healing Arts | 78 XP | Third Grip | Vitality Die |
 | Fourth Grip | 105 XP | Healing Arts | +1 slot |
-| Executioner Doctrine | 135 XP | Fourth Grip | Executioner Die |
-| Tower Discipline | 110 XP | Shieldcraft + Third Grip | Tower Die |
+| Executioner Doctrine | 135 XP | Third Grip | Executioner Die |
+| Tower Discipline | 110 XP | Third Grip | Tower Die |
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
 | Efficient Tools | 10 / 22 / 40 XP | Inner Spark rank 1 | 20% lavere Workshop-pris per rank, multiplicativt |
 | Face Mastery | 30 / 50 / 80 XP | Loaded Alloy **eller** Efficient Tools | +1 normal face cap per rank |
 | Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
 | Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
-| Deep Reserves | 18 / 28 / 42 XP | Auto Combat **eller** Quick Draw | +2 Max HP per rank |
-| Second Descent | 75 XP | To af Auto Combat, Quick Draw og Deep Reserves + Dungeon 1 clear | Unlock The Iron Descent |
+| Deep Reserves | 18 / 28 / 42 XP | Auto Combat | +2 Max HP per rank |
+| Second Descent | 75 XP | Quick Draw **eller** Deep Reserves + Dungeon 1 clear | Unlock The Iron Descent |
 | Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
-| Soul Harvest | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 Soul per enemy per rank |
-| Fatecraft | 30 XP | Field Studies **eller** Soul Harvest + Dungeon 1 clear | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
+| Soul Die Mastery | 5 / 14 / 30 XP | Inner Spark rank 1 | Soul Die: `1,1,2,2,2,2` → `1,1,2,2,2,3` → `1,2,2,2,2,3` |
+| Fatecraft | 30 XP | Field Studies **eller** Soul Die Mastery + Dungeon 1 clear | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
 | Woven Pair | 45 XP | Fatecraft | Charm-slot 2 |
 | Trinity Knot | 90 XP | Woven Pair + Dungeon 2 clear | Charm-slot 3 |
 
@@ -640,18 +645,18 @@ Formål:
 
 Alle enemies har præcis én Attack Die.
 
-| Floor | Enemy | Level | HP | Attack faces | XP | Souls |
+| Floor | Enemy | Level | HP | Attack faces | XP | Soul Value |
 | ---: | --- | ---: | ---: | --- | ---: | ---: |
-| 1 | Slime | 1 | 3 | `2–2–2–2–2–2` | 4 | 5 |
-| 2 | Slime Crawler | 1 | 5 | `2–2–2–3–3–3` | 5 | 7 |
-| 3 | Goblin | 1 | 8 | `2–2–3–3–3–4` | 6 | 9 |
-| 4 | Skeleton | 1 | 12 | `3–3–3–4–4–4` | 8 | 12 |
-| 5 | Slime | 2 | 17 | `3–3–3–4–4–4` | 11 | 16 |
-| 6 | Slime Crawler | 2 | 23 | `3–3–3–4–4–5` | 15 | 21 |
-| 7 | Goblin | 2 | 30 | `4–4–4–4–5–5` | 20 | 28 |
-| 8 | Skeleton | 2 | 38 | `4–4–4–5–5–6` | 28 | 37 |
-| 9 | Skeleton Elite | 3 | 48 | `5–5–5–6–6–7` | 38 | 49 |
-| 10 | Demon | Boss | 62 | `6–6–6–7–8–9` | 55 | 65 |
+| 1 | Slime | 1 | 3 | `2–2–2–2–2–2` | 4 | 1 |
+| 2 | Slime Crawler | 1 | 5 | `2–2–2–3–3–3` | 5 | 1 |
+| 3 | Goblin | 1 | 8 | `2–2–3–3–3–4` | 6 | 1 |
+| 4 | Skeleton | 1 | 12 | `3–3–3–4–4–4` | 8 | 1 |
+| 5 | Slime | 2 | 17 | `3–3–3–4–4–4` | 11 | 1 |
+| 6 | Slime Crawler | 2 | 23 | `3–3–3–4–4–5` | 15 | 1 |
+| 7 | Goblin | 2 | 30 | `4–4–4–4–5–5` | 20 | 1 |
+| 8 | Skeleton | 2 | 38 | `4–4–4–5–5–6` | 28 | 1 |
+| 9 | Skeleton Elite | 3 | 48 | `5–5–5–6–6–7` | 38 | 2 |
+| 10 | Demon | Boss | 62 | `6–6–6–7–8–9` | 55 | 3 |
 
 ### 11.2 Dungeon 2 — The Iron Descent
 
@@ -664,18 +669,18 @@ Formål:
 
 Normale enemies har én Attack Die og én Shield Die. Bossen har desuden Heal.
 
-| Floor | Enemy | Level | HP | Attack | Shield | Heal | XP | Souls |
+| Floor | Enemy | Level | HP | Attack | Shield | Heal | XP | Soul Value |
 | ---: | --- | ---: | ---: | --- | --- | --- | ---: | ---: |
-| 1 | Shieldbearer | 1 | 22 | `5–5–6–6–7–7` | `0–1–1–1–2–2` | — | 48 | 44 |
-| 2 | Cultist | 1 | 26 | `5–6–6–6–7–8` | `0–1–1–2–2–2` | — | 52 | 48 |
-| 3 | Orc | 1 | 30 | `6–6–6–7–7–8` | `1–1–1–2–2–3` | — | 58 | 54 |
-| 4 | Blood Orc | 1 | 34 | `6–6–7–7–8–8` | `1–1–2–2–2–3` | — | 64 | 60 |
-| 5 | Shieldbearer | 2 | 39 | `6–7–7–7–8–9` | `1–2–2–2–3–3` | — | 72 | 68 |
-| 6 | Cultist | 2 | 44 | `7–7–7–8–8–9` | `1–2–2–3–3–3` | — | 80 | 76 |
-| 7 | Orc | 2 | 50 | `7–7–8–8–9–9` | `2–2–2–3–3–4` | — | 90 | 86 |
-| 8 | Blood Orc | 2 | 57 | `7–8–8–8–9–10` | `2–2–3–3–4–4` | — | 102 | 98 |
-| 9 | Blood Orc Elite | 3 | 65 | `8–8–8–9–9–10` | `2–3–3–4–4–5` | — | 118 | 112 |
-| 10 | Spiked Behemoth | Boss | 80 | `8–9–9–9–10–11` | `3–3–4–4–5–6` | `0–0–1–1–2–3` | 160 | 160 |
+| 1 | Shieldbearer | 1 | 22 | `5–5–6–6–7–7` | `0–1–1–1–2–2` | — | 48 | 5 |
+| 2 | Cultist | 1 | 26 | `5–6–6–6–7–8` | `0–1–1–2–2–2` | — | 52 | 5 |
+| 3 | Orc | 1 | 30 | `6–6–6–7–7–8` | `1–1–1–2–2–3` | — | 58 | 5 |
+| 4 | Blood Orc | 1 | 34 | `6–6–7–7–8–8` | `1–1–2–2–2–3` | — | 64 | 5 |
+| 5 | Shieldbearer | 2 | 39 | `6–7–7–7–8–9` | `1–2–2–2–3–3` | — | 72 | 6 |
+| 6 | Cultist | 2 | 44 | `7–7–7–8–8–9` | `1–2–2–3–3–3` | — | 80 | 6 |
+| 7 | Orc | 2 | 50 | `7–7–8–8–9–9` | `2–2–2–3–3–4` | — | 90 | 6 |
+| 8 | Blood Orc | 2 | 57 | `7–8–8–8–9–10` | `2–2–3–3–4–4` | — | 102 | 6 |
+| 9 | Blood Orc Elite | 3 | 65 | `8–8–8–9–9–10` | `2–3–3–4–4–5` | — | 118 | 8 |
+| 10 | Spiked Behemoth | Boss | 80 | `8–9–9–9–10–11` | `3–3–4–4–5–6` | `0–0–1–1–2–3` | 160 | 12 |
 
 Dungeon 2’s tal er implementerede, men endnu ikke endeligt balanceret til V2’s
 langsommere progression.
@@ -802,7 +807,8 @@ motivation.
 ## 15. Persistence og tekniske designregler
 
 - Save-key: `new-dice-dungeon-save`.
-- Save-version: 16.
+- Save-version: 17.
+- Version 16 migreres med en frisk persisteret Soul Die draw-pile uden tab af XP, Souls, dice, talents, Fate Tokens eller Charms.
 - Version 15 migreres med Fate/Charm-defaults uden tab af XP, Souls, dice eller talents.
 - Pre-V2 saves starter frisk på den isolerede branch.
 - Aktivt run, enemy intent, draw-pile, runde og allerede rullede faces persisteres.
@@ -836,11 +842,11 @@ motivation.
 - To dungeons á 10 floors.
 - Enemy multi-dice i Dungeon 2.
 - Run Menu og frivillig retreat.
-- Fate Token-drops med profile-level pity.
+- Fate Token-drops med skjult profile-level bad-luck protection efter Fatecraft.
 - Fate Sanctum med atomisk Choose-One-of-Three draw.
 - Seks Charms med tre ranks og tre mulige loadout-slots.
 - Charm progress/procs i Combat og outcomes.
-- Save-version 16 med pending Fate Draw, Charm collection, loadout og run-snapshots.
+- Save-version 17 med Soul Die cycle, pending Fate Draw, Charm collection, loadout og run-snapshots.
 - Gamle Twin Arsenal-køb splittes tabsfrit; et allerede købt tomt Fatecraft refunderes fuldt.
 
 ### Implementeret, men endnu ikke endeligt V2-balanceret

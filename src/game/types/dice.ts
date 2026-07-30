@@ -47,6 +47,49 @@ export type DieFaces = [
   FaceInstance,
 ]
 
+export interface SoulDieFace {
+  id: string
+  multiplier: number
+}
+
+export type SoulDieFaces = [
+  SoulDieFace,
+  SoulDieFace,
+  SoulDieFace,
+  SoulDieFace,
+  SoulDieFace,
+  SoulDieFace,
+]
+
+export interface SoulDieDefinition {
+  id: 'soul-die'
+  name: string
+  faces: SoulDieFaces
+}
+
+export type SoulDieValues = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+]
+
+export interface SoulDieState {
+  drawPileFaceIds: string[]
+}
+
+export interface SoulDieRollResult {
+  dieId: SoulDieDefinition['id']
+  dieName: string
+  faceId: string
+  faceIndex: number
+  multiplier: number
+  soulValue: number
+  payout: number
+}
+
 export interface DieInstance {
   id: string
   name: string

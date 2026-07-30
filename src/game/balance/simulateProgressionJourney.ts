@@ -20,6 +20,7 @@ import type { DieInstance } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
 import type { PlayerProfile } from '../types/progression'
 import { createSeededRandom, simulateDungeonRun } from './simulateDungeon'
+import { createSoulDieState } from '../progression/soulDie'
 
 export interface JourneyTalentStep {
   id: string
@@ -88,11 +89,12 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 16,
+    saveVersion: 17,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    soulDie: createSoulDieState(),
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
     dungeonProgress: {
@@ -304,12 +306,14 @@ export function simulateProgressionJourney(
       dice: equippedDice,
       playerMaxHp: getPlayerMaxHp(profile.talentRanks),
       talentRanks: profile.talentRanks,
+      soulDieState: profile.soulDie,
     }, random)
 
     profile = {
       ...profile,
       bankedSouls: profile.bankedSouls + result.soulsCollected,
       xp: profile.xp + result.xpEarned,
+      soulDie: result.soulDieState,
       dungeonProgress: {
         ...profile.dungeonProgress,
         [dungeonId]: {

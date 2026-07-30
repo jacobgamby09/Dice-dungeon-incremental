@@ -6082,6 +6082,23 @@
   align-self: center;
 }
 
+.talent-canvas-node__cost {
+  position: absolute;
+  right: 3px;
+  bottom: 0;
+  z-index: 5;
+  min-width: 25px;
+  border: 2px solid currentColor;
+  background: #020305;
+  padding: 2px 3px;
+  color: inherit;
+  font-family: var(--arcade-font-display);
+  font-size: 0.46rem;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 2px 2px 0 #000;
+}
+
 .talent-canvas-inspector h2 {
   margin: 0;
   color: #edfdff;

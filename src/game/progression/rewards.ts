@@ -1,28 +1,30 @@
 import type { TalentRanks } from '../types/progression'
-import { getSoulRewardBonus, getXpRewardBonus } from './talents'
+import type { SoulDieRollResult } from '../types/dice'
+import { getXpRewardBonus } from './talents'
 
 export interface EnemyRewardBreakdown {
   baseSouls: number
   baseXp: number
   bonusSouls: number
   bonusXp: number
+  soulRoll: SoulDieRollResult
   souls: number
   xp: number
 }
 
 export function getEnemyRewardBreakdown(
   baseXp: number,
-  baseSouls: number,
+  soulRoll: SoulDieRollResult,
   talentRanks: Readonly<TalentRanks>,
 ): EnemyRewardBreakdown {
   const bonusXp = getXpRewardBonus(talentRanks)
-  const bonusSouls = getSoulRewardBonus(talentRanks)
   return {
-    baseSouls,
+    baseSouls: soulRoll.soulValue,
     baseXp,
-    bonusSouls,
+    bonusSouls: Math.max(0, soulRoll.payout - soulRoll.soulValue),
     bonusXp,
-    souls: baseSouls + bonusSouls,
+    soulRoll,
+    souls: soulRoll.payout,
     xp: baseXp + bonusXp,
   }
 }

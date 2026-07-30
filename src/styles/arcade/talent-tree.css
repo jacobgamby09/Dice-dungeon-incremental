@@ -17,15 +17,29 @@
 }
 
 .talent-canvas-xp {
+  min-width: 116px;
   border: var(--arcade-frame-section) solid var(--arcade-white);
   background: var(--arcade-black);
   box-shadow: none;
   color: var(--arcade-purple);
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 2px 5px;
 }
 
 .talent-canvas-xp strong,
 .talent-canvas-xp span {
   color: var(--arcade-white);
+}
+
+.talent-canvas-xp small {
+  grid-column: 1 / -1;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.48rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .talent-canvas-zoom {

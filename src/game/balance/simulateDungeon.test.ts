@@ -38,7 +38,8 @@ describe('Classic V2 dungeon balance simulator', () => {
 
     expect(summary.floorReachRate[0]).toBe(1)
     expect(summary.averageHighestFloor).toBe(1)
-    expect(summary.averageSouls).toBe(5)
+    expect(summary.averageSouls).toBeGreaterThan(1.45)
+    expect(summary.averageSouls).toBeLessThan(1.55)
     expect(summary.averageXp).toBe(4)
     expect(summary.bossClearRate).toBe(0)
   })
@@ -68,11 +69,13 @@ describe('Classic V2 dungeon balance simulator', () => {
       { dice: getDice('attack-die-1'), playerMaxHp: 10 },
       createSeededRandom(42),
     )
-    const clearedSoulRewards = DUNGEONS['prototype-depths'].floors
+    const clearedSoulValues = DUNGEONS['prototype-depths'].floors
       .slice(0, run.highestFloorCleared)
-      .map((floor) => ENCOUNTERS[floor.encounterId].soulReward)
+      .map((floor) => ENCOUNTERS[floor.encounterId].soulValue)
+    const minimumSouls = clearedSoulValues.reduce((total, value) => total + value, 0)
 
-    expect(run.soulsCollected).toBe(clearedSoulRewards.reduce((total, reward) => total + reward, 0))
+    expect(run.soulsCollected).toBeGreaterThanOrEqual(minimumSouls)
+    expect(run.soulsCollected).toBeLessThanOrEqual(minimumSouls * 2)
   })
 
   it('makes the boss a reliable milestone after substantial Soul and XP growth', () => {

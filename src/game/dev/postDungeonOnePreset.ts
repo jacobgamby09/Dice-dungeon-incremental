@@ -10,7 +10,7 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   evolutionCount: 0,
   faceMinimum: 4,
   maxHp: 17,
-  soulsSpent: 720,
+  soulsSpent: 252,
   xpSpent: 469,
 } as const
 

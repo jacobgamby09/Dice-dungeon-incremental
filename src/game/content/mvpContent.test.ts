@@ -82,8 +82,8 @@ describe('MVP content integrity', () => {
   })
 
   it('gives permanent Soul loot from every encounter and funds the first face upgrade immediately', () => {
-    expect(Object.values(ENCOUNTERS).every((encounter) => encounter.soulReward > 0)).toBe(true)
-    expect(ENCOUNTERS['descent-1-slime-l1'].soulReward).toBe(getFaceUpgradeCost(1))
+    expect(Object.values(ENCOUNTERS).every((encounter) => encounter.soulValue > 0)).toBe(true)
+    expect(ENCOUNTERS['descent-1-slime-l1'].soulValue).toBe(getFaceUpgradeCost(1))
   })
 
   it('orders both dungeons as ten floors with exactly one final boss', () => {

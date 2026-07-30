@@ -7,6 +7,7 @@ import { CharmIcon } from '../components/newgame/CharmIcon'
 import { OutcomeRewards } from '../components/newgame/OutcomeRewards'
 import { AUTO_COMBAT_VICTORY_PAUSE_MS } from '../game/automation/autoCombat'
 import { DUNGEONS } from '../game/content/dungeons'
+import { getSoulDieValues } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
 const HERO_INITIAL = { opacity: 0, scale: 0.84, y: -18 }
@@ -33,6 +34,7 @@ export function PostCombatScreen() {
     bankedSouls: state.profile.bankedSouls,
     fateTokens: state.profile.fateTokens,
     autoCombat: state.profile.settings.autoCombat,
+    talentRanks: state.profile.talentRanks,
     xp: state.profile.xp,
   })))
   const advanceToNextFloor = useNewGameStore((state) => state.advanceToNextFloor)
@@ -77,6 +79,7 @@ export function PostCombatScreen() {
     ? run.runStats.fateTokensEarned ?? 0
     : run.lastReward.fateTokens ?? 0
   const nextFloorNumber = run.lastReward.floor + 1
+  const soulDieValues = getSoulDieValues(profile.talentRanks)
   const buttonTransition = prefersReducedMotion
     ? REDUCED_MOTION_TRANSITION
     : CTA_TRANSITION
@@ -127,12 +130,14 @@ export function PostCombatScreen() {
         bonusSouls={bonusSouls}
         bonusXp={bonusXp}
         charmBonusSouls={charmBonusSouls}
-        fatePity={run.lastReward.fatePity}
         fateTokensEarned={fateTokensEarned}
+        fast={profile.autoCombat}
         heading={dungeonComplete ? 'This descent' : 'Battle rewards'}
         soulsEarned={rewardSouls}
         totalSouls={profile.bankedSouls}
-        totalFateTokens={run.lastReward.fatePity !== undefined ? profile.fateTokens : undefined}
+        soulDieValues={soulDieValues}
+        soulRoll={run.lastReward.soulRoll}
+        totalFateTokens={fateTokensEarned > 0 ? profile.fateTokens : undefined}
         totalXp={profile.xp}
         xpEarned={rewardXp}
       />

@@ -50,7 +50,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 3,
     dieIds: ['slime-l1-attack'],
     xpReward: 4,
-    soulReward: 5,
+    soulValue: 1,
   },
   'descent-1-slime-crawler-l1': {
     id: 'descent-1-slime-crawler-l1',
@@ -59,7 +59,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 5,
     dieIds: ['slime-crawler-l1-attack'],
     xpReward: 5,
-    soulReward: 7,
+    soulValue: 1,
   },
   'descent-1-goblin-l1': {
     id: 'descent-1-goblin-l1',
@@ -68,7 +68,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 8,
     dieIds: ['goblin-l1-attack'],
     xpReward: 6,
-    soulReward: 9,
+    soulValue: 1,
   },
   'descent-1-skeleton-l1': {
     id: 'descent-1-skeleton-l1',
@@ -77,7 +77,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 12,
     dieIds: ['skeleton-l1-attack'],
     xpReward: 8,
-    soulReward: 12,
+    soulValue: 1,
   },
   'descent-1-slime-l2': {
     id: 'descent-1-slime-l2',
@@ -86,7 +86,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 17,
     dieIds: ['slime-l2-attack'],
     xpReward: 11,
-    soulReward: 16,
+    soulValue: 1,
   },
   'descent-1-slime-crawler-l2': {
     id: 'descent-1-slime-crawler-l2',
@@ -95,7 +95,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 23,
     dieIds: ['slime-crawler-l2-attack'],
     xpReward: 15,
-    soulReward: 21,
+    soulValue: 1,
   },
   'descent-1-goblin-l2': {
     id: 'descent-1-goblin-l2',
@@ -104,7 +104,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 30,
     dieIds: ['goblin-l2-attack'],
     xpReward: 20,
-    soulReward: 28,
+    soulValue: 1,
   },
   'descent-1-skeleton-l2': {
     id: 'descent-1-skeleton-l2',
@@ -113,7 +113,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 38,
     dieIds: ['skeleton-l2-attack'],
     xpReward: 28,
-    soulReward: 37,
+    soulValue: 1,
   },
   'descent-1-skeleton-elite': {
     id: 'descent-1-skeleton-elite',
@@ -122,7 +122,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 48,
     dieIds: ['skeleton-elite-attack'],
     xpReward: 38,
-    soulReward: 49,
+    soulValue: 2,
     rewardTier: 'elite',
   },
   'descent-1-demon': {
@@ -132,7 +132,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 62,
     dieIds: ['demon-attack'],
     xpReward: 55,
-    soulReward: 65,
+    soulValue: 3,
     rewardTier: 'boss',
   },
 
@@ -143,7 +143,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 22,
     dieIds: ['shieldbearer-l1-attack', 'shieldbearer-l1-shield'],
     xpReward: 48,
-    soulReward: 44,
+    soulValue: 5,
   },
   'descent-2-cultist-l1': {
     id: 'descent-2-cultist-l1',
@@ -152,7 +152,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 26,
     dieIds: ['cultist-l1-attack', 'cultist-l1-shield'],
     xpReward: 52,
-    soulReward: 48,
+    soulValue: 5,
   },
   'descent-2-orc-l1': {
     id: 'descent-2-orc-l1',
@@ -161,7 +161,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 30,
     dieIds: ['orc-l1-attack', 'orc-l1-shield'],
     xpReward: 58,
-    soulReward: 54,
+    soulValue: 5,
   },
   'descent-2-blood-orc-l1': {
     id: 'descent-2-blood-orc-l1',
@@ -170,7 +170,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 34,
     dieIds: ['blood-orc-l1-attack', 'blood-orc-l1-shield'],
     xpReward: 64,
-    soulReward: 60,
+    soulValue: 5,
   },
   'descent-2-shieldbearer-l2': {
     id: 'descent-2-shieldbearer-l2',
@@ -179,7 +179,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 39,
     dieIds: ['shieldbearer-l2-attack', 'shieldbearer-l2-shield'],
     xpReward: 72,
-    soulReward: 68,
+    soulValue: 6,
   },
   'descent-2-cultist-l2': {
     id: 'descent-2-cultist-l2',
@@ -188,7 +188,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 44,
     dieIds: ['cultist-l2-attack', 'cultist-l2-shield'],
     xpReward: 80,
-    soulReward: 76,
+    soulValue: 6,
   },
   'descent-2-orc-l2': {
     id: 'descent-2-orc-l2',
@@ -197,7 +197,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 50,
     dieIds: ['orc-l2-attack', 'orc-l2-shield'],
     xpReward: 90,
-    soulReward: 86,
+    soulValue: 6,
   },
   'descent-2-blood-orc-l2': {
     id: 'descent-2-blood-orc-l2',
@@ -206,7 +206,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 57,
     dieIds: ['blood-orc-l2-attack', 'blood-orc-l2-shield'],
     xpReward: 102,
-    soulReward: 98,
+    soulValue: 6,
   },
   'descent-2-blood-orc-elite': {
     id: 'descent-2-blood-orc-elite',
@@ -215,7 +215,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     maxHp: 65,
     dieIds: ['blood-orc-elite-attack', 'blood-orc-elite-shield'],
     xpReward: 118,
-    soulReward: 112,
+    soulValue: 8,
     rewardTier: 'elite',
   },
   'descent-2-spiked-behemoth': {
@@ -229,7 +229,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
       'spiked-behemoth-heal',
     ],
     xpReward: 160,
-    soulReward: 160,
+    soulValue: 12,
     rewardTier: 'boss',
   },
 }
@@ -262,7 +262,7 @@ export function createEnemyState(
     dieIds: [...encounter.dieIds],
     intentRolls,
     xpReward: encounter.xpReward,
-    soulReward: encounter.soulReward,
+    soulValue: encounter.soulValue,
     rewardTier: encounter.rewardTier ?? 'normal',
     rewardClaimed: false,
   }

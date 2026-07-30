@@ -203,6 +203,10 @@ export function TalentTreeScreen() {
       : [],
     [ceremony, ceremonyStage],
   )
+  const affordableUpgradeCount = useMemo(
+    () => canvasNodes.filter((node) => node.isAffordable).length,
+    [canvasNodes],
+  )
 
   const closeTalentDetails = useCallback(() => {
     setSelectedTalentId(null)
@@ -264,6 +268,7 @@ export function TalentTreeScreen() {
           <Sparkles aria-hidden="true" size={15} />
           <strong>{xp}</strong>
           <span>XP</span>
+          <small>{affordableUpgradeCount} available</small>
         </div>
       </div>
 
