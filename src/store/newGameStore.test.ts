@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(14)
+    expect(profile.saveVersion).toBe(15)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -107,7 +107,7 @@ describe('Classic V2 store progression loop', () => {
     const state = useNewGameStore.getState()
     expect(state.profile.xp).toBe(4)
     expect(state.profile.bankedSouls).toBe(5)
-    expect(state.run.runStats).toEqual({
+    expect(state.run.runStats).toMatchObject({
       enemiesDefeated: 1,
       soulsEarned: 5,
       xpEarned: 4,
@@ -173,13 +173,14 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().profile.settings.autoCombat).toBe(true)
   })
 
-  it('grants the second die unequipped together with the second slot', () => {
+  it('lets the player buy the second slot and Striker Die separately', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({ profile: { ...state.profile, xp: 36 } })
 
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne))
       .toBe(true)
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.twinArsenal)).toBe(true)
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.strikerPattern)).toBe(true)
 
     const profile = useNewGameStore.getState().profile
     expect(profile.diceCollection.map((die) => die.id))
@@ -394,7 +395,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 14,
+        saveVersion: 15,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
@@ -436,9 +437,57 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 14,
+        saveVersion: 15,
         xp: 27,
       })
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('splits a purchased version-14 Twin Arsenal without removing either reward', async () => {
+    const current = useNewGameStore.getState()
+    let saved: StorageValue<NewGameState> | null = {
+      state: {
+        ...current,
+        profile: {
+          ...current.profile,
+          saveVersion: 14,
+          talentRanks: {
+            [TALENT_IDS.battleHardenedOne]: 1,
+            [TALENT_IDS.twinArsenal]: 1,
+            [TALENT_IDS.fatecraft]: 1,
+          },
+          diceCollection: createDiceCatalog().slice(0, 2),
+        },
+      },
+      version: 14,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const profile = useNewGameStore.getState().profile
+      expect(profile.saveVersion).toBe(15)
+      expect(profile.talentRanks).toMatchObject({
+        [TALENT_IDS.twinArsenal]: 1,
+        [TALENT_IDS.strikerPattern]: 1,
+      })
+      expect(profile.talentRanks[TALENT_IDS.fatecraft]).toBeUndefined()
+      expect(profile.xp).toBe(75)
+      expect(profile.diceCollection.map((die) => die.id)).toContain('attack-die-2')
+      expect(getDiceCapacity(profile.talentRanks)).toBe(2)
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()

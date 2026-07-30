@@ -7,6 +7,8 @@ interface OutcomeRewardsProps {
   totalSouls: number
   totalXp: number
   xpEarned: number
+  bonusSouls?: number
+  bonusXp?: number
 }
 
 const REWARD_INITIAL = { opacity: 0, y: 14 }
@@ -20,6 +22,8 @@ export function OutcomeRewards({
   totalSouls,
   totalXp,
   xpEarned,
+  bonusSouls = 0,
+  bonusXp = 0,
 }: OutcomeRewardsProps) {
   const prefersReducedMotion = useReducedMotion()
 
@@ -42,6 +46,7 @@ export function OutcomeRewards({
           </span>
           <span>XP</span>
           <strong>+{xpEarned}</strong>
+          {bonusXp > 0 && <em>Includes +{bonusXp} from talents</em>}
           <small>{totalXp} total</small>
         </div>
 
@@ -51,6 +56,7 @@ export function OutcomeRewards({
           </span>
           <span>Souls</span>
           <strong>+{soulsEarned}</strong>
+          {bonusSouls > 0 && <em>Includes +{bonusSouls} from talents</em>}
           <small>{totalSouls} total</small>
         </div>
       </div>

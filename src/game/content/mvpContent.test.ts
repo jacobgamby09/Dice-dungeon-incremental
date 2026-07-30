@@ -74,10 +74,11 @@ describe('MVP content integrity', () => {
   it('makes the first kill buy Inner Spark while keeping die two a longer goal', () => {
     const firstEnemyXp = ENCOUNTERS['descent-1-slime-l1'].xpReward
     const firstTalent = TALENTS_BY_ID[TALENT_IDS.battleHardenedOne]
-    const secondTalent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
+    const secondSlot = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
+    const secondDie = TALENTS_BY_ID[TALENT_IDS.strikerPattern]
 
     expect(firstEnemyXp).toBe(firstTalent.ranks[0].cost)
-    expect(secondTalent.ranks[0].cost).toBe(firstEnemyXp * 8)
+    expect(secondSlot.ranks[0].cost + secondDie.ranks[0].cost).toBe(firstEnemyXp * 8)
   })
 
   it('gives permanent Soul loot from every encounter and funds the first face upgrade immediately', () => {

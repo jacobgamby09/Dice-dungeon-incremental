@@ -7,10 +7,13 @@ import { createEnemyState, rollNextEnemyIntent } from '../content/enemies'
 import { EMPTY_TOTALS } from '../types/combat'
 import type { DieInstance } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
+import type { TalentRanks } from '../types/progression'
+import { getEnemyRewardBreakdown } from '../progression/rewards'
 
 export interface SimulationBuild {
   dice: readonly DieInstance[]
   playerMaxHp: number
+  talentRanks?: Readonly<TalentRanks>
 }
 
 export interface DungeonRunSimulation {
@@ -117,8 +120,13 @@ export function simulateDungeonRun(
       if (resolution.outcome === 'victory') {
         floorCleared = true
         highestFloorCleared = floor.floor
-        soulsCollected += enemy.soulReward
-        xpEarned += enemy.xpReward
+        const reward = getEnemyRewardBreakdown(
+          enemy.xpReward,
+          enemy.soulReward,
+          build.talentRanks ?? {},
+        )
+        soulsCollected += reward.souls
+        xpEarned += reward.xp
         break
       }
 

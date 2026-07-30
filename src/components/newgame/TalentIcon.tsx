@@ -14,6 +14,10 @@ import {
   Flame,
   Gem,
   Zap,
+  BookOpen,
+  Coins,
+  Hammer,
+  Sword,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -34,6 +38,10 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'volatile-temper': Flame,
   'face-mastery': Sparkles,
   'fate-seal': Gem,
+  'striker-pattern': Sword,
+  'soul-efficiency': Coins,
+  'xp-efficiency': BookOpen,
+  'workshop-efficiency': Hammer,
 }
 
 interface TalentIconProps {

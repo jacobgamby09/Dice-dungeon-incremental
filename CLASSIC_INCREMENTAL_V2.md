@@ -4,7 +4,7 @@
 - **Branch:** `codex/classic-incremental-v2`
 - **GDD-version:** 1.0
 - **Senest opdateret:** 2026-07-29
-- **Aktuel save-version:** 14
+- **Aktuel save-version:** 15
 
 Denne GDD beskriver Classic Incremental V2. Hvis dokumentet er i konflikt med
 `NEW_GAME_GDD.md`, gælder denne fil for V2-branchen. Production-spillet på `main`
@@ -256,7 +256,7 @@ Faces med samme værdi er fortsat separate objekter.
 | Stabilt ID | Navn | Family | Startfaces | Adgang |
 | --- | --- | --- | --- | --- |
 | `attack-die-1` | Worn Blade Die | Attack | `1–1–1–1–1–1` | Fresh start |
-| `attack-die-2` | Striker Die | Attack | `1–1–1–1–1–1` | Twin Arsenal |
+| `attack-die-2` | Striker Die | Attack | `1–1–1–1–1–1` | Striker Pattern |
 | `shield-die-1` | Iron Guard Die | Shield | `1–1–1–1–1–1` | Shieldcraft |
 | `heal-die-1` | Vitality Die | Heal | `1–1–1–1–1–1` | Healing Arts |
 | `attack-die-executioner` | Executioner Die | Attack | `1–2–3–3 + 2 Execute` | Executioner Doctrine |
@@ -403,32 +403,37 @@ Talent Tree bruger kun XP og er bygget radialt omkring `Inner Spark`.
 | --- | --- | --- |
 | Centrum | Core | Tidlig HP og adgang til alle retninger |
 | Nord | Arsenal | Slots og nye permanente dice |
-| Vest | Workshop | Workshop Die og face cap |
+| Vest | Workshop | Workshop Die, Soul-effektivitet og face cap |
 | Syd | Descent | Auto Combat, hastighed, HP og dungeons |
-| Øst | Fate | Senere Charm-system |
+| Øst | Fate & Fortune | XP/Soul-effektivitet nu; Charms senere |
 
 Rank 1 af `Inner Spark` åbner alle fire retninger samtidigt. Retningerne udelukker
-ikke hinanden.
+ikke hinanden. Flere junctions kræver kun ét af to eller to af tre forbundne
+talenter, så centrale mål kan nås ad flere veje.
 
 ### 9.2 Komplet aktuelt talent-katalog
 
 | Talent | Ranks/pris | Krav | Permanent effekt |
 | --- | --- | --- | --- |
 | Inner Spark | 4 / 7 / 11 / 16 / 24 XP | Ingen | +1 Max HP per rank; rank 1 åbner alle retninger |
-| Twin Arsenal | 32 XP | Inner Spark rank 1 | +1 slot og Striker Die |
-| Shieldcraft | 50 XP | Twin Arsenal | Iron Guard Die |
-| Third Grip | 70 XP | Shieldcraft | +1 slot |
-| Healing Arts | 85 XP | Third Grip | Vitality Die |
-| Fourth Grip | 120 XP | Healing Arts | +1 slot |
-| Executioner Doctrine | 140 XP | Healing Arts | Executioner Die |
+| Second Grip | 16 XP | Inner Spark rank 1 | +1 slot |
+| Striker Pattern | 16 XP | Inner Spark rank 1 | Striker Die |
+| Shieldcraft | 42 XP | Second Grip **eller** Striker Pattern | Iron Guard Die |
+| Third Grip | 58 XP | To af Second Grip, Striker Pattern og Shieldcraft | +1 slot |
+| Healing Arts | 78 XP | Shieldcraft + Third Grip | Vitality Die |
+| Fourth Grip | 105 XP | Healing Arts | +1 slot |
+| Executioner Doctrine | 135 XP | Fourth Grip | Executioner Die |
+| Tower Discipline | 110 XP | Shieldcraft + Third Grip | Tower Die |
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
-| Face Mastery | 30 / 50 / 80 XP | Loaded Alloy rank 1 | +1 normal face cap per rank |
+| Efficient Tools | 10 / 22 / 40 XP | Inner Spark rank 1 | 20% lavere Workshop-pris per rank, multiplicativt |
+| Face Mastery | 30 / 50 / 80 XP | Loaded Alloy **eller** Efficient Tools | +1 normal face cap per rank |
 | Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
 | Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
-| Deep Reserves | 18 / 28 / 42 XP | Quick Draw rank 1 | +2 Max HP per rank |
-| Second Descent | 75 XP | Deep Reserves rank 1 + Dungeon 1 clear | Unlock The Iron Descent |
-| Tower Discipline | 110 XP | Deep Reserves rank 1 | Tower Die |
-| Fatecraft | 75 XP | Inner Spark rank 1 + Dungeon 1 clear | Markeret adgang til fremtidige Charms |
+| Deep Reserves | 18 / 28 / 42 XP | Auto Combat **eller** Quick Draw | +2 Max HP per rank |
+| Second Descent | 75 XP | To af Auto Combat, Quick Draw og Deep Reserves + Dungeon 1 clear | Unlock The Iron Descent |
+| Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
+| Soul Harvest | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 Soul per enemy per rank |
+| Fatecraft | Fremtidig | Field Studies + Soul Harvest + Dungeon 1 clear | Silhuet for det senere Charm-system |
 
 Kun første rank af en multi-rank prerequisite er nødvendig, medmindre andet står
 eksplicit.
@@ -537,23 +542,17 @@ Auto Combat stopper ved:
 
 Auto Retry findes ikke.
 
-### 10.6 Background fast-forward
+### 10.6 Ingen offline-fremdrift
 
-Et aktivt Auto Combat-run kan fortsætte efter browser-suspension gennem:
-
-- persisteret checkpoint;
-- deterministisk random-seed;
-- estimeret tidsbudget per handling;
-- atomisk resume-resultat.
-
-Fast-forward må aldrig passere Defeat eller Boss Victory og må ikke duplikere
-rewards. Spilleren ser et recap ved resume.
+Auto Combat kører kun, mens spillet er åbent og aktivt. Browser-suspension,
+lukning eller fravær simulerer ingen rounds og giver ingen XP eller Souls. Det
+aktive runs præcise state persisteres stadig og fortsætter ved næste åbning.
 
 ### 10.7 Leave Dungeon
 
 Run Menu kan åbnes under et run.
 
-- Menuen pauser live og background Auto Combat.
+- Menuen pauser live Auto Combat.
 - `Leave Dungeon` kræver bekræftelse.
 - XP, Souls og permanent progression bevares.
 - Floor, enemy, round og aktuel HP-runstate nulstilles.
@@ -667,15 +666,17 @@ Den deterministiske journey-simulator bruger en canonical prioritet:
 
 1. Inner Spark rank 1.
 2. Auto Combat.
-3. Quick Draw.
-4. Loaded Alloy.
-5. Twin Arsenal.
-6. Flere Inner Spark-, Quick Draw- og Loaded Alloy-ranks.
-7. Shieldcraft.
-8. Third Grip.
-9. Healing Arts.
-10. Deep Reserves.
-11. Second Descent.
+3. Field Studies.
+4. Quick Draw.
+5. Loaded Alloy.
+6. Second Grip.
+7. Striker Pattern.
+8. Flere Inner Spark-, Quick Draw- og Loaded Alloy-ranks.
+9. Shieldcraft.
+10. Third Grip.
+11. Healing Arts.
+12. Deep Reserves.
+13. Second Descent.
 
 Aktuelle regression-rails:
 
@@ -774,7 +775,8 @@ motivation.
 - To dungeons á 10 floors.
 - Enemy multi-dice i Dungeon 2.
 - Run Menu og frivillig retreat.
-- Save-version 14 og pending Workshop-operationer.
+- Save-version 15, version-14 Talent Tree-migration og pending Workshop-operationer.
+- Gamle Twin Arsenal-køb splittes tabsfrit; et allerede købt tomt Fatecraft refunderes fuldt.
 
 ### Implementeret, men endnu ikke endeligt V2-balanceret
 
@@ -782,7 +784,6 @@ motivation.
 - Executioner Die.
 - Tower Die.
 - Deep Arsenal/Descent-priser.
-- Background fast-forward-tempo.
 
 ### Bevidst deferred
 
@@ -808,7 +809,7 @@ system-unlock, før Charm-loopet eksisterer.
 1. Føles target-flicker og Workshop-roll stadig godt efter 15–25 køb?
 2. Er et capped Workshop-roll tydeligt og fair?
 3. Er Auto Combat run 2–3 tidligt nok til at undgå input-træthed?
-4. Er Twin Arsenal på 32 XP et motiverende mål eller for langsomt?
+4. Er de separate 16-XP-køb Second Grip og Striker Pattern reelle valg, eller købes de altid sammen?
 5. Opleves Dungeon 1-clear omkring run 12–45 som progression eller grind?
 6. Skal Worn Blade og Striker have forskellige medfødte identiteter senere?
 7. Hvornår skal family-evolutions vende tilbage i V2?
@@ -821,7 +822,7 @@ system-unlock, før Charm-loopet eksisterer.
 ## 18. Næste anbefalede designarbejde
 
 1. Gennemfør en fysisk fresh-save-playtest på iPhone.
-2. Mål realtid til første kill, første Forge, Auto Combat, floor 3 og Twin Arsenal.
+2. Mål realtid til første kill, første Forge, Auto Combat, floor 3, Second Grip og Striker Pattern.
 3. Log 15–25 Workshop-køb og vurder variation, tempo og cap-oplevelse.
 4. Retune Dungeon 2 til den målte V2-kurve.
 5. Specificér Fate Token/Charm-loopet som et separat design før implementation.

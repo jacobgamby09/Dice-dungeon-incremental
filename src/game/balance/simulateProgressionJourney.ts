@@ -13,6 +13,7 @@ import {
   getTalentRank,
   getWorkshopDieFaces,
   getWorkshopFaceCap,
+  getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
 } from '../progression/talents'
 import type { DieInstance } from '../types/dice'
@@ -59,9 +60,11 @@ export interface ProgressionJourneyResult {
 export const DEFAULT_JOURNEY_TALENT_PATH: readonly JourneyTalentStep[] = [
   { id: TALENT_IDS.battleHardenedOne, targetRank: 1 },
   { id: TALENT_IDS.autoCombat },
+  { id: TALENT_IDS.fieldStudies },
   { id: TALENT_IDS.quickDraw },
   { id: TALENT_IDS.volatileTemper },
   { id: TALENT_IDS.twinArsenal },
+  { id: TALENT_IDS.strikerPattern },
   { id: TALENT_IDS.battleHardenedOne, targetRank: 3 },
   { id: TALENT_IDS.quickDraw, targetRank: 3 },
   { id: TALENT_IDS.volatileTemper, targetRank: 3 },
@@ -85,7 +88,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 14,
+    saveVersion: 15,
     xp: 0,
     bankedSouls: 0,
     talentRanks: {},
@@ -185,8 +188,9 @@ function spendSouls(
 
   for (let operation = 0; operation < 300; operation += 1) {
     const faceCap = getWorkshopFaceCap(nextProfile.talentRanks)
+    const costMultiplier = getWorkshopCostMultiplier(nextProfile.talentRanks)
     const target = getPriorityDice(nextProfile, strategy.loadoutPriority).find((die) => {
-      const cost = getChaosForgeCost(die, faceCap)
+      const cost = getChaosForgeCost(die, faceCap, costMultiplier)
       return cost !== null && cost <= nextProfile.bankedSouls
     })
     if (!target) break
@@ -196,7 +200,7 @@ function spendSouls(
       `journey-forge-${operation}`,
       getWorkshopDieFaces(nextProfile.talentRanks),
       random,
-      { faceCap },
+      { costMultiplier, faceCap },
     )
     if (!pending) break
     const forged = completeWorkshopForge(target, pending, faceCap)
@@ -293,6 +297,7 @@ export function simulateProgressionJourney(
     const result = simulateDungeonRun(dungeonId, {
       dice: equippedDice,
       playerMaxHp: getPlayerMaxHp(profile.talentRanks),
+      talentRanks: profile.talentRanks,
     }, random)
 
     profile = {

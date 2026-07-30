@@ -58,9 +58,10 @@ export function getDieUpgradeCount(die: DieInstance): number {
 export function getPrecisionForgeCost(
   face: FaceInstance,
   faceCap = BASE_FACE_CAP,
+  costMultiplier = 1,
 ): number | null {
   if (!canForgeFace(face, faceCap)) return null
-  return BASE_CHAOS_FORGE_COST * 2
+  return Math.max(1, Math.ceil(BASE_CHAOS_FORGE_COST * 2 * Math.max(0, costMultiplier)))
 }
 
 export function getChaosEligibleFaces(
@@ -120,10 +121,11 @@ export function precisionForge(
   die: DieInstance,
   faceId: string,
   faceCap = BASE_FACE_CAP,
+  costMultiplier = 1,
 ): { die: DieInstance; result: ForgeResult } | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
   if (!face) return null
-  const cost = getPrecisionForgeCost(face, faceCap)
+  const cost = getPrecisionForgeCost(face, faceCap, costMultiplier)
   const forged = forgeFaceOnDie(die, faceId, 1, faceCap)
   if (cost === null || !forged) return null
   return {

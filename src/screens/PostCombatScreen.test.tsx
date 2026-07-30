@@ -33,7 +33,6 @@ const mockedStore = vi.hoisted(() => ({
       },
     },
     advanceToNextFloor: () => undefined,
-    checkpointAutoCombat: () => undefined,
     returnToHubAfterVictory: () => undefined,
     setAutoCombat: () => undefined,
   },

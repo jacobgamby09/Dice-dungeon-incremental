@@ -1,10 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
-import {
-  fastForwardAutoCombat,
-  type AutomationScreen,
-} from '../game/automation/autoCombat'
 import { createCombatState } from '../game/combat/combatState'
 import { addRollEffects, rollDie } from '../game/combat/rollDie'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
@@ -34,9 +30,11 @@ import {
   getTalentRank,
   getWorkshopDieFaces,
   getWorkshopFaceCap,
+  getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
   normalizeTalentRanks,
 } from '../game/progression/talents'
+import { getEnemyRewardBreakdown } from '../game/progression/rewards'
 import type { CombatState, RoundResolution } from '../game/types/combat'
 import type { DieFaces, DieInstance, FaceEvolutionId, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
@@ -45,7 +43,6 @@ import type {
   DungeonProgress,
   EncounterId,
   EnemyState,
-  AwayRecap,
   RunState,
   RunStats,
 } from '../game/types/dungeon'
@@ -67,7 +64,6 @@ export interface NewGameState {
   profile: PlayerProfile
   run: RunState
   combat: CombatState
-  awayRecap: AwayRecap | null
   runMenuOpen: boolean
   openDungeonSelect: () => void
   openWorkshop: () => void
@@ -87,9 +83,6 @@ export interface NewGameState {
   equipDie: (dieId: string) => boolean
   unequipDie: (dieId: string) => boolean
   setAutoCombat: (enabled: boolean) => void
-  checkpointAutoCombat: (now?: number) => void
-  resumeAutoCombat: (now?: number) => AwayRecap | null
-  dismissAwayRecap: () => void
   openRunMenu: () => void
   closeRunMenu: () => void
   leaveDungeonRun: () => void
@@ -106,7 +99,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 14
+const SAVE_VERSION = 15
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -152,14 +145,10 @@ function createEmptyRunStats(): RunStats {
     enemiesDefeated: 0,
     soulsEarned: 0,
     xpEarned: 0,
-  }
-}
-
-function createRunAutomation() {
-  return {
-    bankedMilliseconds: 0,
-    lastCheckpointAt: null,
-    randomSeed: 0x9E3779B9,
+    baseSoulsEarned: 0,
+    baseXpEarned: 0,
+    bonusSoulsEarned: 0,
+    bonusXpEarned: 0,
   }
 }
 
@@ -171,7 +160,6 @@ function createInactiveRun(): RunState {
     playerHp: BASE_PLAYER_HP,
     playerMaxHp: BASE_PLAYER_HP,
     runStats: createEmptyRunStats(),
-    automation: createRunAutomation(),
     equippedDiceSnapshot: [],
     enemy: null,
     lastReward: null,
@@ -317,15 +305,61 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 14) {
+    const persisted = persistedState as NewGameState
+    const existingRanks = normalizeTalentRanks(persisted.profile?.talentRanks)
+    const hadTwinArsenal = getTalentRank(existingRanks, TALENT_IDS.twinArsenal) > 0
+    const hadFatecraft = getTalentRank(existingRanks, TALENT_IDS.fatecraft) > 0
+    const talentRanks = hadTwinArsenal
+      ? { ...existingRanks, [TALENT_IDS.strikerPattern]: 1 }
+      : existingRanks
+    if (hadFatecraft) delete talentRanks[TALENT_IDS.fatecraft]
+    const diceCollection = [...(persisted.profile?.diceCollection ?? createStartingDice())]
+    if (
+      hadTwinArsenal
+      && !diceCollection.some((die) => die.id === 'attack-die-2')
+    ) {
+      const strikerDie = createDieById('attack-die-2')
+      if (strikerDie) diceCollection.push(strikerDie)
+    }
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        xp: (persisted.profile?.xp ?? 0)
+          + (hadFatecraft ? TALENTS_BY_ID[TALENT_IDS.fatecraft].ranks[0].cost : 0),
+        talentRanks,
+        diceCollection,
+      },
+      run: {
+        ...persisted.run,
+        runStats: {
+          ...createEmptyRunStats(),
+          ...persisted.run?.runStats,
+        },
+      },
+    }
+  }
   if (version === 13) {
     const persisted = persistedState as Partial<NewGameState>
     const existingProfile = persisted.profile as Partial<PlayerProfile> | undefined
+    const existingRanks = normalizeTalentRanks(existingProfile?.talentRanks)
+    const hadTwinArsenal = getTalentRank(existingRanks, TALENT_IDS.twinArsenal) > 0
+    const hadFatecraft = getTalentRank(existingRanks, TALENT_IDS.fatecraft) > 0
+    const talentRanks = hadTwinArsenal
+      ? { ...existingRanks, [TALENT_IDS.strikerPattern]: 1 }
+      : existingRanks
+    if (hadFatecraft) delete talentRanks[TALENT_IDS.fatecraft]
     return {
       ...persisted,
       profile: {
         ...createInitialProfile(),
         ...existingProfile,
         saveVersion: SAVE_VERSION,
+        xp: (existingProfile?.xp ?? 0)
+          + (hadFatecraft ? TALENTS_BY_ID[TALENT_IDS.fatecraft].ranks[0].cost : 0),
+        talentRanks,
         pendingWorkshopForge: null,
       },
     } as NewGameState
@@ -336,7 +370,6 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
       profile: createInitialProfile(),
       run: createInactiveRun(),
       combat: createCombatState([], 1),
-      awayRecap: null,
       runMenuOpen: false,
     } as NewGameState
   }
@@ -450,20 +483,6 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         playerHp: existingRun.playerHp ?? BASE_PLAYER_HP,
         playerMaxHp: existingRun.playerMaxHp ?? BASE_PLAYER_HP,
         runStats: migratedRunStats,
-        automation: existingRun.automation
-          ? {
-              bankedMilliseconds: Math.max(
-                0,
-                existingRun.automation.bankedMilliseconds ?? 0,
-              ),
-              lastCheckpointAt: Number.isFinite(existingRun.automation.lastCheckpointAt)
-                ? existingRun.automation.lastCheckpointAt
-                : null,
-              randomSeed: Number.isFinite(existingRun.automation.randomSeed)
-                ? existingRun.automation.randomSeed >>> 0
-                : createRunAutomation().randomSeed,
-            }
-          : createRunAutomation(),
         equippedDiceSnapshot: (existingRun.equippedDiceSnapshot ?? [])
           .map(migrateDieInstance)
           .filter((die): die is DieInstance => die !== null),
@@ -514,7 +533,6 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     profile: migratedProfile,
     run: migratedRun,
     combat: migratedCombat,
-    awayRecap: null,
     runMenuOpen: false,
   } as NewGameState
 }
@@ -531,7 +549,6 @@ const initialState = {
   profile: createInitialProfile(),
   run: createInactiveRun(),
   combat: createCombatState(),
-  awayRecap: null,
   runMenuOpen: false,
 }
 
@@ -573,11 +590,8 @@ export const useNewGameStore = create<NewGameState>()(
         const equippedDiceSnapshot = getEquippedDice(state.profile)
         if (equippedDiceSnapshot.length === 0) return
         const playerMaxHp = getPlayerMaxHp(state.profile.talentRanks)
-        const startedAt = Date.now()
-
         set({
           screen: 'combat',
-          awayRecap: null,
           runMenuOpen: false,
           run: {
             status: 'active',
@@ -586,11 +600,6 @@ export const useNewGameStore = create<NewGameState>()(
             playerHp: playerMaxHp,
             playerMaxHp,
             runStats: createEmptyRunStats(),
-            automation: {
-              bankedMilliseconds: 0,
-              lastCheckpointAt: state.profile.settings.autoCombat ? startedAt : null,
-              randomSeed: (startedAt ^ state.combat.resolutionVersion ^ 0x9E3779B9) >>> 0,
-            },
             equippedDiceSnapshot,
             enemy: createEnemyState(firstEncounterId),
             lastReward: null,
@@ -677,8 +686,13 @@ export const useNewGameStore = create<NewGameState>()(
         if (resolution.outcome === 'victory') {
           const dungeon = DUNGEONS[state.run.dungeonId!]
           const rewardAlreadyClaimed = enemy.rewardClaimed
-          const xpReward = rewardAlreadyClaimed ? 0 : enemy.xpReward
-          const soulReward = rewardAlreadyClaimed ? 0 : enemy.soulReward
+          const reward = rewardAlreadyClaimed
+            ? getEnemyRewardBreakdown(0, 0, {})
+            : getEnemyRewardBreakdown(
+                enemy.xpReward,
+                enemy.soulReward,
+                state.profile.talentRanks,
+              )
           const floorDefinition = dungeon.floors[state.run.encounterIndex]
           const dungeonComplete = floorDefinition.isBoss
           const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
@@ -696,8 +710,8 @@ export const useNewGameStore = create<NewGameState>()(
           set({
             profile: {
               ...state.profile,
-              xp: state.profile.xp + xpReward,
-              bankedSouls: state.profile.bankedSouls + soulReward,
+              xp: state.profile.xp + reward.xp,
+              bankedSouls: state.profile.bankedSouls + reward.souls,
               dungeonProgress,
             },
             run: {
@@ -708,8 +722,12 @@ export const useNewGameStore = create<NewGameState>()(
                 ? state.run.runStats
                 : {
                     enemiesDefeated: state.run.runStats.enemiesDefeated + 1,
-                    soulsEarned: state.run.runStats.soulsEarned + soulReward,
-                    xpEarned: state.run.runStats.xpEarned + xpReward,
+                    soulsEarned: state.run.runStats.soulsEarned + reward.souls,
+                    xpEarned: state.run.runStats.xpEarned + reward.xp,
+                    baseSoulsEarned: (state.run.runStats.baseSoulsEarned ?? 0) + reward.baseSouls,
+                    baseXpEarned: (state.run.runStats.baseXpEarned ?? 0) + reward.baseXp,
+                    bonusSoulsEarned: (state.run.runStats.bonusSoulsEarned ?? 0) + reward.bonusSouls,
+                    bonusXpEarned: (state.run.runStats.bonusXpEarned ?? 0) + reward.bonusXp,
                   },
               enemy: {
                 ...enemy,
@@ -722,8 +740,12 @@ export const useNewGameStore = create<NewGameState>()(
                 enemyName: enemy.name,
                 floor: floorDefinition.floor,
                 isBoss: floorDefinition.isBoss,
-                xp: xpReward,
-                souls: soulReward,
+                xp: reward.xp,
+                souls: reward.souls,
+                baseXp: reward.baseXp,
+                baseSouls: reward.baseSouls,
+                bonusXp: reward.bonusXp,
+                bonusSouls: reward.bonusSouls,
                 dungeonComplete,
               },
             },
@@ -999,11 +1021,6 @@ export const useNewGameStore = create<NewGameState>()(
       setAutoCombat: (enabled) => {
         const state = get()
         const autoCombat = enabled && hasAutoCombatUnlocked(state.profile.talentRanks)
-        const canContinueRun = state.run.status === 'active'
-          || (
-            state.run.status === 'victory'
-            && !state.run.lastReward?.dungeonComplete
-          )
         set({
           profile: {
             ...state.profile,
@@ -1012,89 +1029,7 @@ export const useNewGameStore = create<NewGameState>()(
               autoCombat,
             },
           },
-          run: {
-            ...state.run,
-            automation: {
-              ...state.run.automation,
-              bankedMilliseconds: 0,
-              lastCheckpointAt: autoCombat && canContinueRun ? Date.now() : null,
-            },
-          },
         })
-      },
-
-      checkpointAutoCombat: (now = Date.now()) => {
-        const state = get()
-        if (
-          state.runMenuOpen ||
-          !state.profile.settings.autoCombat
-          || !hasAutoCombatUnlocked(state.profile.talentRanks)
-          || (
-            state.run.status !== 'active'
-            && !(
-              state.run.status === 'victory'
-              && !state.run.lastReward?.dungeonComplete
-            )
-          )
-        ) {
-          return
-        }
-        set({
-          run: {
-            ...state.run,
-            automation: {
-            ...state.run.automation,
-              bankedMilliseconds: 0,
-              lastCheckpointAt: Math.max(0, now),
-            },
-          },
-        })
-      },
-
-      resumeAutoCombat: (now = Date.now()) => {
-        const state = get()
-        const checkpointAt = state.run.automation.lastCheckpointAt
-        if (
-          state.runMenuOpen ||
-          !state.profile.settings.autoCombat
-          || !hasAutoCombatUnlocked(state.profile.talentRanks)
-          || state.run.status === 'inactive'
-          || checkpointAt === null
-          || !(['combat', 'post_combat', 'defeat'] as AppScreen[]).includes(state.screen)
-        ) {
-          return null
-        }
-
-        const elapsedMilliseconds = Math.max(0, now - checkpointAt)
-        if (elapsedMilliseconds <= 0) return null
-        const result = fastForwardAutoCombat({
-          screen: state.screen as AutomationScreen,
-          profile: state.profile,
-          run: state.run,
-          combat: state.combat,
-        }, elapsedMilliseconds)
-        const terminal = result.screen === 'defeat'
-          || (result.screen === 'post_combat' && result.run.lastReward?.dungeonComplete)
-
-        set({
-          screen: result.screen,
-          profile: result.profile,
-          run: {
-            ...result.run,
-            automation: {
-              bankedMilliseconds: terminal ? 0 : result.bankedMilliseconds,
-              lastCheckpointAt: terminal ? null : Math.max(0, now),
-              randomSeed: result.randomSeed,
-            },
-          },
-          combat: result.combat,
-          awayRecap: result.recap ?? state.awayRecap,
-        })
-        return result.recap
-      },
-
-      dismissAwayRecap: () => {
-        set({ awayRecap: null })
       },
 
       openRunMenu: () => {
@@ -1103,37 +1038,13 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.combat.phase === 'resolving') return
         set({
           runMenuOpen: true,
-          run: {
-            ...state.run,
-            automation: {
-              ...state.run.automation,
-              bankedMilliseconds: 0,
-              lastCheckpointAt: null,
-            },
-          },
         })
       },
 
       closeRunMenu: () => {
         const state = get()
         if (!state.runMenuOpen) return
-        const canResumeAutoCombat = (
-          state.screen === 'combat'
-          && state.run.status === 'active'
-          && state.profile.settings.autoCombat
-          && hasAutoCombatUnlocked(state.profile.talentRanks)
-        )
-        set({
-          runMenuOpen: false,
-          run: {
-            ...state.run,
-            automation: {
-              ...state.run.automation,
-              bankedMilliseconds: 0,
-              lastCheckpointAt: canResumeAutoCombat ? Date.now() : null,
-            },
-          },
-        })
+        set({ runMenuOpen: false })
       },
 
       leaveDungeonRun: () => {
@@ -1143,7 +1054,6 @@ export const useNewGameStore = create<NewGameState>()(
           screen: 'hub',
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
-          awayRecap: null,
           runMenuOpen: false,
         })
       },
@@ -1161,7 +1071,8 @@ export const useNewGameStore = create<NewGameState>()(
           getWorkshopDieFaces(state.profile.talentRanks),
           random,
           {
-          faceCap: getWorkshopFaceCap(state.profile.talentRanks),
+            costMultiplier: getWorkshopCostMultiplier(state.profile.talentRanks),
+            faceCap: getWorkshopFaceCap(state.profile.talentRanks),
           },
         )
         if (!pendingForge || state.profile.bankedSouls < pendingForge.cost) return null
@@ -1221,6 +1132,7 @@ export const useNewGameStore = create<NewGameState>()(
           die,
           faceId,
           getWorkshopFaceCap(state.profile.talentRanks),
+          getWorkshopCostMultiplier(state.profile.talentRanks),
         )
         if (!forged || state.profile.bankedSouls < forged.result.cost) return null
         set({
@@ -1264,7 +1176,6 @@ export const useNewGameStore = create<NewGameState>()(
           profile: createEarlyQolTestProfile(createInitialProfile()),
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
-          awayRecap: null,
           runMenuOpen: false,
         })
       },
@@ -1276,7 +1187,6 @@ export const useNewGameStore = create<NewGameState>()(
           profile: createPostDungeonOneDevProfile(createInitialProfile()),
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
-          awayRecap: null,
           runMenuOpen: false,
         })
       },
@@ -1287,7 +1197,6 @@ export const useNewGameStore = create<NewGameState>()(
           profile: createInitialProfile(),
           run: createInactiveRun(),
           combat: createCombatState(),
-          awayRecap: null,
           runMenuOpen: false,
         })
       },
@@ -1304,7 +1213,6 @@ export const useNewGameStore = create<NewGameState>()(
         profile: state.profile,
         run: state.run,
         combat: state.combat,
-        awayRecap: state.awayRecap,
       }) as NewGameState,
     },
   ),

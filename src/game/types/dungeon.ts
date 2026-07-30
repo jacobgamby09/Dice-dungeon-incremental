@@ -93,6 +93,10 @@ export interface EncounterReward {
   isBoss: boolean
   xp: number
   souls: number
+  baseXp?: number
+  baseSouls?: number
+  bonusXp?: number
+  bonusSouls?: number
   dungeonComplete: boolean
 }
 
@@ -102,24 +106,10 @@ export interface RunStats {
   enemiesDefeated: number
   soulsEarned: number
   xpEarned: number
-}
-
-export interface RunAutomationState {
-  bankedMilliseconds: number
-  lastCheckpointAt: number | null
-  randomSeed: number
-}
-
-export interface AwayRecap {
-  elapsedMilliseconds: number
-  enemiesDefeated: number
-  floorsAdvanced: number
-  fromFloor: number
-  outcome: 'active' | 'defeat' | 'boss_victory'
-  roundsAdvanced: number
-  soulsEarned: number
-  toFloor: number
-  xpEarned: number
+  baseXpEarned?: number
+  baseSoulsEarned?: number
+  bonusXpEarned?: number
+  bonusSoulsEarned?: number
 }
 
 export interface RunState {
@@ -129,7 +119,6 @@ export interface RunState {
   playerHp: number
   playerMaxHp: number
   runStats: RunStats
-  automation: RunAutomationState
   equippedDiceSnapshot: DieInstance[]
   enemy: EnemyState | null
   lastReward: EncounterReward | null

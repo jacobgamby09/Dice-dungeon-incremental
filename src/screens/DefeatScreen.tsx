@@ -65,6 +65,8 @@ export function DefeatScreen() {
       </section>
 
       <OutcomeRewards
+        bonusSouls={run.runStats.bonusSoulsEarned ?? 0}
+        bonusXp={run.runStats.bonusXpEarned ?? 0}
         heading="This descent"
         soulsEarned={run.runStats.soulsEarned}
         totalSouls={profile.souls}

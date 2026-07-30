@@ -38,6 +38,8 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies` og `Soul Harvest`, mens Fatecraft forbliver en ukøbbar fremtidssilhuet. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 15 migrerer det gamle Twin Arsenal uden tab.
+- **Offline-fremdrift er fjernet:** Auto Combat kører kun, mens spillet er åbent. Background fast-forward, away recap, checkpoints, simulatorlogik, state og CSS er fjernet; aktive runs persisteres stadig præcist.
 - **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Det store roll-felt forbliver rent sort i alle states; feedback er afgrænset til terning, transfer og destination. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
 - **Pixel Arcade er valgt som spillets officielle visuelle retning:** `DESIGN.md` version 2.1 fastlåser ren sort canvas, funktionelle mættede farver, tre niveauer af hårde pixelrammer, fysiske 3D-terninger som hero-objekter og Arcade Polish-kontrakten for læsbar feedback. Den tidligere diorama-reference er arkiveret i `DESIGN_LEGACY_DIORAMA.md`.
 - **Den canonical presentation layer er nu modulariseret på `codex/arcade-foundation-v1`:** det tidligere 1.100+ linjers test-override er flyttet fra `src/newGame.css` til tokens, shared, dice og screen-specifikke filer i `src/styles/arcade/`. Hubben viser ikke længere test/V2-copy, og Combat, Hub, Workshop, Talent Tree samt outcomes bruger et roligere sektion/handling-hierarki uden gameplay- eller saveændringer.
@@ -96,6 +98,9 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Fresh-save-playtest de syv samtidige valg efter Inner Spark og mål, om `Field Studies`, `Soul Harvest`, Auto Combat, Workshop og Arsenal alle føles konkurrencedygtige.
+2. Mål om spillere reelt vælger mellem `Second Grip` og `Striker Pattern`, eller om de to 16-XP-køb stadig opleves som ét obligatorisk 32-XP-køb.
+3. Balancér payback-tid for `Field Studies`, `Soul Harvest` og `Efficient Tools` mod de faktiske Dungeon 1-rewards og Workshop-priser.
 1. Gennemfør en fysisk iPhone/Safari-pass af den pushed Arcade Foundation + Arcade Polish: Hub, manuel/automatisk Combat, Workshop, Talent-køb samt Victory/Defeat.
 2. Stress seks samtidige player-dice fysisk under hurtig Auto Combat; DOM-regressioner dækker allerede seks player-dice og tre enemy-dice.
 3. Fresh-save-playtest V2 på iPhone og mål realtid til første kill, første totrins-Forge, Auto Combat, floor 3 og Twin Arsenal.
@@ -114,6 +119,10 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Talent Tree v3 giver syv købsmuligheder umiddelbart efter Inner Spark. Det øger agency markant, men kan være for bredt som første beslutningslag og skal fresh-save-testes.
+- Flat +XP/+Souls er bevidst valgt for at være synligt på lave Dungeon 1-rewards. De tre ranks kan blive for stærke i lange dungeons og skal sammenlignes med procentbaseret eller capped scaling efter fysisk test.
+- `Efficient Tools` stacker 20% multiplicativt per rank og afrunder hvert køb op. Det er læsbart og aldrig gratis, men enkelte lave priser kan give samme afrundede pris på to ranks.
+- Fatecraft er nu eksplicit ukøbbar fremtidsindhold. Charms og Charm currency findes stadig ikke.
 - Arcade Polish v1 er browser-verificeret ved 320×700, 384×844 og 430×932 uden horisontal overflow eller console warnings/errors. Fysisk Safari-timing, touch-følelse og seks samtidige player-dice under hurtig automation er fortsat den vigtigste åbne visuelle risiko.
 - Den canonical Pixel Arcade-layer er nu opdelt i screen- og tokenfiler, men `src/newGame.css` indeholder fortsat det ældre strukturelle layout under præsentationslaget. Nye arcade-regler skal blive i `src/styles/arcade/`; en senere strukturel konsolidering skal ske gradvist med visuelle regressionstests.
 - De nuværende detaljerede enemy-sprites er bevaret som aftalt. Det skal vurderes på fysisk mobil, om deres billedsprog passer til den simplere sort/hvide arcade-shell, før der bestilles eller bygges ny sprite-art.
@@ -207,6 +216,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-30 — Talent Tree v3, efficiency economy og live-only Auto Combat
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Det radiale Talent Tree er omlagt til et tæt sammenhængende net med North/West/South/East-identitet, syv første valg, alternative prerequisites og junctions der kan kræve et bestemt antal af flere forbundne nodes.
+- Beslutninger: `Twin Arsenal` er delt i `Second Grip` og `Striker Pattern`; East giver flat XP/Soul per kill; West kan reducere begge Workshop-priser; Fatecraft er en ukøbbar fremtidssilhuet og gamle køb refunderes fuldt; der findes ingen offline-fremdrift.
+- Berørte områder: Talent content/types/layout/icons/detail-overlay, reward pipeline og outcome-feedback, Workshop economy, simulator/dev-profiler, save-migration 15, Auto Combat, GDD, tests og Arcade CSS.
+- Validering: `npx tsc --noEmit`, 132 Vitest-tests, ESLint og production build grønne. Browser-verificeret på fresh QoL-save: Inner Spark afslører syv valg, Shieldcraft viser `Requires any 1`, Field Studies giver +1 XP og Victory viser `Includes +1 from talents`; ingen browser warnings/errors.
+- Kendte mangler: Fysisk mobil-playtest og endelig balance af efficiency-ranks mangler. Charm-systemet er fortsat deferred.
+- Git: Ikke committed.
 
 ### 2026-07-30 — Interaktiv Hub dice-carousel
 

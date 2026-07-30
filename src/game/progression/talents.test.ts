@@ -9,6 +9,7 @@ import {
   getTalentVisibility,
   getWorkshopDieFaces,
   getWorkshopFaceCap,
+  getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
   normalizeTalentRanks,
@@ -16,7 +17,7 @@ import {
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 14,
+    saveVersion: 15,
     xp,
     bankedSouls: 0,
     talentRanks,
@@ -47,7 +48,8 @@ describe('Classic V2 directional talent progression', () => {
       TALENT_IDS.twinArsenal,
       TALENT_IDS.volatileTemper,
       TALENT_IDS.autoCombat,
-      TALENT_IDS.fatecraft,
+      TALENT_IDS.fieldStudies,
+      TALENT_IDS.soulHarvest,
     ]) {
       expect(getTalentVisibility(ranks, TALENTS_BY_ID[talentId])).toBe('revealed')
     }
@@ -63,10 +65,13 @@ describe('Classic V2 directional talent progression', () => {
     expect(hasAutoCombatUnlocked({ ...ranks, [talent.id]: 1 })).toBe(true)
   })
 
-  it('grants the second die and its second slot as one Arsenal purchase', () => {
-    const talent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
-    expect(talent.ranks[0].effects).toEqual([
+  it('separates the second slot from the Striker Die purchase', () => {
+    const slotTalent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
+    const dieTalent = TALENTS_BY_ID[TALENT_IDS.strikerPattern]
+    expect(slotTalent.ranks[0].effects).toEqual([
       { type: 'dice_slots', amount: 1 },
+    ])
+    expect(dieTalent.ranks[0].effects).toEqual([
       { type: 'grant_die', dieId: 'attack-die-2' },
     ])
     expect(getDiceCapacity({
@@ -89,9 +94,38 @@ describe('Classic V2 directional talent progression', () => {
     expect(getWorkshopFaceCap(ranks)).toBe(7)
   })
 
-  it('keeps Fatecraft locked behind the first dungeon clear', () => {
+  it('supports alternative and counted junction prerequisites', () => {
+    const shieldcraft = TALENTS_BY_ID[TALENT_IDS.shieldcraft]
+    const thirdGrip = TALENTS_BY_ID[TALENT_IDS.thirdGrip]
+
+    expect(getTalentPurchaseReason(createProfile({
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.strikerPattern]: 1,
+    }, 999), shieldcraft)).toBeNull()
+    expect(getTalentPurchaseReason(createProfile({
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.strikerPattern]: 1,
+    }, 999), thirdGrip)).toBe('prerequisite')
+    expect(getTalentPurchaseReason(createProfile({
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.strikerPattern]: 1,
+      [TALENT_IDS.shieldcraft]: 1,
+    }, 999), thirdGrip)).toBeNull()
+  })
+
+  it('stacks Workshop cost reductions multiplicatively', () => {
+    expect(getWorkshopCostMultiplier({})).toBe(1)
+    expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 1 })).toBeCloseTo(0.8)
+    expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 3 })).toBeCloseTo(0.512)
+  })
+
+  it('keeps Fatecraft as a visible but unpurchasable future system', () => {
     const talent = TALENTS_BY_ID[TALENT_IDS.fatecraft]
-    const ranks = { [TALENT_IDS.battleHardenedOne]: 1 }
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.fieldStudies]: 1,
+      [TALENT_IDS.soulHarvest]: 1,
+    }
     const uncleared = createProfile(ranks, 999)
     const cleared = {
       ...uncleared,
@@ -101,8 +135,8 @@ describe('Classic V2 directional talent progression', () => {
       },
     }
 
-    expect(getTalentPurchaseReason(uncleared, talent)).toBe('dungeon')
-    expect(getTalentPurchaseReason(cleared, talent)).toBeNull()
+    expect(getTalentPurchaseReason(uncleared, talent)).toBe('prerequisite')
+    expect(getTalentPurchaseReason(cleared, talent)).toBe('prerequisite')
     expect(hasCharmsUnlocked({ ...ranks, [TALENT_IDS.fatecraft]: 1 })).toBe(true)
   })
 
@@ -130,14 +164,15 @@ describe('radial fog and silhouette visibility', () => {
       TALENT_IDS.twinArsenal,
       TALENT_IDS.volatileTemper,
       TALENT_IDS.autoCombat,
-      TALENT_IDS.fatecraft,
+      TALENT_IDS.fieldStudies,
+      TALENT_IDS.soulHarvest,
     ]) {
       expect(getTalentVisibility({}, TALENTS_BY_ID[talentId])).toBe('silhouette')
     }
     expect(getTalentVisibility(
       {},
-      TALENTS_BY_ID[TALENT_IDS.shieldcraft],
-    )).toBe('hidden')
+      TALENTS_BY_ID[TALENT_IDS.fatecraft],
+    )).toBe('silhouette')
   })
 
   it('reveals only one deeper layer along a purchased direction', () => {

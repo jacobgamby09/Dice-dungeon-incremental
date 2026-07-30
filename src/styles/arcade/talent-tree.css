@@ -232,6 +232,31 @@
   line-height: 1.25;
 }
 
+.talent-canvas-inspector__requirements,
+.talent-canvas-inspector__future {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  border-left: 4px solid var(--arcade-cyan);
+  padding: 8px 10px;
+  background: #07151a;
+  color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.talent-canvas-inspector__requirements span {
+  color: #b9eaf2;
+}
+
+.talent-canvas-inspector__future {
+  border-left-color: var(--arcade-purple);
+  background: #120b20;
+  color: #c8a8ff;
+}
+
 .talent-canvas-inspector__purchase {
   min-height: 48px;
   background: #45328f;

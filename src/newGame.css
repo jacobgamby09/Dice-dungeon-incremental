@@ -4407,105 +4407,6 @@
   text-transform: uppercase;
 }
 
-.away-recap {
-  position: fixed;
-  z-index: 200;
-  right: 12px;
-  bottom: max(12px, env(safe-area-inset-bottom));
-  left: 12px;
-  width: min(360px, calc(100% - 24px));
-  margin-inline: auto;
-  border: 4px solid #030308;
-  border-radius: 0;
-  background: #0b1119;
-  box-shadow:
-    0 0 0 100vmax rgba(2, 3, 8, 0.72),
-    7px 7px 0 #030308,
-    inset 0 3px 0 #256b78;
-  padding: 12px;
-  color: #d9faff;
-}
-
-.away-recap header {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-}
-
-.away-recap header > svg { color: #67e8f9; }
-.away-recap header > div { min-width: 0; }
-
-.away-recap header span {
-  display: block;
-  color: #62939c;
-  font-size: 0.42rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.away-recap h2 {
-  margin: 2px 0 0;
-  color: #edfdff;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
-.away-recap header button {
-  width: 34px;
-  height: 34px;
-  border: 2px solid #183640;
-  border-radius: 0;
-  background: #081016;
-  color: #a5dce2;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.away-recap > p {
-  margin: 10px 0;
-  color: #a7bbc1;
-  font-size: 0.56rem;
-  line-height: 1.45;
-}
-
-.away-recap dl {
-  margin: 0 0 11px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-}
-
-.away-recap dl > div {
-  border: 2px solid #101f29;
-  background: #060b11;
-  padding: 7px 5px;
-  display: grid;
-  gap: 3px;
-  text-align: center;
-}
-
-.away-recap dt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  color: #6f8d95;
-  font-size: 0.39rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.away-recap dd {
-  margin: 0;
-  color: #f1fdff;
-  font-size: 0.72rem;
-  font-weight: 900;
-}
-
-.away-recap > .pixel-button { width: 100%; min-height: 44px; }
-
 .run-menu-backdrop {
   position: fixed;
   z-index: 300;
@@ -4585,7 +4486,6 @@
 }
 
 .auto-combat-toggle:focus-visible,
-.away-recap button:focus-visible,
 .run-menu-trigger:focus-visible,
 .run-menu button:focus-visible {
   outline: 3px solid #fef08a;

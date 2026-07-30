@@ -7,7 +7,6 @@
 .outcome-stage,
 .outcome-summary,
 .run-menu,
-.away-recap,
 .die-details-panel {
   border-color: var(--arcade-white);
   border-radius: 0;
@@ -19,7 +18,6 @@
 .collection-header button,
 .forge-header button,
 .run-menu button,
-.away-recap button,
 .collection-details,
 .dungeon-card button {
   border-color: var(--arcade-white);
@@ -42,7 +40,6 @@
 .collection-die p,
 .outcome-summary p,
 .run-menu p,
-.away-recap p,
 .die-details-panel p {
   color: var(--arcade-muted);
   font-family: var(--arcade-font-ui);
@@ -55,7 +52,6 @@
 .collection-header button,
 .forge-header button,
 .run-menu button,
-.away-recap button,
 .collection-details,
 .dungeon-card button {
   min-height: 44px;
@@ -67,7 +63,6 @@
 .collection-die,
 .outcome-summary,
 .run-menu,
-.away-recap,
 .die-details-panel {
   border-width: var(--arcade-frame-section);
 }
@@ -137,4 +132,13 @@
   border: 2px solid var(--arcade-white);
   background: var(--reward-dark);
   box-shadow: none;
+}
+
+.outcome-reward em {
+  grid-column: 2;
+  color: var(--arcade-yellow);
+  font-size: 0.52rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }

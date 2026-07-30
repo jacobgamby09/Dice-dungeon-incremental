@@ -29,7 +29,6 @@ export function PostCombatScreen() {
     runStats: state.run.runStats,
   })))
   const profile = useNewGameStore(useShallow((state) => ({
-    automationPaused: state.awayRecap !== null,
     bankedSouls: state.profile.bankedSouls,
     autoCombat: state.profile.settings.autoCombat,
     xp: state.profile.xp,
@@ -37,7 +36,6 @@ export function PostCombatScreen() {
   const advanceToNextFloor = useNewGameStore((state) => state.advanceToNextFloor)
   const returnToHubAfterVictory = useNewGameStore((state) => state.returnToHubAfterVictory)
   const setAutoCombat = useNewGameStore((state) => state.setAutoCombat)
-  const checkpointAutoCombat = useNewGameStore((state) => state.checkpointAutoCombat)
   const prefersReducedMotion = useReducedMotion()
   const dungeonComplete = Boolean(run.lastReward?.dungeonComplete)
   const rewardFloor = run.lastReward?.floor ?? 0
@@ -45,21 +43,17 @@ export function PostCombatScreen() {
   useEffect(() => {
     if (
       !profile.autoCombat
-      || profile.automationPaused
       || dungeonComplete
       || rewardFloor <= 0
     ) return
     const timer = window.setTimeout(() => {
       advanceToNextFloor()
-      checkpointAutoCombat()
     }, AUTO_COMBAT_VICTORY_PAUSE_MS)
     return () => window.clearTimeout(timer)
   }, [
     advanceToNextFloor,
-    checkpointAutoCombat,
     dungeonComplete,
     profile.autoCombat,
-    profile.automationPaused,
     rewardFloor,
   ])
 
@@ -68,6 +62,12 @@ export function PostCombatScreen() {
   const dungeon = DUNGEONS[run.dungeonId]
   const rewardXp = dungeonComplete ? run.runStats.xpEarned : run.lastReward.xp
   const rewardSouls = dungeonComplete ? run.runStats.soulsEarned : run.lastReward.souls
+  const bonusXp = dungeonComplete
+    ? run.runStats.bonusXpEarned ?? 0
+    : run.lastReward.bonusXp ?? 0
+  const bonusSouls = dungeonComplete
+    ? run.runStats.bonusSoulsEarned ?? 0
+    : run.lastReward.bonusSouls ?? 0
   const nextFloorNumber = run.lastReward.floor + 1
   const buttonTransition = prefersReducedMotion
     ? REDUCED_MOTION_TRANSITION
@@ -116,6 +116,8 @@ export function PostCombatScreen() {
       </section>
 
       <OutcomeRewards
+        bonusSouls={bonusSouls}
+        bonusXp={bonusXp}
         heading={dungeonComplete ? 'This descent' : 'Battle rewards'}
         soulsEarned={rewardSouls}
         totalSouls={profile.bankedSouls}

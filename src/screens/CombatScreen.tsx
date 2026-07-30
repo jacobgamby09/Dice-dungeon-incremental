@@ -52,7 +52,7 @@ function scaledPresentationDelay(
 
 export function CombatScreen() {
   const profile = useNewGameStore(useShallow((state) => ({
-    automationPaused: state.awayRecap !== null || state.runMenuOpen,
+    automationPaused: state.runMenuOpen,
     bankedSouls: state.profile.bankedSouls,
     settings: state.profile.settings,
     talentRanks: state.profile.talentRanks,
@@ -85,7 +85,6 @@ export function CombatScreen() {
   const advanceRoundResolution = useNewGameStore((state) => state.advanceRoundResolution)
   const finishRoundResolution = useNewGameStore((state) => state.finishRoundResolution)
   const setAutoCombat = useNewGameStore((state) => state.setAutoCombat)
-  const checkpointAutoCombat = useNewGameStore((state) => state.checkpointAutoCombat)
   const runMenuOpen = useNewGameStore((state) => state.runMenuOpen)
   const openRunMenu = useNewGameStore((state) => state.openRunMenu)
   const closeRunMenu = useNewGameStore((state) => state.closeRunMenu)
@@ -138,12 +137,10 @@ export function CombatScreen() {
     if (resolutionStep === 'player' && resolution.enemyActed) {
       timers.push(window.setTimeout(() => {
         advanceRoundResolution()
-        checkpointAutoCombat()
       }, scaledPresentationDelay(720, 420, rollSpeed)))
     } else if (resolutionStep === 'enemy_heal') {
       timers.push(window.setTimeout(() => {
         advanceRoundResolution()
-        checkpointAutoCombat()
       }, scaledPresentationDelay(620, 360, rollSpeed)))
     } else if (resolutionStep === 'enemy_attack') {
       timers.push(window.setTimeout(() => {
@@ -164,19 +161,16 @@ export function CombatScreen() {
       }, 0))
       timers.push(window.setTimeout(() => {
         finishRoundResolution()
-        checkpointAutoCombat()
       }, scaledPresentationDelay(860, 520, rollSpeed)))
     } else {
       timers.push(window.setTimeout(() => {
         finishRoundResolution()
-        checkpointAutoCombat()
       }, scaledPresentationDelay(900, 480, rollSpeed)))
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
   }, [
     advanceRoundResolution,
-    checkpointAutoCombat,
     combat.lastResolution,
     combat.phase,
     combat.resolutionStep,
@@ -194,11 +188,9 @@ export function CombatScreen() {
     ) / rollSpeed
     const timer = window.setTimeout(() => {
       finishEnemyIntentReveal()
-      checkpointAutoCombat()
     }, revealDuration)
     return () => window.clearTimeout(timer)
   }, [
-    checkpointAutoCombat,
     combat.phase,
     finishEnemyIntentReveal,
     rollSpeed,
@@ -335,7 +327,6 @@ export function CombatScreen() {
         enemyMaxHp: run.enemy?.maxHp,
       },
     ).at(-1)
-    checkpointAutoCombat()
     setActiveRoll({ faceId: result.faceId, stage: 'rolling' })
 
     const landingTimer = window.setTimeout(() => {
@@ -391,7 +382,6 @@ export function CombatScreen() {
 
     rollTimers.current = [landingTimer]
   }, [
-    checkpointAutoCombat,
     combat.results,
     diceLeft,
     drawNextDie,
@@ -425,12 +415,10 @@ export function CombatScreen() {
     if (combat.phase !== 'awaiting_resolve' || isScoreAnimating) return
     const timer = window.setTimeout(() => {
       beginRoundResolution()
-      checkpointAutoCombat()
     }, scaledPresentationDelay(AUTO_COMBAT_RESOLVE_PAUSE_MS, 120, rollSpeed))
     return () => window.clearTimeout(timer)
   }, [
     beginRoundResolution,
-    checkpointAutoCombat,
     combat.phase,
     isScoreAnimating,
     profile.automationPaused,

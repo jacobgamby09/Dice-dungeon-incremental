@@ -27,6 +27,10 @@ export const TALENT_ICON_KEYS = [
   'volatile-temper',
   'face-mastery',
   'fate-seal',
+  'striker-pattern',
+  'soul-efficiency',
+  'xp-efficiency',
+  'workshop-efficiency',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -37,6 +41,9 @@ export type TalentEffect =
   | { type: 'roll_speed'; multiplier: number }
   | { type: 'workshop_die_faces'; values: WorkshopDieValues }
   | { type: 'face_cap'; amount: number }
+  | { type: 'xp_per_kill'; amount: number }
+  | { type: 'souls_per_kill'; amount: number }
+  | { type: 'workshop_cost_multiplier'; multiplier: number }
   | { type: 'unlock_auto_combat' }
   | { type: 'unlock_charms' }
   | { type: 'unlock_dungeon'; dungeonId: DungeonId }
@@ -58,6 +65,8 @@ export interface TalentDefinition {
   description: string
   iconKey: TalentIconKey
   prerequisiteIds: string[]
+  prerequisiteCount?: number
+  availability?: 'available' | 'future'
   requirements?: TalentRequirement[]
   ranks: TalentRankDefinition[]
   track: TalentTrack

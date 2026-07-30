@@ -98,6 +98,31 @@ export function getWorkshopFaceCap(
   )
 }
 
+export function getXpRewardBonus(talentRanks: Readonly<TalentRanks>): number {
+  return getPurchasedEffects(talentRanks).reduce(
+    (total, effect) => total + (effect.type === 'xp_per_kill' ? effect.amount : 0),
+    0,
+  )
+}
+
+export function getSoulRewardBonus(talentRanks: Readonly<TalentRanks>): number {
+  return getPurchasedEffects(talentRanks).reduce(
+    (total, effect) => total + (effect.type === 'souls_per_kill' ? effect.amount : 0),
+    0,
+  )
+}
+
+export function getWorkshopCostMultiplier(
+  talentRanks: Readonly<TalentRanks>,
+): number {
+  return getPurchasedEffects(talentRanks).reduce(
+    (multiplier, effect) => (
+      multiplier * (effect.type === 'workshop_cost_multiplier' ? effect.multiplier : 1)
+    ),
+    1,
+  )
+}
+
 export function hasCharmsUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_charms')
 }
@@ -106,7 +131,12 @@ export function areTalentPrerequisitesMet(
   talentRanks: Readonly<TalentRanks>,
   talent: TalentDefinition,
 ): boolean {
-  return talent.prerequisiteIds.every((id) => isTalentPurchased(talentRanks, id))
+  const requiredCount = Math.min(
+    talent.prerequisiteIds.length,
+    talent.prerequisiteCount ?? talent.prerequisiteIds.length,
+  )
+  return talent.prerequisiteIds.filter((id) => isTalentPurchased(talentRanks, id)).length
+    >= requiredCount
 }
 
 export function areTalentRequirementsMet(
@@ -125,6 +155,7 @@ export function getTalentPurchaseReason(
 ): TalentPurchaseReason | null {
   const nextRank = getNextTalentRank(profile.talentRanks, talent)
   if (!nextRank) return 'maxed'
+  if (talent.availability === 'future') return 'prerequisite'
   if (!areTalentPrerequisitesMet(profile.talentRanks, talent)) return 'prerequisite'
   if (!areTalentRequirementsMet(profile, talent)) return 'dungeon'
   if (profile.xp < nextRank.cost) return 'xp'
@@ -142,21 +173,26 @@ export function getTalentVisibility(
   visited: ReadonlySet<string> = new Set(),
 ): TalentVisibility {
   if (talent.prerequisiteIds.length === 0) return 'revealed'
+  if (talent.availability === 'future') return 'silhouette'
   if (isTalentPurchased(talentRanks, talent.id)) return 'revealed'
   if (areTalentPrerequisitesMet(talentRanks, talent)) return 'revealed'
   if (visited.has(talent.id)) return 'hidden'
 
   const nextVisited = new Set(visited)
   nextVisited.add(talent.id)
-  const prerequisitesAreRevealed = talent.prerequisiteIds.every((prerequisiteId) => {
+  const revealedPrerequisiteCount = talent.prerequisiteIds.filter((prerequisiteId) => {
     const prerequisite = TALENTS_BY_ID[prerequisiteId]
     return Boolean(
       prerequisite
       && getTalentVisibility(talentRanks, prerequisite, nextVisited) === 'revealed',
     )
-  })
+  }).length
+  const requiredCount = Math.min(
+    talent.prerequisiteIds.length,
+    talent.prerequisiteCount ?? talent.prerequisiteIds.length,
+  )
 
-  return prerequisitesAreRevealed ? 'silhouette' : 'hidden'
+  return revealedPrerequisiteCount >= requiredCount ? 'silhouette' : 'hidden'
 }
 
 export function normalizeTalentRanks(candidate: unknown): TalentRanks {

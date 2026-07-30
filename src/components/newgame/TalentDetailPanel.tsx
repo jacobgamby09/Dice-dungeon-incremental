@@ -11,10 +11,14 @@ import {
   Flame,
   Gauge,
   Gem,
+  BookOpen,
+  Coins,
+  Hammer,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
+import { TALENTS_BY_ID } from '../../game/content/talents'
 import type {
   TalentDefinition,
   TalentEffect,
@@ -46,6 +50,9 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   unlock_auto_combat: Bot,
   unlock_charms: Gem,
   unlock_dungeon: Map,
+  xp_per_kill: BookOpen,
+  souls_per_kill: Coins,
+  workshop_cost_multiplier: Hammer,
 }
 
 function getEffectLabel(effect: TalentEffect): string {
@@ -68,6 +75,12 @@ function getEffectLabel(effect: TalentEffect): string {
       return 'Unlock Charm System'
     case 'unlock_dungeon':
       return 'Unlock The Iron Descent'
+    case 'xp_per_kill':
+      return `+${effect.amount} XP per Enemy`
+    case 'souls_per_kill':
+      return `+${effect.amount} Soul per Enemy`
+    case 'workshop_cost_multiplier':
+      return `${Math.round((1 - effect.multiplier) * 100)}% Cheaper Workshop`
   }
 }
 
@@ -108,6 +121,15 @@ export function TalentDetailPanel({
   const grantedDie = grantedDieEffect?.type === 'grant_die'
     ? createDieById(grantedDieEffect.dieId)
     : null
+  const prerequisiteNames = talent?.prerequisiteIds
+    .map((id) => TALENTS_BY_ID[id]?.name)
+    .filter((name): name is string => Boolean(name)) ?? []
+  const prerequisiteCount = talent
+    ? Math.min(
+        talent.prerequisiteIds.length,
+        talent.prerequisiteCount ?? talent.prerequisiteIds.length,
+      )
+    : 0
 
   useEffect(() => {
     if (!talent) return
@@ -183,6 +205,23 @@ export function TalentDetailPanel({
                 )
               })}
             </div>
+
+            {prerequisiteNames.length > 0 && (
+              <p className="talent-canvas-inspector__requirements">
+                <strong>
+                  {prerequisiteCount < prerequisiteNames.length
+                    ? `Requires any ${prerequisiteCount}`
+                    : 'Requires'}
+                </strong>
+                <span>{prerequisiteNames.join(' · ')}</span>
+              </p>
+            )}
+
+            {talent.availability === 'future' && (
+              <p className="talent-canvas-inspector__future">
+                Future system · visible for orientation, not purchasable yet.
+              </p>
+            )}
 
             {grantedDie ? (
               <section className="talent-canvas-inspector__die-preview">
