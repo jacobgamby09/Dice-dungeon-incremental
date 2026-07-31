@@ -38,10 +38,11 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Equipped Charms kan nu inspiceres direkte i Combat:** Hver Charm-counter er en semantisk knap, der åbner et mobiltilpasset rarity-farvet overlay med navn, rank, aktuel effekt, flavor og næste rank. Overlayet ligger over hele Combat-stacken, kan lukkes med knap eller Escape og ændrer ingen gameplay-state. Dungeon 2 + Fatecraft-devprofilen giver nu 1000 Fate Tokens til gentagne rarity- og duplicate-tests.
 - **Charm rarity- og power-overhalingen er færdig lokalt på `codex/arcade-foundation-v1`:** Fate Draw vælger nu Common/Rare/Epic/Legendary med 50/30/15/5-basisvægte, og Legendary bruger orange. De otte Charms er opdelt tydeligt efter rarity og har direkte, mærkbare effekter. Der findes ingen første-draw-garanti eller baseline rarity-pity; `Fate's Favor` tilføjer synlig Epic+/Legendary-beskyttelse gennem tre Talent Tree-ranks. Save-version 20 migrerer eksisterende Charm-saves, og to nye Legendary-assets dækker Crimson Oath og Unbroken Wall.
 - **Hub-systemerne har nu entydige handlingsfarver:** Dungeon er rød, Talent Tree og dets globale systemaccent er grøn, Loadout er cyan, Workshop er gul, og Fate Sanctum forbliver lilla. Charm-reelen har ikke længere et scanline-lag hen over symbolerne. Alle tre dice-slot-talenter bruger samme Dices-ikon, én permanent die centreres i Hub, Soul Die-ikon og faces deler baseline, og køb af en ny slot fylder automatisk pladsen med en allerede ejet reserve-die uden at omarrangere loadout.
 - **Fate Draw og egne valutaikoner er implementeret på `codex/arcade-foundation-v1`:** Et Draw fastlåser ét resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel-animation, landing, partikler og reload-sikker claim. XP og Souls bruger egne pixel-assets konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes; Charm-rarity og save-version 20 er beskrevet i den nyere status ovenfor.
-- **Hubben har nu et direkte Dungeon 2 + Fatecraft-devstart:** Profilen er et realistisk post-Dungeon-1-snapshot med The Iron Descent åben, Fatecraft købt, ét tomt Charm-slot, 5 Fate Tokens, 0 Charms og 0 skjult pity. Første Fate Draw kan derfor testes med det samme, mens det efterfølgende drop-flow fortsat starter rent.
+- **Hubben har nu et direkte Dungeon 2 + Fatecraft-devstart:** Profilen er et realistisk post-Dungeon-1-snapshot med The Iron Descent åben, Fatecraft købt, ét tomt Charm-slot, 1000 Fate Tokens, 0 Charms og 0 skjult pity. Den er bevidst testkapital til mange gentagne Fate Draws, mens det efterfølgende drop-flow fortsat starter rent.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
 - **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
 - **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
@@ -240,6 +241,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Combat Charm-inspector og 1000 DEV Tokens
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Equipped Charms kan trykkes direkte i Combat og viser et fuldt detail-overlay med rarity, rank, aktuel effekt, flavor og næste rank. Dungeon 2 + Fatecraft-devprofilen giver 1000 Fate Tokens i stedet for 5.
+- Beslutninger: Inspector-overlayet er rent informativt og ændrer eller pauser ikke combat-state. Det renderes øverst i dokumentlaget for at undgå, at Combat-panelers stacking contexts tegner over modalens indhold.
+- Berørte områder: Combat Charm-bar og Fate-styling, Fatecraft-devpreset, Hub-copy, preset/store-tests og denne progress-log.
+- Validering: TypeScript og 36 Vitest-filer / 167 tests er grønne før slutpasset. Browser-pass ved 384×844 bekræfter hele inspector-teksten, ingen horisontal overflow eller console warnings/errors samt præcis 1000 Fate Tokens efter indlæsning af devprofilen.
+- Kendte mangler: Inspector åbner uden at pause aktiv Auto Combat; det er bevidst i dette pass, men kan revurderes efter playtest.
+- Git: Ikke committed endnu.
 
 ### 2026-07-31 — Charm rarity, power og Fate's Favor
 

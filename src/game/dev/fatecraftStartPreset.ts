@@ -4,7 +4,7 @@ import { createPostDungeonOneDevProfile } from './postDungeonOnePreset'
 
 export const FATECRAFT_START_DEV_PRESET = {
   charmSlots: 1,
-  fateTokens: 5,
+  fateTokens: 1000,
   ownedCharms: 0,
   pity: 0,
 } as const

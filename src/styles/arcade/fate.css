@@ -542,6 +542,11 @@
 
 .combat-charm {
   --charm-accent: var(--arcade-purple);
+  appearance: none;
+  color: var(--arcade-white);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   flex: 0 0 auto;
   min-width: 94px;
   height: 38px;
@@ -584,6 +589,115 @@
 .combat-charm[data-rarity='rare'] { border-width: 2px; }
 .combat-charm[data-rarity='epic'] { box-shadow: inset 0 0 0 1px var(--charm-accent); }
 .combat-charm[data-rarity='legendary'] { border-width: 2px; box-shadow: 2px 2px 0 #3d1b08; }
+
+.combat-charm:focus-visible {
+  outline: 2px solid var(--arcade-yellow);
+  outline-offset: 2px;
+}
+
+.combat-charm-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgb(0 0 0 / 88%);
+}
+
+.combat-charm-detail {
+  position: relative;
+  width: min(100%, 344px);
+  border: 3px solid var(--rarity-accent);
+  box-shadow: 6px 6px 0 var(--rarity-dark), inset 0 0 0 2px var(--arcade-white);
+  background: var(--arcade-black);
+  padding: 22px 18px 18px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.combat-charm-detail::before,
+.combat-charm-detail::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 34px;
+  border: 2px solid var(--rarity-accent);
+  background: var(--rarity-dark);
+  transform: translateY(-50%);
+}
+
+.combat-charm-detail::before { left: -9px; }
+.combat-charm-detail::after { right: -9px; }
+
+.combat-charm-detail__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.combat-charm-detail .charm-icon {
+  filter: drop-shadow(0 0 8px var(--rarity-accent));
+}
+
+.combat-charm-detail__rarity,
+.combat-charm-detail > strong,
+.combat-charm-detail__max,
+.combat-charm-detail__next > span {
+  color: var(--rarity-accent);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.combat-charm-detail h2 {
+  margin: 0;
+  font-family: var(--arcade-font-display);
+  font-size: 1.25rem;
+  line-height: 1.05;
+}
+
+.combat-charm-detail p {
+  margin: 0;
+}
+
+.combat-charm-detail__effect {
+  width: 100%;
+  border-block: 2px solid var(--rarity-accent);
+  padding: 13px 5px;
+  color: var(--arcade-white);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.combat-charm-detail__flavor {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.64rem;
+  line-height: 1.4;
+}
+
+.combat-charm-detail__next {
+  width: 100%;
+  border: 1px solid var(--rarity-accent);
+  background: color-mix(in srgb, var(--rarity-accent) 8%, var(--arcade-black));
+  padding: 9px;
+  display: grid;
+  gap: 5px;
+}
+
+.combat-charm-detail__next p {
+  font-family: var(--arcade-font-ui);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
 
 .hub-action--fate {
   --action-color: var(--arcade-purple);
