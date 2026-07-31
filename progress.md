@@ -246,7 +246,7 @@ Brug denne skabelon:
 - Berørte områder: Fate Draw-overlay/CSS, talentindhold og inspector, Talent Tree/Hub-CSS, Hub/Soul Die-præsentation, talent purchase-transition, tests, GDD og designreference.
 - Validering: TypeScript, Vitest, ESLint, production build samt 384×844 browserpass af fresh Hub, Talent Tree og reel-animation.
 - Kendte mangler: Den fysiske iPhone/Safari-pass er fortsat nødvendig for subjektiv touch- og alignment-godkendelse.
-- Git: Ikke committed.
+- Git: Implementering committed som `d9e52b8` på `codex/arcade-foundation-v1`; dokumentationsstatus registreres i efterfølgende log-commit.
 
 ### 2026-07-31 — Ét Fate Draw i Fatecraft-devstart
 
