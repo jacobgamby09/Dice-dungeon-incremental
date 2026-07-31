@@ -256,7 +256,7 @@ Brug denne skabelon:
 - Berørte områder: Nyt `content-ideas.md` og denne progress-log.
 - Validering: Dokumentet er gennemlæst for sammenhæng med incremental-first-retningen, eksisterende valutaer og beslutningen om ingen offline-progression.
 - Kendte mangler: Ingen af idéerne har endnu priser, præcise tal, produktionsestimater eller implementeringsscope.
-- Git: Ikke committed endnu.
+- Git: `9d48dda` på `codex/arcade-foundation-v1`; dokumentationsstatus følger i næste log-commit.
 
 ### 2026-07-31 — Mere læsbare Charm-kort
 
