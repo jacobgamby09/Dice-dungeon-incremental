@@ -157,45 +157,250 @@
   image-rendering: pixelated;
 }
 
-.fate-offers {
+.fate-machine-overlay {
+  position: fixed;
+  z-index: 100;
+  inset-block: 0;
+  left: 50%;
+  width: min(100%, 384px);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    rgba(0, 0, 0, 0.94);
+  padding:
+    max(12px, env(safe-area-inset-top))
+    12px
+    max(12px, env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  margin-top: 12px;
+  place-items: center;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: translateX(-50%);
 }
 
-.fate-offer {
-  min-height: 190px;
-  border: 2px solid #3a3a44;
-  background: #07070b;
-  color: var(--arcade-muted);
-  padding: 8px 5px;
-  display: flex;
-  flex-direction: column;
+.fate-machine {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+  border: 4px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow:
+    7px 7px 0 #210d37,
+    inset 0 0 0 3px #291345;
+  padding: 18px 14px 16px;
+  display: grid;
+  gap: 16px;
+  text-align: center;
+}
+
+.fate-machine *,
+.fate-machine *::before,
+.fate-machine *::after {
+  box-sizing: border-box;
+}
+
+.fate-machine::before,
+.fate-machine::after {
+  position: absolute;
+  top: 45%;
+  width: 12px;
+  height: 38px;
+  border: 2px solid var(--arcade-purple);
+  background: #180a29;
+  content: '';
+}
+
+.fate-machine::before { left: -10px; }
+.fate-machine::after { right: -10px; }
+
+.fate-machine > header {
+  border-bottom: 2px solid #432467;
+  padding-bottom: 12px;
+}
+
+.fate-machine > header h2 {
+  margin-top: 4px;
+  color: var(--charm-accent);
+  font-size: 1.28rem;
+  text-shadow: 3px 3px 0 #000;
+}
+
+.fate-reel {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 148px) 42px;
   align-items: center;
   justify-content: center;
   gap: 6px;
 }
 
-.fate-offer.is-revealed {
-  border-color: var(--charm-accent);
-  background: color-mix(in srgb, var(--charm-accent) 14%, var(--arcade-black));
-  color: var(--arcade-white);
-  animation: fate-reveal 360ms steps(5, end) both;
+.fate-reel__ghost {
+  opacity: 0.2;
+  filter: grayscale(0.7) brightness(0.65);
 }
 
-.fate-offer strong {
+.fate-reel__window {
+  position: relative;
+  height: 156px;
+  overflow: hidden;
+  border: 4px solid var(--arcade-white);
+  background:
+    linear-gradient(180deg, #12091c, #050208 45%, #180a26);
+  box-shadow:
+    0 0 0 3px #4d2571,
+    0 0 24px color-mix(in srgb, var(--charm-accent) 38%, transparent);
+  display: grid;
+  place-items: center;
+}
+
+.fate-reel__window::before,
+.fate-reel__window::after {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  left: 0;
+  height: 32px;
+  content: '';
+  pointer-events: none;
+}
+
+.fate-reel__window::before {
+  top: 0;
+  background: linear-gradient(#050208, transparent);
+}
+
+.fate-reel__window::after {
+  bottom: 0;
+  background: linear-gradient(transparent, #050208);
+}
+
+.fate-reel__scanline {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--charm-accent) 75%, #fff);
+  box-shadow: 0 0 9px var(--charm-accent);
+  opacity: 0.7;
+  animation: fate-scan 720ms steps(8, end) infinite;
+}
+
+.fate-reel__symbol {
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 0 9px var(--charm-accent));
+  animation: fate-reel-tick 110ms steps(3, end) both;
+}
+
+.fate-machine-overlay.is-landed .fate-reel__symbol {
+  animation: fate-reel-land 520ms steps(7, end) both;
+}
+
+.fate-machine-overlay.is-landed .fate-reel__scanline {
+  display: none;
+}
+
+.fate-reel__marker {
+  position: absolute;
+  z-index: 5;
+  top: calc(50% - 7px);
+  width: 12px;
+  height: 14px;
+  background: var(--charm-accent);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.fate-reel__marker--left { left: 3px; }
+.fate-reel__marker--right { right: 3px; transform: rotate(180deg); }
+
+.fate-machine__spinning {
+  margin: 0;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.62rem;
+}
+
+.fate-machine__result {
+  position: relative;
+  border: 2px solid var(--charm-accent);
+  background: color-mix(in srgb, var(--charm-accent) 13%, #050207);
+  box-shadow: inset 5px 0 0 var(--charm-accent);
+  padding: 14px 12px 12px;
+  display: grid;
+  gap: 6px;
+  animation: fate-result-impact 500ms steps(7, end) both;
+}
+
+.fate-machine__result > strong {
+  color: var(--arcade-white);
   font-family: var(--arcade-font-display);
-  font-size: 0.65rem;
+  font-size: 1rem;
   text-transform: uppercase;
 }
 
-.fate-offer span,
-.fate-offer small {
+.fate-machine__result > span {
+  color: var(--charm-accent);
   font-family: var(--arcade-font-ui);
-  font-size: 0.48rem;
-  line-height: 1.25;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
+
+.fate-machine__result > p {
+  margin: 2px auto 6px;
+  max-width: 270px;
+  color: #d7d1dc;
+  font-family: var(--arcade-font-ui);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.fate-machine__result > button {
+  position: relative;
+  z-index: 2;
+}
+
+.fate-machine__particles {
+  position: absolute;
+  z-index: 1;
+  inset: -24px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fate-machine__particles span {
+  --particle-x: 0px;
+  --particle-y: -22px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--charm-accent);
+  box-shadow: 0 0 7px var(--charm-accent);
+  animation: fate-particle 720ms steps(8, end) both;
+}
+
+.fate-machine__particles span:nth-child(1) { --particle-x: -126px; --particle-y: -54px; }
+.fate-machine__particles span:nth-child(2) { --particle-x: -94px; --particle-y: -88px; }
+.fate-machine__particles span:nth-child(3) { --particle-x: -48px; --particle-y: -102px; }
+.fate-machine__particles span:nth-child(4) { --particle-x: 18px; --particle-y: -104px; }
+.fate-machine__particles span:nth-child(5) { --particle-x: 78px; --particle-y: -83px; }
+.fate-machine__particles span:nth-child(6) { --particle-x: 124px; --particle-y: -44px; }
+.fate-machine__particles span:nth-child(7) { --particle-x: -128px; --particle-y: 38px; }
+.fate-machine__particles span:nth-child(8) { --particle-x: -82px; --particle-y: 76px; }
+.fate-machine__particles span:nth-child(9) { --particle-x: -24px; --particle-y: 94px; }
+.fate-machine__particles span:nth-child(10) { --particle-x: 34px; --particle-y: 92px; }
+.fate-machine__particles span:nth-child(11) { --particle-x: 86px; --particle-y: 70px; }
+.fate-machine__particles span:nth-child(12) { --particle-x: 126px; --particle-y: 32px; }
 
 .charm-grid {
   display: grid;
@@ -350,10 +555,38 @@
   font-size: 0.54rem;
 }
 
-@keyframes fate-reveal {
-  0% { opacity: 0; transform: translateY(12px) rotate(-2deg); }
-  60% { opacity: 1; transform: translateY(-3px) rotate(1deg); }
-  100% { opacity: 1; transform: translateY(0) rotate(0); }
+@keyframes fate-scan {
+  from { top: 8px; }
+  to { top: 144px; }
+}
+
+@keyframes fate-reel-tick {
+  0% { opacity: 0; transform: translateY(-28px) scaleY(1.12); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+@keyframes fate-reel-land {
+  0% { opacity: 0.4; transform: translateY(-18px) scale(0.85); }
+  55% { opacity: 1; transform: translateY(5px) scale(1.16); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fate-result-impact {
+  0% { opacity: 0; transform: translateY(10px) scale(0.94); }
+  55% { opacity: 1; transform: translateY(-3px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fate-particle {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(-50% + var(--particle-x)),
+      calc(-50% + var(--particle-y))
+    ) scale(0);
+  }
 }
 
 @keyframes charm-proc {
@@ -364,11 +597,20 @@
 }
 
 @media (max-width: 360px) {
-  .fate-offers {
-    grid-template-columns: 1fr;
+  .fate-machine {
+    padding-inline: 10px;
   }
 
-  .fate-offer {
-    min-height: 128px;
+  .fate-reel {
+    grid-template-columns: 34px minmax(0, 136px) 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fate-reel__scanline,
+  .fate-reel__symbol,
+  .fate-machine__result,
+  .fate-machine__particles span {
+    animation: none !important;
   }
 }

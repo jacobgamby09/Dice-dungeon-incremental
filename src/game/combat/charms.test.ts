@@ -25,7 +25,7 @@ describe('Charm combat engine', () => {
     let state = createCharmRunState()
     let result = attackRoll(1)
     for (let index = 0; index < 5; index += 1) {
-      const applied = applyRollCharms(attackRoll(1), charms, state)
+      const applied = applyRollCharms(attackRoll(1), charms, state, 1)
       state = applied.state
       result = applied.result
     }
@@ -35,21 +35,31 @@ describe('Charm combat engine', () => {
 
   it('rewards matching consecutive raw values through Echo Knot', () => {
     const charms: CharmSnapshot[] = [{ id: 'echo-knot', rank: 2 }]
-    const first = applyRollCharms(attackRoll(2), charms, createCharmRunState())
-    const second = applyRollCharms(attackRoll(2), charms, first.state)
+    const first = applyRollCharms(attackRoll(2), charms, createCharmRunState(), 2)
+    const second = applyRollCharms(attackRoll(2), charms, first.state, 2)
     expect(second.result.charmBonus).toBe(2)
   })
 
-  it('arms Low Omen after three ones and spends it on the next roll', () => {
+  it('arms Low Omen after three below-average rolls and spends it on the next roll', () => {
     const charms: CharmSnapshot[] = [{ id: 'low-omen', rank: 1 }]
     let state = createCharmRunState()
     for (let index = 0; index < 3; index += 1) {
-      state = applyRollCharms(attackRoll(1), charms, state).state
+      state = applyRollCharms(attackRoll(4), charms, state, 4.5).state
     }
     expect(state.pendingLowOmenBonus).toBe(2)
-    const next = applyRollCharms(attackRoll(3), charms, state)
+    const next = applyRollCharms(attackRoll(6), charms, state, 4.5)
     expect(next.result.charmBonus).toBe(2)
     expect(next.state.pendingLowOmenBonus).toBe(0)
+  })
+
+  it('does not treat a uniform die as a source of Low Omen stacks', () => {
+    const charms: CharmSnapshot[] = [{ id: 'low-omen', rank: 1 }]
+    let state = createCharmRunState()
+    for (let index = 0; index < 6; index += 1) {
+      state = applyRollCharms(attackRoll(5), charms, state, 5).state
+    }
+    expect(state.lowRolls).toBe(0)
+    expect(state.pendingLowOmenBonus).toBe(0)
   })
 
   it('grants Ward Clock Shield on the sixth round', () => {

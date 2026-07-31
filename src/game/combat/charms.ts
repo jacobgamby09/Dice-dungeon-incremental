@@ -40,6 +40,7 @@ export function applyRollCharms(
   result: RollResult,
   snapshots: readonly CharmSnapshot[],
   state: Readonly<CharmRunState>,
+  dieAverage: number,
 ): {
   result: RollResult
   state: CharmRunState
@@ -74,7 +75,11 @@ export function applyRollCharms(
       bonus += effect.bonus
       triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, result.type))
     }
-    if (effect.type === 'low_omen' && result.value === 1) {
+    if (
+      effect.type === 'low_omen'
+      && Number.isFinite(dieAverage)
+      && result.value < dieAverage
+    ) {
       nextState.lowRolls += 1
       if (nextState.lowRolls >= effect.threshold) {
         nextState.lowRolls = 0

@@ -1,6 +1,7 @@
 import { ChevronLeft, LocateFixed, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TalentDetailPanel } from '../components/newgame/TalentDetailPanel'
+import { CurrencyIcon } from '../components/newgame/CurrencyIcon'
 import { TalentTreeCanvas } from '../components/newgame/TalentTreeCanvas'
 import type {
   TalentCanvasFocusRequest,
@@ -265,7 +266,7 @@ export function TalentTreeScreen() {
           aria-label={`${xp} permanent XP available`}
           className={`talent-canvas-xp${ceremony ? ' talent-canvas-xp--spending' : ''}`}
         >
-          <Sparkles aria-hidden="true" size={15} />
+          <CurrencyIcon currency="xp" size={18} />
           <strong>{xp}</strong>
           <span>XP</span>
           <small>{affordableUpgradeCount} available</small>

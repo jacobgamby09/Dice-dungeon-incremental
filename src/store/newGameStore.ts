@@ -12,6 +12,7 @@ import { addRollEffects, rollDie } from '../game/combat/rollDie'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { resolveRound } from '../game/combat/resolveRound'
 import { createDieById, createStartingDice } from '../game/content/dice'
+import { CHARM_DEFINITIONS } from '../game/content/charms'
 import { DUNGEONS } from '../game/content/dungeons'
 import { getEnemyDie } from '../game/content/enemyDice'
 import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/content/enemies'
@@ -125,7 +126,7 @@ export interface NewGameState {
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
   evolveFace: (dieId: string, faceId: string, evolutionId: FaceEvolutionId) => boolean
   beginFateDraw: (operationId: string, random?: () => number) => PendingFateDraw | null
-  claimFateCharm: (charmId: CharmId) => boolean
+  claimFateCharm: () => boolean
   equipCharm: (charmId: CharmId) => boolean
   unequipCharm: (charmId: CharmId) => boolean
   loadEarlyQolDevPreset: () => void
@@ -134,7 +135,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 18
+const SAVE_VERSION = 19
 const LEGACY_FATECRAFT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
@@ -384,8 +385,40 @@ function migratePendingWorkshopForge(
   }
 }
 
+type LegacyPendingFateDraw = Partial<PendingFateDraw> & {
+  offeredCharmIds?: CharmId[]
+}
+
+function migratePendingFateDraw(
+  pending: LegacyPendingFateDraw | null | undefined,
+): PendingFateDraw | null {
+  if (!pending?.operationId) return null
+  const selectedCharmId = pending.selectedCharmId ?? pending.offeredCharmIds?.[0]
+  if (!selectedCharmId || !CHARM_DEFINITIONS[selectedCharmId]) return null
+  return {
+    operationId: pending.operationId,
+    selectedCharmId,
+    cost: Number.isFinite(pending.cost)
+      ? Math.max(0, Math.floor(pending.cost ?? FATE_DRAW_COST))
+      : FATE_DRAW_COST,
+  }
+}
+
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 18) {
+    const persisted = persistedState as NewGameState
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        pendingFateDraw: migratePendingFateDraw(
+          persisted.profile?.pendingFateDraw as LegacyPendingFateDraw,
+        ),
+      },
+    }
+  }
   if (version === 17) {
     const persisted = persistedState as NewGameState
     const talentRanks = normalizeTalentRanks(persisted.profile?.talentRanks)
@@ -399,6 +432,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         ...persisted.profile,
         saveVersion: SAVE_VERSION,
         talentRanks,
+        pendingFateDraw: migratePendingFateDraw(
+          persisted.profile?.pendingFateDraw as LegacyPendingFateDraw,
+        ),
         pendingWorkshopForge: migratedPending,
       },
     }
@@ -419,7 +455,9 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
           ? Math.max(0, persisted.profile?.fatePity ?? 0)
           : 0,
         pendingFateDraw: hasCharmsUnlocked(talentRanks)
-          ? persisted.profile?.pendingFateDraw ?? null
+          ? migratePendingFateDraw(
+            persisted.profile?.pendingFateDraw as LegacyPendingFateDraw,
+          )
           : null,
         pendingWorkshopForge: migratePendingWorkshopForge(
           persisted.profile?.pendingWorkshopForge,
@@ -836,6 +874,7 @@ export const useNewGameStore = create<NewGameState>()(
           rolledResult,
           state.run.equippedCharmSnapshot,
           state.run.charmState,
+          die.faces.reduce((total, face) => total + face.value, 0) / die.faces.length,
         )
         const result = charmRoll.result
         const allDiceDrawn = remainingDieIds.length === 0
@@ -1498,12 +1537,12 @@ export const useNewGameStore = create<NewGameState>()(
         return pendingFateDraw
       },
 
-      claimFateCharm: (charmId) => {
+      claimFateCharm: () => {
         const state = get()
         const pendingDraw = state.profile.pendingFateDraw
         if (state.run.status !== 'inactive' || !pendingDraw) return false
         if (state.profile.recentFateOperationIds.includes(pendingDraw.operationId)) return false
-        const charmRanks = claimFateDraw(state.profile.charmRanks, pendingDraw, charmId)
+        const charmRanks = claimFateDraw(state.profile.charmRanks, pendingDraw)
         if (!charmRanks) return false
         set({
           profile: {

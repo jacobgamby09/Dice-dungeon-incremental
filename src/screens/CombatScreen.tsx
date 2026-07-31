@@ -4,7 +4,6 @@ import {
   DoorOpen,
   Droplets,
   FastForward,
-  Flame,
   Heart,
   Pause,
   Swords,
@@ -13,6 +12,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { EnemySprite } from '../components/EnemySprite'
 import { EnemyDamageTransfer } from '../components/newgame/EnemyDamageTransfer'
 import { CombatCharmBar } from '../components/newgame/CombatCharmBar'
+import { CurrencyIcon } from '../components/newgame/CurrencyIcon'
 import type { EnemyDamageTransferPath } from '../components/newgame/EnemyDamageTransfer'
 import { EnemyIntentTray } from '../components/newgame/EnemyIntentTray'
 import { HpBar } from '../components/newgame/HpBar'
@@ -466,7 +466,7 @@ export function CombatScreen() {
         </button>
         <div><span>Floor</span><strong>{run.encounterIndex + 1}/{dungeon.floors.length}</strong></div>
         <div><span>Round</span><strong>{combat.roundNumber}</strong></div>
-        <div className="permanent-souls"><Flame aria-hidden="true" size={15} /><strong>{profile.bankedSouls}</strong><span>souls</span></div>
+        <div className="permanent-souls"><CurrencyIcon currency="souls" size={17} /><strong>{profile.bankedSouls}</strong><span>souls</span></div>
       </header>
 
       <section

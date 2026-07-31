@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { Flame, Sparkles } from 'lucide-react'
+import { CurrencyIcon } from './CurrencyIcon'
 import { FateTokenIcon } from './FateTokenIcon'
 import { SoulDieReward } from './SoulDieReward'
 import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
@@ -57,7 +57,7 @@ export function OutcomeRewards({
       <div className="outcome-rewards__grid">
         <div className="outcome-reward outcome-reward--xp">
           <span aria-hidden="true" className="outcome-reward__icon">
-            <Sparkles size={23} />
+            <CurrencyIcon currency="xp" size={27} />
           </span>
           <span>XP</span>
           <strong>+{xpEarned}</strong>
@@ -68,7 +68,7 @@ export function OutcomeRewards({
         <div className={`outcome-reward outcome-reward--souls${soulRoll ? ' outcome-reward--soul-die' : ''}`}>
           {!soulRoll ? (
             <span aria-hidden="true" className="outcome-reward__icon">
-              <Flame size={23} />
+              <CurrencyIcon currency="souls" size={27} />
             </span>
           ) : null}
           <span>Souls</span>

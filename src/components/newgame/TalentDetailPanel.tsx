@@ -4,7 +4,6 @@ import {
   Bot,
   Dices,
   Heart,
-  Sparkles,
   X,
   Zap,
   Map,
@@ -18,6 +17,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
+import { CurrencyIcon } from './CurrencyIcon'
 import { DUNGEONS } from '../../game/content/dungeons'
 import { TALENTS_BY_ID } from '../../game/content/talents'
 import { getTalentRank } from '../../game/progression/talents'
@@ -287,7 +287,7 @@ export function TalentDetailPanel({
               onClick={onPurchase}
               type="button"
             >
-              <Sparkles aria-hidden="true" size={19} />
+              <CurrencyIcon currency="xp" size={21} />
               {getPurchaseLabel(
                 nodeState,
                 isAffordable,

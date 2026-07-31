@@ -248,15 +248,16 @@ Fate Tokens begynder først at droppe, når `Fatecraft` er købt.
 
 ### 6.5 Fate Draw
 
-Et Fate Draw koster 5 Fate Tokens og viser tre forskellige Charm-tilbud.
+Et Fate Draw koster 5 Fate Tokens og fastlåser én permanent Charm.
 
 - Prisen trækkes atomisk, før reveal-animationen starter.
-- De tre tilbud og operationens ID persisteres, så reload ikke reroller eller
+- Den valgte Charm og operationens ID persisteres, så reload ikke reroller eller
   dobbeltbetaler.
-- Spilleren vælger præcis ét tilbud.
+- Resultatet afsløres i et separat slot-machine-overlay, som visuelt cykler
+  Charm-puljen igennem og lander på den allerede persisterede Charm.
 - De første tre ejede Charms er beskyttet mod duplicates.
-- Derefter er ukendte Charms vægtet højere end kendte.
-- En kendt Charm øges én rank; max-rank Charms fjernes fra offer-poolen.
+- Derefter har ukendte Charms fire gange vægten af kendte.
+- En kendt Charm øges én rank; max-rank Charms fjernes fra draw-poolen.
 
 ### 6.6 Charm collection og loadout
 
@@ -276,7 +277,7 @@ Det første Charm-katalog:
 | --- | --- | --- | --- |
 | Blade Rhythm | Hvert 5. Attack-roll får +2 | +3 | +4 |
 | Echo Knot | To ens raw rolls i træk giver +1 native output | +2 | +3 |
-| Low Omen | Efter tre raw 1-rolls får næste die +2 native output | +3 | +4 |
+| Low Omen | Efter tre rolls under den konkrete dice gennemsnit får næste die +2 native output | +3 | +4 |
 | Ward Clock | Hver 6. round starter med 2 Shield | 3 Shield | 4 Shield |
 | Bloodroot | Hvert 3. kill healer 1 HP | 2 HP | 3 HP |
 | Soul Prism | Hvert 5. kill gentager enemyens base Souls | Hvert 4. kill | Hvert 3. kill |
@@ -811,7 +812,9 @@ motivation.
 ## 15. Persistence og tekniske designregler
 
 - Save-key: `new-dice-dungeon-save`.
-- Save-version: 17.
+- Save-version: 19.
+- Version 18 migrerer gamle tre-offer Fate Draws til ét persisteret resultat
+  uden ny betaling eller reroll.
 - Version 16 migreres med en frisk persisteret Soul Die draw-pile uden tab af XP, Souls, dice, talents, Fate Tokens eller Charms.
 - Version 15 migreres med Fate/Charm-defaults uden tab af XP, Souls, dice eller talents.
 - Pre-V2 saves starter frisk på den isolerede branch.
@@ -822,7 +825,7 @@ motivation.
 - Enemy rewards er idempotente.
 - Forge-operationer er idempotente.
 - Fate Draw-operationer og Charm-valg er idempotente.
-- Pending Fate Draw persisteres med de tre allerede valgte offers.
+- Pending Fate Draw persisteres med det allerede valgte resultat.
 - Equipped dice og Charms snapshots ved run-start.
 - XP, Souls og Fate Tokens er de eneste valutaer.
 - Legacy draw/bust, relics, draft og run-only dice må ikke importeres i V2-state.
@@ -847,10 +850,10 @@ motivation.
 - Enemy multi-dice i Dungeon 2.
 - Run Menu og frivillig retreat.
 - Fate Token-drops med skjult profile-level bad-luck protection efter Fatecraft.
-- Fate Sanctum med atomisk Choose-One-of-Three draw.
+- Fate Sanctum med atomisk single-result draw og slot-machine reveal.
 - Seks Charms med tre ranks og tre mulige loadout-slots.
 - Charm progress/procs i Combat og outcomes.
-- Save-version 17 med Soul Die cycle, pending Fate Draw, Charm collection, loadout og run-snapshots.
+- Save-version 19 med Soul Die cycle, single-result pending Fate Draw, Charm collection, loadout og run-snapshots.
 - Gamle Twin Arsenal-køb splittes tabsfrit; et allerede købt tomt Fatecraft refunderes fuldt.
 
 ### Implementeret, men endnu ikke endeligt V2-balanceret
@@ -884,7 +887,7 @@ motivation.
 6. Skal Worn Blade og Striker have forskellige medfødte identiteter senere?
 7. Hvornår skal family-evolutions vende tilbage i V2?
 8. Føles 20% dropchance plus pity spændende uden at skabe for meget reward-støj?
-9. Er tre tilbud og early no-duplicate protection nok player agency?
+9. Føles ét random resultat med early no-duplicate protection spændende eller for lidt player agency?
 10. Er første Charm-slot efter Dungeon 1 det rigtige tidspunkt, eller bør Fatecraft komme lidt tidligere?
 11. Er de seks første Charm-rytmer lige læsbare under hurtig Auto Combat?
 

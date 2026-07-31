@@ -8,6 +8,13 @@
   font-family: var(--arcade-font-ui);
 }
 
+.currency-icon {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
 .game-shell h1,
 .game-shell h2,
 .game-shell h3,

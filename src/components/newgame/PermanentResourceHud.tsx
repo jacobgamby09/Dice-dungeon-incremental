@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Flame, Sparkles } from 'lucide-react'
+import { CurrencyIcon } from './CurrencyIcon'
 import { FateTokenIcon } from './FateTokenIcon'
 
 interface PermanentResourceHudProps {
@@ -22,13 +22,13 @@ export const PermanentResourceHud = memo(function PermanentResourceHud({
     >
       {xp !== undefined && (
         <div className="resource-hud__item resource-hud__item--xp">
-          <Sparkles aria-hidden="true" size={compact ? 15 : 18} />
+          <CurrencyIcon currency="xp" size={compact ? 17 : 20} />
           <span>XP</span>
           <strong>{xp}</strong>
         </div>
       )}
       <div className="resource-hud__item resource-hud__item--souls">
-        <Flame aria-hidden="true" size={compact ? 15 : 18} />
+        <CurrencyIcon currency="souls" size={compact ? 17 : 20} />
         <span>Souls</span>
         <strong>{bankedSouls}</strong>
       </div>

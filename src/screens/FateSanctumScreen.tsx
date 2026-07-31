@@ -1,8 +1,9 @@
 import { ArrowLeft, Gem, LockKeyhole, Sparkles } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CharmIcon } from '../components/newgame/CharmIcon'
+import { FateDrawOverlay } from '../components/newgame/FateDrawOverlay'
 import { FateTokenIcon } from '../components/newgame/FateTokenIcon'
 import { CHARMS, CHARM_DEFINITIONS } from '../game/content/charms'
 import {
@@ -32,22 +33,13 @@ export function FateSanctumScreen() {
   const equipCharm = useNewGameStore((state) => state.equipCharm)
   const unequipCharm = useNewGameStore((state) => state.unequipCharm)
   const goToHub = useNewGameStore((state) => state.goToHub)
-  const [revealedCount, setRevealedCount] = useState(0)
+  const [animatedOperationId, setAnimatedOperationId] = useState<string | null>(null)
   const [lastClaimed, setLastClaimed] = useState<CharmId | null>(null)
   const capacity = getCharmCapacity(profile.talentRanks)
   const ownedCharms = CHARMS.filter((charm) => (profile.charmRanks[charm.id] ?? 0) > 0)
   const eligibleCount = CHARMS.filter(
     (charm) => (profile.charmRanks[charm.id] ?? 0) < MAX_CHARM_RANK,
   ).length
-
-  useEffect(() => {
-    if (!profile.pendingFateDraw) return
-    const timers = [0, 1, 2].map((index) => window.setTimeout(
-      () => setRevealedCount(index + 1),
-      320 + index * 360,
-    ))
-    return () => timers.forEach((timer) => window.clearTimeout(timer))
-  }, [profile.pendingFateDraw])
 
   const equippedSlots = useMemo(
     () => Array.from({ length: capacity }, (_, index) => profile.equippedCharmIds[index] ?? null),
@@ -56,12 +48,16 @@ export function FateSanctumScreen() {
 
   const startDraw = () => {
     setLastClaimed(null)
-    setRevealedCount(0)
-    beginFateDraw(createOperationId())
+    const pending = beginFateDraw(createOperationId())
+    if (pending) setAnimatedOperationId(pending.operationId)
   }
 
-  const chooseCharm = (charmId: CharmId) => {
-    if (claimFateCharm(charmId)) setLastClaimed(charmId)
+  const claimSelectedCharm = () => {
+    const selectedCharmId = profile.pendingFateDraw?.selectedCharmId
+    if (selectedCharmId && claimFateCharm()) {
+      setLastClaimed(selectedCharmId)
+      setAnimatedOperationId(null)
+    }
   }
 
   return (
@@ -115,42 +111,14 @@ export function FateSanctumScreen() {
 
       <section className="fate-draw" aria-labelledby="fate-draw-title">
         <header>
-          <span className="eyebrow">Choose one of three</span>
+          <span className="eyebrow">One permanent result</span>
           <h2 id="fate-draw-title">Fate Draw</h2>
         </header>
 
         {profile.pendingFateDraw ? (
-          <div className="fate-offers" aria-live="polite">
-            {profile.pendingFateDraw.offeredCharmIds.map((charmId, index) => {
-              const charm = CHARM_DEFINITIONS[charmId]
-              const rank = profile.charmRanks[charmId] ?? 0
-              const revealed = index < revealedCount
-              return (
-                <button
-                  aria-label={revealed ? `Choose ${charm.name}` : 'Sealed Charm'}
-                  className={`fate-offer${revealed ? ' is-revealed' : ''}`}
-                  disabled={!revealed || revealedCount < 3}
-                  key={charmId}
-                  onClick={() => chooseCharm(charmId)}
-                  style={{ '--charm-accent': charm.accent } as CSSProperties}
-                  type="button"
-                >
-                  {revealed ? (
-                    <>
-                      <CharmIcon charmId={charmId} size={58} />
-                      <strong>{charm.name}</strong>
-                      <span>{rank > 0 ? `Rank ${rank} → ${rank + 1}` : 'New Charm'}</span>
-                      <small>{charm.ranks[Math.min(rank, 2)].description}</small>
-                    </>
-                  ) : (
-                    <>
-                      <Gem aria-hidden="true" size={38} />
-                      <strong>Sealed</strong>
-                    </>
-                  )}
-                </button>
-              )
-            })}
+          <div className="fate-reliquary">
+            <img alt="" src="/sprites/charms/fate-reliquary.png" />
+            <p>Your result is secured. Complete the reveal to add it to your collection.</p>
           </div>
         ) : (
           <div className="fate-reliquary">
@@ -158,11 +126,11 @@ export function FateSanctumScreen() {
             {lastClaimed ? (
               <p><strong>{CHARM_DEFINITIONS[lastClaimed].name}</strong> is now part of your collection.</p>
             ) : (
-              <p>Spend Fate Tokens to reveal three permanent Charms.</p>
+              <p>Spend Fate Tokens to draw one permanent Charm.</p>
             )}
             <button
               className="pixel-button pixel-button--primary"
-              disabled={profile.fateTokens < FATE_DRAW_COST || eligibleCount < 3}
+              disabled={profile.fateTokens < FATE_DRAW_COST || eligibleCount < 1}
               onClick={startDraw}
               type="button"
             >
@@ -172,6 +140,16 @@ export function FateSanctumScreen() {
           </div>
         )}
       </section>
+
+      {profile.pendingFateDraw ? (
+        <FateDrawOverlay
+          animate={animatedOperationId === profile.pendingFateDraw.operationId}
+          currentRank={profile.charmRanks[profile.pendingFateDraw.selectedCharmId] ?? 0}
+          draw={profile.pendingFateDraw}
+          key={profile.pendingFateDraw.operationId}
+          onClaim={claimSelectedCharm}
+        />
+      ) : null}
 
       <section className="charm-collection" aria-labelledby="charm-collection-title">
         <header>

@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Fate Draw v2 og egne valutaikoner er implementeret lokalt på `codex/arcade-foundation-v1`:** Et Draw fastlåser nu ét vægtet Charm-resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel reel-animation, landing, partikler og reload-sikker claim. Low Omen tæller rolls under den konkrete dice gennemsnit i stedet for literal 1-rolls. XP og Souls har fået to nye genererede pixel-assets, som bruges konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes. Save-version 19 migrerer gamle tre-offer draws til ét eksisterende resultat uden reroll eller ny betaling.
 - **Hubben har nu et rent Dungeon 2 + Fatecraft-devstart:** Den tidligere over-powerede Charm-testprofil er erstattet af et realistisk post-Dungeon-1-snapshot med The Iron Descent åben og Fatecraft købt. Profilen starter med ét tomt Charm-slot, 0 Fate Tokens, 0 Charms og 0 skjult pity, så det faktiske drop- og acquisition-flow kan testes fra første Dungeon 2-kill.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
 - **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
@@ -104,6 +105,8 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Fresh-save-playtest 3–5 Fate Draws og mål, om single-result-spændingen, cirka fire sekunders reveal og 5-Token-prisen føles belønnende ved gentagelse.
+2. Mål Low Omens proc-frekvens på både skæve og næsten ensartede dice; tre under-gennemsnits-rolls skal være mærkbart uden at blive en automatisk bonus.
 1. Fresh-save-test de første 6–10 kills ved 384 px og vurder Soul Die-animationens tempo i både manuel og Auto Combat.
 2. Mål om Workshop-priserne `1, 2, 3...` giver et meningsfuldt valg efter hvert tidligt run uden at maxe Worn Blade for hurtigt.
 3. Playtest Soul Die Mastery mod Auto Combat, Field Studies og Loaded Alloy; ingen af de fire første economy/QoL-valg må føles obligatorisk.
@@ -136,7 +139,7 @@ Brug denne skabelon:
 - Talent Tree v3 giver syv købsmuligheder umiddelbart efter Inner Spark. Det øger agency markant, men kan være for bredt som første beslutningslag og skal fresh-save-testes.
 - Flat +XP/+Souls er bevidst valgt for at være synligt på lave Dungeon 1-rewards. De tre ranks kan blive for stærke i lange dungeons og skal sammenlignes med procentbaseret eller capped scaling efter fysisk test.
 - `Efficient Tools` stacker 20% multiplicativt per rank og afrunder hvert køb op. Det er læsbart og aldrig gratis, men enkelte lave priser kan give samme afrundede pris på to ranks.
-- Fatecraft og seks Charms er nu funktionelle, men 20% normal dropchance, fem-kill pity, 5-Token draw-pris og tre-offer agency er første balancepass og skal valideres gennem længere fresh-save-spil.
+- Fatecraft og seks Charms er nu funktionelle, men 20% normal dropchance, fem-kill pity, 5-Token draw-pris og ét random resultat er første balancepass. Single-result-modellen giver mere lootbox-spænding, men mindre direkte agency end de tidligere tre offers og skal valideres gennem længere fresh-save-spil.
 - Generated Charm-assets er visuelt verificeret ved 384×844, men de er mere detaljerede end de simpleste arcade-ikoner; fysisk iPhone-læsbarhed ved 32–48 px er fortsat en åben art-direction-risiko.
 - Arcade Polish v1 er browser-verificeret ved 320×700, 384×844 og 430×932 uden horisontal overflow eller console warnings/errors. Fysisk Safari-timing, touch-følelse og seks samtidige player-dice under hurtig automation er fortsat den vigtigste åbne visuelle risiko.
 - Den canonical Pixel Arcade-layer er nu opdelt i screen- og tokenfiler, men `src/newGame.css` indeholder fortsat det ældre strukturelle layout under præsentationslaget. Nye arcade-regler skal blive i `src/styles/arcade/`; en senere strukturel konsolidering skal ske gradvist med visuelle regressionstests.
@@ -176,7 +179,7 @@ Brug denne skabelon:
 - Inner Spark har fem valgfrie +1 HP-ranks. Rank 1 alene åbner alle fire retninger.
 - V2 Auto Combat koster 6 XP efter Inner Spark og automatiserer både roll, resolve, rounds og normale floor-transitions.
 - V2 Twin Arsenal koster 32 XP og giver samtidig slot 2 og én unik Striker Die.
-- Skæve proc-regler tilhører Charms, ikke Talent Tree. Fatecraft giver første slot og Token-drops; Woven Pair/Trinity Knot giver slot 2/3. Fate Draw er et persisteret choose-one-of-three-køb, og equipped Charms snapshots ved run-start.
+- Skæve proc-regler tilhører Charms, ikke Talent Tree. Fatecraft giver første slot og Token-drops; Woven Pair/Trinity Knot giver slot 2/3. Fate Draw fastlåser ét persisteret random resultat før slot-machine-animationen, og equipped Charms snapshots ved run-start.
 
 ### Production-reference
 
@@ -231,6 +234,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Fate Draw v2, Low Omen-retune og egne valutaikoner
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Fate Draw er ændret fra tre valg til ét atomisk fastlåst Charm-resultat, som afsløres gennem et nyt slot-machine-overlay med decelererende symbolskift, landing, resultateffekt og partikler. Low Omen reagerer nu på tre rolls under den konkrete dice gennemsnit. XP og Souls bruger nye custom pixel-assets gennem alle centrale currency-visninger.
+- Beslutninger: Et Draw koster fortsat 5 Fate Tokens; de første tre acquisitions er duplicate-frie, senere ukendte Charms har 4× vægt, og max-rank Charms ekskluderes. Resultatet persisteres før animationen, reload viser samme vinder uden ny betaling, og gamle version-18 tre-offer draws migrerer til det første allerede valgte offer. Uniforme dice kan ikke bygge Low Omen-stacks.
+- Berørte områder: Fate-model, Charm-combatregel, Zustand persistence/save-version 19, Fate Sanctum/overlay, arcade-CSS, XP/Soul-assets og currency-præsentation, tests samt `CLASSIC_INCREMENTAL_V2.md`.
+- Validering: `npx tsc --noEmit`, 35 Vitest-filer/161 tests, ESLint og Vite production build er grønne. Et rigtigt 384×844 browser-flow verificerede Fate Token-acquisition, spinning/landed/reload/claim, custom XP/Soul-assets, ingen horisontal overflow og ingen console warnings/errors.
+- Kendte mangler: Revealet har endnu ingen lyd eller spillerstyret fast-forward. Draw-pris, reveal-varighed og Low Omen-frekvens er fortsat første balancepass.
+- Git: Ikke committed.
 
 ### 2026-07-31 — Dungeon 2 + Fatecraft-devstart
 

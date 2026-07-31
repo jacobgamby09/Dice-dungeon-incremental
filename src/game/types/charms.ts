@@ -58,7 +58,7 @@ export interface CharmRunState {
 
 export interface PendingFateDraw {
   operationId: string
-  offeredCharmIds: [CharmId, CharmId, CharmId]
+  selectedCharmId: CharmId
   cost: number
 }
 

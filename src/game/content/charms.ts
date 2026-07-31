@@ -46,20 +46,20 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
   'low-omen': {
     id: 'low-omen',
     name: 'Low Omen',
-    flavor: 'Three weak signs bend the next outcome upward.',
+    flavor: 'Weak results gather until fate bends the next outcome upward.',
     assetPath: '/sprites/charms/low-omen.png',
     accent: '#b06cff',
     ranks: [
       {
-        description: 'After three 1-rolls, the next die gains +2 output.',
+        description: 'After three rolls below their die average, the next die gains +2 output.',
         effect: { type: 'low_omen', threshold: 3, bonus: 2 },
       },
       {
-        description: 'After three 1-rolls, the next die gains +3 output.',
+        description: 'After three rolls below their die average, the next die gains +3 output.',
         effect: { type: 'low_omen', threshold: 3, bonus: 3 },
       },
       {
-        description: 'After three 1-rolls, the next die gains +4 output.',
+        description: 'After three rolls below their die average, the next die gains +4 output.',
         effect: { type: 'low_omen', threshold: 3, bonus: 4 },
       },
     ],

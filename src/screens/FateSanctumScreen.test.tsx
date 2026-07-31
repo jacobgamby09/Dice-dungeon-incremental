@@ -31,7 +31,7 @@ describe('Fate Sanctum player-facing rules', () => {
   it('keeps pity protection hidden while explaining the draw', () => {
     const markup = renderToStaticMarkup(<FateSanctumScreen />)
 
-    expect(markup).toContain('Spend Fate Tokens to reveal three permanent Charms')
+    expect(markup).toContain('Spend Fate Tokens to draw one permanent Charm')
     expect(markup).not.toContain('Fate signal')
     expect(markup).not.toContain('Pity')
     expect(markup).not.toContain('guaranteed')

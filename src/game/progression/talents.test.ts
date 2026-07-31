@@ -20,7 +20,7 @@ import { createSoulDieState } from './soulDie'
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 18,
+    saveVersion: 19,
     xp,
     bankedSouls: 0,
     fateTokens: 0,

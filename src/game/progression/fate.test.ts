@@ -52,21 +52,25 @@ describe('Fate drops and draws', () => {
     expect(tokens).toBeGreaterThanOrEqual(FATE_DRAW_COST)
   })
 
-  it('offers three different unowned charms during early protection', () => {
-    const draw = createFateDraw({}, 'draw-1', () => 0)
-    expect(draw?.cost).toBe(FATE_DRAW_COST)
-    expect(new Set(draw?.offeredCharmIds).size).toBe(3)
-    expect(draw?.offeredCharmIds).toEqual([
-      'blade-rhythm',
-      'echo-knot',
-      'low-omen',
-    ])
+  it('guarantees a new single Charm for the first three acquisitions', () => {
+    const first = createFateDraw({}, 'draw-1', () => 0)
+    const second = createFateDraw({ 'blade-rhythm': 1 }, 'draw-2', () => 0)
+    const third = createFateDraw({
+      'blade-rhythm': 1,
+      'echo-knot': 1,
+    }, 'draw-3', () => 0)
+
+    expect(first).toMatchObject({
+      cost: FATE_DRAW_COST,
+      selectedCharmId: 'blade-rhythm',
+    })
+    expect(second?.selectedCharmId).toBe('echo-knot')
+    expect(third?.selectedCharmId).toBe('low-omen')
   })
 
-  it('claims only an offered charm and raises its permanent rank', () => {
+  it('claims the persisted winner and raises its permanent rank', () => {
     const draw = createFateDraw({}, 'draw-1', () => 0)!
-    expect(claimFateDraw({}, draw, 'soul-prism')).toBeNull()
-    expect(claimFateDraw({}, draw, 'blade-rhythm')).toEqual({
+    expect(claimFateDraw({}, draw)).toEqual({
       'blade-rhythm': 1,
     })
   })
@@ -78,6 +82,17 @@ describe('Fate drops and draws', () => {
       'low-omen': 1,
       'ward-clock': 1,
     }, 'draw-2', () => 0)
-    expect(draw?.offeredCharmIds).not.toContain('blade-rhythm')
+    expect(draw?.selectedCharmId).not.toBe('blade-rhythm')
+  })
+
+  it('can still draw when only one Charm remains below max rank', () => {
+    const draw = createFateDraw({
+      'blade-rhythm': 3,
+      'echo-knot': 3,
+      'low-omen': 3,
+      'ward-clock': 3,
+      bloodroot: 3,
+    }, 'draw-final', () => 0.99)
+    expect(draw?.selectedCharmId).toBe('soul-prism')
   })
 })

@@ -11,7 +11,7 @@ import {
 function createBaseProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 18,
+    saveVersion: 19,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,

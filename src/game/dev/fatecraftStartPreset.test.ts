@@ -8,7 +8,7 @@ import { createFatecraftStartProfile } from './fatecraftStartPreset'
 
 function createBaseProfile(): PlayerProfile {
   return {
-    saveVersion: 18,
+    saveVersion: 19,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,

@@ -1,5 +1,5 @@
-import { Flame } from 'lucide-react'
 import type { SoulDieValues } from '../../game/types/dice'
+import { CurrencyIcon } from './CurrencyIcon'
 
 interface SoulDieSummaryProps {
   values: SoulDieValues
@@ -10,7 +10,7 @@ export function SoulDieSummary({ values }: SoulDieSummaryProps) {
   return (
     <section aria-labelledby="soul-die-summary-title" className="soul-die-summary">
       <div className="soul-die-summary__icon">
-        <Flame aria-hidden="true" size={22} />
+        <CurrencyIcon currency="souls" size={24} />
       </div>
       <div>
         <span>Permanent loot die</span>

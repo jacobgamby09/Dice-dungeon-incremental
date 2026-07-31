@@ -1,11 +1,11 @@
 import type { CSSProperties } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { Flame } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
 import { createSoulDie } from '../../game/content/dice'
 import { SOUL_DIE_REWARD_ROLL_MS } from '../../game/automation/autoCombat'
 import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
 import { PhysicalDieCube } from './PhysicalDieCube'
+import { CurrencyIcon } from './CurrencyIcon'
 
 interface SoulDieRewardProps {
   result: SoulDieRollResult
@@ -61,7 +61,7 @@ function SoulDieAnimation({
             content: (
               <>
                 <strong>×{face.multiplier}</strong>
-                <Flame aria-hidden="true" size={17} />
+                <CurrencyIcon currency="souls" size={18} />
               </>
             ),
             id: face.id,
