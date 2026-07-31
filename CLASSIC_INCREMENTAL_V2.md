@@ -787,9 +787,9 @@ motivation.
 - Næsten-sort negativ plads.
 - Fysiske 3D-pixelterninger.
 - Attack er rød, Shield blå, Heal grøn.
-- XP/Talent Tree er cyan.
+- XP-valutaen er cyan, mens Talent Tree-systemets globale accent er grøn.
 - Fate Sanctum og Fate-systemet er lilla og skal visuelt kunne skelnes tydeligt
-  fra det cyan Talent Tree.
+  fra det grønne Talent Tree.
 - Workshop-power er varm guld.
 - HP, rewards og totals skal være læselige uden log.
 

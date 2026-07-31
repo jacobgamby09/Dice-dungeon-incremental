@@ -250,7 +250,7 @@
 }
 
 .hub-action--dungeon {
-  --action-color: var(--arcade-green);
+  --action-color: var(--arcade-red);
   grid-column: auto;
   min-height: 76px;
 }
@@ -260,7 +260,7 @@
 }
 
 .hub-action--talents {
-  --action-color: var(--arcade-cyan);
+  --action-color: var(--arcade-green);
 }
 
 .hub-action__icon {

@@ -38,7 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Hub, Talent Tree og Fate-reel har fået et samlet clarity-pass:** Charm-reelen har ikke længere et scanline-lag hen over symbolerne. Alle tre dice-slot-talenter bruger samme Dices-ikon, Talent Tree er globalt cyan mens Fate Sanctum forbliver lilla, én permanent die centreres i Hub, Soul Die-ikon og faces deler baseline, og køb af en ny slot fylder automatisk pladsen med en allerede ejet reserve-die uden at omarrangere loadout.
+- **Hub-systemerne har nu entydige handlingsfarver:** Dungeon er rød, Talent Tree og dets globale systemaccent er grøn, Loadout er cyan, Workshop er gul, og Fate Sanctum forbliver lilla. Charm-reelen har ikke længere et scanline-lag hen over symbolerne. Alle tre dice-slot-talenter bruger samme Dices-ikon, én permanent die centreres i Hub, Soul Die-ikon og faces deler baseline, og køb af en ny slot fylder automatisk pladsen med en allerede ejet reserve-die uden at omarrangere loadout.
 - **Fate Draw v2 og egne valutaikoner er implementeret lokalt på `codex/arcade-foundation-v1`:** Et Draw fastlåser nu ét vægtet Charm-resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel reel-animation, landing, partikler og reload-sikker claim. Low Omen tæller rolls under den konkrete dice gennemsnit i stedet for literal 1-rolls. XP og Souls har fået to nye genererede pixel-assets, som bruges konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes. Save-version 19 migrerer gamle tre-offer draws til ét eksisterende resultat uden reroll eller ny betaling.
 - **Hubben har nu et direkte Dungeon 2 + Fatecraft-devstart:** Profilen er et realistisk post-Dungeon-1-snapshot med The Iron Descent åben, Fatecraft købt, ét tomt Charm-slot, 5 Fate Tokens, 0 Charms og 0 skjult pity. Første Fate Draw kan derfor testes med det samme, mens det efterfølgende drop-flow fortsat starter rent.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
@@ -235,6 +235,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Entydigt farvesprog for Dungeon og Talent Tree
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Dungeon-handlingen er nu rød, mens både Talent Tree-handlingen og Talent Tree-skærmens globale UI-accent er grøn. Loadout forbliver cyan, Workshop gul og Fate lilla.
+- Beslutninger: XP beholder sin cyan valutaidentitet; grøn bruges som Talent Tree-systemfarve uden at ændre de fire retningsgrenes egne semantiske farver.
+- Berørte områder: Hub-styling, Talent Tree-styling, `DESIGN.md`, `CLASSIC_INCREMENTAL_V2.md` og denne progress-log.
+- Validering: `npx tsc --noEmit`, `npm test -- --run` (35 filer / 162 tests), `npm run lint` og `npm run build` består. Browserkontrol ved 384 px bekræfter Dungeon `#ff334f`, Talent Tree `#31e85f`, Loadout `#30e8ff`, grøn Talent Tree-HUD og ingen horisontal overflow.
+- Kendte mangler: Ingen kendte.
+- Git: Ikke committed.
 
 ### 2026-07-31 — Hub-, Talent- og Fate-clarity pass
 

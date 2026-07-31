@@ -180,8 +180,9 @@ Hubben må ikke ligne en miljøscene. Den skal give spilleren svaret på:
 `Hvad ejer jeg?`, `Hvad kan jeg forbedre?` og `Hvor går jeg hen nu?`
 
 Ved præcis én equipped die centreres kortet i `Permanent Dice`. Soul Die-ikonet
-og de seks faces deler samme visuelle baseline. Talent Tree-handlingen er cyan;
-Fate Sanctum forbliver lilla.
+og de seks faces deler samme visuelle baseline. Dungeon-handlingen er rød,
+Talent Tree-handlingen og Talent Tree-systemets globale accent er grøn, Loadout
+er cyan, Workshop er gul, og Fate Sanctum forbliver lilla.
 
 ### Dungeon Select og Loadout
 
