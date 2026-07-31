@@ -179,7 +179,11 @@ export function HubScreen() {
         </header>
         <div
           aria-label="Equipped permanent dice. Swipe, drag, scroll, or use arrow keys to browse."
-          className={`dice-rack${isRackDragging ? ' dice-rack--dragging' : ''}`}
+          className={[
+            'dice-rack',
+            profile.equippedDieIds.length === 1 ? 'dice-rack--single' : '',
+            isRackDragging ? 'dice-rack--dragging' : '',
+          ].filter(Boolean).join(' ')}
           onDragStart={(event) => event.preventDefault()}
           onKeyDown={navigateRackWithKeyboard}
           onPointerCancel={finishRackDrag}

@@ -1291,16 +1291,27 @@ export const useNewGameStore = create<NewGameState>()(
             unlockedDungeonIds.push(effect.dungeonId)
           }
         }
+        const talentRanks = {
+          ...state.profile.talentRanks,
+          [talent.id]: currentRank + 1,
+        }
+        const equippedDieIds = [...state.profile.equippedDieIds]
+        const gainedDiceSlot = nextRank.effects.some((effect) => effect.type === 'dice_slots')
+        if (gainedDiceSlot) {
+          const capacity = getDiceCapacity(talentRanks)
+          for (const die of diceCollection) {
+            if (equippedDieIds.length >= capacity) break
+            if (!equippedDieIds.includes(die.id)) equippedDieIds.push(die.id)
+          }
+        }
 
         set({
           profile: {
             ...state.profile,
             xp: state.profile.xp - nextRank.cost,
-            talentRanks: {
-              ...state.profile.talentRanks,
-              [talent.id]: currentRank + 1,
-            },
+            talentRanks,
             diceCollection,
+            equippedDieIds,
             unlockedDungeonIds,
           },
         })

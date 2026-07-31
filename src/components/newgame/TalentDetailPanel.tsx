@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Backpack,
   Bot,
   Dices,
   Heart,
@@ -47,7 +46,7 @@ interface TalentDetailPanelProps {
 
 const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   max_hp: Heart,
-  dice_slots: Backpack,
+  dice_slots: Dices,
   grant_die: Dices,
   roll_speed: Zap,
   workshop_die_faces: Flame,

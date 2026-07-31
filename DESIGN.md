@@ -179,6 +179,10 @@ Hub er en kompakt status- og navigationsskærm:
 Hubben må ikke ligne en miljøscene. Den skal give spilleren svaret på:
 `Hvad ejer jeg?`, `Hvad kan jeg forbedre?` og `Hvor går jeg hen nu?`
 
+Ved præcis én equipped die centreres kortet i `Permanent Dice`. Soul Die-ikonet
+og de seks faces deler samme visuelle baseline. Talent Tree-handlingen er cyan;
+Fate Sanctum forbliver lilla.
+
 ### Dungeon Select og Loadout
 
 - Hver dungeon viser adgang, progression og central mekanisk identitet.

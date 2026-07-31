@@ -281,18 +281,6 @@
   background: linear-gradient(transparent, #050208);
 }
 
-.fate-reel__scanline {
-  position: absolute;
-  z-index: 3;
-  right: 0;
-  left: 0;
-  height: 2px;
-  background: color-mix(in srgb, var(--charm-accent) 75%, #fff);
-  box-shadow: 0 0 9px var(--charm-accent);
-  opacity: 0.7;
-  animation: fate-scan 720ms steps(8, end) infinite;
-}
-
 .fate-reel__symbol {
   display: grid;
   place-items: center;
@@ -302,10 +290,6 @@
 
 .fate-machine-overlay.is-landed .fate-reel__symbol {
   animation: fate-reel-land 520ms steps(7, end) both;
-}
-
-.fate-machine-overlay.is-landed .fate-reel__scanline {
-  display: none;
 }
 
 .fate-reel__marker {
@@ -555,11 +539,6 @@
   font-size: 0.54rem;
 }
 
-@keyframes fate-scan {
-  from { top: 8px; }
-  to { top: 144px; }
-}
-
 @keyframes fate-reel-tick {
   0% { opacity: 0; transform: translateY(-28px) scaleY(1.12); }
   55% { opacity: 1; }
@@ -607,7 +586,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fate-reel__scanline,
   .fate-reel__symbol,
   .fate-machine__result,
   .fate-machine__particles span {

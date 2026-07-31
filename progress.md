@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Hub, Talent Tree og Fate-reel har fået et samlet clarity-pass:** Charm-reelen har ikke længere et scanline-lag hen over symbolerne. Alle tre dice-slot-talenter bruger samme Dices-ikon, Talent Tree er globalt cyan mens Fate Sanctum forbliver lilla, én permanent die centreres i Hub, Soul Die-ikon og faces deler baseline, og køb af en ny slot fylder automatisk pladsen med en allerede ejet reserve-die uden at omarrangere loadout.
 - **Fate Draw v2 og egne valutaikoner er implementeret lokalt på `codex/arcade-foundation-v1`:** Et Draw fastlåser nu ét vægtet Charm-resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel reel-animation, landing, partikler og reload-sikker claim. Low Omen tæller rolls under den konkrete dice gennemsnit i stedet for literal 1-rolls. XP og Souls har fået to nye genererede pixel-assets, som bruges konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes. Save-version 19 migrerer gamle tre-offer draws til ét eksisterende resultat uden reroll eller ny betaling.
 - **Hubben har nu et direkte Dungeon 2 + Fatecraft-devstart:** Profilen er et realistisk post-Dungeon-1-snapshot med The Iron Descent åben, Fatecraft købt, ét tomt Charm-slot, 5 Fate Tokens, 0 Charms og 0 skjult pity. Første Fate Draw kan derfor testes med det samme, mens det efterfølgende drop-flow fortsat starter rent.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
@@ -234,6 +235,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Hub-, Talent- og Fate-clarity pass
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Charm-reelens tværgående scanline er fjernet; alle dice-slot-noder bruger samme Dices-ikon; Talent Tree bruger cyan systemaccent adskilt fra lilla Fate; fresh Hub centrerer sin ene die; Soul Die-ikon og faces er alignet; nye slot-køb auto-equipper en allerede ejet reserve-die op til kapaciteten.
+- Beslutninger: Auto-equip sker kun ved selve slot-købet, bevarer eksisterende rækkefølge og vælger første ledige die i collection-rækkefølge. En senere ny die auto-equippes fortsat ikke blot fordi en tom slot findes.
+- Berørte områder: Fate Draw-overlay/CSS, talentindhold og inspector, Talent Tree/Hub-CSS, Hub/Soul Die-præsentation, talent purchase-transition, tests, GDD og designreference.
+- Validering: TypeScript, Vitest, ESLint, production build samt 384×844 browserpass af fresh Hub, Talent Tree og reel-animation.
+- Kendte mangler: Den fysiske iPhone/Safari-pass er fortsat nødvendig for subjektiv touch- og alignment-godkendelse.
+- Git: Ikke committed.
 
 ### 2026-07-31 — Ét Fate Draw i Fatecraft-devstart
 

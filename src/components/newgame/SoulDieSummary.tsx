@@ -12,7 +12,7 @@ export function SoulDieSummary({ values }: SoulDieSummaryProps) {
       <div className="soul-die-summary__icon">
         <CurrencyIcon currency="souls" size={24} />
       </div>
-      <div>
+      <div className="soul-die-summary__heading">
         <span>Permanent loot die</span>
         <h2 id="soul-die-summary-title">Soul Die</h2>
       </div>

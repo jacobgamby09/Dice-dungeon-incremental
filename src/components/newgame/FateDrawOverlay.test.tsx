@@ -22,5 +22,6 @@ describe('FateDrawOverlay', () => {
     expect(markup).toContain('New Charm')
     expect(markup).toContain('Claim Charm')
     expect(markup).toContain('below their die average')
+    expect(markup).not.toContain('fate-reel__scanline')
   })
 })

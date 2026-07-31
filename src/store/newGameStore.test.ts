@@ -238,21 +238,22 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().profile.settings.autoCombat).toBe(true)
   })
 
-  it('lets the player buy the second slot and Striker Die separately', () => {
+  it('auto-equips an owned spare die when a new slot is purchased', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({ profile: { ...state.profile, xp: 36 } })
 
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne))
       .toBe(true)
-    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.twinArsenal)).toBe(true)
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.strikerPattern)).toBe(true)
+    expect(useNewGameStore.getState().profile.equippedDieIds).toEqual(['attack-die-1'])
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.twinArsenal)).toBe(true)
 
     const profile = useNewGameStore.getState().profile
     expect(profile.diceCollection.map((die) => die.id))
       .toEqual(['attack-die-1', 'attack-die-2'])
-    expect(profile.equippedDieIds).toEqual(['attack-die-1'])
+    expect(profile.equippedDieIds).toEqual(['attack-die-1', 'attack-die-2'])
     expect(getDiceCapacity(profile.talentRanks)).toBe(2)
-    expect(useNewGameStore.getState().equipDie('attack-die-2')).toBe(true)
+    expect(useNewGameStore.getState().equipDie('attack-die-2')).toBe(false)
   })
 
   it('locks the target and Loaded Alloy Workshop result before applying it', () => {

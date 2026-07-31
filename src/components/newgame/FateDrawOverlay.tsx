@@ -80,7 +80,6 @@ export function FateDrawOverlay({
             <CharmIcon charmId={previousCharmId} size={42} />
           </div>
           <div className="fate-reel__window">
-            <div className="fate-reel__scanline" />
             <div className="fate-reel__symbol" key={displayedCharmId}>
               <CharmIcon charmId={displayedCharmId} size={96} />
             </div>

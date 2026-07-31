@@ -19,6 +19,8 @@ describe('HubScreen developer tools', () => {
     expect(markup).toContain('Permanent Dice Incremental')
     expect(markup).toContain('role="region"')
     expect(markup).toContain('tabindex="0"')
+    expect(markup).toContain('dice-rack dice-rack--single')
+    expect(markup).toContain('soul-die-summary__heading')
     expect(markup).toContain('Swipe, drag, scroll, or use arrow keys to browse.')
     expect(markup).not.toContain('Extraction runner')
     expect(markup).not.toContain('Load test profile')

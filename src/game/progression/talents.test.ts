@@ -90,6 +90,14 @@ describe('Classic V2 directional talent progression', () => {
     })).toBe(2)
   })
 
+  it('uses one consistent icon for every dice-slot talent', () => {
+    expect([
+      TALENTS_BY_ID[TALENT_IDS.twinArsenal].iconKey,
+      TALENTS_BY_ID[TALENT_IDS.thirdGrip].iconKey,
+      TALENTS_BY_ID[TALENT_IDS.fourthGrip].iconKey,
+    ]).toEqual(['twin-dice', 'twin-dice', 'twin-dice'])
+  })
+
   it('upgrades Workshop Die power and target rerolls independently', () => {
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,

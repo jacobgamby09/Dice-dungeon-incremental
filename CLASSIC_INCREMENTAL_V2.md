@@ -307,6 +307,8 @@ Faces med samme værdi er fortsat separate objekter.
 
 - En talent-unlock giver én bestemt permanent die.
 - En ny die auto-equippes ikke.
+- Når en ny dice-slot købes, fyldes den automatisk med den første allerede ejede,
+  ikke-equipped die. Eksisterende loadout-rækkefølge ændres ikke.
 - Spilleren vælger loadout i Hub.
 - Mindst én die skal være equipped.
 - Loadout kan ikke ændres under et aktivt run.
@@ -786,6 +788,8 @@ motivation.
 - Fysiske 3D-pixelterninger.
 - Attack er rød, Shield blå, Heal grøn.
 - XP/Talent Tree er cyan.
+- Fate Sanctum og Fate-systemet er lilla og skal visuelt kunne skelnes tydeligt
+  fra det cyan Talent Tree.
 - Workshop-power er varm guld.
 - HP, rewards og totals skal være læselige uden log.
 

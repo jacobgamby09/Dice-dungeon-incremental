@@ -1,6 +1,7 @@
 /* Spatial Talent Tree */
 .talent-canvas-screen,
 .talent-canvas {
+  --talent-accent: var(--arcade-cyan);
   background: var(--arcade-black);
 }
 
@@ -21,7 +22,7 @@
   border: var(--arcade-frame-section) solid var(--arcade-white);
   background: var(--arcade-black);
   box-shadow: none;
-  color: var(--arcade-purple);
+  color: var(--talent-accent);
   display: grid;
   grid-template-columns: auto auto auto;
   gap: 2px 5px;
@@ -206,7 +207,7 @@
 
 .talent-canvas-inspector__icon {
   border: 3px solid var(--arcade-white);
-  background: #25164f;
+  background: #0a313b;
   box-shadow: inset 0 0 0 2px var(--arcade-black);
   color: var(--arcade-white);
 }
@@ -237,7 +238,7 @@
 
 .talent-canvas-inspector__effects span {
   border: 2px solid var(--arcade-white);
-  border-left: 5px solid var(--arcade-purple);
+  border-left: 5px solid var(--talent-accent);
   background: var(--arcade-black);
   color: var(--arcade-white);
   font-family: var(--arcade-font-ui);
@@ -281,7 +282,7 @@
 
 .talent-canvas-inspector__purchase {
   min-height: 48px;
-  background: #45328f;
+  background: #075b6a;
   font-size: 0.68rem;
 }
 
