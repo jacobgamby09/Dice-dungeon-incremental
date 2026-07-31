@@ -255,7 +255,7 @@ Brug denne skabelon:
 - Berørte områder: Fate Sanctum-kortmarkup, Fate-styling og denne progress-log.
 - Validering: `npx tsc --noEmit`, 37 Vitest-filer / 168 tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 bekræfter større effekttekst, fuldt synlige kort, korrekt knaplayout og ingen horisontal overflow.
 - Kendte mangler: Den samlede Charm-side bliver naturligt lidt længere vertikalt som følge af den større typografi.
-- Git: Ikke committed endnu.
+- Git: `1701a4f` på `codex/arcade-foundation-v1`; dokumentationsstatus følger i næste log-commit.
 
 ### 2026-07-31 — Rene Fate Draw-resultater
 
