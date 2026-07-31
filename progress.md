@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **En fremtidig content-idébank er oprettet:** `content-ideas.md` samler mulige dice families, familie-evolutions, dungeon mechanics, Charms, Workshop/Soul Die-progression, Resonance, Boss Imprints, Dungeon Mastery, sjældne rooms, Dice Memories, Run Forecasts og et Research Board. Forslagene er bevidst ikke bindende GDD-beslutninger endnu.
 - **Charm-samlingen er lettere at aflæse på mobil:** Kendte Charm-kort bruger nu større navn, rarity, rank og effekttekst, højere linjeafstand samt større handlingsknapper. To-kolonne-layoutet er bevaret uden afskåret indhold eller vandret overflow ved 384 px.
 - **Fate Draw-landingen er visuelt ryddet op:** De dæmpede nabo-Charms bruges fortsat under reel-animationen, men skjules helt, så snart resultatet er landet. Den færdige loot-state viser derfor kun den vindende Charm.
 - **Fate Sanctum viser nu sine draw-rater uden permanent UI-støj:** En kompakt info-knap i headeren åbner et mobiltilpasset overlay med Common 50%, Rare 30%, Epic 15% og orange Legendary 5%, Draw-pris, pool-normalisering og Fate's Favor-reglen.
@@ -244,6 +245,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Fremtidig content-idébank
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Projektet har fået en struktureret backlog for både oplagt og mere eksperimenterende content efter polish og balance.
+- Beslutninger: Idéerne er inspirationsmateriale og bliver først bindende, når de er prototypes, playtestes og flyttes til den aktive GDD.
+- Berørte områder: Nyt `content-ideas.md` og denne progress-log.
+- Validering: Dokumentet er gennemlæst for sammenhæng med incremental-first-retningen, eksisterende valutaer og beslutningen om ingen offline-progression.
+- Kendte mangler: Ingen af idéerne har endnu priser, præcise tal, produktionsestimater eller implementeringsscope.
+- Git: Ikke committed endnu.
 
 ### 2026-07-31 — Mere læsbare Charm-kort
 
