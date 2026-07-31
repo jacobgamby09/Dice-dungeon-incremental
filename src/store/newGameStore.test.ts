@@ -430,7 +430,7 @@ describe('Classic V2 store progression loop', () => {
       [TALENT_IDS.secondDescent]: 1,
     })
     expect(state.profile).toMatchObject({
-      fateTokens: 0,
+      fateTokens: 5,
       fatePity: 0,
       charmRanks: {},
       equippedCharmIds: [],

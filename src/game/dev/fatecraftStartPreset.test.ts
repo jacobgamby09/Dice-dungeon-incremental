@@ -36,7 +36,7 @@ function createBaseProfile(): PlayerProfile {
 }
 
 describe('Fatecraft start developer preset', () => {
-  it('starts immediately after Dungeon 1 with Fatecraft but no pre-earned loot', () => {
+  it('starts immediately after Dungeon 1 with Fatecraft and one test draw', () => {
     const profile = createFatecraftStartProfile(createBaseProfile())
 
     expect(profile.unlockedDungeonIds).toContain('iron-depths')
@@ -51,7 +51,7 @@ describe('Fatecraft start developer preset', () => {
     })
     expect(profile.talentRanks[TALENT_IDS.wovenPair]).toBeUndefined()
     expect(getCharmCapacity(profile.talentRanks)).toBe(1)
-    expect(profile.fateTokens).toBe(0)
+    expect(profile.fateTokens).toBe(5)
     expect(profile.fatePity).toBe(0)
     expect(profile.charmRanks).toEqual({})
     expect(profile.equippedCharmIds).toEqual([])

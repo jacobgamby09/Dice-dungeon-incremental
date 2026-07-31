@@ -245,7 +245,8 @@ export function HubScreen() {
               <strong>Start at Dungeon 2 with Fatecraft?</strong>
               <p>
                 Replaces the current save with a realistic Dungeon 1 clear,
-                Fatecraft unlocked and The Iron Descent ready to enter.
+                Fatecraft unlocked, one Fate Draw ready and The Iron Descent
+                available to enter.
               </p>
             </div>
             <dl className="dev-preset__summary">
