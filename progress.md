@@ -245,7 +245,7 @@ Brug denne skabelon:
 - Berørte områder: Fatecraft-devpreset, Hub-confirmation og preset/store-regressionstests.
 - Validering: TypeScript, målrettede tests, ESLint og production build.
 - Kendte mangler: Ingen; ændringen gælder kun dev-profilen.
-- Git: Ikke committed.
+- Git: Implementering committed som `b68967f` på `codex/arcade-foundation-v1`; dokumentationsstatus registreres i efterfølgende log-commit.
 
 ### 2026-07-31 — Fate Draw v2, Low Omen-retune og egne valutaikoner
 
