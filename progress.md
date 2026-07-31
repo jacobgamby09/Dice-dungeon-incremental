@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Charm-samlingen er lettere at aflæse på mobil:** Kendte Charm-kort bruger nu større navn, rarity, rank og effekttekst, højere linjeafstand samt større handlingsknapper. To-kolonne-layoutet er bevaret uden afskåret indhold eller vandret overflow ved 384 px.
 - **Fate Draw-landingen er visuelt ryddet op:** De dæmpede nabo-Charms bruges fortsat under reel-animationen, men skjules helt, så snart resultatet er landet. Den færdige loot-state viser derfor kun den vindende Charm.
 - **Fate Sanctum viser nu sine draw-rater uden permanent UI-støj:** En kompakt info-knap i headeren åbner et mobiltilpasset overlay med Common 50%, Rare 30%, Epic 15% og orange Legendary 5%, Draw-pris, pool-normalisering og Fate's Favor-reglen.
 - **Equipped Charms kan nu inspiceres direkte i Combat:** Hver Charm-counter er en semantisk knap, der åbner et mobiltilpasset rarity-farvet overlay med navn, rank, aktuel effekt, flavor og næste rank. Overlayet ligger over hele Combat-stacken, kan lukkes med knap eller Escape og ændrer ingen gameplay-state. Dungeon 2 + Fatecraft-devprofilen giver nu 1000 Fate Tokens til gentagne rarity- og duplicate-tests.
@@ -243,6 +244,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Mere læsbare Charm-kort
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Charm-oplysninger i Fate Sanctum er gjort markant større og tydeligere, især navn, rank, aktiv effekt og Equip/Unbind-handlingen.
+- Beslutninger: Oversigtens kompakte to-kolonne-layout bevares; kendte Charms får den stærkeste tekstkontrast, mens uopdagede Charms fortsat er visuelt nedtonede.
+- Berørte områder: Fate Sanctum-kortmarkup, Fate-styling og denne progress-log.
+- Validering: `npx tsc --noEmit`, 37 Vitest-filer / 168 tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 bekræfter større effekttekst, fuldt synlige kort, korrekt knaplayout og ingen horisontal overflow.
+- Kendte mangler: Den samlede Charm-side bliver naturligt lidt længere vertikalt som følge af den større typografi.
+- Git: Ikke committed endnu.
 
 ### 2026-07-31 — Rene Fate Draw-resultater
 

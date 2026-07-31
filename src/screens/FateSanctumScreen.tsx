@@ -67,14 +67,14 @@ function CharmCollectionCard({
       } as CSSProperties}
     >
       <CharmIcon charmId={charm.id} size={56} />
-      <div>
+      <div className="charm-card__meta">
         <span className="charm-card__rarity">{CHARM_RARITY_DEFINITIONS[charm.rarity].name}</span>
         <h3>{rank > 0 ? charm.name : 'Unknown Charm'}</h3>
-        <span>{rank > 0 ? `Rank ${rank}/${MAX_CHARM_RANK}` : 'Undiscovered'}</span>
+        <span className="charm-card__rank">{rank > 0 ? `Rank ${rank}/${MAX_CHARM_RANK}` : 'Undiscovered'}</span>
       </div>
       {rank > 0 ? (
         <>
-          <p>{charm.ranks[rank - 1].description}</p>
+          <p className="charm-card__effect">{charm.ranks[rank - 1].description}</p>
           <div className="charm-ranks" aria-label={`Rank ${rank} of ${MAX_CHARM_RANK}`}>
             {Array.from({ length: MAX_CHARM_RANK }, (_, index) => (
               <span className={index < rank ? 'is-filled' : ''} key={index} />
