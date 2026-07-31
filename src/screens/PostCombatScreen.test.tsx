@@ -59,6 +59,9 @@ describe('PostCombatScreen incremental reward flow', () => {
       souls: 5,
       dungeonComplete: false,
     })
+    delete (mockedStore.state.run.lastReward as typeof mockedStore.state.run.lastReward & {
+      soulRoll?: unknown
+    }).soulRoll
     mockedStore.state.run.enemy.spriteName = 'Slime'
     mockedStore.state.run.playerHp = 10
     mockedStore.state.run.playerMaxHp = 10
@@ -113,11 +116,23 @@ describe('PostCombatScreen incremental reward flow', () => {
 
   it('offers a pause action while Auto Combat prepares the next floor', () => {
     mockedStore.state.profile.settings.autoCombat = true
+    Object.assign(mockedStore.state.run.lastReward, {
+      soulRoll: {
+        dieId: 'soul-die',
+        dieName: 'Soul Die',
+        faceId: 'soul-die-face-1',
+        faceIndex: 0,
+        multiplier: 1,
+        soulValue: 1,
+        payout: 1,
+      },
+    })
 
     const markup = renderToStaticMarkup(<PostCombatScreen />)
 
     expect(markup).toContain('Pause Auto Combat')
     expect(markup).toContain('Auto · continuing to Floor 2')
+    expect(markup).toContain('soul-die-reward--rolling')
     expect(markup).not.toContain('Continue to Floor 2')
   })
 })

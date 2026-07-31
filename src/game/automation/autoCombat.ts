@@ -6,4 +6,5 @@
  */
 export const AUTO_COMBAT_DRAW_PAUSE_MS = 160
 export const AUTO_COMBAT_RESOLVE_PAUSE_MS = 220
+export const SOUL_DIE_REWARD_ROLL_MS = 680
 export const AUTO_COMBAT_VICTORY_PAUSE_MS = 1_250

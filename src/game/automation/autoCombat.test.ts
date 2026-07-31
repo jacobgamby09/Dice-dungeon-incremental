@@ -3,6 +3,7 @@ import {
   AUTO_COMBAT_DRAW_PAUSE_MS,
   AUTO_COMBAT_RESOLVE_PAUSE_MS,
   AUTO_COMBAT_VICTORY_PAUSE_MS,
+  SOUL_DIE_REWARD_ROLL_MS,
 } from './autoCombat'
 
 describe('live Auto Combat timing', () => {
@@ -10,5 +11,6 @@ describe('live Auto Combat timing', () => {
     expect(AUTO_COMBAT_DRAW_PAUSE_MS).toBeGreaterThan(0)
     expect(AUTO_COMBAT_RESOLVE_PAUSE_MS).toBeGreaterThan(AUTO_COMBAT_DRAW_PAUSE_MS)
     expect(AUTO_COMBAT_VICTORY_PAUSE_MS).toBeGreaterThan(AUTO_COMBAT_RESOLVE_PAUSE_MS)
+    expect(AUTO_COMBAT_VICTORY_PAUSE_MS).toBeGreaterThan(SOUL_DIE_REWARD_ROLL_MS)
   })
 })

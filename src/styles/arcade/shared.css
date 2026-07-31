@@ -2,7 +2,7 @@
   width: min(100%, 384px);
   min-height: 100dvh;
   margin: 0 auto;
-  border-inline: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-section) solid var(--arcade-white);
   color: var(--arcade-white);
   background: var(--arcade-black);
   font-family: var(--arcade-font-ui);

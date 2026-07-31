@@ -131,7 +131,6 @@ export function PostCombatScreen() {
         bonusXp={bonusXp}
         charmBonusSouls={charmBonusSouls}
         fateTokensEarned={fateTokensEarned}
-        fast={profile.autoCombat}
         heading={dungeonComplete ? 'This descent' : 'Battle rewards'}
         soulsEarned={rewardSouls}
         totalSouls={profile.bankedSouls}

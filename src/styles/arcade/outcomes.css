@@ -222,5 +222,22 @@
 }
 
 .outcome-reward--fate {
-  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.outcome-loot {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  border-top: var(--arcade-frame-section) solid var(--arcade-white);
+  padding-top: 10px;
+}
+
+.outcome-loot > p {
+  margin: 0;
+  border: var(--arcade-frame-subtle) dashed var(--arcade-line-subtle);
+  padding: 12px 10px;
+  color: var(--arcade-muted);
+  font-size: 0.58rem;
+  text-align: center;
 }

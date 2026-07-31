@@ -3,23 +3,21 @@ import { useEffect, useMemo, useState } from 'react'
 import { Flame } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
 import { createSoulDie } from '../../game/content/dice'
+import { SOUL_DIE_REWARD_ROLL_MS } from '../../game/automation/autoCombat'
 import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
 import { PhysicalDieCube } from './PhysicalDieCube'
 
 interface SoulDieRewardProps {
-  fast?: boolean
   result: SoulDieRollResult
   values: SoulDieValues
 }
 
 export function SoulDieReward({
-  fast = false,
   result,
   values,
 }: SoulDieRewardProps) {
   return (
     <SoulDieAnimation
-      fast={fast}
       key={`${result.faceId}-${result.soulValue}-${result.payout}`}
       result={result}
       values={values}
@@ -28,7 +26,6 @@ export function SoulDieReward({
 }
 
 function SoulDieAnimation({
-  fast = false,
   result,
   values,
 }: SoulDieRewardProps) {
@@ -41,10 +38,10 @@ function SoulDieAnimation({
     if (reduceMotion) return
     const timer = window.setTimeout(
       () => setLanded(true),
-      fast ? 260 : 680,
+      SOUL_DIE_REWARD_ROLL_MS,
     )
     return () => window.clearTimeout(timer)
-  }, [fast, reduceMotion])
+  }, [reduceMotion])
 
   return (
     <div
@@ -73,7 +70,7 @@ function SoulDieAnimation({
               '--side-surface': '#4c1d75',
             } as CSSProperties,
           }))}
-          rollDuration={fast ? 0.26 : 0.68}
+          rollDuration={SOUL_DIE_REWARD_ROLL_MS / 1_000}
           stage={stage}
         />
       </div>

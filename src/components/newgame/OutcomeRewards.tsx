@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { Flame, Sparkles } from 'lucide-react'
 import { FateTokenIcon } from './FateTokenIcon'
 import { SoulDieReward } from './SoulDieReward'
 import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
@@ -17,7 +17,7 @@ interface OutcomeRewardsProps {
   totalFateTokens?: number
   soulDieValues?: SoulDieValues
   soulRoll?: SoulDieRollResult
-  fast?: boolean
+  showLootSection?: boolean
 }
 
 const REWARD_INITIAL = { opacity: 0, y: 14 }
@@ -38,7 +38,7 @@ export function OutcomeRewards({
   totalFateTokens,
   soulDieValues,
   soulRoll,
-  fast = false,
+  showLootSection = false,
 }: OutcomeRewardsProps) {
   const prefersReducedMotion = useReducedMotion()
 
@@ -65,10 +65,15 @@ export function OutcomeRewards({
           <small>{totalXp} total</small>
         </div>
 
-        <div className="outcome-reward outcome-reward--souls outcome-reward--soul-die">
+        <div className={`outcome-reward outcome-reward--souls${soulRoll ? ' outcome-reward--soul-die' : ''}`}>
+          {!soulRoll ? (
+            <span aria-hidden="true" className="outcome-reward__icon">
+              <Flame size={23} />
+            </span>
+          ) : null}
           <span>Souls</span>
           {soulRoll && soulDieValues ? (
-            <SoulDieReward fast={fast} result={soulRoll} values={soulDieValues} />
+            <SoulDieReward result={soulRoll} values={soulDieValues} />
           ) : (
             <strong>+{soulsEarned}</strong>
           )}
@@ -80,18 +85,26 @@ export function OutcomeRewards({
           <small>{totalSouls} total</small>
         </div>
 
-        {totalFateTokens !== undefined && fateTokensEarned > 0 ? (
-          <div className="outcome-reward outcome-reward--fate">
-            <span aria-hidden="true" className="outcome-reward__icon">
-              <FateTokenIcon size={27} />
-            </span>
-            <span>Loot found</span>
-            <strong>+{fateTokensEarned}</strong>
-            <em>Fate Token{fateTokensEarned === 1 ? '' : 's'}</em>
-            <small>{totalFateTokens} total</small>
-          </div>
-        ) : null}
       </div>
+
+      {(showLootSection || (totalFateTokens !== undefined && fateTokensEarned > 0)) ? (
+        <section aria-label="Loot found" className="outcome-loot">
+          <span className="eyebrow">Loot</span>
+          {totalFateTokens !== undefined && fateTokensEarned > 0 ? (
+            <div className="outcome-reward outcome-reward--fate">
+              <span aria-hidden="true" className="outcome-reward__icon">
+                <FateTokenIcon size={27} />
+              </span>
+              <span>Fate Tokens</span>
+              <strong>+{fateTokensEarned}</strong>
+              <em>Fate Token{fateTokensEarned === 1 ? '' : 's'}</em>
+              <small>{totalFateTokens} total</small>
+            </div>
+          ) : (
+            <p>No special loot this descent.</p>
+          )}
+        </section>
+      ) : null}
     </motion.section>
   )
 }
