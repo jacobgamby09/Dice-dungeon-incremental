@@ -254,7 +254,7 @@ Brug denne skabelon:
 - Berørte områder: Fate Draw-styling og denne progress-log.
 - Validering: `npx tsc --noEmit`, 37 Vitest-filer / 168 tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 bekræfter synlige naboer under spin, skjulte naboer efter landing og ingen horisontal overflow.
 - Kendte mangler: Ingen kendte mangler i denne afgrænsede rettelse.
-- Git: Ikke committed endnu.
+- Git: `f8e443e` på `codex/arcade-foundation-v1`; dokumentationsstatus følger i næste log-commit.
 
 ### 2026-07-31 — Fate Draw rate-info
 
