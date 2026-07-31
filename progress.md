@@ -246,7 +246,7 @@ Brug denne skabelon:
 - Berørte områder: Hub-styling, Talent Tree-styling, `DESIGN.md`, `CLASSIC_INCREMENTAL_V2.md` og denne progress-log.
 - Validering: `npx tsc --noEmit`, `npm test -- --run` (35 filer / 162 tests), `npm run lint` og `npm run build` består. Browserkontrol ved 384 px bekræfter Dungeon `#ff334f`, Talent Tree `#31e85f`, Loadout `#30e8ff`, grøn Talent Tree-HUD og ingen horisontal overflow.
 - Kendte mangler: Ingen kendte.
-- Git: Ikke committed.
+- Git: Implementering committed som `668771a` på `codex/arcade-foundation-v1`; denne logopdatering følger i separat commit.
 
 ### 2026-07-31 — Hub-, Talent- og Fate-clarity pass
 
