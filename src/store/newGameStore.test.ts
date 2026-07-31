@@ -420,6 +420,28 @@ describe('Classic V2 store progression loop', () => {
       .toEqual(['attack', 'shield'])
   })
 
+  it('loads a clean Fatecraft start at the beginning of Dungeon 2', () => {
+    useNewGameStore.getState().loadFatecraftStartDevPreset()
+    const state = useNewGameStore.getState()
+
+    expect(state.screen).toBe('hub')
+    expect(state.run.status).toBe('inactive')
+    expect(state.profile.unlockedDungeonIds).toContain('iron-depths')
+    expect(state.profile.dungeonProgress['prototype-depths'].clearCount).toBe(1)
+    expect(state.profile.talentRanks).toMatchObject({
+      [TALENT_IDS.fieldStudies]: 1,
+      [TALENT_IDS.fatecraft]: 1,
+      [TALENT_IDS.secondDescent]: 1,
+    })
+    expect(state.profile).toMatchObject({
+      fateTokens: 0,
+      fatePity: 0,
+      charmRanks: {},
+      equippedCharmIds: [],
+      pendingFateDraw: null,
+    })
+  })
+
   it('unlocks The Iron Descent only after its path and Dungeon 1 clear', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({

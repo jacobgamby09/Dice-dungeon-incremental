@@ -28,7 +28,7 @@ import {
 } from '../game/forge/forge'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
 import { createEarlyQolTestProfile } from '../game/dev/earlyQolPreset'
-import { createCharmTestProfile } from '../game/dev/charmTestPreset'
+import { createFatecraftStartProfile } from '../game/dev/fatecraftStartPreset'
 import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
@@ -129,7 +129,7 @@ export interface NewGameState {
   equipCharm: (charmId: CharmId) => boolean
   unequipCharm: (charmId: CharmId) => boolean
   loadEarlyQolDevPreset: () => void
-  loadCharmTestDevPreset: () => void
+  loadFatecraftStartDevPreset: () => void
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
@@ -1563,11 +1563,11 @@ export const useNewGameStore = create<NewGameState>()(
         })
       },
 
-      loadCharmTestDevPreset: () => {
+      loadFatecraftStartDevPreset: () => {
         const state = get()
         set({
           ...initialState,
-          profile: createCharmTestProfile(createInitialProfile()),
+          profile: createFatecraftStartProfile(createInitialProfile()),
           run: createInactiveRun(),
           combat: createCombatState([], 1, state.combat.resolutionVersion),
           runMenuOpen: false,

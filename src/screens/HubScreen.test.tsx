@@ -12,6 +12,7 @@ describe('HubScreen developer tools', () => {
     const markup = renderToStaticMarkup(<HubScreen />)
 
     expect(markup).toContain('Developer tools')
+    expect(markup).toContain('DEV · Dungeon 2 + Fatecraft')
     expect(markup).toContain('DEV · Fresh QoL test · 20 XP')
     expect(markup).toContain('DEV · Load Dungeon 2 profile')
     expect(markup).toContain('DEV · Reset game')

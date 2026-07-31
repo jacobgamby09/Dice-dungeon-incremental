@@ -23,7 +23,7 @@ import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud
 import { SoulDieSummary } from '../components/newgame/SoulDieSummary'
 import { POST_DUNGEON_ONE_DEV_PRESET } from '../game/dev/postDungeonOnePreset'
 import { EARLY_QOL_TEST_XP } from '../game/dev/earlyQolPreset'
-import { CHARM_TEST_DEV_PRESET } from '../game/dev/charmTestPreset'
+import { FATECRAFT_START_DEV_PRESET } from '../game/dev/fatecraftStartPreset'
 import { getDiceCapacity, getSoulDieValues } from '../game/progression/talents'
 import { hasCharmsUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
@@ -54,7 +54,9 @@ export function HubScreen() {
     (state) => state.loadPostDungeonOneDevPreset,
   )
   const loadEarlyQolDevPreset = useNewGameStore((state) => state.loadEarlyQolDevPreset)
-  const loadCharmTestDevPreset = useNewGameStore((state) => state.loadCharmTestDevPreset)
+  const loadFatecraftStartDevPreset = useNewGameStore(
+    (state) => state.loadFatecraftStartDevPreset,
+  )
   const resetProgress = useNewGameStore((state) => state.resetProgress)
   const diceCapacity = getDiceCapacity(profile.talentRanks)
   const charmsUnlocked = hasCharmsUnlocked(profile.talentRanks)
@@ -82,8 +84,8 @@ export function HubScreen() {
     setLoadedPreset('early-qol')
   }
 
-  const confirmCharmTestPreset = () => {
-    loadCharmTestDevPreset()
+  const confirmFatecraftStartPreset = () => {
+    loadFatecraftStartDevPreset()
     setDevAction(null)
     setLoadedPreset('charm')
   }
@@ -231,7 +233,7 @@ export function HubScreen() {
             {loadedPreset === 'early-qol'
               ? `Fresh QoL test save loaded with ${EARLY_QOL_TEST_XP} XP.`
               : loadedPreset === 'charm'
-                ? 'Charm test profile loaded.'
+                ? 'Dungeon 2 + Fatecraft profile loaded.'
                 : 'Dungeon 2 test profile loaded.'}
           </p>
         ) : null}
@@ -240,24 +242,26 @@ export function HubScreen() {
           <div className="dev-preset__confirmation">
             <Gem aria-hidden="true" size={19} />
             <div>
-              <strong>Load Charm test profile?</strong>
+              <strong>Start at Dungeon 2 with Fatecraft?</strong>
               <p>
-                Replaces the current save with Fatecraft, two Charm slots and a
-                near-pity Fate Draw ready for focused testing.
+                Replaces the current save with a realistic Dungeon 1 clear,
+                Fatecraft unlocked and The Iron Descent ready to enter.
               </p>
             </div>
             <dl className="dev-preset__summary">
-              <div><dt>Fate Tokens</dt><dd>{CHARM_TEST_DEV_PRESET.fateTokens}</dd></div>
-              <div><dt>Charms</dt><dd>{CHARM_TEST_DEV_PRESET.ownedCharms} owned</dd></div>
-              <div><dt>Slots</dt><dd>{CHARM_TEST_DEV_PRESET.equippedCharms} equipped</dd></div>
-              <div><dt>Pity</dt><dd>{CHARM_TEST_DEV_PRESET.pity}/5</dd></div>
+              <div><dt>Dungeon 1</dt><dd>Cleared</dd></div>
+              <div><dt>Dungeon 2</dt><dd>Ready</dd></div>
+              <div><dt>Fatecraft</dt><dd>Unlocked</dd></div>
+              <div><dt>Charm Slots</dt><dd>{FATECRAFT_START_DEV_PRESET.charmSlots} empty</dd></div>
+              <div><dt>Fate Tokens</dt><dd>{FATECRAFT_START_DEV_PRESET.fateTokens}</dd></div>
+              <div><dt>Charms</dt><dd>{FATECRAFT_START_DEV_PRESET.ownedCharms} owned</dd></div>
             </dl>
             <div className="dev-reset__actions">
               <button className="dev-reset__cancel" onClick={() => setDevAction(null)} type="button">
                 Cancel
               </button>
-              <button className="dev-preset__confirm" onClick={confirmCharmTestPreset} type="button">
-                Load Charm test
+              <button className="dev-preset__confirm" onClick={confirmFatecraftStartPreset} type="button">
+                Load Fatecraft start
               </button>
             </div>
           </div>
@@ -365,7 +369,7 @@ export function HubScreen() {
               type="button"
             >
               <Gem aria-hidden="true" size={15} />
-              DEV · Load Charm profile
+              DEV · Dungeon 2 + Fatecraft
             </button>
             <button
               className="dev-preset__trigger"
