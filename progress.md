@@ -245,7 +245,7 @@ Brug denne skabelon:
 - Berørte områder: Fate-model, Charm-combatregel, Zustand persistence/save-version 19, Fate Sanctum/overlay, arcade-CSS, XP/Soul-assets og currency-præsentation, tests samt `CLASSIC_INCREMENTAL_V2.md`.
 - Validering: `npx tsc --noEmit`, 35 Vitest-filer/161 tests, ESLint og Vite production build er grønne. Et rigtigt 384×844 browser-flow verificerede Fate Token-acquisition, spinning/landed/reload/claim, custom XP/Soul-assets, ingen horisontal overflow og ingen console warnings/errors.
 - Kendte mangler: Revealet har endnu ingen lyd eller spillerstyret fast-forward. Draw-pris, reveal-varighed og Low Omen-frekvens er fortsat første balancepass.
-- Git: Ikke committed.
+- Git: Implementering committed som `0d396df` på `codex/arcade-foundation-v1`; dokumentationsstatus registreres i efterfølgende log-commit.
 
 ### 2026-07-31 — Dungeon 2 + Fatecraft-devstart
 
