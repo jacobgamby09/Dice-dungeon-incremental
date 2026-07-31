@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Fate Draw-landingen er visuelt ryddet op:** De dæmpede nabo-Charms bruges fortsat under reel-animationen, men skjules helt, så snart resultatet er landet. Den færdige loot-state viser derfor kun den vindende Charm.
 - **Fate Sanctum viser nu sine draw-rater uden permanent UI-støj:** En kompakt info-knap i headeren åbner et mobiltilpasset overlay med Common 50%, Rare 30%, Epic 15% og orange Legendary 5%, Draw-pris, pool-normalisering og Fate's Favor-reglen.
 - **Equipped Charms kan nu inspiceres direkte i Combat:** Hver Charm-counter er en semantisk knap, der åbner et mobiltilpasset rarity-farvet overlay med navn, rank, aktuel effekt, flavor og næste rank. Overlayet ligger over hele Combat-stacken, kan lukkes med knap eller Escape og ændrer ingen gameplay-state. Dungeon 2 + Fatecraft-devprofilen giver nu 1000 Fate Tokens til gentagne rarity- og duplicate-tests.
 - **Charm rarity- og power-overhalingen er færdig lokalt på `codex/arcade-foundation-v1`:** Fate Draw vælger nu Common/Rare/Epic/Legendary med 50/30/15/5-basisvægte, og Legendary bruger orange. De otte Charms er opdelt tydeligt efter rarity og har direkte, mærkbare effekter. Der findes ingen første-draw-garanti eller baseline rarity-pity; `Fate's Favor` tilføjer synlig Epic+/Legendary-beskyttelse gennem tre Talent Tree-ranks. Save-version 20 migrerer eksisterende Charm-saves, og to nye Legendary-assets dækker Crimson Oath og Unbroken Wall.
@@ -242,6 +243,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Rene Fate Draw-resultater
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: De to næsten usynlige nabo-firkanter forsvinder nu ved landing, så loot-resultatet kun viser den Charm, spilleren faktisk har trukket.
+- Beslutninger: Nabo-symbolerne forbliver synlige under spin-animationen for at bevare slot-machine-bevægelsen; de skjules kun i `is-landed`-state.
+- Berørte områder: Fate Draw-styling og denne progress-log.
+- Validering: `npx tsc --noEmit`, 37 Vitest-filer / 168 tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 bekræfter synlige naboer under spin, skjulte naboer efter landing og ingen horisontal overflow.
+- Kendte mangler: Ingen kendte mangler i denne afgrænsede rettelse.
+- Git: Ikke committed endnu.
 
 ### 2026-07-31 — Fate Draw rate-info
 

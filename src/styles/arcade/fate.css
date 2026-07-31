@@ -341,6 +341,10 @@
   padding: 3px;
 }
 
+.fate-machine-overlay.is-landed .fate-reel__ghost {
+  visibility: hidden;
+}
+
 .fate-reel__window {
   position: relative;
   height: 156px;
