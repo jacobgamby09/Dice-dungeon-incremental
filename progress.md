@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-30.
+Senest opdateret: 2026-07-31.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
 - **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
 - **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
 - **Fate og Talent Tree er strammet op i samme patch:** Fate Tokens og intern bad-luck protection aktiveres først efter Fatecraft; pity er fjernet fra alt player-facing UI. Talent Tree viser XP-pris på hver åben node, antal affordable upgrades i HUD, og alle prerequisites/layout-koordinater er omlagt til paths uden geometriske kryds.
@@ -229,6 +230,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Synligt Soul Die-rul og samlet outcome-ramme
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Auto Combat viser nu det samme fulde Soul Die-rul som manuel combat. Defeat placerer Souls ved siden af XP med Flame-ikon og flytter særligt loot til en separat sektion med en tydelig tom tilstand.
+- Beslutninger: Soul Die-animationen varer altid 680 ms og må ikke forkortes af Auto Combat; den eksisterende 1.250 ms victory-pause skal være lang nok til at vise hele rullet. Den fælles Pixel Arcade-shell bruger en lukket ramme på alle fire sider.
+- Berørte områder: `SoulDieReward`, `OutcomeRewards`, Auto Combat-timings, Post Combat/Defeat, outcome-styles og fælles arcade-shell.
+- Validering: `npx tsc --noEmit`, 155 Vitest-tests, ESLint og production-build bestået. Browser-verificeret ved 384×844: aktiv Soul Die-roll-state under Auto Combat, to lige brede XP/Souls-kort med ikoner, separat Loot-sektion, fire synlige shell-kanter, intet horisontalt overflow og ingen console errors.
+- Kendte mangler: Loot-sektionen viser foreløbig en neutral tom tilstand, når et run ikke gav særligt loot; flere loot-typer er fortsat fremtidigt scope.
+- Git: Gameplay/UI-commit `366b314` på `codex/arcade-foundation-v1`; progress-log følger i separat commit før push.
 
 ### 2026-07-31 — Fri face-skalering, Face Mastery-rerolls og tydelige talentkrav
 
