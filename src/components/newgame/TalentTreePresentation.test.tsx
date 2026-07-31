@@ -72,6 +72,11 @@ describe('Talent Tree presentation', () => {
         onPurchase={() => undefined}
         rank={0}
         talent={battleHardened}
+        talentRanks={{}}
+        dungeonProgress={{
+          'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+        }}
         xp={88}
       />,
     )

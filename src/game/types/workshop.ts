@@ -16,6 +16,9 @@ export interface PendingWorkshopForge {
   operationId: string
   dieId: string
   targetFaceId: string
+  targetFaceHistory: string[]
+  targetRerollOperationIds: string[]
+  rerollsRemaining: number
   workshopFaceId: string
   rolledAmount: number
   appliedAmount: number

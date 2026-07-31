@@ -10,7 +10,7 @@ import {
   getTalentPurchaseReason,
   getTalentVisibility,
   getWorkshopDieFaces,
-  getWorkshopFaceCap,
+  getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
@@ -20,7 +20,7 @@ import { createSoulDieState } from './soulDie'
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 17,
+    saveVersion: 18,
     xp,
     bankedSouls: 0,
     fateTokens: 0,
@@ -90,7 +90,7 @@ describe('Classic V2 directional talent progression', () => {
     })).toBe(2)
   })
 
-  it('upgrades the concrete Workshop Die distribution independently of face cap', () => {
+  it('upgrades Workshop Die power and target rerolls independently', () => {
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,
       [TALENT_IDS.volatileTemper]: 3,
@@ -101,7 +101,7 @@ describe('Classic V2 directional talent progression', () => {
       .toEqual([1, 1, 1, 1, 1, 2])
     expect(getWorkshopDieFaces(ranks).map((face) => face.value))
       .toEqual([1, 1, 1, 2, 2, 3])
-    expect(getWorkshopFaceCap(ranks)).toBe(7)
+    expect(getWorkshopTargetRerolls(ranks)).toBe(2)
   })
 
   it('upgrades the same permanent Soul Die through three concrete distributions', () => {

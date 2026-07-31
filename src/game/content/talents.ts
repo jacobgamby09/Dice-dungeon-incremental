@@ -142,14 +142,14 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.faceMastery,
     name: 'Face Mastery',
-    description: 'Increase the maximum value of every normal die face by 1 per rank.',
+    description: 'Gain one optional target-face reroll per rank during every Workshop Forge.',
     iconKey: 'face-mastery',
     prerequisiteIds: [TALENT_IDS.volatileTemper, TALENT_IDS.efficientTools],
     prerequisiteCount: 1,
     ranks: [
-      { cost: 30, effects: [{ type: 'face_cap', amount: 1 }] },
-      { cost: 50, effects: [{ type: 'face_cap', amount: 1 }] },
-      { cost: 80, effects: [{ type: 'face_cap', amount: 1 }] },
+      { cost: 14, effects: [{ type: 'workshop_target_rerolls', amount: 1 }] },
+      { cost: 30, effects: [{ type: 'workshop_target_rerolls', amount: 1 }] },
+      { cost: 55, effects: [{ type: 'workshop_target_rerolls', amount: 1 }] },
     ],
     track: 'workshop',
   },

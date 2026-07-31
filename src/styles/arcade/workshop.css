@@ -184,6 +184,26 @@
   line-height: 1.35;
 }
 
+.workshop-ritual__reroll {
+  align-items: center;
+  background: #10101a;
+  border: 2px solid var(--arcade-cyan);
+  color: var(--arcade-cyan);
+  cursor: pointer;
+  display: flex;
+  font: 700 0.75rem/1 var(--arcade-font-body);
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.7rem 1rem;
+  text-transform: uppercase;
+}
+
+.workshop-ritual__reroll:focus-visible {
+  outline: 3px solid var(--arcade-yellow);
+  outline-offset: 2px;
+}
+
 .workshop-ritual__action {
   min-height: 48px;
   background: #685400;

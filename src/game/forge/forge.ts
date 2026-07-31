@@ -1,4 +1,3 @@
-import { BASE_FACE_CAP } from '../content/upgradeCosts'
 import {
   ATTACK_EVOLUTIONS,
   EVOLUTION_DEFINITIONS,
@@ -42,10 +41,9 @@ export const BASE_CHAOS_FORGE_COST = 1
 
 export function canForgeFace(
   face: FaceInstance,
-  faceCap = BASE_FACE_CAP,
 ): boolean {
   if (face.signature || face.evolution || face.evolutionReady) return false
-  return face.value < faceCap
+  return true
 }
 
 export function getDieUpgradeCount(die: DieInstance): number {
@@ -57,26 +55,23 @@ export function getDieUpgradeCount(die: DieInstance): number {
 
 export function getPrecisionForgeCost(
   face: FaceInstance,
-  faceCap = BASE_FACE_CAP,
   costMultiplier = 1,
 ): number | null {
-  if (!canForgeFace(face, faceCap)) return null
+  if (!canForgeFace(face)) return null
   return Math.max(1, Math.ceil(BASE_CHAOS_FORGE_COST * 2 * Math.max(0, costMultiplier)))
 }
 
 export function getChaosEligibleFaces(
   die: DieInstance,
-  faceCap = BASE_FACE_CAP,
 ): FaceInstance[] {
-  return die.faces.filter((face) => canForgeFace(face, faceCap))
+  return die.faces.filter((face) => canForgeFace(face))
 }
 
 export function getChaosForgeCost(
   die: DieInstance,
-  faceCap = BASE_FACE_CAP,
   costMultiplier = 1,
 ): number | null {
-  const eligibleFaces = getChaosEligibleFaces(die, faceCap)
+  const eligibleFaces = getChaosEligibleFaces(die)
   if (eligibleFaces.length === 0) return null
 
   const upgradeTier = Math.floor(getDieUpgradeCount(die) / 3)
@@ -88,16 +83,15 @@ export function forgeFaceOnDie(
   die: DieInstance,
   faceId: string,
   amount = 1,
-  faceCap = BASE_FACE_CAP,
 ): {
   die: DieInstance
   newValue: number
   previousValue: number
 } | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
-  if (!face || !canForgeFace(face, faceCap)) return null
+  if (!face || !canForgeFace(face)) return null
   const previousValue = face.value
-  const newValue = Math.min(faceCap, face.value + Math.max(1, Math.floor(amount)))
+  const newValue = face.value + Math.max(1, Math.floor(amount))
 
   return {
     newValue,
@@ -120,13 +114,12 @@ export function forgeFaceOnDie(
 export function precisionForge(
   die: DieInstance,
   faceId: string,
-  faceCap = BASE_FACE_CAP,
   costMultiplier = 1,
 ): { die: DieInstance; result: ForgeResult } | null {
   const face = die.faces.find((candidate) => candidate.id === faceId)
   if (!face) return null
-  const cost = getPrecisionForgeCost(face, faceCap, costMultiplier)
-  const forged = forgeFaceOnDie(die, faceId, 1, faceCap)
+  const cost = getPrecisionForgeCost(face, costMultiplier)
+  const forged = forgeFaceOnDie(die, faceId, 1)
   if (cost === null || !forged) return null
   return {
     die: forged.die,
@@ -156,13 +149,12 @@ export function prepareWorkshopForge(
   random: () => number = Math.random,
   options: {
     costMultiplier?: number
-    faceCap?: number
+    targetRerolls?: number
   } = {},
 ): PendingWorkshopForge | null {
   if (!operationId || workshopFaces.length === 0) return null
-  const faceCap = options.faceCap ?? BASE_FACE_CAP
-  const eligibleFaces = getChaosEligibleFaces(die, faceCap)
-  const cost = getChaosForgeCost(die, faceCap, options.costMultiplier)
+  const eligibleFaces = getChaosEligibleFaces(die)
+  const cost = getChaosForgeCost(die, options.costMultiplier)
   if (eligibleFaces.length === 0 || cost === null) return null
 
   const faceRoll = clampRandomRoll(random)
@@ -170,38 +162,72 @@ export function prepareWorkshopForge(
   const workshopRoll = clampRandomRoll(random)
   const workshopFace = workshopFaces[Math.floor(workshopRoll * workshopFaces.length)]
   const rolledAmount = Math.max(1, Math.floor(workshopFace.value))
-  const appliedAmount = Math.min(faceCap - targetFace.value, rolledAmount)
 
   return {
     operationId,
     dieId: die.id,
     targetFaceId: targetFace.id,
+    targetFaceHistory: [targetFace.id],
+    targetRerollOperationIds: [],
+    rerollsRemaining: Math.max(0, Math.floor(options.targetRerolls ?? 0)),
     workshopFaceId: workshopFace.id,
     rolledAmount,
-    appliedAmount,
+    appliedAmount: rolledAmount,
     previousValue: targetFace.value,
     cost,
+  }
+}
+
+export function rerollWorkshopTarget(
+  die: DieInstance,
+  pending: PendingWorkshopForge,
+  rerollOperationId: string,
+  random: () => number = Math.random,
+): PendingWorkshopForge | null {
+  if (
+    pending.dieId !== die.id
+    || !rerollOperationId
+    || pending.rerollsRemaining <= 0
+    || pending.targetRerollOperationIds.includes(rerollOperationId)
+  ) return null
+
+  const currentTarget = die.faces.find((face) => face.id === pending.targetFaceId)
+  const eligibleFaces = getChaosEligibleFaces(die)
+  if (
+    !currentTarget
+    || currentTarget.value !== pending.previousValue
+    || eligibleFaces.length === 0
+  ) return null
+
+  const faceRoll = clampRandomRoll(random)
+  const targetFace = eligibleFaces[Math.floor(faceRoll * eligibleFaces.length)]
+  return {
+    ...pending,
+    targetFaceId: targetFace.id,
+    targetFaceHistory: [...pending.targetFaceHistory, targetFace.id],
+    targetRerollOperationIds: [
+      ...pending.targetRerollOperationIds,
+      rerollOperationId,
+    ],
+    rerollsRemaining: pending.rerollsRemaining - 1,
+    previousValue: targetFace.value,
   }
 }
 
 export function completeWorkshopForge(
   die: DieInstance,
   pending: PendingWorkshopForge,
-  faceCap = BASE_FACE_CAP,
 ): { die: DieInstance; result: ForgeResult } | null {
   if (pending.dieId !== die.id) return null
   const targetFace = die.faces.find((face) => face.id === pending.targetFaceId)
   if (
     !targetFace
     || targetFace.value !== pending.previousValue
-    || !canForgeFace(targetFace, faceCap)
+    || !canForgeFace(targetFace)
   ) return null
 
-  const appliedAmount = Math.min(
-    faceCap - targetFace.value,
-    Math.max(1, Math.floor(pending.appliedAmount)),
-  )
-  const forged = forgeFaceOnDie(die, targetFace.id, appliedAmount, faceCap)
+  const appliedAmount = Math.max(1, Math.floor(pending.appliedAmount))
+  const forged = forgeFaceOnDie(die, targetFace.id, appliedAmount)
   if (!forged) return null
 
   return {

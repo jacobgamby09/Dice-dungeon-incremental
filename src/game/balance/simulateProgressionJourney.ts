@@ -12,7 +12,7 @@ import {
   getPlayerMaxHp,
   getTalentRank,
   getWorkshopDieFaces,
-  getWorkshopFaceCap,
+  getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
 } from '../progression/talents'
@@ -89,7 +89,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 17,
+    saveVersion: 18,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
@@ -195,10 +195,9 @@ function spendSouls(
   let upgrades = 0
 
   for (let operation = 0; operation < 300; operation += 1) {
-    const faceCap = getWorkshopFaceCap(nextProfile.talentRanks)
     const costMultiplier = getWorkshopCostMultiplier(nextProfile.talentRanks)
     const target = getPriorityDice(nextProfile, strategy.loadoutPriority).find((die) => {
-      const cost = getChaosForgeCost(die, faceCap, costMultiplier)
+      const cost = getChaosForgeCost(die, costMultiplier)
       return cost !== null && cost <= nextProfile.bankedSouls
     })
     if (!target) break
@@ -208,10 +207,13 @@ function spendSouls(
       `journey-forge-${operation}`,
       getWorkshopDieFaces(nextProfile.talentRanks),
       random,
-      { costMultiplier, faceCap },
+      {
+        costMultiplier,
+        targetRerolls: getWorkshopTargetRerolls(nextProfile.talentRanks),
+      },
     )
     if (!pending) break
-    const forged = completeWorkshopForge(target, pending, faceCap)
+    const forged = completeWorkshopForge(target, pending)
     if (!forged) break
 
     nextProfile = {

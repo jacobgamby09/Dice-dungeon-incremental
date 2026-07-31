@@ -76,7 +76,7 @@ XP bruges på Talent Tree til eksempelvis:
 - Unlock af nye dice families.
 - Auto Combat og hurtigere combat.
 - Nye dungeons.
-- Højere face caps.
+- Mere kontrol over Workshop-RNG, eksempelvis target-rerolls.
 - Adgang til face evolutions.
 - Soul-relaterede talents, eksempelvis større loot-udbytte.
 
@@ -109,8 +109,8 @@ XP: Unlock Shield Dice
 → Souls forbedrer individuelle faces på netop den terning
 
 XP: Unlock Face Mastery
-→ faces må udvikles over den nuværende cap
-→ Souls betaler for den konkrete face-opgradering eller evolution
+→ spilleren får flere valgfrie target-rerolls i Workshop
+→ Souls betaler fortsat for den konkrete random face-opgradering
 ```
 
 Denne opdeling er bindende. Talent Tree og Die Workshop må aldrig konkurrere om samme funktion.

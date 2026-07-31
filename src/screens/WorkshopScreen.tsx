@@ -21,10 +21,8 @@ import {
 } from '../game/forge/forge'
 import {
   getWorkshopDieFaces,
-  getWorkshopFaceCap,
 } from '../game/progression/talents'
 import type { FaceType } from '../game/types/dice'
-import type { WorkshopDieFace } from '../game/types/workshop'
 import { useNewGameStore } from '../store/newGameStore'
 
 interface ForgeImpact {
@@ -70,17 +68,6 @@ function getPhaseCopy(phase: WorkshopPresentationPhase): string {
   }
 }
 
-function capWorkshopFaces(
-  faces: readonly WorkshopDieFace[],
-  headroom: number | null,
-): WorkshopDieFace[] {
-  if (headroom === null) return [...faces]
-  return faces.map((face) => ({
-    ...face,
-    value: Math.max(1, Math.min(face.value, headroom)),
-  }))
-}
-
 export function WorkshopScreen() {
   const diceCollection = useNewGameStore((state) => state.profile.diceCollection)
   const bankedSouls = useNewGameStore((state) => state.profile.bankedSouls)
@@ -88,6 +75,9 @@ export function WorkshopScreen() {
   const pendingForge = useNewGameStore((state) => state.profile.pendingWorkshopForge)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const beginWorkshopForge = useNewGameStore((state) => state.beginWorkshopForge)
+  const rerollPendingWorkshopTarget = useNewGameStore(
+    (state) => state.rerollPendingWorkshopTarget,
+  )
   const completePendingWorkshopForge = useNewGameStore(
     (state) => state.completePendingWorkshopForge,
   )
@@ -106,22 +96,13 @@ export function WorkshopScreen() {
   const selectedDie = diceCollection.find((die) => (
     die.id === (pendingForge?.dieId ?? selectedDieId)
   )) ?? diceCollection[0]
-  const faceCap = getWorkshopFaceCap(talentRanks)
   const workshopFaces = useMemo(
     () => getWorkshopDieFaces(talentRanks),
     [talentRanks],
   )
-  const forgeCost = selectedDie ? getChaosForgeCost(selectedDie, faceCap) : null
-  const eligibleFaces = selectedDie ? getChaosEligibleFaces(selectedDie, faceCap) : []
-  const targetHeadroom = pendingForge
-    ? Math.max(1, faceCap - pendingForge.previousValue)
-    : phase === 'result' && forgeImpact
-      ? Math.max(1, faceCap - forgeImpact.previousValue)
-      : null
-  const displayedWorkshopFaces = useMemo(
-    () => capWorkshopFaces(workshopFaces, targetHeadroom),
-    [targetHeadroom, workshopFaces],
-  )
+  const forgeCost = selectedDie ? getChaosForgeCost(selectedDie) : null
+  const eligibleFaces = selectedDie ? getChaosEligibleFaces(selectedDie) : []
+  const displayedWorkshopFaces = workshopFaces
   const revealedWorkshopResult = getWorkshopResultPresentation(phase, forgeImpact)
   const isAnimating = phase === 'selecting_target' || phase === 'rolling_power'
   const canBeginForge = (
@@ -145,7 +126,7 @@ export function WorkshopScreen() {
       return () => window.clearTimeout(timer)
     }
 
-    const faceIds = getChaosEligibleFaces(selectedDie, faceCap).map((face) => face.id)
+    const faceIds = getChaosEligibleFaces(selectedDie).map((face) => face.id)
     if (faceIds.length === 0) return
     const timers: number[] = []
     let elapsed = 0
@@ -162,7 +143,7 @@ export function WorkshopScreen() {
     }, elapsed + 190))
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
-  }, [faceCap, pendingForge, phase, reduceMotion, selectedDie])
+  }, [pendingForge, phase, reduceMotion, selectedDie])
 
   useEffect(() => {
     if (phase !== 'rolling_power' || !pendingForge || !selectedDie) return
@@ -229,6 +210,24 @@ export function WorkshopScreen() {
     setPhase('rolling_power')
   }
 
+  function rerollTarget() {
+    if (
+      !pendingForge
+      || phase !== 'target_locked'
+      || pendingForge.rerollsRemaining <= 0
+      || forgeLock.current
+    ) return
+    forgeLock.current = true
+    const rerolled = rerollPendingWorkshopTarget(
+      pendingForge.operationId,
+      createOperationId(),
+    )
+    forgeLock.current = false
+    if (!rerolled) return
+    setHighlightedFaceId(null)
+    setPhase('selecting_target')
+  }
+
   const primaryAction = phase === 'target_locked'
     ? rollWorkshopPower
     : beginForge
@@ -239,7 +238,7 @@ export function WorkshopScreen() {
     if (phase === 'selecting_target') return 'Selecting a Face...'
     if (phase === 'target_locked') return 'Roll Workshop Die'
     if (phase === 'rolling_power') return 'Workshop Die Rolling...'
-    if (forgeCost === null) return 'Every Face Is Capped'
+    if (forgeCost === null) return 'No Forgeable Faces'
     if (!canBeginForge) return `Need ${forgeCost - bankedSouls} More Souls`
     return `${phase === 'result' ? 'Forge Again' : 'Begin Forge'} · ${forgeCost} Souls`
   })()
@@ -300,8 +299,13 @@ export function WorkshopScreen() {
               <h2 id="workshop-selected-die">{selectedDie.name}</h2>
             </div>
             <div>
-              <small>Face cap</small>
-              <strong>{faceCap}</strong>
+              <small>Forge ranks</small>
+              <strong>
+                {selectedDie.faces.reduce(
+                  (total, face) => total + Math.max(0, face.value - 1),
+                  0,
+                )}
+              </strong>
             </div>
           </header>
 
@@ -320,7 +324,6 @@ export function WorkshopScreen() {
             >
               {selectedDie.faces.map((face, faceIndex) => {
                 const isHighlighted = highlightedFaceId === face.id
-                const isCapped = face.value >= faceCap
                 const isLockedTarget = (
                   isHighlighted
                   && ['target_locked', 'rolling_power', 'result'].includes(phase)
@@ -330,8 +333,8 @@ export function WorkshopScreen() {
                     animate={isHighlighted
                       ? { scale: [1, 1.12, 1.05], y: [0, -5, -3] }
                       : { scale: 1, y: 0 }}
-                    aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}${isCapped ? ', maximum' : ''}`}
-                    className={`workshop-target__face workshop-target__face--${face.type}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}${isCapped ? ' workshop-target__face--capped' : ''}`}
+                    aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}`}
+                    className={`workshop-target__face workshop-target__face--${face.type}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}`}
                     key={face.id}
                     transition={{ duration: 0.14 }}
                   >
@@ -387,13 +390,6 @@ export function WorkshopScreen() {
                     ? 'landed'
                     : 'idle'}
               />
-              {(revealedWorkshopResult.rolledAmount ?? 0)
-                > (revealedWorkshopResult.amount ?? 0) ? (
-                <small className="workshop-power__cap-note">
-                  Face Cap converts +{revealedWorkshopResult.rolledAmount}
-                  {' '}to +{revealedWorkshopResult.amount}
-                </small>
-              ) : null}
             </div>
           </section>
 
@@ -420,6 +416,17 @@ export function WorkshopScreen() {
           <div aria-live="polite" className="workshop-ritual__status">
             {getPhaseCopy(phase)}
           </div>
+
+          {phase === 'target_locked' && pendingForge?.rerollsRemaining ? (
+            <button
+              className="workshop-ritual__reroll"
+              onClick={rerollTarget}
+              type="button"
+            >
+              <Dices aria-hidden="true" size={18} />
+              Reroll Target · {pendingForge.rerollsRemaining} left
+            </button>
+          ) : null}
 
           <button
             className={`workshop-ritual__action${phase === 'target_locked' ? ' workshop-ritual__action--power' : ''}`}

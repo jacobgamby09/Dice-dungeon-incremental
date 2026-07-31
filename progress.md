@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
 - **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
 - **Fate og Talent Tree er strammet op i samme patch:** Fate Tokens og intern bad-luck protection aktiveres først efter Fatecraft; pity er fjernet fra alt player-facing UI. Talent Tree viser XP-pris på hver åben node, antal affordable upgrades i HUD, og alle prerequisites/layout-koordinater er omlagt til paths uden geometriske kryds.
 - **Charm System v1 er implementeret lokalt på `codex/arcade-foundation-v1`:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Die Mastery og giver profile-level Fate Token-drops, skjult bad-luck protection, Fate Sanctum samt første Charm-slot. Et atomisk 5-Token Fate Draw viser tre persisterede offers, beskytter de første tre acquisitions mod duplicates og kan ranke seks permanente Charms til rank 3. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, equipped Charms snapshots ved run-start, og alle seks effekter har pure combat/progression-tests, counters og proc-feedback. Otte nye pixel-assets dækker seks Charms, Fate Token og reliquary.
@@ -129,6 +130,7 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Face Mastery-rerolls bevarer Workshop-RNG og kan ramme samme face igen, men 1/2/3 rerolls og priserne 14/30/55 XP er første balancepass. Det skal måles, om rank 3 giver for meget target-kontrol, og om den stigende Soul-pris alene er en tilstrækkelig soft cap ved meget høje face-værdier.
 - Talent Tree v3 giver syv købsmuligheder umiddelbart efter Inner Spark. Det øger agency markant, men kan være for bredt som første beslutningslag og skal fresh-save-testes.
 - Flat +XP/+Souls er bevidst valgt for at være synligt på lave Dungeon 1-rewards. De tre ranks kan blive for stærke i lange dungeons og skal sammenlignes med procentbaseret eller capped scaling efter fysisk test.
 - `Efficient Tools` stacker 20% multiplicativt per rank og afrunder hvert køb op. Det er læsbart og aldrig gratis, men enkelte lave priser kan give samme afrundede pris på to ranks.
@@ -227,6 +229,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Fri face-skalering, Face Mastery-rerolls og tydelige talentkrav
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Normale Workshop-faces har ikke længere en hard value-cap, Workshop Die-jackpots anvendes fuldt, og Face Mastery giver 1–3 valgfrie random target-rerolls før power-roll. Fatecraft og andre talentdetaljer viser nu en farvekodet checkliste med hvert talentkrav, dungeon-clear og XP-progress samt en konkret blocker på købsknappen.
+- Beslutninger: Den stigende Soul-pris er Workshopens soft cap. Rerolls koster ikke ekstra Souls, kan ramme samme face, overføres ikke mellem Forge-operationer og ændrer aldrig det allerede fastlåste Workshop Die-resultat.
+- Berørte områder: Pure Forge-engine, Workshop UI/CSS, Talent Tree-detailpanel, talents/effects, Zustand-store, save-migration v18, journey-simulator, dev-preset, tests samt `CLASSIC_INCREMENTAL_V2.md` og `NEW_GAME_GDD.md`.
+- Validering: `npx tsc --noEmit`, 155/155 Vitest-tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 verificerede Fatecraft med `Field Studies ✓`, `Soul Die Mastery ○`, `Dungeon 1 0/1`, `XP 11/30` og blocker-copy; Workshop-pass verificerede 1 reroll, 6/6 target-faces, ingen horisontal overflow og begge handlinger synlige.
+- Kendte mangler: Reroll-priser og værdien af 1/2/3 charges kræver længere playtest; meget høje uncapped faces er endnu ikke økonomisk stresstestet.
+- Git: Leveres som commit `Replace face caps with Workshop rerolls` på `codex/arcade-foundation-v1`.
 
 ### 2026-07-30 — Permanent Soul Die og loot-flow
 

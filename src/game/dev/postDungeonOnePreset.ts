@@ -11,7 +11,7 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   faceMinimum: 4,
   maxHp: 17,
   soulsSpent: 252,
-  xpSpent: 469,
+  xpSpent: 453,
 } as const
 
 const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {

@@ -1,7 +1,6 @@
 import { TALENTS, TALENTS_BY_ID } from '../content/talents'
 import { BASE_SOUL_DIE_VALUES } from '../content/dice'
 import { createWorkshopDieFaces } from '../content/workshopDie'
-import { BASE_FACE_CAP } from '../content/upgradeCosts'
 import type {
   PlayerProfile,
   TalentDefinition,
@@ -98,12 +97,14 @@ export function getWorkshopDieFaces(
   return createWorkshopDieFaces(values ?? undefined)
 }
 
-export function getWorkshopFaceCap(
+export function getWorkshopTargetRerolls(
   talentRanks: Readonly<TalentRanks>,
 ): number {
   return getPurchasedEffects(talentRanks).reduce(
-    (total, effect) => total + (effect.type === 'face_cap' ? effect.amount : 0),
-    BASE_FACE_CAP,
+    (total, effect) => (
+      total + (effect.type === 'workshop_target_rerolls' ? effect.amount : 0)
+    ),
+    0,
   )
 }
 

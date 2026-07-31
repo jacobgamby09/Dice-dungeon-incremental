@@ -44,7 +44,7 @@ export type TalentEffect =
   | { type: 'grant_die'; dieId: string }
   | { type: 'roll_speed'; multiplier: number }
   | { type: 'workshop_die_faces'; values: WorkshopDieValues }
-  | { type: 'face_cap'; amount: number }
+  | { type: 'workshop_target_rerolls'; amount: number }
   | { type: 'xp_per_kill'; amount: number }
   | { type: 'soul_die_faces'; values: SoulDieValues }
   | { type: 'workshop_cost_multiplier'; multiplier: number }

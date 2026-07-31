@@ -23,6 +23,7 @@ import {
   migrateLegacyFaceEvolution,
   prepareWorkshopForge,
   precisionForge,
+  rerollWorkshopTarget,
   type ForgeResult,
 } from '../game/forge/forge'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
@@ -38,7 +39,7 @@ import {
   getTalentRank,
   getSoulDieValues,
   getWorkshopDieFaces,
-  getWorkshopFaceCap,
+  getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
@@ -115,6 +116,11 @@ export interface NewGameState {
     operationId: string,
     random?: () => number,
   ) => PendingWorkshopForge | null
+  rerollPendingWorkshopTarget: (
+    operationId: string,
+    rerollOperationId: string,
+    random?: () => number,
+  ) => PendingWorkshopForge | null
   completePendingWorkshopForge: (operationId: string) => ForgeResult | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
   evolveFace: (dieId: string, faceId: string, evolutionId: FaceEvolutionId) => boolean
@@ -128,7 +134,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 17
+const SAVE_VERSION = 18
 const LEGACY_FATECRAFT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
@@ -344,8 +350,59 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
   }
 }
 
+function migratePendingWorkshopForge(
+  pending: Partial<PendingWorkshopForge> | null | undefined,
+  talentRanks: Readonly<TalentRanks>,
+): PendingWorkshopForge | null {
+  if (
+    !pending
+    || !pending.operationId
+    || !pending.dieId
+    || !pending.targetFaceId
+    || !pending.workshopFaceId
+    || typeof pending.rolledAmount !== 'number'
+    || !Number.isFinite(pending.rolledAmount)
+    || typeof pending.previousValue !== 'number'
+    || !Number.isFinite(pending.previousValue)
+    || typeof pending.cost !== 'number'
+    || !Number.isFinite(pending.cost)
+  ) return null
+
+  return {
+    operationId: pending.operationId,
+    dieId: pending.dieId,
+    targetFaceId: pending.targetFaceId,
+    targetFaceHistory: pending.targetFaceHistory ?? [pending.targetFaceId],
+    targetRerollOperationIds: pending.targetRerollOperationIds ?? [],
+    rerollsRemaining: pending.rerollsRemaining
+      ?? getWorkshopTargetRerolls(talentRanks),
+    workshopFaceId: pending.workshopFaceId,
+    rolledAmount: Math.max(1, Math.floor(pending.rolledAmount)),
+    appliedAmount: Math.max(1, Math.floor(pending.rolledAmount)),
+    previousValue: pending.previousValue,
+    cost: pending.cost,
+  }
+}
+
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 17) {
+    const persisted = persistedState as NewGameState
+    const talentRanks = normalizeTalentRanks(persisted.profile?.talentRanks)
+    const migratedPending = migratePendingWorkshopForge(
+      persisted.profile?.pendingWorkshopForge,
+      talentRanks,
+    )
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        talentRanks,
+        pendingWorkshopForge: migratedPending,
+      },
+    }
+  }
   if (version === 16) {
     const persisted = persistedState as NewGameState
     const talentRanks = normalizeTalentRanks(persisted.profile?.talentRanks)
@@ -364,6 +421,10 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         pendingFateDraw: hasCharmsUnlocked(talentRanks)
           ? persisted.profile?.pendingFateDraw ?? null
           : null,
+        pendingWorkshopForge: migratePendingWorkshopForge(
+          persisted.profile?.pendingWorkshopForge,
+          talentRanks,
+        ),
       },
     }
   }
@@ -1292,7 +1353,7 @@ export const useNewGameStore = create<NewGameState>()(
           random,
           {
             costMultiplier: getWorkshopCostMultiplier(state.profile.talentRanks),
-            faceCap: getWorkshopFaceCap(state.profile.talentRanks),
+            targetRerolls: getWorkshopTargetRerolls(state.profile.talentRanks),
           },
         )
         if (!pendingForge || state.profile.bankedSouls < pendingForge.cost) return null
@@ -1304,6 +1365,35 @@ export const useNewGameStore = create<NewGameState>()(
           },
         })
         return pendingForge
+      },
+
+      rerollPendingWorkshopTarget: (
+        operationId,
+        rerollOperationId,
+        random = Math.random,
+      ) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return null
+        const pendingForge = state.profile.pendingWorkshopForge
+        if (!pendingForge || pendingForge.operationId !== operationId) return null
+        const die = state.profile.diceCollection.find(
+          (candidate) => candidate.id === pendingForge.dieId,
+        )
+        if (!die) return null
+        const rerolled = rerollWorkshopTarget(
+          die,
+          pendingForge,
+          rerollOperationId,
+          random,
+        )
+        if (!rerolled) return null
+        set({
+          profile: {
+            ...state.profile,
+            pendingWorkshopForge: rerolled,
+          },
+        })
+        return rerolled
       },
 
       completePendingWorkshopForge: (operationId) => {
@@ -1319,11 +1409,7 @@ export const useNewGameStore = create<NewGameState>()(
           (candidate) => candidate.id === pendingForge.dieId,
         )
         if (!die) return null
-        const forged = completeWorkshopForge(
-          die,
-          pendingForge,
-          getWorkshopFaceCap(state.profile.talentRanks),
-        )
+        const forged = completeWorkshopForge(die, pendingForge)
         if (!forged) return null
         set({
           profile: {
@@ -1351,7 +1437,6 @@ export const useNewGameStore = create<NewGameState>()(
         const forged = precisionForge(
           die,
           faceId,
-          getWorkshopFaceCap(state.profile.talentRanks),
           getWorkshopCostMultiplier(state.profile.talentRanks),
         )
         if (!forged || state.profile.bankedSouls < forged.result.cost) return null

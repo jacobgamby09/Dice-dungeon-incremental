@@ -265,6 +265,14 @@
   color: #b9eaf2;
 }
 
+.talent-canvas-inspector__requirements span[data-met='true'] {
+  color: var(--arcade-green);
+}
+
+.talent-canvas-inspector__requirements span[data-met='false'] {
+  color: #ffb1bd;
+}
+
 .talent-canvas-inspector__future {
   border-left-color: var(--arcade-purple);
   background: #120b20;

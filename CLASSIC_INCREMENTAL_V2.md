@@ -152,7 +152,7 @@ En ny V2-profil starter med:
 | Auto Combat | Låst |
 | Workshop Die | `1–1–1–1–1–2` |
 | Soul Die | `×1–×1–×1–×2–×2–×2` |
-| Normal face cap | 5 |
+| Normal face cap | Ingen hard cap |
 | Unlocked dungeon | `The First Descent` |
 
 ### Første encounter
@@ -205,7 +205,7 @@ XP kan give:
 - Auto Combat;
 - hurtigere combat;
 - stærkere Workshop Die;
-- højere face cap;
+- flere valgfrie Workshop target-rerolls;
 - nye dungeons;
 - adgang til systemer som Charms.
 
@@ -350,14 +350,16 @@ Workshoppen er V2’s vigtigste gentagne incremental-upgrade.
 ### 8.1 Player flow
 
 1. Spilleren vælger én ejet permanent die.
-2. UI viser dens seks nuværende faces og den aktuelle face cap.
+2. UI viser dens seks nuværende faces og samlede Forge-vækst.
 3. Spilleren betaler den viste Soul-pris.
 4. Workshoppen flicker mellem alle eligible faces.
 5. Ét tilfældigt face fastlåses som target.
-6. Spilleren ruller den separate Workshop Die.
-7. Workshop Die bestemmer upgrade-mængden.
-8. Target-face får den viste permanente forbedring.
-9. Resultatet viser face-nummer, `+X` samt gammel og ny værdi.
+6. Eventuelle Face Mastery-rerolls kan bruges eller gemmes; et nyt target kan være
+   det samme face igen.
+7. Spilleren accepterer target og ruller den separate Workshop Die.
+8. Workshop Die bestemmer upgrade-mængden.
+9. Target-face får hele den viste permanente forbedring.
+10. Resultatet viser face-nummer, `+X` samt gammel og ny værdi.
 
 ### 8.2 Eligible faces
 
@@ -365,11 +367,9 @@ Et face kan rammes, hvis det:
 
 - ikke er et signature-face;
 - ikke allerede er evolved;
-- ikke venter på en evolution;
-- ligger under den aktuelle face cap.
+- ikke venter på en evolution.
 
-Target vælges uniformt blandt alle eligible faces. Et capped face reducerer derfor
-ikke chancen for de resterende faces.
+Target vælges uniformt blandt alle eligible faces uanset nuværende værdi.
 
 ### 8.3 Workshop Die
 
@@ -388,13 +388,14 @@ Base Workshop Die:
 
 Et resultat over 1 er et jackpot-resultat. Workshop Die har ingen 0-side.
 
-### 8.4 Face cap og headroom
+### 8.4 Fri face-skalering og Face Mastery
 
-Base face cap er 5. `Face Mastery` hæver den til 6, 7 og 8.
+Normale, ikke-evolved faces har ingen hard numeric cap. Et `+2/+3`-resultat
+anvendes altid fuldt. Den stigende Soul-pris er systemets soft cap.
 
-Hvis et target kun har ét point til cap, vises Workshop Die for den operation med
-alle resultater capped til `+1`. Spilleren ser dermed aldrig et råt `+2/+3`, som
-bagefter skjult reduceres.
+`Face Mastery` giver 1, 2 og 3 valgfrie target-rerolls per Forge. Rerolls sker
+efter target-roll og før Workshop Die-roll, koster ikke ekstra Souls og kan ramme
+samme face igen. Ubrugte rerolls overføres ikke til næste Forge.
 
 ### 8.5 Soul-pris
 
@@ -422,6 +423,9 @@ Ved første Forge-handling fastlåses og gemmes:
 - operation-ID;
 - die-ID;
 - target-face-ID;
+- target-face-historik;
+- brugte reroll-operation-ID’er;
+- resterende rerolls;
 - Workshop-face-ID;
 - råt roll;
 - faktisk anvendt roll;
@@ -463,7 +467,7 @@ Talent Tree bruger kun XP og er bygget radialt omkring `Inner Spark`.
 | --- | --- | --- |
 | Centrum | Core | Tidlig HP og adgang til alle retninger |
 | Nord | Arsenal | Slots og nye permanente dice |
-| Vest | Workshop | Workshop Die, Soul-effektivitet og face cap |
+| Vest | Workshop | Workshop Die, Soul-effektivitet og target-kontrol |
 | Syd | Descent | Auto Combat, hastighed, HP og dungeons |
 | Øst | Fate & Fortune | XP/Soul-effektivitet, Fate Tokens og Charms |
 
@@ -486,7 +490,7 @@ talenter, så centrale mål kan nås ad flere veje.
 | Tower Discipline | 110 XP | Third Grip | Tower Die |
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
 | Efficient Tools | 10 / 22 / 40 XP | Inner Spark rank 1 | 20% lavere Workshop-pris per rank, multiplicativt |
-| Face Mastery | 30 / 50 / 80 XP | Loaded Alloy **eller** Efficient Tools | +1 normal face cap per rank |
+| Face Mastery | 14 / 30 / 55 XP | Loaded Alloy **eller** Efficient Tools | +1 valgfri target-reroll per Forge per rank |
 | Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
 | Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
 | Deep Reserves | 18 / 28 / 42 XP | Auto Combat | +2 Max HP per rank |
@@ -510,8 +514,8 @@ eksplicit.
 - Maksimale nuværende slots: 4.
 - Base Charm slots: 0.
 - Maksimale nuværende Charm slots: 3.
-- Base face cap: 5.
-- Maksimal nuværende face cap: 8.
+- Normale faces har ingen hard numeric cap.
+- Face Mastery giver maksimalt 3 target-rerolls per Forge.
 
 ### 9.4 Quick Draw
 
@@ -873,7 +877,7 @@ motivation.
 ## 17. Åbne designspørgsmål
 
 1. Føles target-flicker og Workshop-roll stadig godt efter 15–25 køb?
-2. Er et capped Workshop-roll tydeligt og fair?
+2. Giver 1–3 target-rerolls agency uden at gøre random target ligegyldigt?
 3. Er Auto Combat run 2–3 tidligt nok til at undgå input-træthed?
 4. Er de separate 16-XP-køb Second Grip og Striker Pattern reelle valg, eller købes de altid sammen?
 5. Opleves Dungeon 1-clear omkring run 12–45 som progression eller grind?
@@ -890,7 +894,7 @@ motivation.
 
 1. Gennemfør en fysisk fresh-save-playtest på iPhone.
 2. Mål realtid til første kill, første Forge, Auto Combat, floor 3, Second Grip og Striker Pattern.
-3. Log 15–25 Workshop-køb og vurder variation, tempo og cap-oplevelse.
+3. Log 15–25 Workshop-køb og vurder variation, tempo, Soul soft-cap og reroll-værdi.
 4. Retune Dungeon 2 til den målte V2-kurve.
 5. Playtest Fatecraft, første Fate Draw og mindst to simultaneous Charm-procs.
 6. Mål acquisition rate og rank-up tempo gennem Dungeon 1 og 2.

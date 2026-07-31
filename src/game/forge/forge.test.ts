@@ -9,6 +9,7 @@ import {
   getPrecisionForgeCost,
   precisionForge,
   prepareWorkshopForge,
+  rerollWorkshopTarget,
 } from './forge'
 
 describe('Classic V2 Workshop Forge', () => {
@@ -64,7 +65,7 @@ describe('Classic V2 Workshop Forge', () => {
     expect(result?.die.faces.map((face) => face.value)).toEqual([1, 1, 1, 1, 1, 3])
   })
 
-  it('caps the visible Workshop result to the selected face headroom', () => {
+  it('applies the full Workshop result without a hard face cap', () => {
     const die = createStartingDice()[0]
     die.faces[0].value = 4
     const rolls = [0, 0.99]
@@ -73,18 +74,17 @@ describe('Classic V2 Workshop Forge', () => {
       'operation-cap',
       createWorkshopDieFaces(),
       () => rolls.shift() ?? 0,
-      { faceCap: 5 },
     )
 
     expect(pending).toMatchObject({
       rolledAmount: 2,
-      appliedAmount: 1,
+      appliedAmount: 2,
     })
-    expect(completeWorkshopForge(die, pending!, 5)?.result).toMatchObject({
-      amount: 1,
+    expect(completeWorkshopForge(die, pending!)?.result).toMatchObject({
+      amount: 2,
       rolledAmount: 2,
-      newValue: 5,
-      isJackpot: false,
+      newValue: 6,
+      isJackpot: true,
     })
   })
 
@@ -101,15 +101,37 @@ describe('Classic V2 Workshop Forge', () => {
     expect(completeWorkshopForge(die, pending)).toBeNull()
   })
 
-  it('removes capped faces from the target pool and respects mastery caps', () => {
+  it('keeps every normal face in the target pool at any value', () => {
     const die = createStartingDice()[0]
     die.faces.forEach((face) => {
       face.value = 5
     })
 
-    expect(getChaosEligibleFaces(die)).toHaveLength(0)
-    expect(getChaosForgeCost(die)).toBeNull()
-    expect(getChaosEligibleFaces(die, 6)).toHaveLength(6)
+    expect(getChaosEligibleFaces(die)).toHaveLength(6)
+    expect(getChaosForgeCost(die)).toBe(9)
+  })
+
+  it('rerolls the target without changing cost or the locked Workshop result', () => {
+    const die = createStartingDice()[0]
+    const pending = prepareWorkshopForge(
+      die,
+      'operation-reroll',
+      createWorkshopDieFaces(),
+      () => 0,
+      { targetRerolls: 2 },
+    )!
+    const rerolled = rerollWorkshopTarget(die, pending, 'reroll-1', () => 0.99)
+
+    expect(rerolled).toMatchObject({
+      targetFaceId: die.faces[5].id,
+      targetFaceHistory: [die.faces[0].id, die.faces[5].id],
+      targetRerollOperationIds: ['reroll-1'],
+      rerollsRemaining: 1,
+      workshopFaceId: pending.workshopFaceId,
+      rolledAmount: pending.rolledAmount,
+      cost: pending.cost,
+    })
+    expect(rerollWorkshopTarget(die, rerolled!, 'reroll-1', () => 0.5)).toBeNull()
   })
 
   it('keeps Precision as an internal compatibility path but prices it above Workshop', () => {

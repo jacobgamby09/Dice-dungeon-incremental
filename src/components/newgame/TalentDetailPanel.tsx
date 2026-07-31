@@ -9,7 +9,6 @@ import {
   Zap,
   Map,
   Flame,
-  Gauge,
   Gem,
   BookOpen,
   Coins,
@@ -19,7 +18,10 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
+import { DUNGEONS } from '../../game/content/dungeons'
 import { TALENTS_BY_ID } from '../../game/content/talents'
+import { getTalentRank } from '../../game/progression/talents'
+import type { DungeonId, DungeonProgress } from '../../game/types/dungeon'
 import type {
   TalentDefinition,
   TalentEffect,
@@ -38,6 +40,8 @@ interface TalentDetailPanelProps {
   onPurchase: () => void
   rank: number
   talent: TalentDefinition | null
+  talentRanks: Readonly<Record<string, number>>
+  dungeonProgress: Readonly<Record<DungeonId, DungeonProgress>>
   xp: number
 }
 
@@ -47,7 +51,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   grant_die: Dices,
   roll_speed: Zap,
   workshop_die_faces: Flame,
-  face_cap: Gauge,
+  workshop_target_rerolls: Dices,
   unlock_auto_combat: Bot,
   unlock_charms: Gem,
   unlock_dungeon: Map,
@@ -69,8 +73,8 @@ function getEffectLabel(effect: TalentEffect): string {
       return `${Math.round((effect.multiplier - 1) * 100)}% Faster Rolls`
     case 'workshop_die_faces':
       return `Workshop Die · ${effect.values.join(' · ')}`
-    case 'face_cap':
-      return `+${effect.amount} Workshop Face Cap`
+    case 'workshop_target_rerolls':
+      return `+${effect.amount} Target Reroll per Forge`
     case 'unlock_auto_combat':
       return 'Auto Combat Toggle'
     case 'unlock_charms':
@@ -93,9 +97,12 @@ function getPurchaseLabel(
   isAffordable: boolean,
   nextRank: TalentRankDefinition | null,
   xp: number,
+  prerequisitesMet: boolean,
+  requirementsMet: boolean,
 ): string {
   if (!nextRank || state === 'maxed') return 'Maximum rank'
-  if (state === 'locked') return 'Locked'
+  if (!prerequisitesMet) return 'Complete a connected talent'
+  if (!requirementsMet) return 'Clear Dungeon 1 to unlock'
   if (!isAffordable) return `Need ${nextRank.cost - xp} XP`
   return `Buy · ${nextRank.cost} XP`
 }
@@ -117,6 +124,8 @@ export function TalentDetailPanel({
   onPurchase,
   rank,
   talent,
+  talentRanks,
+  dungeonProgress,
   xp,
 }: TalentDetailPanelProps) {
   const dialogRef = useRef<HTMLElement>(null)
@@ -134,6 +143,19 @@ export function TalentDetailPanel({
         talent.prerequisiteCount ?? talent.prerequisiteIds.length,
       )
     : 0
+  const purchasedPrerequisiteCount = talent?.prerequisiteIds.filter(
+    (id) => getTalentRank(talentRanks, id) > 0,
+  ).length ?? 0
+  const prerequisitesMet = purchasedPrerequisiteCount >= prerequisiteCount
+  const requirementChecks = talent?.requirements?.map((requirement) => {
+    const current = dungeonProgress[requirement.dungeonId]?.clearCount ?? 0
+    return {
+      label: `Clear ${DUNGEONS[requirement.dungeonId].name}`,
+      met: current >= requirement.count,
+      progress: `${Math.min(current, requirement.count)}/${requirement.count}`,
+    }
+  }) ?? []
+  const requirementsMet = requirementChecks.every((check) => check.met)
 
   useEffect(() => {
     if (!talent) return
@@ -210,15 +232,41 @@ export function TalentDetailPanel({
               })}
             </div>
 
-            {prerequisiteNames.length > 0 && (
-              <p className="talent-canvas-inspector__requirements">
-                <strong>
-                  {prerequisiteCount < prerequisiteNames.length
-                    ? `Requires any ${prerequisiteCount}`
-                    : 'Requires'}
-                </strong>
-                <span>{prerequisiteNames.join(' · ')}</span>
-              </p>
+            {(prerequisiteNames.length > 0 || requirementChecks.length > 0 || nextRank) && (
+              <section
+                aria-label="Unlock requirements"
+                className="talent-canvas-inspector__requirements"
+              >
+                <strong>Requirements</strong>
+                {prerequisiteNames.length > 0 ? (
+                  <>
+                    <span data-met={prerequisitesMet}>
+                      {prerequisitesMet ? '✓' : '○'}{' '}
+                      {prerequisiteCount < prerequisiteNames.length
+                        ? `Any ${prerequisiteCount} connected talent`
+                        : 'All connected talents'}
+                    </span>
+                    {talent.prerequisiteIds.map((id) => {
+                      const prerequisiteMet = getTalentRank(talentRanks, id) > 0
+                      return (
+                        <span data-met={prerequisiteMet} key={id}>
+                          {prerequisiteMet ? '✓' : '○'} {TALENTS_BY_ID[id]?.name ?? id}
+                        </span>
+                      )
+                    })}
+                  </>
+                ) : null}
+                {requirementChecks.map((check) => (
+                  <span data-met={check.met} key={check.label}>
+                    {check.met ? '✓' : '○'} {check.label} · {check.progress}
+                  </span>
+                ))}
+                {nextRank ? (
+                  <span data-met={xp >= nextRank.cost}>
+                    {xp >= nextRank.cost ? '✓' : '○'} XP · {xp}/{nextRank.cost}
+                  </span>
+                ) : null}
+              </section>
             )}
 
             {talent.availability === 'future' && (
@@ -240,7 +288,14 @@ export function TalentDetailPanel({
               type="button"
             >
               <Sparkles aria-hidden="true" size={19} />
-              {getPurchaseLabel(nodeState, isAffordable, nextRank, xp)}
+              {getPurchaseLabel(
+                nodeState,
+                isAffordable,
+                nextRank,
+                xp,
+                prerequisitesMet,
+                requirementsMet,
+              )}
             </button>
           </motion.aside>
         </motion.div>

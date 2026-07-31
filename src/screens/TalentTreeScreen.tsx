@@ -320,6 +320,8 @@ export function TalentTreeScreen() {
         onPurchase={confirmPurchase}
         rank={selectedRank}
         talent={selectedTalent}
+        talentRanks={talentRanks}
+        dungeonProgress={dungeonProgress}
         xp={xp}
       />
     </main>

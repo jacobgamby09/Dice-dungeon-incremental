@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(17)
+    expect(profile.saveVersion).toBe(18)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -304,6 +304,47 @@ describe('Classic V2 store progression loop', () => {
     expect(completedProfile.pendingWorkshopForge).toBeNull()
   })
 
+  it('persists Face Mastery target rerolls without charging Souls twice', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 20,
+        talentRanks: {
+          [TALENT_IDS.faceMastery]: 1,
+        },
+      },
+    })
+    useNewGameStore.getState().beginWorkshopForge(
+      'attack-die-1',
+      'mastery-op',
+      () => 0,
+    )
+    const rerolled = useNewGameStore.getState().rerollPendingWorkshopTarget(
+      'mastery-op',
+      'mastery-reroll-1',
+      () => 0.99,
+    )
+
+    expect(rerolled).toMatchObject({
+      targetFaceId: 'attack-die-1-face-6',
+      rerollsRemaining: 0,
+      targetRerollOperationIds: ['mastery-reroll-1'],
+    })
+    expect(rerolled?.targetFaceHistory).toEqual([
+      'attack-die-1-face-1',
+      'attack-die-1-face-6',
+    ])
+    expect(useNewGameStore.getState().profile.bankedSouls).toBe(19)
+    expect(useNewGameStore.getState().rerollPendingWorkshopTarget(
+      'mastery-op',
+      'mastery-reroll-1',
+      () => 0.5,
+    )).toBeNull()
+    expect(useNewGameStore.getState().completePendingWorkshopForge('mastery-op'))
+      .toMatchObject({ faceId: 'attack-die-1-face-6' })
+  })
+
   it('charges a pending Forge once and resumes the same locked outcome', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({
@@ -464,7 +505,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 17,
+        saveVersion: 18,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
@@ -509,7 +550,7 @@ describe('Classic V2 store progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
       expect(migrated.screen).toBe('hub')
-      expect(migrated.profile.saveVersion).toBe(17)
+      expect(migrated.profile.saveVersion).toBe(18)
       expect(migrated.profile.soulDie).toEqual({ drawPileFaceIds: [] })
       expect(migrated.profile.fatePity).toBe(0)
     } finally {
@@ -549,7 +590,7 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 17,
+        saveVersion: 18,
         xp: 27,
       })
     } finally {
@@ -591,7 +632,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       const profile = useNewGameStore.getState().profile
-      expect(profile.saveVersion).toBe(17)
+      expect(profile.saveVersion).toBe(18)
       expect(profile.talentRanks).toMatchObject({
         [TALENT_IDS.twinArsenal]: 1,
         [TALENT_IDS.strikerPattern]: 1,
