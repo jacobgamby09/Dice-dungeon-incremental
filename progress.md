@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Fate Sanctum viser nu sine draw-rater uden permanent UI-støj:** En kompakt info-knap i headeren åbner et mobiltilpasset overlay med Common 50%, Rare 30%, Epic 15% og orange Legendary 5%, Draw-pris, pool-normalisering og Fate's Favor-reglen.
 - **Equipped Charms kan nu inspiceres direkte i Combat:** Hver Charm-counter er en semantisk knap, der åbner et mobiltilpasset rarity-farvet overlay med navn, rank, aktuel effekt, flavor og næste rank. Overlayet ligger over hele Combat-stacken, kan lukkes med knap eller Escape og ændrer ingen gameplay-state. Dungeon 2 + Fatecraft-devprofilen giver nu 1000 Fate Tokens til gentagne rarity- og duplicate-tests.
 - **Charm rarity- og power-overhalingen er færdig lokalt på `codex/arcade-foundation-v1`:** Fate Draw vælger nu Common/Rare/Epic/Legendary med 50/30/15/5-basisvægte, og Legendary bruger orange. De otte Charms er opdelt tydeligt efter rarity og har direkte, mærkbare effekter. Der findes ingen første-draw-garanti eller baseline rarity-pity; `Fate's Favor` tilføjer synlig Epic+/Legendary-beskyttelse gennem tre Talent Tree-ranks. Save-version 20 migrerer eksisterende Charm-saves, og to nye Legendary-assets dækker Crimson Oath og Unbroken Wall.
 - **Hub-systemerne har nu entydige handlingsfarver:** Dungeon er rød, Talent Tree og dets globale systemaccent er grøn, Loadout er cyan, Workshop er gul, og Fate Sanctum forbliver lilla. Charm-reelen har ikke længere et scanline-lag hen over symbolerne. Alle tre dice-slot-talenter bruger samme Dices-ikon, én permanent die centreres i Hub, Soul Die-ikon og faces deler baseline, og køb af en ny slot fylder automatisk pladsen med en allerede ejet reserve-die uden at omarrangere loadout.
@@ -241,6 +242,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Fate Draw rate-info
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Fate Sanctum har fået en lille info-knap ved Token-totalen, som åbner et overlay med alle fire rarity-rater og de relevante poolregler.
+- Beslutninger: Hovedskærmen holdes ren; detaljer om 50/30/15/5, max-rank-normalisering og Fate's Favor vises kun efter aktivt klik. Legendary bruger fortsat orange.
+- Berørte områder: Fate Sanctum-header, nyt Fate Rates-overlay, Fate-styling, komponenttest, V2-GDD og denne progress-log.
+- Validering: TypeScript og 37 Vitest-filer / 168 tests er grønne før slutpasset. Browser-pass ved 384×844 bekræfter fuldt synlige rater, 1000-Token-header uden overlap, ingen horisontal overflow og ingen console warnings/errors.
+- Kendte mangler: De viste tal er basisvægte; panelet forklarer derfor eksplicit, at effektive odds normaliseres, når en rarity ikke længere har eligible Charms.
+- Git: Ikke committed endnu.
 
 ### 2026-07-31 — Combat Charm-inspector og 1000 DEV Tokens
 

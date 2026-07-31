@@ -1,9 +1,10 @@
-import { ArrowLeft, Gem, LockKeyhole, Sparkles } from 'lucide-react'
+import { ArrowLeft, Gem, Info, LockKeyhole, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CharmIcon } from '../components/newgame/CharmIcon'
 import { FateDrawOverlay } from '../components/newgame/FateDrawOverlay'
+import { FateRatesOverlay } from '../components/newgame/FateRatesOverlay'
 import { FateTokenIcon } from '../components/newgame/FateTokenIcon'
 import {
   CHARMS,
@@ -108,6 +109,7 @@ export function FateSanctumScreen() {
   const goToHub = useNewGameStore((state) => state.goToHub)
   const [animatedOperationId, setAnimatedOperationId] = useState<string | null>(null)
   const [lastClaimed, setLastClaimed] = useState<CharmId | null>(null)
+  const [showRates, setShowRates] = useState(false)
   const capacity = getCharmCapacity(profile.talentRanks)
   const protection = getCharmRarityProtection(profile.talentRanks)
   const ownedCharms = CHARMS.filter((charm) => (profile.charmRanks[charm.id] ?? 0) > 0)
@@ -140,8 +142,15 @@ export function FateSanctumScreen() {
           <ArrowLeft aria-hidden="true" size={22} />
         </button>
         <div><span className="eyebrow">Permanent Fatecraft</span><h1>Fate Sanctum</h1></div>
-        <div className="fate-token-total"><FateTokenIcon size={22} /><strong>{profile.fateTokens}</strong></div>
+        <div className="fate-header__tools">
+          <button aria-label="Show Fate Draw rates" className="icon-button fate-rates-button" onClick={() => setShowRates(true)} type="button">
+            <Info aria-hidden="true" size={20} />
+          </button>
+          <div className="fate-token-total"><FateTokenIcon size={22} /><strong>{profile.fateTokens}</strong></div>
+        </div>
       </header>
+
+      {showRates ? <FateRatesOverlay onClose={() => setShowRates(false)} /> : null}
 
       <section className="charm-loadout" aria-labelledby="equipped-charms-title">
         <header>

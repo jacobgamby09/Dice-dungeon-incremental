@@ -52,6 +52,98 @@
   color: var(--arcade-purple);
 }
 
+.fate-header__tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fate-rates-button {
+  width: 40px;
+  height: 40px;
+  color: var(--arcade-purple);
+}
+
+.fate-rates-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgb(0 0 0 / 90%);
+}
+
+.fate-rates-panel {
+  position: relative;
+  width: min(100%, 344px);
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  border: 3px solid var(--arcade-purple);
+  box-shadow: 6px 6px 0 #251044, inset 0 0 0 2px var(--arcade-white);
+  background: var(--arcade-black);
+  padding: 22px 18px 18px;
+}
+
+.fate-rates-panel__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.fate-rates-panel h2 {
+  margin: 5px 0 8px;
+  color: var(--arcade-purple);
+  font-family: var(--arcade-font-display);
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.fate-rates-panel > p,
+.fate-rates-panel__notes p {
+  margin: 0;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.fate-rates-list {
+  display: grid;
+  gap: 7px;
+  margin-block: 15px;
+}
+
+.fate-rates-list > div {
+  min-height: 42px;
+  border: 2px solid var(--rarity-accent);
+  box-shadow: inset 5px 0 0 var(--rarity-accent);
+  background: color-mix(in srgb, var(--rarity-accent) 8%, var(--arcade-black));
+  padding: 7px 10px 7px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--rarity-accent);
+  font-family: var(--arcade-font-display);
+  text-transform: uppercase;
+}
+
+.fate-rates-list span {
+  font-size: 0.82rem;
+}
+
+.fate-rates-list strong {
+  font-size: 1rem;
+}
+
+.fate-rates-panel__notes {
+  border-top: 2px solid var(--arcade-purple);
+  padding-top: 11px;
+  display: grid;
+  gap: 8px;
+}
+
 .fate-pity,
 .charm-loadout,
 .fate-draw,

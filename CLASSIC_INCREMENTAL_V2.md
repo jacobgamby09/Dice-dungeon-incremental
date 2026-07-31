@@ -263,6 +263,10 @@ Et Fate Draw koster 5 Fate Tokens og fastlåser én permanent Charm.
 - Talentet `Fate's Favor` kan senere tilføje synlig bad-luck protection for
   Epic+ og Legendary draws. Beskyttelsen eksisterer kun, når talentet er købt.
 - En kendt Charm øges én rank; max-rank Charms fjernes fra draw-poolen.
+- Fate Sanctums header har en kompakt info-knap, som viser basisraterne
+  Common 50%, Rare 30%, Epic 15% og Legendary 5%. Panelet forklarer også
+  normalisering ved max-rank categories og at kun `Fate's Favor` giver
+  rarity-beskyttelse.
 
 ### 6.6 Charm collection og loadout
 
