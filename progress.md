@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Hubben har nu et rent Dungeon 2 + Fatecraft-devstart:** Den tidligere over-powerede Charm-testprofil er erstattet af et realistisk post-Dungeon-1-snapshot med The Iron Descent åben og Fatecraft købt. Profilen starter med ét tomt Charm-slot, 0 Fate Tokens, 0 Charms og 0 skjult pity, så det faktiske drop- og acquisition-flow kan testes fra første Dungeon 2-kill.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
 - **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
 - **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
@@ -230,6 +231,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Dungeon 2 + Fatecraft-devstart
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: DEV-knappen `Dungeon 2 + Fatecraft` erstatter den gamle Charm-testprofil og indlæser et rent startpunkt umiddelbart efter første dungeon.
+- Beslutninger: Presetet opfylder de reelle prerequisites gennem Dungeon 1-clear, Field Studies, Second Descent og Fatecraft, men giver ingen Fate Tokens, Charms, Woven Pair eller skjult pity. Spilleren har derfor ét tomt Charm-slot og kan teste Dungeon 2-loot-flowet fra nul.
+- Berørte områder: Fatecraft-devpreset, Hub-tekst og confirmation summary, store-action samt preset-, store- og Hub-regressionstests.
+- Validering: `npx tsc --noEmit`, 157 Vitest-tests, ESLint og production-build bestået.
+- Kendte mangler: Presetet genbruger fortsat den eksisterende post-Dungeon-1 combat-build; det er et systemtest-snapshot og ikke et endeligt balancebud på den gennemsnitlige spiller ved Dungeon 2.
+- Git: Gameplay/UI-commit `d282a03` på `codex/arcade-foundation-v1`; progress-log følger i separat commit før push.
 
 ### 2026-07-31 — Synligt Soul Die-rul og samlet outcome-ramme
 
