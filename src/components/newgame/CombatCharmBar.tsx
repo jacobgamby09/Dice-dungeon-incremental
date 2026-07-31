@@ -1,4 +1,8 @@
-import { CHARM_DEFINITIONS, getCharmRankDefinition } from '../../game/content/charms'
+import {
+  CHARM_DEFINITIONS,
+  CHARM_RARITY_DEFINITIONS,
+  getCharmRankDefinition,
+} from '../../game/content/charms'
 import type { CSSProperties } from 'react'
 import type {
   CharmRunState,
@@ -19,20 +23,21 @@ function getProgress(snapshot: CharmSnapshot, state: CharmRunState): string {
   if (effect.type === 'attack_rhythm') {
     return `${state.attackRolls % effect.threshold}/${effect.threshold}`
   }
-  if (effect.type === 'matching_roll') {
-    return state.previousRollValue === null ? '—' : `Last ${state.previousRollValue}`
+  if (effect.type === 'echo_chance') {
+    return `${Math.round(effect.chance * 100)}% Echo`
   }
-  if (effect.type === 'low_omen') {
-    return state.pendingLowOmenBonus > 0
-      ? `Ready +${state.pendingLowOmenBonus}`
-      : `${state.lowRolls}/${effect.threshold}`
+  if (effect.type === 'roll_echo') {
+    return `${state.totalRolls % effect.threshold}/${effect.threshold}`
   }
-  if (effect.type === 'round_shield') {
-    return `${state.roundsStarted % effect.threshold}/${effect.threshold}`
+  if (effect.type === 'encounter_shield') {
+    return `+${effect.amount} Encounter`
   }
-  if (effect.type === 'kill_heal' || effect.type === 'soul_echo') {
+  if (effect.type === 'kill_heal') {
     return `${state.enemiesDefeated % effect.threshold}/${effect.threshold}`
   }
+  if (effect.type === 'soul_flat') return `+${effect.amount} Soul/kill`
+  if (effect.type === 'attack_oath') return `Attack-only +${effect.bonus}`
+  if (effect.type === 'shield_carry') return `${Math.round(effect.rate * 100)}% Carry`
   return ''
 }
 
@@ -47,17 +52,19 @@ export function CombatCharmBar({
     <section aria-label="Equipped Charm counters" className="combat-charms">
       {charms.map((snapshot) => {
         const charm = CHARM_DEFINITIONS[snapshot.id]
+        const rarity = CHARM_RARITY_DEFINITIONS[charm.rarity]
         const trigger = triggers.find((candidate) => candidate.charmId === snapshot.id)
         return (
           <div
             className={`combat-charm${trigger ? ' is-triggered' : ''}`}
             key={`${snapshot.id}-${trigger ? charmTriggerVersion : 0}`}
-            style={{ '--charm-accent': charm.accent } as CSSProperties}
+            data-rarity={charm.rarity}
+            style={{ '--charm-accent': rarity.accent } as CSSProperties}
           >
             <CharmIcon charmId={snapshot.id} size={27} />
             <div>
               <strong>{charm.name}</strong>
-              <span>{trigger ? `${trigger.kind === 'roll_bonus' ? '+' : ''}${trigger.amount}` : getProgress(snapshot, charmState)}</span>
+              <span>{trigger ? `${trigger.kind === 'echo' ? 'Echo +' : trigger.kind === 'roll_bonus' ? '+' : ''}${trigger.amount}` : getProgress(snapshot, charmState)}</span>
             </div>
           </div>
         )

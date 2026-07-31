@@ -9,6 +9,7 @@ import type {
 } from '../types/progression'
 import type { SoulDieValues } from '../types/dice'
 import type { WorkshopDieFace, WorkshopDieValues } from '../types/workshop'
+import type { CharmRarityProtection } from './fate'
 
 export const BASE_PLAYER_HP = 10
 export const BASE_DICE_SLOTS = 1
@@ -135,6 +136,20 @@ export function getWorkshopCostMultiplier(
 
 export function hasCharmsUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_charms')
+}
+
+export function getCharmRarityProtection(
+  talentRanks: Readonly<TalentRanks>,
+): CharmRarityProtection | null {
+  return getPurchasedEffects(talentRanks).reduce<CharmRarityProtection | null>(
+    (current, effect) => effect.type === 'charm_rarity_protection'
+      ? {
+          epicThreshold: effect.epicThreshold,
+          legendaryThreshold: effect.legendaryThreshold,
+        }
+      : current,
+    null,
+  )
 }
 
 export function areTalentPrerequisitesMet(

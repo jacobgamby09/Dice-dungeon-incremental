@@ -30,6 +30,7 @@ export const RollDieTile = memo(function RollDieTile({
   const isActive = stage !== 'settled'
   const landedEvolution = !isRolling ? result.evolution : undefined
   const landedSignature = !isRolling ? result.signature : undefined
+  const echoTrigger = result.charmTriggers?.find((trigger) => trigger.kind === 'echo')
   const evolutionClassName = landedEvolution
     ? ` roll-die--evolution roll-die--evolution-${landedEvolution.id}`
     : ''
@@ -39,7 +40,7 @@ export const RollDieTile = memo(function RollDieTile({
 
   return (
     <article
-      className={`roll-die roll-die--${result.type} roll-die--${stage}${evolutionClassName}${signatureClassName}`}
+      className={`roll-die roll-die--${result.type} roll-die--${stage}${evolutionClassName}${signatureClassName}${echoTrigger ? ' roll-die--echo' : ''}`}
       data-stage={stage}
       style={
         landedEvolution
@@ -139,6 +140,12 @@ export const RollDieTile = memo(function RollDieTile({
           <SignatureIcon signatureId={result.signature.id} size={17} />
           <strong>{result.signature.name}</strong>
         </motion.div>
+      ) : null}
+      {stage === 'landed' && echoTrigger ? (
+        <div className="charm-echo-impact" role="status">
+          <strong>Echo</strong>
+          <span>+{echoTrigger.amount}</span>
+        </div>
       ) : null}
     </article>
   )

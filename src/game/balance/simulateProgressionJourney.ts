@@ -94,6 +94,7 @@ function createJourneyProfile(): PlayerProfile {
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    charmRarityProgress: { epicMisses: 0, legendaryMisses: 0 },
     soulDie: createSoulDieState(),
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],

@@ -38,14 +38,15 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Charm rarity- og power-overhalingen er færdig lokalt på `codex/arcade-foundation-v1`:** Fate Draw vælger nu Common/Rare/Epic/Legendary med 50/30/15/5-basisvægte, og Legendary bruger orange. De otte Charms er opdelt tydeligt efter rarity og har direkte, mærkbare effekter. Der findes ingen første-draw-garanti eller baseline rarity-pity; `Fate's Favor` tilføjer synlig Epic+/Legendary-beskyttelse gennem tre Talent Tree-ranks. Save-version 20 migrerer eksisterende Charm-saves, og to nye Legendary-assets dækker Crimson Oath og Unbroken Wall.
 - **Hub-systemerne har nu entydige handlingsfarver:** Dungeon er rød, Talent Tree og dets globale systemaccent er grøn, Loadout er cyan, Workshop er gul, og Fate Sanctum forbliver lilla. Charm-reelen har ikke længere et scanline-lag hen over symbolerne. Alle tre dice-slot-talenter bruger samme Dices-ikon, én permanent die centreres i Hub, Soul Die-ikon og faces deler baseline, og køb af en ny slot fylder automatisk pladsen med en allerede ejet reserve-die uden at omarrangere loadout.
-- **Fate Draw v2 og egne valutaikoner er implementeret lokalt på `codex/arcade-foundation-v1`:** Et Draw fastlåser nu ét vægtet Charm-resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel reel-animation, landing, partikler og reload-sikker claim. Low Omen tæller rolls under den konkrete dice gennemsnit i stedet for literal 1-rolls. XP og Souls har fået to nye genererede pixel-assets, som bruges konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes. Save-version 19 migrerer gamle tre-offer draws til ét eksisterende resultat uden reroll eller ny betaling.
+- **Fate Draw og egne valutaikoner er implementeret på `codex/arcade-foundation-v1`:** Et Draw fastlåser ét resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel-animation, landing, partikler og reload-sikker claim. XP og Souls bruger egne pixel-assets konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes; Charm-rarity og save-version 20 er beskrevet i den nyere status ovenfor.
 - **Hubben har nu et direkte Dungeon 2 + Fatecraft-devstart:** Profilen er et realistisk post-Dungeon-1-snapshot med The Iron Descent åben, Fatecraft købt, ét tomt Charm-slot, 5 Fate Tokens, 0 Charms og 0 skjult pity. Første Fate Draw kan derfor testes med det samme, mens det efterfølgende drop-flow fortsat starter rent.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
 - **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
 - **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
 - **Fate og Talent Tree er strammet op i samme patch:** Fate Tokens og intern bad-luck protection aktiveres først efter Fatecraft; pity er fjernet fra alt player-facing UI. Talent Tree viser XP-pris på hver åben node, antal affordable upgrades i HUD, og alle prerequisites/layout-koordinater er omlagt til paths uden geometriske kryds.
-- **Charm System v1 er implementeret lokalt på `codex/arcade-foundation-v1`:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Die Mastery og giver profile-level Fate Token-drops, skjult bad-luck protection, Fate Sanctum samt første Charm-slot. Et atomisk 5-Token Fate Draw viser tre persisterede offers, beskytter de første tre acquisitions mod duplicates og kan ranke seks permanente Charms til rank 3. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, equipped Charms snapshots ved run-start, og alle seks effekter har pure combat/progression-tests, counters og proc-feedback. Otte nye pixel-assets dækker seks Charms, Fate Token og reliquary.
+- **Charm-systemets fundament er aktivt:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Die Mastery og giver profile-level Fate Token-drops, skjult Token-drop protection, Fate Sanctum samt første Charm-slot. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, og equipped Charms snapshots ved run-start. Det aktuelle otte-Charm-katalog og rarity-reglerne fremgår af den nyeste status.
 - **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies`, `Soul Die Mastery` og den nu aktive Fatecraft/Woven Pair/Trinity Knot-gren. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 17 migrerer Soul Die- og Charm/Fate-defaults uden progressionstab.
 - **Offline-fremdrift er fjernet:** Auto Combat kører kun, mens spillet er åbent. Background fast-forward, away recap, checkpoints, simulatorlogik, state og CSS er fjernet; aktive runs persisteres stadig præcist.
 - **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Det store roll-felt forbliver rent sort i alle states; feedback er afgrænset til terning, transfer og destination. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
@@ -106,8 +107,9 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-1. Fresh-save-playtest 3–5 Fate Draws og mål, om single-result-spændingen, cirka fire sekunders reveal og 5-Token-prisen føles belønnende ved gentagelse.
-2. Mål Low Omens proc-frekvens på både skæve og næsten ensartede dice; tre under-gennemsnits-rolls skal være mærkbart uden at blive en automatisk bonus.
+1. Fresh-save-playtest 10–20 Fate Draws og mål faktisk rarity-fordeling, duplicate-friktion og om Common stadig føles som et værdifuldt resultat.
+2. Test alle otte Charms i manuel og hurtig Auto Combat, især Echo Knot-feedback, Crimson Oaths attack-only-betingelse og Unbroken Walls afrunding ved små Shield-tal.
+3. Balancér `Fate's Favor`-priserne 18/36/64 XP og tærsklerne 8/6/15 draws mod det reelle Fate Token-tempo.
 1. Fresh-save-test de første 6–10 kills ved 384 px og vurder Soul Die-animationens tempo i både manuel og Auto Combat.
 2. Mål om Workshop-priserne `1, 2, 3...` giver et meningsfuldt valg efter hvert tidligt run uden at maxe Worn Blade for hurtigt.
 3. Playtest Soul Die Mastery mod Auto Combat, Field Studies og Loaded Alloy; ingen af de fire første economy/QoL-valg må føles obligatorisk.
@@ -136,6 +138,8 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Rarity-vægtene 50/30/15/5, 4× vægt på ukendte Charms inden for valgt rarity og alle otte Charm-ranks er første balancepass. Uden baseline pity kan korte spillerforløb variere meget; det er tilsigtet, men skal måles før kataloget udvides.
+- Echo Knot gentager i første version kun det rå output, ikke en eventuel face-evolution eller anden proc. Det holder proc-kæden sikker og læsbar, men kan senere føles mindre build-defining end forventet.
 - Face Mastery-rerolls bevarer Workshop-RNG og kan ramme samme face igen, men 1/2/3 rerolls og priserne 14/30/55 XP er første balancepass. Det skal måles, om rank 3 giver for meget target-kontrol, og om den stigende Soul-pris alene er en tilstrækkelig soft cap ved meget høje face-værdier.
 - Talent Tree v3 giver syv købsmuligheder umiddelbart efter Inner Spark. Det øger agency markant, men kan være for bredt som første beslutningslag og skal fresh-save-testes.
 - Flat +XP/+Souls er bevidst valgt for at være synligt på lave Dungeon 1-rewards. De tre ranks kan blive for stærke i lange dungeons og skal sammenlignes med procentbaseret eller capped scaling efter fysisk test.
@@ -181,6 +185,7 @@ Brug denne skabelon:
 - V2 Auto Combat koster 6 XP efter Inner Spark og automatiserer både roll, resolve, rounds og normale floor-transitions.
 - V2 Twin Arsenal koster 32 XP og giver samtidig slot 2 og én unik Striker Die.
 - Skæve proc-regler tilhører Charms, ikke Talent Tree. Fatecraft giver første slot og Token-drops; Woven Pair/Trinity Knot giver slot 2/3. Fate Draw fastlåser ét persisteret random resultat før slot-machine-animationen, og equipped Charms snapshots ved run-start.
+- Charm-rarity er Common, Rare, Epic og Legendary; Legendary er orange. Der er ingen første-draw-garanti eller baseline rarity-pity. Kun det købte `Fate's Favor` må aktivere og vise bad-luck protection.
 
 ### Production-reference
 
@@ -235,6 +240,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-07-31 — Charm rarity, power og Fate's Favor
+
+**Status:** Færdig
+**Ansvarlig:** Codex `/root`
+
+- Resultat: Fate Sanctum opdeler nu samlingen i Common, Rare, Epic og orange Legendary. Slotmaskinen arver vinderens rarity ved landing, equipped Charms og combat-feedback viser samme identitet, og otte lettilgængelige effekter erstatter det mere situationelle v1-katalog. Crimson Oath og Unbroken Wall har nye transparente pixel-assets.
+- Beslutninger: Basisvægte er 50/30/15/5; der er ingen første-draw-garanti eller baseline rarity-pity. Ukendte Charms vægtes 4× inden for den allerede valgte rarity. `Fate's Favor` er den eneste rarity-beskyttelse og giver Epic+ inden 8/6 draws samt Legendary inden 15 ved rank 3. Echo-procs gentager raw output én gang og kan ikke rekursivt trigge sig selv.
+- Berørte områder: Charm-katalog og combat-engine, Fate Draw/persistence/save-version 20, Talent Tree, Fate Sanctum/reveal/combat-UI, Legendary-assets, tests og `CLASSIC_INCREMENTAL_V2.md`.
+- Validering: `npx tsc --noEmit`, 35 Vitest-filer / 165 tests, ESLint og Vite production build er grønne. Browser-pass ved 384×844 bekræfter fire rarity-grupper, orange Legendary, ingen horisontal overflow, ingen console warnings/errors og at slotmaskinen ikke afslører det fastlåste resultat før landingen.
+- Kendte mangler: Rarity-vægte, talentpriser og alle rank-tal er første balancepass; længere fysisk iPhone-playtest mangler.
+- Git: Ikke committed endnu.
 
 ### 2026-07-31 — Entydigt farvesprog for Dungeon og Talent Tree
 

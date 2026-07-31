@@ -12,6 +12,7 @@ import {
   Coins,
   Hammer,
   Link2,
+  Clover,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
@@ -58,6 +59,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   soul_die_faces: Coins,
   workshop_cost_multiplier: Hammer,
   charm_slots: Link2,
+  charm_rarity_protection: Clover,
 }
 
 function getEffectLabel(effect: TalentEffect): string {
@@ -88,6 +90,10 @@ function getEffectLabel(effect: TalentEffect): string {
       return `${Math.round((1 - effect.multiplier) * 100)}% Cheaper Workshop`
     case 'charm_slots':
       return `+${effect.amount} Charm Slot`
+    case 'charm_rarity_protection':
+      return effect.legendaryThreshold
+        ? `Epic+ within ${effect.epicThreshold} · Legendary within ${effect.legendaryThreshold}`
+        : `Epic+ within ${effect.epicThreshold} Fate Draws`
   }
 }
 

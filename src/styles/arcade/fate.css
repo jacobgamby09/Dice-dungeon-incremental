@@ -120,7 +120,8 @@
 }
 
 .charm-slot.is-filled {
-  border-color: var(--arcade-white);
+  border-color: var(--rarity-accent, var(--arcade-white));
+  box-shadow: inset 3px 0 0 var(--rarity-accent, var(--arcade-white));
   color: var(--arcade-white);
 }
 
@@ -244,13 +245,15 @@
 .fate-reel__ghost {
   opacity: 0.2;
   filter: grayscale(0.7) brightness(0.65);
+  border: 2px solid var(--rarity-accent, var(--arcade-line-subtle));
+  padding: 3px;
 }
 
 .fate-reel__window {
   position: relative;
   height: 156px;
   overflow: hidden;
-  border: 4px solid var(--arcade-white);
+  border: 4px solid var(--rarity-accent, var(--arcade-white));
   background:
     linear-gradient(180deg, #12091c, #050208 45%, #180a26);
   box-shadow:
@@ -338,6 +341,46 @@
   text-transform: uppercase;
 }
 
+.fate-machine__result > .fate-machine__rarity {
+  color: var(--rarity-accent);
+  font-family: var(--arcade-font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.fate-machine-overlay[data-rarity='rare'] .fate-reel__window {
+  box-shadow: 0 0 0 3px var(--rarity-dark), 0 0 26px color-mix(in srgb, var(--rarity-accent) 48%, transparent);
+}
+
+.fate-machine-overlay[data-rarity='epic'] .fate-reel__window {
+  box-shadow: 0 0 0 4px var(--rarity-dark), 0 0 34px color-mix(in srgb, var(--rarity-accent) 62%, transparent);
+}
+
+.fate-machine-overlay[data-rarity='legendary'] .fate-machine {
+  box-shadow: 7px 7px 0 var(--rarity-dark), inset 0 0 0 3px var(--rarity-accent), 0 0 38px color-mix(in srgb, var(--rarity-accent) 58%, transparent);
+}
+
+.fate-machine-overlay[data-rarity='legendary'].is-landed .fate-reel__symbol {
+  animation-duration: 720ms;
+}
+
+.fate-protection {
+  margin-top: 10px;
+  border-left: 4px solid var(--arcade-purple);
+  background: #120b20;
+  padding: 8px 10px;
+  display: grid;
+  gap: 3px;
+}
+
+.fate-protection strong,
+.fate-protection span {
+  font-family: var(--arcade-font-ui);
+  font-size: 0.56rem;
+}
+
+.fate-protection span { color: #d7c3ff; }
+
 .fate-machine__result > p {
   margin: 2px auto 6px;
   max-width: 270px;
@@ -393,6 +436,37 @@
   margin-top: 10px;
 }
 
+.charm-rarity-groups {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.charm-rarity-group {
+  border: 2px solid var(--rarity-accent);
+  background: var(--arcade-black);
+  padding: 8px;
+}
+
+.charm-rarity-group > header {
+  border-bottom: 2px solid var(--rarity-accent);
+  padding: 0 2px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--rarity-accent);
+}
+
+.charm-rarity-group > header h3,
+.charm-rarity-group > header span {
+  color: inherit;
+  font-family: var(--arcade-font-display);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.charm-rarity-group .charm-grid { margin-top: 8px; }
+
 .charm-card {
   min-height: 180px;
   border: 2px solid var(--arcade-line-subtle);
@@ -404,8 +478,24 @@
 }
 
 .charm-card.is-owned {
-  border-color: var(--charm-accent);
-  box-shadow: inset 3px 0 0 var(--charm-accent);
+  border-color: var(--rarity-accent);
+  box-shadow: inset 3px 0 0 var(--rarity-accent);
+}
+
+.charm-card.is-equipped { background: color-mix(in srgb, var(--rarity-dark) 68%, #050507); }
+
+.charm-card[data-rarity='rare'] { border-width: 3px; }
+.charm-card[data-rarity='epic'] { box-shadow: inset 0 0 0 2px var(--rarity-dark); }
+.charm-card[data-rarity='legendary'] {
+  border-width: 3px;
+  box-shadow: inset 0 0 0 2px var(--rarity-dark), 4px 4px 0 var(--rarity-dark);
+}
+
+.charm-card__rarity {
+  color: var(--rarity-accent) !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .charm-card.is-unknown .charm-icon {
@@ -490,6 +580,10 @@
 .combat-charm.is-triggered span {
   color: var(--arcade-black);
 }
+
+.combat-charm[data-rarity='rare'] { border-width: 2px; }
+.combat-charm[data-rarity='epic'] { box-shadow: inset 0 0 0 1px var(--charm-accent); }
+.combat-charm[data-rarity='legendary'] { border-width: 2px; box-shadow: 2px 2px 0 #3d1b08; }
 
 .hub-action--fate {
   --action-color: var(--arcade-purple);

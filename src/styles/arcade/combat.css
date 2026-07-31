@@ -272,6 +272,37 @@
   box-shadow: 0 0 0 3px var(--arcade-black);
 }
 
+.roll-die--echo .roll-die__landing-ring {
+  border-color: var(--arcade-purple);
+  box-shadow: 0 0 0 3px #28103f, 0 0 20px var(--arcade-purple);
+}
+
+.charm-echo-impact {
+  position: absolute;
+  z-index: 12;
+  top: 4px;
+  right: 2px;
+  border: 2px solid var(--arcade-purple);
+  background: #140824;
+  padding: 4px 6px;
+  display: grid;
+  color: var(--arcade-white);
+  font-family: var(--arcade-font-display);
+  font-size: 0.56rem;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  animation: charm-echo-impact 520ms steps(6, end) both;
+}
+
+.charm-echo-impact span { color: var(--arcade-purple); }
+
+@keyframes charm-echo-impact {
+  0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+  45% { opacity: 1; transform: translateY(-3px) scale(1.12); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .score-transfer__trail {
   position: absolute;
   top: -5px;
@@ -495,6 +526,7 @@
 @media (prefers-reduced-motion: reduce) {
   .roll-pedestal,
   .roll-die__landing-ring,
+  .charm-echo-impact,
   .round-total__impact,
   .score-transfer__arrival,
   .enemy-damage-transfer__burst,

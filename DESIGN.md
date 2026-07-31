@@ -74,6 +74,20 @@ Faste regler:
 Farve må aldrig stå alene. Ikon, tekst, værdi eller form skal samtidig gøre
 betydningen forståelig.
 
+Charm-rarity bruger et separat, konsekvent lag inden for Fate-systemet:
+
+| Rarity | Fast farve |
+| --- | --- |
+| Common | Knækket hvid |
+| Rare | Cyan |
+| Epic | Lilla |
+| Legendary | Orange |
+
+Farven gentages på collection-border, rarity-label, equipped slot og Fate
+Draw-landingen. Ukendte Charms må være dæmpede, men rarity-gruppens header skal
+fortsat afsløre den mulige kategori. Legendary må aldrig vises som gold/gul,
+fordi gul er reserveret til Workshop og køb.
+
 ### 4. Terningen er helten
 
 Player-, enemy- og Workshop-dice forbliver rigtige seks-sidede 3D-objekter.

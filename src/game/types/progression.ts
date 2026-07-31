@@ -2,7 +2,7 @@ import type { DieInstance } from './dice'
 import type { SoulDieState, SoulDieValues } from './dice'
 import type { DungeonId, DungeonProgress } from './dungeon'
 import type { PendingWorkshopForge, WorkshopDieValues } from './workshop'
-import type { CharmId, CharmRanks, PendingFateDraw } from './charms'
+import type { CharmId, CharmRanks, CharmRarityProgress, PendingFateDraw } from './charms'
 
 export const TALENT_TRACKS = [
   'core',
@@ -35,6 +35,7 @@ export const TALENT_ICON_KEYS = [
   'workshop-efficiency',
   'charm-pair',
   'charm-trinity',
+  'fate-favor',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -51,6 +52,7 @@ export type TalentEffect =
   | { type: 'charm_slots'; amount: number }
   | { type: 'unlock_auto_combat' }
   | { type: 'unlock_charms' }
+  | { type: 'charm_rarity_protection'; epicThreshold: number; legendaryThreshold?: number }
   | { type: 'unlock_dungeon'; dungeonId: DungeonId }
 
 export type TalentRequirement = {
@@ -90,6 +92,7 @@ export interface PlayerProfile {
   bankedSouls: number
   fateTokens: number
   fatePity: number
+  charmRarityProgress: CharmRarityProgress
   soulDie: SoulDieState
   talentRanks: TalentRanks
   unlockedDungeonIds: DungeonId[]

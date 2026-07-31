@@ -7,6 +7,8 @@ import {
   applyRollCharms,
   beginCharmRound,
   createCharmRunState,
+  getShieldCarryRate,
+  normalizeCharmRunState,
 } from '../game/combat/charms'
 import { addRollEffects, rollDie } from '../game/combat/rollDie'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
@@ -34,6 +36,7 @@ import {
   BASE_PLAYER_HP,
   canPurchaseTalent,
   getCharmCapacity,
+  getCharmRarityProtection,
   getDiceCapacity,
   getNextTalentRank,
   getPlayerMaxHp,
@@ -55,7 +58,9 @@ import {
 import {
   claimFateDraw,
   createFateDraw,
+  EMPTY_CHARM_RARITY_PROGRESS,
   FATE_DRAW_COST,
+  normalizeCharmRarityProgress,
   rollFateDrop,
 } from '../game/progression/fate'
 import type { CombatState, RoundResolution } from '../game/types/combat'
@@ -135,7 +140,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 19
+const SAVE_VERSION = 20
 const LEGACY_FATECRAFT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
@@ -152,6 +157,7 @@ function createInitialProfile(): PlayerProfile {
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    charmRarityProgress: { ...EMPTY_CHARM_RARITY_PROGRESS },
     soulDie: createSoulDieState(),
     talentRanks: {},
     unlockedDungeonIds: ['prototype-depths'],
@@ -398,6 +404,7 @@ function migratePendingFateDraw(
   return {
     operationId: pending.operationId,
     selectedCharmId,
+    rarity: CHARM_DEFINITIONS[selectedCharmId].rarity,
     cost: Number.isFinite(pending.cost)
       ? Math.max(0, Math.floor(pending.cost ?? FATE_DRAW_COST))
       : FATE_DRAW_COST,
@@ -406,6 +413,26 @@ function migratePendingFateDraw(
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 19) {
+    const persisted = persistedState as NewGameState
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        charmRarityProgress: normalizeCharmRarityProgress(
+          persisted.profile?.charmRarityProgress,
+        ),
+        pendingFateDraw: migratePendingFateDraw(
+          persisted.profile?.pendingFateDraw as LegacyPendingFateDraw,
+        ),
+      },
+      run: {
+        ...persisted.run,
+        charmState: normalizeCharmRunState(persisted.run?.charmState),
+      },
+    }
+  }
   if (version === 18) {
     const persisted = persistedState as NewGameState
     return {
@@ -413,6 +440,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
       profile: {
         ...persisted.profile,
         saveVersion: SAVE_VERSION,
+        charmRarityProgress: { ...EMPTY_CHARM_RARITY_PROGRESS },
         pendingFateDraw: migratePendingFateDraw(
           persisted.profile?.pendingFateDraw as LegacyPendingFateDraw,
         ),
@@ -432,6 +460,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         ...persisted.profile,
         saveVersion: SAVE_VERSION,
         talentRanks,
+        charmRarityProgress: { ...EMPTY_CHARM_RARITY_PROGRESS },
         pendingFateDraw: migratePendingFateDraw(
           persisted.profile?.pendingFateDraw as LegacyPendingFateDraw,
         ),
@@ -451,6 +480,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         ...persisted.profile,
         saveVersion: SAVE_VERSION,
         soulDie: normalizeSoulDieState(persisted.profile?.soulDie),
+        charmRarityProgress: { ...EMPTY_CHARM_RARITY_PROGRESS },
         fatePity: hasCharmsUnlocked(talentRanks)
           ? Math.max(0, persisted.profile?.fatePity ?? 0)
           : 0,
@@ -475,6 +505,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         saveVersion: SAVE_VERSION,
         fateTokens: 0,
         fatePity: 0,
+        charmRarityProgress: { ...EMPTY_CHARM_RARITY_PROGRESS },
         soulDie: createSoulDieState(),
         charmRanks: {},
         equippedCharmIds: [],
@@ -525,6 +556,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         diceCollection,
         fateTokens: 0,
         fatePity: 0,
+        charmRarityProgress: { ...EMPTY_CHARM_RARITY_PROGRESS },
         soulDie: createSoulDieState(),
         charmRanks: {},
         equippedCharmIds: [],
@@ -820,6 +852,7 @@ export const useNewGameStore = create<NewGameState>()(
         const firstCharmRound = beginCharmRound(
           equippedCharmSnapshot,
           createCharmRunState(),
+          true,
         )
         set({
           screen: 'combat',
@@ -874,7 +907,11 @@ export const useNewGameStore = create<NewGameState>()(
           rolledResult,
           state.run.equippedCharmSnapshot,
           state.run.charmState,
-          die.faces.reduce((total, face) => total + face.value, 0) / die.faces.length,
+          {
+            attackOnlyLoadout: state.run.equippedDiceSnapshot.every(
+              (equippedDie) => equippedDie.family === 'attack',
+            ),
+          },
         )
         const result = charmRoll.result
         const allDiceDrawn = remainingDieIds.length === 0
@@ -929,6 +966,7 @@ export const useNewGameStore = create<NewGameState>()(
           totals: state.combat.totals,
           carriedShield: state.combat.carriedShield,
           carriedHeal: state.combat.carriedHeal,
+          shieldCarryRate: getShieldCarryRate(state.run.equippedCharmSnapshot),
         })
         const resolutionVersion = state.combat.resolutionVersion + 1
 
@@ -956,7 +994,6 @@ export const useNewGameStore = create<NewGameState>()(
             : applyKillCharms(
                 state.run.equippedCharmSnapshot,
                 state.run.charmState,
-                reward.baseSouls,
               )
           const fateDrop = !rewardAlreadyClaimed
             && hasCharmsUnlocked(state.profile.talentRanks)
@@ -1217,6 +1254,7 @@ export const useNewGameStore = create<NewGameState>()(
         const charmRound = beginCharmRound(
           state.run.equippedCharmSnapshot,
           state.run.charmState,
+          true,
         )
 
         set({
@@ -1532,16 +1570,20 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.profile.pendingFateDraw) return null
         if (state.profile.fateTokens < FATE_DRAW_COST) return null
 
-        const pendingFateDraw = createFateDraw(
+        const fateDraw = createFateDraw(
           state.profile.charmRanks,
           operationId,
+          state.profile.charmRarityProgress,
+          getCharmRarityProtection(state.profile.talentRanks),
           random,
         )
-        if (!pendingFateDraw) return null
+        if (!fateDraw) return null
+        const pendingFateDraw = fateDraw.draw
         set({
           profile: {
             ...state.profile,
             fateTokens: state.profile.fateTokens - pendingFateDraw.cost,
+            charmRarityProgress: fateDraw.nextProgress,
             pendingFateDraw,
           },
         })

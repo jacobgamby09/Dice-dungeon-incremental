@@ -6,15 +6,27 @@ import type {
 } from '../types/charms'
 import type { RollResult } from '../types/dice'
 
+export interface RollCharmOptions {
+  attackOnlyLoadout?: boolean
+  random?: () => number
+}
+
 export function createCharmRunState(): CharmRunState {
   return {
     attackRolls: 0,
-    lowRolls: 0,
-    pendingLowOmenBonus: 0,
-    previousRollValue: null,
+    totalRolls: 0,
     roundsStarted: 0,
+    encountersStarted: 0,
     enemiesDefeated: 0,
   }
+}
+
+export function normalizeCharmRunState(candidate?: Partial<CharmRunState> | null): CharmRunState {
+  const fresh = createCharmRunState()
+  return Object.fromEntries(Object.entries(fresh).map(([key, fallback]) => {
+    const value = candidate?.[key as keyof CharmRunState]
+    return [key, Number.isFinite(value) ? Math.max(0, Math.floor(Number(value))) : fallback]
+  })) as unknown as CharmRunState
 }
 
 function getEffect(snapshot: CharmSnapshot) {
@@ -40,24 +52,18 @@ export function applyRollCharms(
   result: RollResult,
   snapshots: readonly CharmSnapshot[],
   state: Readonly<CharmRunState>,
-  dieAverage: number,
+  options: RollCharmOptions = {},
 ): {
   result: RollResult
   state: CharmRunState
   triggers: CharmTrigger[]
 } {
-  const nextState: CharmRunState = { ...state }
+  const nextState = normalizeCharmRunState(state)
   const triggers: CharmTrigger[] = []
+  const random = options.random ?? Math.random
   let bonus = 0
 
-  const lowOmen = snapshots.find((snapshot) => getEffect(snapshot).type === 'low_omen')
-  if (nextState.pendingLowOmenBonus > 0 && lowOmen) {
-    const amount = nextState.pendingLowOmenBonus
-    bonus += amount
-    triggers.push(createTrigger(lowOmen, 'roll_bonus', amount, result.type))
-    nextState.pendingLowOmenBonus = 0
-  }
-
+  nextState.totalRolls += 1
   for (const snapshot of snapshots) {
     const effect = getEffect(snapshot)
     if (effect.type === 'attack_rhythm' && result.type === 'attack') {
@@ -67,28 +73,24 @@ export function applyRollCharms(
         triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, 'attack'))
       }
     }
-    if (
-      effect.type === 'matching_roll'
-      && nextState.previousRollValue !== null
-      && nextState.previousRollValue === result.value
-    ) {
-      bonus += effect.bonus
-      triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, result.type))
+    if (effect.type === 'echo_chance' && random() < effect.chance) {
+      bonus += result.value
+      triggers.push(createTrigger(snapshot, 'echo', result.value, result.type))
+    }
+    if (effect.type === 'roll_echo' && nextState.totalRolls % effect.threshold === 0) {
+      bonus += result.value
+      triggers.push(createTrigger(snapshot, 'echo', result.value, result.type))
     }
     if (
-      effect.type === 'low_omen'
-      && Number.isFinite(dieAverage)
-      && result.value < dieAverage
+      effect.type === 'attack_oath'
+      && options.attackOnlyLoadout
+      && result.type === 'attack'
     ) {
-      nextState.lowRolls += 1
-      if (nextState.lowRolls >= effect.threshold) {
-        nextState.lowRolls = 0
-        nextState.pendingLowOmenBonus = effect.bonus
-      }
+      bonus += effect.bonus
+      triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, 'attack'))
     }
   }
 
-  nextState.previousRollValue = result.value
   return {
     result: {
       ...result,
@@ -103,26 +105,25 @@ export function applyRollCharms(
 export function beginCharmRound(
   snapshots: readonly CharmSnapshot[],
   state: Readonly<CharmRunState>,
+  encounterStart = false,
 ): {
   shield: number
   state: CharmRunState
   triggers: CharmTrigger[]
 } {
-  const nextState = {
-    ...state,
-    roundsStarted: state.roundsStarted + 1,
-  }
+  const nextState = normalizeCharmRunState(state)
+  nextState.roundsStarted += 1
+  if (encounterStart) nextState.encountersStarted += 1
   const triggers: CharmTrigger[] = []
   let shield = 0
 
-  for (const snapshot of snapshots) {
-    const effect = getEffect(snapshot)
-    if (
-      effect.type === 'round_shield'
-      && nextState.roundsStarted % effect.threshold === 0
-    ) {
-      shield += effect.amount
-      triggers.push(createTrigger(snapshot, 'shield', effect.amount, 'shield'))
+  if (encounterStart) {
+    for (const snapshot of snapshots) {
+      const effect = getEffect(snapshot)
+      if (effect.type === 'encounter_shield') {
+        shield += effect.amount
+        triggers.push(createTrigger(snapshot, 'shield', effect.amount, 'shield'))
+      }
     }
   }
   return { shield, state: nextState, triggers }
@@ -131,17 +132,14 @@ export function beginCharmRound(
 export function applyKillCharms(
   snapshots: readonly CharmSnapshot[],
   state: Readonly<CharmRunState>,
-  baseSouls: number,
 ): {
   heal: number
   soulBonus: number
   state: CharmRunState
   triggers: CharmTrigger[]
 } {
-  const nextState = {
-    ...state,
-    enemiesDefeated: state.enemiesDefeated + 1,
-  }
+  const nextState = normalizeCharmRunState(state)
+  nextState.enemiesDefeated += 1
   const triggers: CharmTrigger[] = []
   let heal = 0
   let soulBonus = 0
@@ -155,13 +153,17 @@ export function applyKillCharms(
       heal += effect.amount
       triggers.push(createTrigger(snapshot, 'heal', effect.amount, 'heal'))
     }
-    if (
-      effect.type === 'soul_echo'
-      && nextState.enemiesDefeated % effect.threshold === 0
-    ) {
-      soulBonus += Math.max(0, baseSouls)
-      triggers.push(createTrigger(snapshot, 'souls', Math.max(0, baseSouls)))
+    if (effect.type === 'soul_flat') {
+      soulBonus += effect.amount
+      triggers.push(createTrigger(snapshot, 'souls', effect.amount))
     }
   }
   return { heal, soulBonus, state: nextState, triggers }
+}
+
+export function getShieldCarryRate(snapshots: readonly CharmSnapshot[]): number {
+  return snapshots.reduce((rate, snapshot) => {
+    const effect = getEffect(snapshot)
+    return effect.type === 'shield_carry' ? Math.max(rate, effect.rate) : rate
+  }, 0)
 }

@@ -6,6 +6,7 @@ const mockedStore = vi.hoisted(() => ({
   state: {
     profile: {
       charmRanks: {},
+      charmRarityProgress: { epicMisses: 0, legendaryMisses: 0 },
       equippedCharmIds: [],
       fateTokens: 0,
       pendingFateDraw: null,
@@ -36,5 +37,10 @@ describe('Fate Sanctum player-facing rules', () => {
     expect(markup).not.toContain('Pity')
     expect(markup).not.toContain('guaranteed')
     expect(markup).not.toContain('/5')
+    expect(markup).toContain('Common')
+    expect(markup).toContain('Rare')
+    expect(markup).toContain('Epic')
+    expect(markup).toContain('Legendary')
+    expect(markup).not.toContain("Fate's Favor")
   })
 })

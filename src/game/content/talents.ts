@@ -20,6 +20,7 @@ export const TALENT_IDS = {
   fieldStudies: 'field-studies',
   soulHarvest: 'soul-harvest',
   fatecraft: 'fatecraft',
+  fatesFavor: 'fates-favor',
   wovenPair: 'woven-pair',
   trinityKnot: 'trinity-knot',
 } as const
@@ -235,7 +236,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.fatecraft,
     name: 'Fatecraft',
-    description: 'Enemies can now drop Fate Tokens. Spend 5 to reveal three Charms and choose one.',
+    description: 'Enemies can now drop Fate Tokens. Spend 5 to draw one permanent Charm.',
     iconKey: 'fate-seal',
     prerequisiteIds: [TALENT_IDS.fieldStudies, TALENT_IDS.soulHarvest],
     prerequisiteCount: 1,
@@ -251,6 +252,19 @@ export const TALENTS: TalentDefinition[] = [
         { type: 'charm_slots', amount: 1 },
       ],
     }],
+    track: 'fate',
+  },
+  {
+    id: TALENT_IDS.fatesFavor,
+    name: "Fate's Favor",
+    description: 'Add visible rarity protection to Fate Draws. No protection exists before rank 1.',
+    iconKey: 'fate-favor',
+    prerequisiteIds: [TALENT_IDS.fatecraft],
+    ranks: [
+      { cost: 18, effects: [{ type: 'charm_rarity_protection', epicThreshold: 8 }] },
+      { cost: 36, effects: [{ type: 'charm_rarity_protection', epicThreshold: 6 }] },
+      { cost: 64, effects: [{ type: 'charm_rarity_protection', epicThreshold: 6, legendaryThreshold: 15 }] },
+    ],
     track: 'fate',
   },
   {

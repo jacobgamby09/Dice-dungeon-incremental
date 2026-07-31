@@ -13,6 +13,7 @@ export interface ResolveRoundInput {
   playerRecoil?: number
   carriedShield?: number
   carriedHeal?: number
+  shieldCarryRate?: number
 }
 
 export function resolveRound(input: ResolveRoundInput): RoundResolution {
@@ -109,6 +110,10 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
   const enemyDamageBlocked = Math.min(availableShield, incomingDamage)
   const unblockedDamage = incomingDamage - enemyDamageBlocked
   const playerHp = Math.max(0, hpAfterRecoil - unblockedDamage)
+  const unusedShield = Math.max(0, availableShield - incomingDamage)
+  const carriedUnusedShield = Math.floor(
+    unusedShield * Math.min(1, Math.max(0, input.shieldCarryRate ?? 0)),
+  )
 
   return {
     outcome: playerHp <= 0 ? 'defeat' : 'ongoing',
@@ -123,7 +128,7 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     enemyBleed,
     healApplied,
     overflowShield,
-    nextRoundShield: Math.max(0, totals.ward),
+    nextRoundShield: Math.max(0, totals.ward) + carriedUnusedShield,
     nextRoundHeal: Math.max(0, totals.regrowth),
     bleedDamageToEnemy,
     enemyHealApplied,

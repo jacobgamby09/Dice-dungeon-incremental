@@ -195,4 +195,19 @@ describe('resolveRound', () => {
     expect(result.enemyDamageBlocked).toBe(2)
     expect(result.playerHp).toBe(8)
   })
+
+  it('carries a percentage of unused Shield into the next round', () => {
+    const result = resolveRound({
+      playerHp: 10,
+      playerMaxHp: 10,
+      enemyHp: 10,
+      enemyMaxHp: 10,
+      enemyShield: 0,
+      enemyIntent: { attack: 2, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 10, heal: 0, bleed: 0 },
+      shieldCarryRate: 0.4,
+    })
+    expect(result.enemyDamageBlocked).toBe(2)
+    expect(result.nextRoundShield).toBe(3)
+  })
 })

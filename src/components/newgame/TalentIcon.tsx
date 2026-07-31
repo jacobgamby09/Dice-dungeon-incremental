@@ -20,6 +20,7 @@ import {
   Sword,
   Link2,
   Network,
+  Clover,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -46,6 +47,7 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'workshop-efficiency': Hammer,
   'charm-pair': Link2,
   'charm-trinity': Network,
+  'fate-favor': Clover,
 }
 
 interface TalentIconProps {

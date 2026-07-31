@@ -11,6 +11,7 @@ describe('FateDrawOverlay', () => {
         draw={{
           operationId: 'draw-1',
           selectedCharmId: 'low-omen',
+          rarity: 'epic',
           cost: 5,
         }}
         onClaim={() => undefined}
@@ -18,10 +19,11 @@ describe('FateDrawOverlay', () => {
     )
 
     expect(markup).toContain('Charm Found')
-    expect(markup).toContain('Low Omen')
+    expect(markup).toContain('Loaded Star')
+    expect(markup).toContain('Epic')
     expect(markup).toContain('New Charm')
     expect(markup).toContain('Claim Charm')
-    expect(markup).toContain('below their die average')
+    expect(markup).toContain('Every 5th die Echoes')
     expect(markup).not.toContain('fate-reel__scanline')
   })
 })

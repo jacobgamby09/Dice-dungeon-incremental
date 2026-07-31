@@ -4,6 +4,7 @@ import type { PlayerProfile, TalentRanks } from '../types/progression'
 import {
   canPurchaseTalent,
   getCharmCapacity,
+  getCharmRarityProtection,
   getDiceCapacity,
   getPlayerMaxHp,
   getSoulDieValues,
@@ -20,11 +21,12 @@ import { createSoulDieState } from './soulDie'
 
 function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   return {
-    saveVersion: 19,
+    saveVersion: 20,
     xp,
     bankedSouls: 0,
     fateTokens: 0,
     fatePity: 0,
+    charmRarityProgress: { epicMisses: 0, legendaryMisses: 0 },
     soulDie: createSoulDieState(),
     talentRanks,
     unlockedDungeonIds: ['prototype-depths'],
@@ -171,6 +173,18 @@ describe('Classic V2 directional talent progression', () => {
       [TALENT_IDS.wovenPair]: 1,
       [TALENT_IDS.trinityKnot]: 1,
     })).toBe(3)
+  })
+
+  it("adds rarity protection only through Fate's Favor ranks", () => {
+    expect(getCharmRarityProtection({})).toBeNull()
+    expect(getCharmRarityProtection({ [TALENT_IDS.fatesFavor]: 1 })).toEqual({
+      epicThreshold: 8,
+      legendaryThreshold: undefined,
+    })
+    expect(getCharmRarityProtection({ [TALENT_IDS.fatesFavor]: 3 })).toEqual({
+      epicThreshold: 6,
+      legendaryThreshold: 15,
+    })
   })
 
   it('caps and cleans persisted ranks against the V2 registry', () => {

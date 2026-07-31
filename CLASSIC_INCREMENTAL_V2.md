@@ -255,8 +255,13 @@ Et Fate Draw koster 5 Fate Tokens og fastlåser én permanent Charm.
   dobbeltbetaler.
 - Resultatet afsløres i et separat slot-machine-overlay, som visuelt cykler
   Charm-puljen igennem og lander på den allerede persisterede Charm.
-- De første tre ejede Charms er beskyttet mod duplicates.
-- Derefter har ukendte Charms fire gange vægten af kendte.
+- Hvert Draw vælger først rarity med basisvægtene Common 50%, Rare 30%, Epic
+  15% og Legendary 5%. Legendary bruger orange som sin faste UI-farve.
+- Der findes ingen gratis første-draw-garanti og ingen indbygget rarity-pity.
+- Ukendte Charms har fire gange vægten af kendte Charms inden for den valgte
+  rarity, men duplicates er mulige fra første Draw.
+- Talentet `Fate's Favor` kan senere tilføje synlig bad-luck protection for
+  Epic+ og Legendary draws. Beskyttelsen eksisterer kun, når talentet er købt.
 - En kendt Charm øges én rank; max-rank Charms fjernes fra draw-poolen.
 
 ### 6.6 Charm collection og loadout
@@ -275,12 +280,14 @@ Det første Charm-katalog:
 
 | Charm | Rank 1 | Rank 2 | Rank 3 |
 | --- | --- | --- | --- |
-| Blade Rhythm | Hvert 5. Attack-roll får +2 | +3 | +4 |
-| Echo Knot | To ens raw rolls i træk giver +1 native output | +2 | +3 |
-| Low Omen | Efter tre rolls under den konkrete dice gennemsnit får næste die +2 native output | +3 | +4 |
-| Ward Clock | Hver 6. round starter med 2 Shield | 3 Shield | 4 Shield |
-| Bloodroot | Hvert 3. kill healer 1 HP | 2 HP | 3 HP |
-| Soul Prism | Hvert 5. kill gentager enemyens base Souls | Hvert 4. kill | Hvert 3. kill |
+| Ward Clock · Common | Start hver encounter med 2 Shield | 3 Shield | 4 Shield |
+| Soul Prism · Common | +1 Soul per kill | +2 | +3 |
+| Blade Rhythm · Rare | Hvert 3. Attack-roll får +3 Attack | +5 | +7 |
+| Bloodroot · Rare | Heal 1 HP efter hvert 2. kill | Heal 1 efter hvert kill | Heal 2 efter hvert kill |
+| Echo Knot · Epic | 15% chance for at gentage et rolls raw output | 20% | 25% |
+| Loaded Star · Epic | Hver 5. die gentager sit raw output | Hver 4. | Hver 3. |
+| Crimson Oath · Legendary | Med kun Attack Dice får hvert Attack-roll +1 | +2 | +3 |
+| Unbroken Wall · Legendary | Behold 25% ubrugt Shield til næste round | 40% | 60% |
 
 Raw roll betyder værdien før Charm-bonusser. Native output følger face-familien:
 Attack, Shield eller Heal.
@@ -501,6 +508,7 @@ talenter, så centrale mål kan nås ad flere veje.
 | Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
 | Soul Die Mastery | 5 / 14 / 30 XP | Inner Spark rank 1 | Soul Die: `1,1,2,2,2,2` → `1,1,2,2,2,3` → `1,2,2,2,2,3` |
 | Fatecraft | 30 XP | Field Studies **eller** Soul Die Mastery + Dungeon 1 clear | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
+| Fate's Favor | 18 / 36 / 64 XP | Fatecraft | Epic+ inden 8 draws → inden 6 draws → Legendary inden 15 draws |
 | Woven Pair | 45 XP | Fatecraft | Charm-slot 2 |
 | Trinity Knot | 90 XP | Woven Pair + Dungeon 2 clear | Charm-slot 3 |
 
@@ -855,9 +863,11 @@ motivation.
 - Run Menu og frivillig retreat.
 - Fate Token-drops med skjult profile-level bad-luck protection efter Fatecraft.
 - Fate Sanctum med atomisk single-result draw og slot-machine reveal.
-- Seks Charms med tre ranks og tre mulige loadout-slots.
+- Otte Charms fordelt i Common, Rare, Epic og orange Legendary med tre ranks
+  og tre mulige loadout-slots.
 - Charm progress/procs i Combat og outcomes.
-- Save-version 19 med Soul Die cycle, single-result pending Fate Draw, Charm collection, loadout og run-snapshots.
+- Save-version 20 med rarity-progress, Soul Die cycle, single-result pending
+  Fate Draw, Charm collection, loadout og run-snapshots.
 - Gamle Twin Arsenal-køb splittes tabsfrit; et allerede købt tomt Fatecraft refunderes fuldt.
 
 ### Implementeret, men endnu ikke endeligt V2-balanceret
@@ -869,7 +879,7 @@ motivation.
 
 ### Bevidst deferred
 
-- Flere Charm-pools og rarity tiers.
+- Flere Charms inden for de fire etablerede rarity tiers.
 - Charm-reroll, banish eller targeted acquisition.
 - Auto Retry.
 - Precision Forge i player-facing V2.
@@ -893,7 +903,7 @@ motivation.
 8. Føles 20% dropchance plus pity spændende uden at skabe for meget reward-støj?
 9. Føles ét random resultat med early no-duplicate protection spændende eller for lidt player agency?
 10. Er første Charm-slot efter Dungeon 1 det rigtige tidspunkt, eller bør Fatecraft komme lidt tidligere?
-11. Er de seks første Charm-rytmer lige læsbare under hurtig Auto Combat?
+11. Er de otte første Charm-effekter og deres rarities lige læsbare under hurtig Auto Combat?
 
 ---
 
