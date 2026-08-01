@@ -260,7 +260,7 @@ Brug denne skabelon:
 - Berørte områder: `src/styles/arcade/*`, global viewport-base i `src/index.css` samt den bindende visuelle reference `DESIGN.md` version 2.2.
 - Validering: `npx tsc --noEmit`, 172 Vitest-tests, ESLint og production-build bestået. Browser-verificeret ved 320×700, 384×844 og 430×932 på Workshop, Hub, Fate Sanctum, Victory, Loadout og Talent Tree-overlay uden horisontal overflow.
 - Kendte mangler: Fysisk Safari-font-rendering, scrollbar-adfærd og touch-følelse skal fortsat godkendes. Vite rapporterer fortsat den kendte bundle-size warning over 500 kB; den er ikke skabt af dette CSS-pass.
-- Git: Ikke committed endnu; branch `codex/arcade-foundation-v1`.
+- Git: Implementering commit `af2d5c0`; progress-log follow-up på branch `codex/arcade-foundation-v1`.
 
 ### 2026-08-01 — Loadout-order, fremadgående target-rul og System Dice
 
