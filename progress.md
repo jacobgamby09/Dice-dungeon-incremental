@@ -257,7 +257,7 @@ Brug denne skabelon:
 - Berørte områder: Combat draw-pile og simulator, Zustand loadout-actions, Loadout Rack, Workshop-animation/UI, Hub System Dice, tests samt `AGENTS.md`, `CLASSIC_INCREMENTAL_V2.md` og `README.md`.
 - Validering: `npx tsc --noEmit`, 172 Vitest-tests, ESLint og production-build bestået. Browser-verificeret ved 384×844 på Hub, Loadout, Combat og Workshop inklusive reorder, Auto Combat og Face Mastery-reroll.
 - Kendte mangler: Den deterministiske loadout-order flyttede den seedede journey-baseline til Dungeon 1-clear inden run 55; oplevet pacing skal fortsat fysisk playtestes. Aktivt persisterede mid-round saves færdiggør deres allerede gemte draw-pile, før næste round følger den nye order.
-- Git: Ikke committed endnu; branch `codex/arcade-foundation-v1`.
+- Git: Implementering commit `315dae4`; progress-log follow-up på branch `codex/arcade-foundation-v1`.
 
 ### 2026-07-31 — Fremtidig content-idébank
 
