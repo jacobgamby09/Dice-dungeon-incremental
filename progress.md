@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Talent Tree-infobokse følger nu den valgte branch:** Detail-overlayets ramme, ikonfelt, requirements, owned-state og aktive købsknap arver direkte nodens track-farve. Arsenal er blå, Workshop orange, Descent grøn, Fate lilla og kernetalenter cyan; låste/disabled handlinger forbliver neutralt grå.
 - **UI/UX hierarchy pass er færdigt lokalt på `codex/arcade-foundation-v1`:** Pixel Arcade bruger nu et bindende 3/2/1-linjesystem for shell, sektion og control, et fælles 4/8/12/16/24-spacing-system samt større minimumstekst for forklaringer. Workshop, Fate, outcomes, Hub, Loadout, Talent Tree, Combat og overlays er harmoniseret; komplette rammer er fjernet fra gentagne Loadout-items og rarity-grupper, mens systemfarver og primære handlinger er bevaret. Smalle desktop/mobile-viewports har ikke længere global horisontal overflow.
 - **Combat-rækkefølge, Workshop-reroll og System Dice er poleret lokalt på `codex/arcade-foundation-v1`:** Player-dice ruller nu altid i den rækkefølge, spilleren har valgt i Loadout Rack, hvor et nyt Roll Order-panel kan flytte dice frem og tilbage. Workshop-targetanimationen går kun fremad rundt om de seks faces, og Face Mastery-handlingen ligger nu tydeligt i Step 1 som `Roll Another Face`. Soul Die præsenteres i Hub som en permanent System Die med samme visuelle hierarki som spillerens permanente dice.
 - **En fremtidig content-idébank er oprettet:** `content-ideas.md` samler mulige dice families, familie-evolutions, dungeon mechanics, Charms, Workshop/Soul Die-progression, Resonance, Boss Imprints, Dungeon Mastery, sjældne rooms, Dice Memories, Run Forecasts og et Research Board. Forslagene er bevidst ikke bindende GDD-beslutninger endnu.
@@ -249,6 +250,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-01 — Branch-farvede Talent Tree-infobokse
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Valg af en Talent Tree-node åbner nu et overlay, der visuelt matcher nodens gren i stedet for altid at være grønt. Branch-farven går igen i modalramme, skygge, ikonfelt, effektmarkører, requirements, owned-state og en aktiv købsknap.
+- Beslutninger: Overlayet får track-identiteten direkte fra den valgte talentdefinition og genbruger den samme centrale CSS-farvemapping som canvas-noden. `ready` bevarer gul state-identitet, unmet requirements bevarer rød advarselsfarve, og disabled handlinger forbliver neutrale.
+- Berørte områder: `TalentDetailPanel`, den fælles Talent Tree-trackpalette, Pixel Arcade Talent Tree-styling, præsentationstest og `DESIGN.md`.
+- Validering: `npx tsc --noEmit`, 38 Vitest-filer / 173 tests, ESLint, production-build og `git diff --check` består. Lokal browserkontrol bekræfter Arsenal `#60a5fa`, Workshop `#fb923c`, Descent `#4ade80` og Fate `#c084fc` samt læsbare afledte baggrundstoner.
+- Kendte mangler: Vite rapporterer fortsat den eksisterende bundle-size warning over 500 kB; den er ikke skabt af ændringen.
+- Git: Ikke committed endnu på `codex/arcade-foundation-v1`.
 
 ### 2026-08-01 — Samlet UI/UX line-, spacing- og overlay-pass
 

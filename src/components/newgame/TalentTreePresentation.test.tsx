@@ -83,11 +83,36 @@ describe('Talent Tree presentation', () => {
 
     expect(markup).toContain('role="dialog"')
     expect(markup).toContain('aria-modal="true"')
+    expect(markup).toContain('talent-canvas-inspector--track-core')
     expect(markup).toContain('Unlocked')
     expect(markup).toContain('Rank 0/5')
     expect(markup).toContain('Buy · 4 XP')
     expect(markup).not.toContain('Current rank')
     expect(markup).not.toContain('Next rank grants')
+  })
+
+  it('inherits the selected talent branch color in the detail panel', () => {
+    const arsenalTalent = TALENTS_BY_ID[TALENT_IDS.twinArsenal]
+    const markup = renderToStaticMarkup(
+      <TalentDetailPanel
+        isAffordable={false}
+        isAnimating={false}
+        nextRank={arsenalTalent.ranks[0]}
+        nodeState="unaffordable"
+        onClose={() => undefined}
+        onPurchase={() => undefined}
+        rank={0}
+        talent={arsenalTalent}
+        talentRanks={{ [TALENT_IDS.battleHardenedOne]: 1 }}
+        dungeonProgress={{
+          'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+        }}
+        xp={0}
+      />,
+    )
+
+    expect(markup).toContain('talent-canvas-inspector--track-arsenal')
   })
 
   it('only lights connections to talent nodes that can currently be purchased', () => {

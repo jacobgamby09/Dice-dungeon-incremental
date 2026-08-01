@@ -189,7 +189,7 @@ export function TalentDetailPanel({
           <motion.aside
             aria-labelledby="talent-detail-title"
             aria-modal="true"
-            className="talent-canvas-inspector"
+            className={`talent-canvas-inspector talent-canvas-inspector--track-${talent.track}`}
             data-testid="talent-detail-panel"
             initial={{ opacity: 0, scale: 0.88, y: 18 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

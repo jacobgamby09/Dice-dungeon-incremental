@@ -276,7 +276,9 @@ Talent Tree er et sort, rumligt canvas med die-sized nodes:
 
 Et nodeklik åbner et stort, fladt overlay med navn, state, konkrete effekter,
 eventuelle die-faces og én købshandling. Gentaget branchtekst og intern
-implementeringscopy fjernes.
+implementeringscopy fjernes. Overlayets ramme, ikonfelt, requirements og aktive
+købshandling arver altid den valgte nodes retningsfarve: Arsenal blå, Workshop
+orange, Descent grøn, Fate lilla og kernetalenter cyan.
 
 ### Victory, Defeat og overlays
 
