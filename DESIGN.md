@@ -1,7 +1,7 @@
 # Dice Dungeon — Pixel Arcade Design System
 
 Status: gældende visuel og interaktiv produktionsreference.
-Version: 2.1 — 2026-07-30.
+Version: 2.2 — 2026-08-01.
 
 Læs dette dokument før nye skærme, komponenter, animationer eller assets designes.
 `CLASSIC_INCREMENTAL_V2.md` bestemmer gameplay, progression og økonomi. Dette
@@ -43,9 +43,9 @@ Brug ikke:
 
 Hvide pixelrammer skaber et tydeligt informationshierarki:
 
-1. **Primær handling / modal:** 3–4 px hvid ramme og eventuelt hård pixel-skygge.
-2. **Gameplaysektion:** 2 px hvid ramme eller separator.
-3. **Sekundær intern information:** 1–2 px dæmpet grå ramme.
+1. **Shell / primær handling / modal:** 3 px hvid eller systemfarvet ramme og eventuelt hård pixel-skygge.
+2. **Gameplaysektion:** 2 px lys sektionsramme eller separator.
+3. **Sekundær intern information:** 1 px dæmpet grå kontrolramme.
 
 Ikke alle elementer må have samme visuelle vægt. En ramme skal enten gruppere,
 separere eller signalere interaktion.
@@ -57,6 +57,26 @@ Faste regler:
 - Klikbare hovedelementer må bruge en hård forskudt skygge.
 - Pressed-state flytter knappen ned mod skyggen.
 - Fokus vises med en tydelig gul outline.
+- Der må højst være to synlige, komplette rammeniveauer omkring samme information.
+- Gentagne collection-items separeres som udgangspunkt med divider-linjer; de får kun en komplet ramme, når hele itemet er interaktivt eller har en vigtig state.
+- Rarity- og systemfarver bruges som accentlinje eller aktiv border og må ikke skabe endnu et dekorativt rammeniveau.
+
+### 2.1 Spacing og handlinger
+
+Layout bruger det fælles `4 / 8 / 12 / 16 / 24 px` spacing-system. En sektion
+bruger normalt 12 px indvendig padding og 12 px afstand til næste selvstændige
+sektion. Tæt koblede controls kan bruge 4–8 px.
+
+Handlinger har fire visuelle roller:
+
+1. **Primary:** én dominerende, fyldt handling i det aktuelle område.
+2. **Secondary:** neutral eller systemfarvet outline uden primær skyggevægt.
+3. **Utility:** info, zoom, reroll og reorder med 1 px kontrolramme.
+4. **Destructive:** rød handling med eksplicit bekræftelse.
+
+Disabled controls skal fortsat kunne identificeres, men dæmpes tydeligt. En
+skærm må ikke bruge affordability-glow eller anbefalingsbadges til at vælge en
+progressionsretning for spilleren.
 
 ### 3. Farve er gameplay-sprog
 
@@ -114,6 +134,8 @@ Det flade UI må aldrig gøre dem til almindelige kort eller ikoner.
   læseligt ved 320 px.
 - Store tal og aktuelle resultater har højere vægt end labels.
 - Eyebrows er korte, sekundære og må ikke bære nødvendig information alene.
+- Forklarende brødtekst bruger som udgangspunkt mindst `0.72rem`; kompakt
+  hjælpetekst bruger mindst `0.62rem`, medmindre teksten er rent dekorativ.
 - UI-copy skal være konkret: `Roll`, `Resolve`, `Buy`, `Enter`, `Leave`.
 - Lucide er tilladt som midlertidigt ikonbibliotek.
 - Funktionelle Lucide-ikoner normaliseres gennem deres afgrænsede UI-container,
@@ -263,6 +285,8 @@ implementeringscopy fjernes.
 - Reward, run-total og næste handling er den primære rækkefølge.
 - Run Menu, Away Recap og die-details bruger samme flade framehierarki som
   resten af spillet.
+- Overlays deler samme kontrakt: mørk backdrop, 3 px systemfarvet modalramme,
+  1 px utility-close, klar titel, én informationskrop og højst én primary action.
 - En modal skal tydeligt adskilles fra skærmen bagved og have én primær handling.
 
 ## CSS-arkitektur

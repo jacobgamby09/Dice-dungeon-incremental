@@ -1,20 +1,20 @@
 /* Workshop */
 .workshop-ritual {
-  gap: 8px;
-  padding: 8px 8px max(18px, env(safe-area-inset-bottom));
+  gap: var(--arcade-space-3);
+  padding: var(--arcade-space-2) var(--arcade-space-2) max(18px, env(safe-area-inset-bottom));
   background: var(--arcade-black);
 }
 
 .workshop-ritual__header {
   min-height: 58px;
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
   box-shadow: none;
-  padding: 7px 9px;
+  padding: var(--arcade-space-2) var(--arcade-space-3);
 }
 
 .workshop-ritual__back {
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
   color: var(--arcade-white);
@@ -37,15 +37,15 @@
 }
 
 .workshop-ritual__rack {
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
   box-shadow: none;
-  padding: 9px;
+  padding: var(--arcade-space-3);
 }
 
 .workshop-ritual__rack > header {
-  border-bottom: 2px solid var(--arcade-white);
-  padding-bottom: 7px;
+  border-bottom: var(--arcade-frame-subtle) solid var(--arcade-line-control);
+  padding-bottom: var(--arcade-space-2);
 }
 
 .workshop-ritual__rack > header span,
@@ -55,7 +55,7 @@
 }
 
 .workshop-ritual__tab {
-  border: 2px solid #686873;
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
 }
@@ -74,26 +74,28 @@
 
 .workshop-ritual__die-heading {
   min-height: 62px;
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: 0;
+  border-left: var(--arcade-frame-strong) solid var(--workshop-family);
+  border-bottom: var(--arcade-frame-subtle) solid var(--arcade-line-section);
   background: var(--arcade-black);
-  padding: 9px;
+  padding: var(--arcade-space-2) var(--arcade-space-3);
 }
 
 .workshop-target,
 .workshop-power {
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
   box-shadow: none;
 }
 
 .workshop-target > header,
 .workshop-power > header {
-  border-bottom: 2px solid var(--arcade-white);
+  border-bottom: var(--arcade-frame-subtle) solid var(--arcade-line-control);
 }
 
 .workshop-target > header > span,
 .workshop-power > header > span {
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   color: var(--arcade-yellow);
 }
@@ -110,7 +112,7 @@
 }
 
 .workshop-target__face {
-  border: 2px solid #666673;
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
 }
@@ -143,7 +145,7 @@
 }
 
 .workshop-power__distribution > span {
-  border: 2px solid #77776a;
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   color: var(--arcade-yellow);
 }
@@ -171,7 +173,7 @@
 }
 
 .workshop-impact {
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   border-left-color: var(--workshop-family);
   background: var(--arcade-black);
   box-shadow: none;
@@ -189,7 +191,7 @@
   width: calc(100% - 16px);
   margin: 2px 8px 9px;
   background: #151300;
-  border: 2px solid var(--arcade-yellow);
+  border: var(--arcade-frame-subtle) solid var(--arcade-yellow);
   color: var(--arcade-yellow);
   cursor: pointer;
   display: flex;
@@ -215,7 +217,7 @@
 .workshop-target__reroll small {
   color: var(--arcade-yellow);
   font-family: var(--arcade-font-ui);
-  font-size: 0.54rem;
+  font-size: var(--arcade-text-helper);
   font-weight: 850;
 }
 

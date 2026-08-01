@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **UI/UX hierarchy pass er færdigt lokalt på `codex/arcade-foundation-v1`:** Pixel Arcade bruger nu et bindende 3/2/1-linjesystem for shell, sektion og control, et fælles 4/8/12/16/24-spacing-system samt større minimumstekst for forklaringer. Workshop, Fate, outcomes, Hub, Loadout, Talent Tree, Combat og overlays er harmoniseret; komplette rammer er fjernet fra gentagne Loadout-items og rarity-grupper, mens systemfarver og primære handlinger er bevaret. Smalle desktop/mobile-viewports har ikke længere global horisontal overflow.
 - **Combat-rækkefølge, Workshop-reroll og System Dice er poleret lokalt på `codex/arcade-foundation-v1`:** Player-dice ruller nu altid i den rækkefølge, spilleren har valgt i Loadout Rack, hvor et nyt Roll Order-panel kan flytte dice frem og tilbage. Workshop-targetanimationen går kun fremad rundt om de seks faces, og Face Mastery-handlingen ligger nu tydeligt i Step 1 som `Roll Another Face`. Soul Die præsenteres i Hub som en permanent System Die med samme visuelle hierarki som spillerens permanente dice.
 - **En fremtidig content-idébank er oprettet:** `content-ideas.md` samler mulige dice families, familie-evolutions, dungeon mechanics, Charms, Workshop/Soul Die-progression, Resonance, Boss Imprints, Dungeon Mastery, sjældne rooms, Dice Memories, Run Forecasts og et Research Board. Forslagene er bevidst ikke bindende GDD-beslutninger endnu.
 - **Charm-samlingen er lettere at aflæse på mobil:** Kendte Charm-kort bruger nu større navn, rarity, rank og effekttekst, højere linjeafstand samt større handlingsknapper. To-kolonne-layoutet er bevaret uden afskåret indhold eller vandret overflow ved 384 px.
@@ -113,6 +114,8 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Gennemfør et fysisk iPhone/Safari-pass af Workshop, Fate Sanctum, Victory/Defeat og Loadout ved både normal og kort viewport, og sammenlign linjevægt samt tekststørrelse med browserbaselinen.
+2. Start derefter det planlagte early-game-balancepass over de første 15–20 runs uden at tilføje nye Hub-anbefalinger eller affordability-badges.
 1. Fresh-save-playtest 10–20 Fate Draws og mål faktisk rarity-fordeling, duplicate-friktion og om Common stadig føles som et værdifuldt resultat.
 2. Test alle otte Charms i manuel og hurtig Auto Combat, især Echo Knot-feedback, Crimson Oaths attack-only-betingelse og Unbroken Walls afrunding ved små Shield-tal.
 3. Balancér `Fate's Favor`-priserne 18/36/64 XP og tærsklerne 8/6/15 draws mod det reelle Fate Token-tempo.
@@ -246,6 +249,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-01 — Samlet UI/UX line-, spacing- og overlay-pass
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hele Pixel Arcade-skallen bruger nu et klart 3 px shell/modal, 2 px section og 1 px control-hierarki. Workshop, Fate Sanctum, outcomes, Hub, Loadout, Talent Tree, Combat og overlays har mindre box-in-box-støj, roligere spacing og større læsbar hjælpetekst. Loadout-items bruger dividers frem for komplette ydre bokse, Fate-rarity bruger accentlinjer, og Soul Die-outcomes grupperer XP som et fuldbredde reward-kort.
+- Beslutninger: Progression-agency bevares; passet tilføjer ingen recommended upgrades, Hub-badges eller affordability-glow. Systemfarver markerer identitet/state, mens hvid linjevægt markerer hierarki. Fælles spacing følger 4/8/12/16/24 px, og overlays følger én modalstruktur.
+- Berørte områder: `src/styles/arcade/*`, global viewport-base i `src/index.css` samt den bindende visuelle reference `DESIGN.md` version 2.2.
+- Validering: `npx tsc --noEmit`, 172 Vitest-tests, ESLint og production-build bestået. Browser-verificeret ved 320×700, 384×844 og 430×932 på Workshop, Hub, Fate Sanctum, Victory, Loadout og Talent Tree-overlay uden horisontal overflow.
+- Kendte mangler: Fysisk Safari-font-rendering, scrollbar-adfærd og touch-følelse skal fortsat godkendes. Vite rapporterer fortsat den kendte bundle-size warning over 500 kB; den er ikke skabt af dette CSS-pass.
+- Git: Ikke committed endnu; branch `codex/arcade-foundation-v1`.
 
 ### 2026-08-01 — Loadout-order, fremadgående target-rul og System Dice
 

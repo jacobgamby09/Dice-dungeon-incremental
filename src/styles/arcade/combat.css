@@ -9,7 +9,7 @@
 
 .combat-meta {
   min-height: 44px;
-  border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
   box-shadow: none;
   padding-inline: 8px;
@@ -35,7 +35,7 @@
 }
 
 .run-menu-trigger {
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
   color: var(--arcade-white);
@@ -43,7 +43,7 @@
 
 .enemy-zone {
   min-height: 218px;
-  border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
 }
 
@@ -107,12 +107,12 @@
 }
 
 .enemy-intent-total {
-  border-bottom: 2px solid currentColor;
+  border-bottom: var(--arcade-frame-subtle) solid currentColor;
   background: var(--arcade-black);
 }
 
 .enemy-intent-tray__details {
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
 }
@@ -127,7 +127,7 @@
 
 .player-zone {
   min-height: 92px;
-  border-bottom: var(--arcade-frame-section) solid var(--arcade-white);
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
   box-shadow: none;
   padding: 9px 12px;
@@ -164,7 +164,7 @@
 
 .round-total {
   min-width: 69px;
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--total-surface);
   box-shadow: inset 0 0 0 2px var(--arcade-black);
 }
@@ -219,7 +219,7 @@
 
 .dice-stage-header {
   min-height: 48px;
-  border-bottom: 2px solid var(--arcade-white);
+  border-bottom: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
 }
@@ -230,7 +230,7 @@
 }
 
 .bag-counter {
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: #111128;
   box-shadow: none;
   color: var(--arcade-cyan);
@@ -378,7 +378,7 @@
 
 .combat-actions {
   min-height: 78px;
-  border-top: var(--arcade-frame-section) solid var(--arcade-white);
+  border-top: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
   box-shadow: none;
   padding: 8px 10px max(10px, env(safe-area-inset-bottom));
@@ -386,7 +386,7 @@
 
 .auto-combat-toggle {
   min-height: 38px;
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
   color: var(--arcade-muted);

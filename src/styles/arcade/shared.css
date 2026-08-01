@@ -2,7 +2,7 @@
   width: min(100%, 384px);
   min-height: 100dvh;
   margin: 0 auto;
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-strong) solid var(--arcade-white);
   color: var(--arcade-white);
   background: var(--arcade-black);
   font-family: var(--arcade-font-ui);
@@ -45,7 +45,7 @@
 .eyebrow {
   color: var(--arcade-muted);
   font-family: var(--arcade-font-display);
-  font-size: max(0.54rem, 9px);
+  font-size: max(var(--arcade-text-eyebrow), 9px);
   font-weight: 900;
   letter-spacing: 0.12em;
   line-height: 1.25;
@@ -55,6 +55,10 @@
 .game-shell p,
 .game-shell small {
   font-family: var(--arcade-font-ui);
+}
+
+.game-shell p {
+  line-height: 1.5;
 }
 
 .game-shell button {
@@ -67,6 +71,7 @@
 
 .game-shell button:disabled {
   cursor: not-allowed;
+  opacity: 0.48;
 }
 
 .pixel-button,
@@ -81,6 +86,10 @@
     4px 4px 0 var(--arcade-white);
   color: var(--arcade-white);
   text-shadow: 2px 2px 0 var(--arcade-black);
+}
+
+.pixel-button {
+  min-height: 48px;
 }
 
 .pixel-button:active:not(:disabled),
@@ -114,6 +123,29 @@
 .talent-canvas-inspector__close:focus-visible {
   outline: 3px solid var(--arcade-yellow);
   outline-offset: 3px;
+}
+
+.screen-header,
+.collection-header,
+.forge-header,
+.dungeon-card,
+.collection-die,
+.outcome-stage,
+.outcome-summary,
+.run-menu,
+.die-details-panel {
+  border-color: var(--arcade-line-section);
+}
+
+.screen-header button,
+.collection-header button,
+.forge-header button,
+.run-menu button,
+.collection-details,
+.dungeon-card button {
+  min-height: var(--arcade-control-height);
+  border-width: var(--arcade-frame-subtle);
+  border-color: var(--arcade-line-control);
 }
 
 .pixel-button--primary,

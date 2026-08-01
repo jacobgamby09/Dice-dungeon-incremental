@@ -16,7 +16,7 @@
 .charm-loadout,
 .fate-draw,
 .charm-collection {
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-section) solid var(--arcade-line-section);
   background: var(--arcade-black);
 }
 
@@ -25,7 +25,7 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 10px;
-  padding: 12px;
+  padding: var(--arcade-space-3);
 }
 
 .fate-header h1,
@@ -44,7 +44,7 @@
 .fate-token-total {
   min-width: 56px;
   height: 40px;
-  border: 2px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,8 +79,8 @@
   width: min(100%, 344px);
   max-height: calc(100dvh - 36px);
   overflow-y: auto;
-  border: 3px solid var(--arcade-purple);
-  box-shadow: 6px 6px 0 #251044, inset 0 0 0 2px var(--arcade-white);
+  border: var(--arcade-frame-strong) solid var(--arcade-purple);
+  box-shadow: 4px 4px 0 #251044;
   background: var(--arcade-black);
   padding: 22px 18px 18px;
 }
@@ -104,7 +104,7 @@
   margin: 0;
   color: var(--arcade-muted);
   font-family: var(--arcade-font-ui);
-  font-size: 0.68rem;
+  font-size: var(--arcade-text-body);
   line-height: 1.4;
 }
 
@@ -116,8 +116,9 @@
 
 .fate-rates-list > div {
   min-height: 42px;
-  border: 2px solid var(--rarity-accent);
-  box-shadow: inset 5px 0 0 var(--rarity-accent);
+  border: var(--arcade-frame-subtle) solid var(--rarity-accent);
+  border-left-width: 4px;
+  box-shadow: none;
   background: color-mix(in srgb, var(--rarity-accent) 8%, var(--arcade-black));
   padding: 7px 10px 7px 16px;
   display: flex;
@@ -138,7 +139,7 @@
 }
 
 .fate-rates-panel__notes {
-  border-top: 2px solid var(--arcade-purple);
+  border-top: var(--arcade-frame-subtle) solid var(--arcade-purple);
   padding-top: 11px;
   display: grid;
   gap: 8px;
@@ -148,8 +149,8 @@
 .charm-loadout,
 .fate-draw,
 .charm-collection {
-  margin-top: 8px;
-  padding: 12px;
+  margin-top: var(--arcade-space-3);
+  padding: var(--arcade-space-3);
 }
 
 .fate-pity > div:first-child,
@@ -167,7 +168,7 @@
 .charm-empty {
   color: var(--arcade-muted);
   font-family: var(--arcade-font-ui);
-  font-size: 0.68rem;
+  font-size: var(--arcade-text-body);
   line-height: 1.35;
 }
 
@@ -200,7 +201,7 @@
 
 .charm-slot {
   min-height: 104px;
-  border: 2px solid var(--arcade-line-subtle);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -212,8 +213,9 @@
 }
 
 .charm-slot.is-filled {
+  border-width: var(--arcade-frame-section);
   border-color: var(--rarity-accent, var(--arcade-white));
-  box-shadow: inset 3px 0 0 var(--rarity-accent, var(--arcade-white));
+  box-shadow: none;
   color: var(--arcade-white);
 }
 
@@ -226,7 +228,7 @@
 .charm-slot button,
 .charm-card button {
   min-height: 28px;
-  border: 1px solid var(--arcade-white);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   color: var(--arcade-white);
   font-weight: 800;
@@ -256,15 +258,7 @@
   inset-block: 0;
   left: 50%;
   width: min(100%, 384px);
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.025) 0,
-      rgba(255, 255, 255, 0.025) 1px,
-      transparent 1px,
-      transparent 4px
-    ),
-    rgba(0, 0, 0, 0.94);
+  background: rgba(0, 0, 0, 0.94);
   padding:
     max(12px, env(safe-area-inset-top))
     12px
@@ -282,11 +276,9 @@
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
-  border: 4px solid var(--arcade-white);
+  border: var(--arcade-frame-strong) solid var(--arcade-white);
   background: var(--arcade-black);
-  box-shadow:
-    7px 7px 0 #210d37,
-    inset 0 0 0 3px #291345;
+  box-shadow: 5px 5px 0 #210d37;
   padding: 18px 14px 16px;
   display: grid;
   gap: 16px;
@@ -314,7 +306,7 @@
 .fate-machine::after { right: -10px; }
 
 .fate-machine > header {
-  border-bottom: 2px solid #432467;
+  border-bottom: var(--arcade-frame-subtle) solid #432467;
   padding-bottom: 12px;
 }
 
@@ -413,9 +405,10 @@
 
 .fate-machine__result {
   position: relative;
-  border: 2px solid var(--charm-accent);
+  border: var(--arcade-frame-subtle) solid var(--charm-accent);
   background: color-mix(in srgb, var(--charm-accent) 13%, #050207);
-  box-shadow: inset 5px 0 0 var(--charm-accent);
+  border-left-width: 5px;
+  box-shadow: none;
   padding: 14px 12px 12px;
   display: grid;
   gap: 6px;
@@ -539,13 +532,15 @@
 }
 
 .charm-rarity-group {
-  border: 2px solid var(--rarity-accent);
+  border: 0;
+  border-top: var(--arcade-frame-subtle) solid var(--rarity-accent);
+  border-left: var(--arcade-frame-strong) solid var(--rarity-accent);
   background: var(--arcade-black);
   padding: 8px;
 }
 
 .charm-rarity-group > header {
-  border-bottom: 2px solid var(--rarity-accent);
+  border-bottom: var(--arcade-frame-subtle) solid var(--rarity-accent);
   padding: 0 2px 7px;
   display: flex;
   align-items: center;
@@ -565,7 +560,7 @@
 
 .charm-card {
   min-height: 210px;
-  border: 2px solid var(--arcade-line-subtle);
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: #07070a;
   padding: 10px;
   display: grid;
@@ -574,17 +569,18 @@
 }
 
 .charm-card.is-owned {
+  border-width: var(--arcade-frame-section);
   border-color: var(--rarity-accent);
-  box-shadow: inset 3px 0 0 var(--rarity-accent);
+  box-shadow: none;
 }
 
 .charm-card.is-equipped { background: color-mix(in srgb, var(--rarity-dark) 68%, #050507); }
 
-.charm-card[data-rarity='rare'] { border-width: 3px; }
+.charm-card[data-rarity='rare'] { border-width: var(--arcade-frame-section); }
 .charm-card[data-rarity='epic'] { box-shadow: inset 0 0 0 2px var(--rarity-dark); }
 .charm-card[data-rarity='legendary'] {
-  border-width: 3px;
-  box-shadow: inset 0 0 0 2px var(--rarity-dark), 4px 4px 0 var(--rarity-dark);
+  border-width: var(--arcade-frame-section);
+  box-shadow: 3px 3px 0 var(--rarity-dark);
 }
 
 .charm-card .charm-card__rarity {
@@ -620,7 +616,7 @@
   margin: 0;
   color: var(--arcade-muted);
   font-family: var(--arcade-font-ui);
-  font-size: 0.62rem;
+  font-size: var(--arcade-text-helper);
   line-height: 1.4;
 }
 
@@ -631,7 +627,7 @@
 
 .charm-card .charm-card__effect {
   color: #e0e1ec;
-  font-size: 0.68rem;
+  font-size: var(--arcade-text-body);
   line-height: 1.48;
 }
 
@@ -726,8 +722,8 @@
 .combat-charm-detail {
   position: relative;
   width: min(100%, 344px);
-  border: 3px solid var(--rarity-accent);
-  box-shadow: 6px 6px 0 var(--rarity-dark), inset 0 0 0 2px var(--arcade-white);
+  border: var(--arcade-frame-strong) solid var(--rarity-accent);
+  box-shadow: 4px 4px 0 var(--rarity-dark);
   background: var(--arcade-black);
   padding: 22px 18px 18px;
   display: grid;
@@ -786,7 +782,7 @@
 
 .combat-charm-detail__effect {
   width: 100%;
-  border-block: 2px solid var(--rarity-accent);
+  border-block: var(--arcade-frame-subtle) solid var(--rarity-accent);
   padding: 13px 5px;
   color: var(--arcade-white);
   font-family: var(--arcade-font-ui);
@@ -832,7 +828,7 @@
 }
 
 .outcome-charm-procs {
-  border: var(--arcade-frame-section) solid var(--arcade-white);
+  border: var(--arcade-frame-section) solid var(--arcade-line-section);
   padding: 12px;
   display: grid;
   gap: 8px;

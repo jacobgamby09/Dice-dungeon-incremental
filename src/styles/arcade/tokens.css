@@ -8,6 +8,8 @@
   --arcade-white: #fff;
   --arcade-muted: #9a9aa8;
   --arcade-line-subtle: #575764;
+  --arcade-line-section: #d7d7df;
+  --arcade-line-control: #62626f;
   --arcade-purple: #8b5cf6;
   --arcade-red: #ff334f;
   --arcade-blue: #2498ff;
@@ -18,6 +20,15 @@
   --arcade-frame-strong: 3px;
   --arcade-frame-section: 2px;
   --arcade-frame-subtle: 1px;
+  --arcade-space-1: 4px;
+  --arcade-space-2: 8px;
+  --arcade-space-3: 12px;
+  --arcade-space-4: 16px;
+  --arcade-space-5: 24px;
+  --arcade-text-eyebrow: 0.58rem;
+  --arcade-text-helper: 0.62rem;
+  --arcade-text-body: 0.72rem;
+  --arcade-control-height: 44px;
   --arcade-motion-fast: 120ms;
   --arcade-motion-impact: 240ms;
   --arcade-motion-settle: 360ms;
