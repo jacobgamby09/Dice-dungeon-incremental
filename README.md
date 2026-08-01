@@ -48,7 +48,7 @@ Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + w
 
 - Spilleren starter kun med én permanent Attack Die; Shield og Heal unlockes senere.
 - Terninger og deres seks individuelle faces er permanente og har stabile IDs.
-- Alle udstyrede terninger trækkes tilfældigt uden replacement hver runde.
+- Alle udstyrede terninger ruller uden replacement i den rækkefølge, spilleren har placeret dem i loadoutet.
 - Auto Combat unlockes tidligt efter Twin Arsenal og automatiserer draw, resolve, normale Victory-pulses og næste floor, men stopper ved Defeat eller Boss Victory.
 - Et aktivt Auto Combat-run kan fast-forwardes deterministisk efter browser-suspension uden at duplikere rewards.
 - Combat-headerens beskyttede Run Menu kan pause eller afslutte et aktivt run; et bekræftet leave nulstiller kun dungeon-positionen og bevarer allerede optjent XP/Souls.

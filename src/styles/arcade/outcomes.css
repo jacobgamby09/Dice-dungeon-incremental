@@ -73,6 +73,101 @@
   background: var(--arcade-black);
 }
 
+.loadout-order {
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: var(--arcade-black);
+  padding: 10px;
+}
+
+.loadout-order > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 2px solid var(--arcade-white);
+  padding-bottom: 8px;
+}
+
+.loadout-order h2 {
+  margin: 2px 0 0;
+  color: var(--arcade-white);
+  font-family: var(--arcade-font-display);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.loadout-order > header small {
+  color: var(--arcade-cyan);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.55rem;
+  font-weight: 850;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.loadout-order ol {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.loadout-order li {
+  display: grid;
+  grid-template-columns: 30px 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  border: 2px solid #555562;
+  padding: 5px;
+}
+
+.loadout-order li > strong {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 2px solid var(--arcade-cyan);
+  color: var(--arcade-white);
+  font-family: var(--arcade-font-display);
+  font-size: 0.72rem;
+}
+
+.loadout-order li > span {
+  overflow: hidden;
+  color: var(--arcade-white);
+  font-family: var(--arcade-font-display);
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.loadout-order li > div {
+  display: flex;
+  gap: 4px;
+}
+
+.loadout-order li button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 2px solid var(--arcade-white);
+  background: var(--arcade-black);
+  color: var(--arcade-cyan);
+}
+
+.loadout-order li button:disabled {
+  border-color: #3a3a42;
+  color: #3a3a42;
+}
+
+.loadout-order li button:focus-visible {
+  outline: 3px solid var(--arcade-yellow);
+  outline-offset: 2px;
+}
+
 .outcome-screen {
   gap: 8px;
 }

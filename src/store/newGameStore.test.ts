@@ -87,14 +87,43 @@ describe('Classic V2 store progression loop', () => {
     useNewGameStore.getState().finishEnemyIntentReveal()
     const drawOrder = [...useNewGameStore.getState().combat.drawPileDieIds]
 
+    expect(drawOrder).toEqual(diceCollection.map((die) => die.id))
+
     for (const expectedDieId of drawOrder) {
       expect(useNewGameStore.getState().drawNextDie()?.dieId).toBe(expectedDieId)
     }
 
-    expect([...drawOrder].sort()).toEqual(['attack-die-1', 'attack-die-2'])
-    expect(useNewGameStore.getState().run.equippedDiceSnapshot.map((die) => die.id).sort())
+    expect(useNewGameStore.getState().run.equippedDiceSnapshot.map((die) => die.id))
       .toEqual(['attack-die-1', 'attack-die-2'])
     expect(useNewGameStore.getState().combat.phase).toBe('awaiting_resolve')
+  })
+
+  it('lets the player reorder equipped dice and uses that order in combat', () => {
+    const state = useNewGameStore.getState()
+    const diceCollection = createDiceCatalog().slice(0, 3)
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        diceCollection,
+        equippedDieIds: diceCollection.map((die) => die.id),
+      },
+    })
+
+    expect(useNewGameStore.getState().moveEquippedDie('shield-die-1', -1)).toBe(true)
+    expect(useNewGameStore.getState().moveEquippedDie('shield-die-1', -1)).toBe(true)
+    expect(useNewGameStore.getState().profile.equippedDieIds).toEqual([
+      'shield-die-1',
+      'attack-die-1',
+      'attack-die-2',
+    ])
+    expect(useNewGameStore.getState().moveEquippedDie('shield-die-1', -1)).toBe(false)
+
+    useNewGameStore.getState().startRun('prototype-depths')
+    expect(useNewGameStore.getState().combat.drawPileDieIds).toEqual([
+      'shield-die-1',
+      'attack-die-1',
+      'attack-die-2',
+    ])
   })
 
   it('awards the first enemy four XP and one controlled Soul Die payout once', () => {

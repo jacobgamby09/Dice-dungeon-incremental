@@ -1,7 +1,16 @@
 import { useCallback, useState } from 'react'
-import { Backpack, Check, ChevronLeft, Info, LockKeyhole } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  Backpack,
+  Check,
+  ChevronLeft,
+  Info,
+  LockKeyhole,
+} from 'lucide-react'
 import { DieDetailsPanel } from '../components/newgame/DieDetailsPanel'
 import { DieSummary } from '../components/newgame/DieSummary'
+import { FaceIcon } from '../components/newgame/FaceIcon'
 import { getDiceCapacity } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -11,6 +20,7 @@ export function LoadoutScreen() {
   const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const equipDie = useNewGameStore((state) => state.equipDie)
   const unequipDie = useNewGameStore((state) => state.unequipDie)
+  const moveEquippedDie = useNewGameStore((state) => state.moveEquippedDie)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const capacity = getDiceCapacity(talentRanks)
   const [inspectedDieId, setInspectedDieId] = useState<string | null>(null)
@@ -34,6 +44,47 @@ export function LoadoutScreen() {
       </header>
 
       <p className="collection-intro">Choose which owned dice enter the next run. Active runs keep their original snapshot.</p>
+
+      <section aria-labelledby="loadout-order-title" className="loadout-order">
+        <header>
+          <div>
+            <span className="eyebrow">Combat sequence</span>
+            <h2 id="loadout-order-title">Roll Order</h2>
+          </div>
+          <small>Slot 1 rolls first</small>
+        </header>
+        <ol>
+          {equippedDieIds.map((dieId, index) => {
+            const die = diceCollection.find((candidate) => candidate.id === dieId)
+            if (!die) return null
+            return (
+              <li key={die.id}>
+                <strong aria-label={`Roll slot ${index + 1}`}>{index + 1}</strong>
+                <FaceIcon type={die.family} size={18} />
+                <span>{die.name}</span>
+                <div>
+                  <button
+                    aria-label={`Move ${die.name} earlier`}
+                    disabled={index === 0}
+                    onClick={() => moveEquippedDie(die.id, -1)}
+                    type="button"
+                  >
+                    <ArrowUp aria-hidden="true" size={16} />
+                  </button>
+                  <button
+                    aria-label={`Move ${die.name} later`}
+                    disabled={index === equippedDieIds.length - 1}
+                    onClick={() => moveEquippedDie(die.id, 1)}
+                    type="button"
+                  >
+                    <ArrowDown aria-hidden="true" size={16} />
+                  </button>
+                </div>
+              </li>
+            )
+          })}
+        </ol>
+      </section>
 
       <section className="collection-rack" aria-label="Owned permanent dice">
         {diceCollection.map((die) => {

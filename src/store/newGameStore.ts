@@ -113,6 +113,7 @@ export interface NewGameState {
   purchaseTalent: (talentId: string) => boolean
   equipDie: (dieId: string) => boolean
   unequipDie: (dieId: string) => boolean
+  moveEquippedDie: (dieId: string, direction: -1 | 1) => boolean
   setAutoCombat: (enabled: boolean) => void
   openRunMenu: () => void
   closeRunMenu: () => void
@@ -875,7 +876,6 @@ export const useNewGameStore = create<NewGameState>()(
             1,
             state.combat.resolutionVersion,
             true,
-            Math.random,
             { shield: firstCharmRound.shield },
           ),
         })
@@ -1231,7 +1231,6 @@ export const useNewGameStore = create<NewGameState>()(
             state.combat.roundNumber + 1,
             state.combat.resolutionVersion,
             true,
-            Math.random,
             {
               shield: state.combat.lastResolution.nextRoundShield + charmRound.shield,
               heal: state.combat.lastResolution.nextRoundHeal,
@@ -1273,7 +1272,6 @@ export const useNewGameStore = create<NewGameState>()(
             1,
             state.combat.resolutionVersion,
             true,
-            Math.random,
             { shield: charmRound.shield },
             ),
             lastCharmTriggers: charmRound.triggers,
@@ -1557,6 +1555,27 @@ export const useNewGameStore = create<NewGameState>()(
             diceCollection: state.profile.diceCollection.map((candidate) => (
               candidate.id === dieId ? evolvedDie : candidate
             )),
+          },
+        })
+        return true
+      },
+
+      moveEquippedDie: (dieId, direction) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return false
+        const currentIndex = state.profile.equippedDieIds.indexOf(dieId)
+        if (currentIndex < 0) return false
+        const nextIndex = currentIndex + direction
+        if (nextIndex < 0 || nextIndex >= state.profile.equippedDieIds.length) return false
+
+        const equippedDieIds = [...state.profile.equippedDieIds]
+        const displacedDieId = equippedDieIds[nextIndex]
+        equippedDieIds[nextIndex] = dieId
+        equippedDieIds[currentIndex] = displacedDieId
+        set({
+          profile: {
+            ...state.profile,
+            equippedDieIds,
           },
         })
         return true

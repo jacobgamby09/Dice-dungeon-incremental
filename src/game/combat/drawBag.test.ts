@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { shuffleDieIds } from './drawBag'
+import { createLoadoutDrawOrder } from './drawBag'
 
-describe('shuffleDieIds', () => {
-  it('creates a shuffled copy without losing or duplicating dice', () => {
+describe('createLoadoutDrawOrder', () => {
+  it('preserves the exact equipped loadout order without sharing the source array', () => {
     const source = ['attack-1', 'shield-1', 'heal-1']
-    const shuffled = shuffleDieIds(source, () => 0)
+    const drawOrder = createLoadoutDrawOrder(source)
 
-    expect(shuffled).toEqual(['shield-1', 'heal-1', 'attack-1'])
-    expect([...shuffled].sort()).toEqual([...source].sort())
+    expect(drawOrder).toEqual(source)
+    expect(drawOrder).not.toBe(source)
     expect(source).toEqual(['attack-1', 'shield-1', 'heal-1'])
   })
 
-  it('keeps a one-die bag intact', () => {
-    expect(shuffleDieIds(['attack-1'], () => 0.5)).toEqual(['attack-1'])
+  it('keeps a one-die loadout intact', () => {
+    expect(createLoadoutDrawOrder(['attack-1'])).toEqual(['attack-1'])
   })
 })

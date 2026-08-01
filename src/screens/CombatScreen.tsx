@@ -576,8 +576,8 @@ export function CombatScreen() {
       <section className="roll-zone" aria-label="Played dice">
         <header className="dice-stage-header">
           <div>
-            <span className="eyebrow">Shuffled draw</span>
-            <h2>{roundReady ? 'Round armed' : 'Roll the bag'}</h2>
+            <span className="eyebrow">Loadout order</span>
+            <h2>{roundReady ? 'Round armed' : 'Roll your dice'}</h2>
           </div>
           <div className="bag-counter" aria-label={`${diceLeft} dice left in bag`}>
             <Dices aria-hidden="true" size={17} />

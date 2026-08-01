@@ -1,5 +1,4 @@
 import { addRollEffects, rollDie } from '../combat/rollDie'
-import { shuffleDieIds } from '../combat/drawBag'
 import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
 import { DUNGEONS } from '../content/dungeons'
@@ -78,16 +77,13 @@ export function simulateDungeonRun(
       let totals = { ...EMPTY_TOTALS }
       let pendingMomentum = 0
       let pendingFortify = 0
-      const shuffledDice = shuffleDieIds(
-        build.dice.map((die) => die.id),
-        random,
-      ).map((dieId) => build.dice.find((die) => die.id === dieId)!)
-      for (const [index, die] of shuffledDice.entries()) {
+      const orderedDice = build.dice
+      for (const [index, die] of orderedDice.entries()) {
         const effects = addRollEffects(
           totals,
           pendingMomentum,
           rollDie(die, random),
-          index === shuffledDice.length - 1,
+          index === orderedDice.length - 1,
           pendingFortify,
           {
             enemyHp: enemy.hp,

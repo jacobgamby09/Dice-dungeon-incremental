@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-07-31.
+Senest opdateret: 2026-08-01.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Combat-rækkefølge, Workshop-reroll og System Dice er poleret lokalt på `codex/arcade-foundation-v1`:** Player-dice ruller nu altid i den rækkefølge, spilleren har valgt i Loadout Rack, hvor et nyt Roll Order-panel kan flytte dice frem og tilbage. Workshop-targetanimationen går kun fremad rundt om de seks faces, og Face Mastery-handlingen ligger nu tydeligt i Step 1 som `Roll Another Face`. Soul Die præsenteres i Hub som en permanent System Die med samme visuelle hierarki som spillerens permanente dice.
 - **En fremtidig content-idébank er oprettet:** `content-ideas.md` samler mulige dice families, familie-evolutions, dungeon mechanics, Charms, Workshop/Soul Die-progression, Resonance, Boss Imprints, Dungeon Mastery, sjældne rooms, Dice Memories, Run Forecasts og et Research Board. Forslagene er bevidst ikke bindende GDD-beslutninger endnu.
 - **Charm-samlingen er lettere at aflæse på mobil:** Kendte Charm-kort bruger nu større navn, rarity, rank og effekttekst, højere linjeafstand samt større handlingsknapper. To-kolonne-layoutet er bevaret uden afskåret indhold eller vandret overflow ved 384 px.
 - **Fate Draw-landingen er visuelt ryddet op:** De dæmpede nabo-Charms bruges fortsat under reel-animationen, men skjules helt, så snart resultatet er landet. Den færdige loot-state viser derfor kun den vindende Charm.
@@ -69,7 +70,7 @@ Brug denne skabelon:
 - Talent Tree-clusteret er komprimeret, så alle direkte forbindelser højst er 185 world-pixels lange. Node-inspektøren viser nu kun navn, tydelig state/rank, store konkrete effekter, eventuelle seks die-faces og én købsknap; gentaget branch-label, beskrivelse, statusblok og preview-copy er fjernet.
 - Auto Combat ligger direkte syd for centrum til 6 XP og inkluderer både roll, resolve, ny round og normal floor-transition. Twin Arsenal ligger nordpå til 32 XP og giver både slot 2 og den permanente Striker Die.
 - Fatecraft er synlig som den låste østlige fremtidsgren efter centrum, men kræver første Dungeon 1-clear. Selve Charm/Fate Token-systemet er fortsat bevidst udskudt.
-- Den nye journey-regression fastholder første random face-upgrade på run 1, Auto Combat på run 2–3, anden die på run 6–15 og første Dungeon 1-clear i en længere run 12–45-bue.
+- Den nye journey-regression fastholder første random face-upgrade på run 1, Auto Combat på run 2–3, anden die på run 6–15 og første Dungeon 1-clear i en længere run 12–55-bue.
 - Den fulde og bindende V2-GDD findes i `CLASSIC_INCREMENTAL_V2.md`. Den dokumenterer branchens vision, loop, økonomi, Workshop, komplette Talent Tree, dice-katalog, begge dungeons, pacing-rails, persistence samt implementeret/deferred scope. Nedenstående produktionsstatus beskriver fortsat den nuværende `main`-version som reference.
 - Det nye permanente Dice Dungeon-spil er isoleret fra legacy bag-builder-systemet.
 - En samlet MVP-slice findes med Hub, Talent Shrine, Loadout Rack, Workshop, dungeonvalg, combat, kompakt Victory/Boss Victory og descent-resumé ved Defeat.
@@ -85,7 +86,7 @@ Brug denne skabelon:
 - Hvert besejret mob giver sit faste XP- og Soul-drop permanent med det samme; Defeat nulstiller kun dungeon-positionen.
 - `The First Descent` genbruger Slime, Slime Crawler, Goblin og Skeleton som Level 1/2-varianter, har en Skeleton Elite på floor 9 og Demon-boss på floor 10. Alle har kun én Attack Die.
 - `The Iron Descent` er Dungeon 2 med Shieldbearer, Cultist, Orc og Blood Orc som Level 1/2-varianter. Normale mobs har Attack + Shield, mens Spiked Behemoth-bossen har Attack + Shield + Heal.
-- Alle udstyrede dice trækkes fra en blandet draw-pile uden replacement; der findes ingen faste type-slots.
+- Alle udstyrede dice trækkes præcis én gang i spillerens synlige loadout-rækkefølge; der findes ingen faste type-slots.
 - Hver enemy har nu 1–3 data-drevne seks-sidede dice. Alle resultater fastlåses og persisteres før reveal-animationen, hvorefter spilleren får de præcise Attack-, Shield- og Heal-værdier at reagere på.
 - Enemy-intent bruger separate render-identiteter til den roterende 3D-cube og den flade resultat-face. Landed, active og cancelled nulstiller altid X/Y-rotation, så ingen enemy-die kan arve en spejlvendt roll-transform på tværs af faces, runder eller mobs.
 - Combat resolver player først. En dræbt enemy udfører ikke sit intent.
@@ -154,7 +155,7 @@ Brug denne skabelon:
 - Arcade Polish v1 er browser-verificeret ved 320×700, 384×844 og 430×932 uden horisontal overflow eller console warnings/errors. Fysisk Safari-timing, touch-følelse og seks samtidige player-dice under hurtig automation er fortsat den vigtigste åbne visuelle risiko.
 - Den canonical Pixel Arcade-layer er nu opdelt i screen- og tokenfiler, men `src/newGame.css` indeholder fortsat det ældre strukturelle layout under præsentationslaget. Nye arcade-regler skal blive i `src/styles/arcade/`; en senere strukturel konsolidering skal ske gradvist med visuelle regressionstests.
 - De nuværende detaljerede enemy-sprites er bevaret som aftalt. Det skal vurderes på fysisk mobil, om deres billedsprog passer til den simplere sort/hvide arcade-shell, før der bestilles eller bygges ny sprite-art.
-- V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–45-grænser skal derfor fysisk valideres.
+- V2-journey-simulatoren måler runs, XP, Souls, gennemsnitlig face-værdi og floor-wall, men ikke den oplevede realtid med animationer. De nuværende run 12–55-grænser skal derfor fysisk valideres.
 - Workshop-ritualet er browser-verificeret ved 384 px, inklusive reload efter target-roll og før power-roll. Den subjektive varighed og gentagelsesværdi ved mange køb skal stadig afprøves på fysisk mobil.
 - Et Workshop-roll kan vise mindre faktisk fremgang end sit rå resultat, når target-face ligger tæt på cap. UI'et viser den cap-begrænsede fordeling før rullet, men det skal playtestes, om spilleren stadig oplever dette som fair.
 - V2's `Fatecraft` har en rigtig unlock-effekt i Talent Tree, men den efterfølgende Charm-skærm og Fate Token-valuta findes endnu ikke. Noden er placeret bag første Dungeon 1-clear, så den ikke kan blive et tidligt tomt køb.
@@ -245,6 +246,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-01 — Loadout-order, fremadgående target-rul og System Dice
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Player-dice følger nu altid den redigerbare loadout-rækkefølge i manuel Combat, Auto Combat og balancesimulatoren. Workshop-targetvælgeren fortsætter fremad rundt om alle seks faces uden baglæns sluthop, Face Mastery-reroll er flyttet ind i target-trinnet med entydig tekst, og Soul Die har fået et fuldt permanent System Dice-kort i Hub.
+- Beslutninger: Loadout-order er en bindende combat-regel. Face Mastery reroller target-face — aldrig Workshop Die — og kan fortsat lande på samme face efter en hel fremadgående omgang. System Dice adskilles fra loadout-dice, men bruger samme præsentationshierarki.
+- Berørte områder: Combat draw-pile og simulator, Zustand loadout-actions, Loadout Rack, Workshop-animation/UI, Hub System Dice, tests samt `AGENTS.md`, `CLASSIC_INCREMENTAL_V2.md` og `README.md`.
+- Validering: `npx tsc --noEmit`, 172 Vitest-tests, ESLint og production-build bestået. Browser-verificeret ved 384×844 på Hub, Loadout, Combat og Workshop inklusive reorder, Auto Combat og Face Mastery-reroll.
+- Kendte mangler: Den deterministiske loadout-order flyttede den seedede journey-baseline til Dungeon 1-clear inden run 55; oplevet pacing skal fortsat fysisk playtestes. Aktivt persisterede mid-round saves færdiggør deres allerede gemte draw-pile, før næste round følger den nye order.
+- Git: Ikke committed endnu; branch `codex/arcade-foundation-v1`.
 
 ### 2026-07-31 — Fremtidig content-idébank
 

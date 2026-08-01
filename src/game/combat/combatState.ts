@@ -1,4 +1,4 @@
-import { shuffleDieIds } from './drawBag'
+import { createLoadoutDrawOrder } from './drawBag'
 import { EMPTY_TOTALS } from '../types/combat'
 import type { CombatState } from '../types/combat'
 import type { DieInstance } from '../types/dice'
@@ -8,15 +8,13 @@ export function createCombatState(
   roundNumber = 1,
   resolutionVersion = 0,
   revealEnemyIntent = false,
-  random: () => number = Math.random,
   carried: { shield?: number; heal?: number } = {},
 ): CombatState {
   return {
     phase: revealEnemyIntent ? 'revealing_enemy_intent' : 'awaiting_roll',
     roundNumber,
-    drawPileDieIds: shuffleDieIds(
+    drawPileDieIds: createLoadoutDrawOrder(
       equippedDice.map((die) => die.id),
-      random,
     ),
     results: [],
     totals: { ...EMPTY_TOTALS },

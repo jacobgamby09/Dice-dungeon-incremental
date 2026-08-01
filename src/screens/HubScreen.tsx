@@ -167,8 +167,6 @@ export function HubScreen() {
         xp={profile.xp}
       />
 
-      <SoulDieSummary values={soulDieValues} />
-
       <section className="loadout-vault" aria-labelledby="loadout-title">
         <header className="loadout-vault__heading">
           <div>
@@ -200,6 +198,8 @@ export function HubScreen() {
           })}
         </div>
       </section>
+
+      <SoulDieSummary values={soulDieValues} />
 
       <footer className="hub-actions">
         <button className="hub-action hub-action--dungeon" onClick={openDungeonSelect} type="button">

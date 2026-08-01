@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   Dices,
   Hammer,
+  RotateCw,
   Sparkles,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -15,6 +16,10 @@ import {
   getWorkshopResultPresentation,
   type WorkshopPresentationPhase,
 } from '../components/newgame/workshopResultPresentation'
+import {
+  createForwardTargetSequence,
+  getTargetTickDelay,
+} from '../components/newgame/workshopTargetSequence'
 import {
   getChaosEligibleFaces,
   getChaosForgeCost,
@@ -38,9 +43,6 @@ interface ForgeImpact {
   workshopFaceId: string | null
 }
 
-const TARGET_TICK_DELAYS = [
-  45, 48, 52, 56, 62, 68, 76, 86, 98, 112, 132, 158,
-] as const
 const POWER_ROLL_DURATION_MS = 900
 
 function createOperationId() {
@@ -128,19 +130,25 @@ export function WorkshopScreen() {
 
     const faceIds = getChaosEligibleFaces(selectedDie).map((face) => face.id)
     if (faceIds.length === 0) return
+    const previousTargetFaceId = pendingForge.targetFaceHistory.at(-2) ?? null
+    const targetSequence = createForwardTargetSequence(
+      faceIds,
+      pendingForge.targetFaceId,
+      previousTargetFaceId,
+    )
     const timers: number[] = []
     let elapsed = 0
 
-    TARGET_TICK_DELAYS.forEach((delay, index) => {
+    targetSequence.forEach((faceId, index) => {
+      const delay = getTargetTickDelay(index, targetSequence.length)
       elapsed += delay
       timers.push(window.setTimeout(() => {
-        setHighlightedFaceId(faceIds[index % faceIds.length])
+        setHighlightedFaceId(faceId)
       }, elapsed))
     })
     timers.push(window.setTimeout(() => {
-      setHighlightedFaceId(pendingForge.targetFaceId)
       setPhase('target_locked')
-    }, elapsed + 190))
+    }, elapsed + 150))
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
   }, [pendingForge, phase, reduceMotion, selectedDie])
@@ -346,6 +354,20 @@ export function WorkshopScreen() {
                 )
               })}
             </div>
+
+            {phase === 'target_locked' && pendingForge?.rerollsRemaining ? (
+              <button
+                className="workshop-target__reroll"
+                onClick={rerollTarget}
+                type="button"
+              >
+                <RotateCw aria-hidden="true" size={18} />
+                <span>
+                  <strong>Roll Another Face</strong>
+                  <small>{pendingForge.rerollsRemaining} rerolls left</small>
+                </span>
+              </button>
+            ) : null}
           </section>
 
           <div aria-hidden="true" className="workshop-ritual__conduit">
@@ -416,17 +438,6 @@ export function WorkshopScreen() {
           <div aria-live="polite" className="workshop-ritual__status">
             {getPhaseCopy(phase)}
           </div>
-
-          {phase === 'target_locked' && pendingForge?.rerollsRemaining ? (
-            <button
-              className="workshop-ritual__reroll"
-              onClick={rerollTarget}
-              type="button"
-            >
-              <Dices aria-hidden="true" size={18} />
-              Reroll Target · {pendingForge.rerollsRemaining} left
-            </button>
-          ) : null}
 
           <button
             className={`workshop-ritual__action${phase === 'target_locked' ? ' workshop-ritual__action--power' : ''}`}

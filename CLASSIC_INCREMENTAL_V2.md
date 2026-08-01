@@ -112,7 +112,7 @@ Start dungeon run
 ↓
 Enemy ruller og viser intent
 ↓
-Player-terninger trækkes i tilfældig rækkefølge
+Player-terninger ruller i den rækkefølge, de står i loadoutet
 ↓
 Runden resolves tydeligt
 ↓
@@ -563,7 +563,7 @@ Hver rank multiplicerer roll-speed med `1,15`.
 1. Enemy-resultater genereres og persisteres.
 2. Enemy-dice ruller automatisk og viser præcist intent.
 3. Player-draw-pilen er låst under enemy reveal.
-4. Alle equipped player-dice blandes i en persisteret draw-pile.
+4. Alle equipped player-dice lægges i en persisteret draw-pile i præcis loadout-rækkefølge.
 5. Spilleren trækker én die ad gangen uden replacement.
 6. Hvert face-resultat persisteres før animationen.
 7. Resultatet flyver til den relevante synlige round-total.
@@ -828,7 +828,7 @@ motivation.
 ## 15. Persistence og tekniske designregler
 
 - Save-key: `new-dice-dungeon-save`.
-- Save-version: 19.
+- Save-version: 20.
 - Version 18 migrerer gamle tre-offer Fate Draws til ét persisteret resultat
   uden ny betaling eller reroll.
 - Version 16 migreres med en frisk persisteret Soul Die draw-pile uden tab af XP, Souls, dice, talents, Fate Tokens eller Charms.
@@ -836,7 +836,7 @@ motivation.
 - Pre-V2 saves starter frisk på den isolerede branch.
 - Aktivt run, enemy intent, draw-pile, runde og allerede rullede faces persisteres.
 - Et face-resultat gemmes før animationen.
-- Draw-pilen blandes ved round-start og trækkes uden replacement.
+- Draw-pilen oprettes i loadout-rækkefølge ved round-start og trækkes uden replacement.
 - `Resolve Round` er låst, mens draw-pilen indeholder dice.
 - Enemy rewards er idempotente.
 - Forge-operationer er idempotente.
