@@ -261,7 +261,7 @@ Brug denne skabelon:
 - Berørte områder: `TalentDetailPanel`, den fælles Talent Tree-trackpalette, Pixel Arcade Talent Tree-styling, præsentationstest og `DESIGN.md`.
 - Validering: `npx tsc --noEmit`, 38 Vitest-filer / 173 tests, ESLint, production-build og `git diff --check` består. Lokal browserkontrol bekræfter Arsenal `#60a5fa`, Workshop `#fb923c`, Descent `#4ade80` og Fate `#c084fc` samt læsbare afledte baggrundstoner.
 - Kendte mangler: Vite rapporterer fortsat den eksisterende bundle-size warning over 500 kB; den er ikke skabt af ændringen.
-- Git: Ikke committed endnu på `codex/arcade-foundation-v1`.
+- Git: Implementering commit `8250561`; progress-log follow-up på branch `codex/arcade-foundation-v1`.
 
 ### 2026-08-01 — Samlet UI/UX line-, spacing- og overlay-pass
 
