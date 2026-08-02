@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Soul Die har nu samme Hub-hierarki som permanente dice:** System Die-kortet bruger en tydelig lilla die-header, større Soul-symbol og seks ensartede face-felter, hvor `×1/×2` er primær information. Det ændrer kun præsentationen; distribution, average og reward-flow er uændret.
 - **Dungeon-overgangen har nu sit første fulde progression-pass:** Dungeon 1 beholder sine første syv floors og får kun en mindre late-wall-reduktion på floor 8–10. En 100-seed balanced baseline lander nu på D1-clear median run 43 (P10–P90 37–51), første D2-run median 44 og D2-clear median 53.
 - **Dungeon 2 har forskellige to-die-profiler:** Shieldbearer bruger Attack + Shield, Cultist Attack + Heal, og Orc/Blood Orc to Attack Dice med forskellige distributionsprofiler. Spiked Behemoth beholder Attack + Shield + Heal som tre-die boss og preview af Dungeon 3-kompleksitet.
 - **Bloodwell Die og tidlig slot 4 er implementeret:** Første Dungeon 1-clear åbner to separate Arsenal-køb á 36 XP. Fourth Grip giver slot 4; Bloodwell Doctrine giver en Heal-family Signature Die med fire Heal 2-faces og to faste Drain-faces på 1 Heal + 2 Attack. Striker, Iron Guard, Vitality, Executioner og Tower starter samtidig i et stærkere output-band.
@@ -264,6 +265,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-02 — Soul Die Hub presentation
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Soul Die-sektionen matcher nu det visuelle hierarki fra Permanent Dice med et større indrammet Soul-ikon, tydelige multiplier-værdier og seks mere markante lilla face-felter.
+- Beslutninger: Soul Die forbliver en særskilt lilla System Die, men bruger samme titel/face-læseretning som permanente dice. `×N` er face-feltets primære tekst, mens Soul-ikonet gør reward-typen øjeblikkeligt genkendelig.
+- Berørte områder: `SoulDieSummary.tsx`, Hub-styling og en ny komponenttest.
+- Validering: TypeScript, fuld testsuite, lint, production build samt browsertest ved mobil viewport med overflow- og console-kontrol.
+- Kendte mangler: Ingen gameplay-, economy- eller saveændringer; fysisk Safari-verifikation er fortsat en manuel slutkontrol.
+- Git: UI og test committed som `ed09ac3` på `codex/arcade-foundation-v1`; denne logpost følger i separat dokumentationscommit.
 
 ### 2026-08-02 — Dungeon 2 identities og Bloodwell-progression
 
