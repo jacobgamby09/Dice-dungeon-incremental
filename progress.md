@@ -266,7 +266,7 @@ Brug denne skabelon:
 - Berørte områder: Ny cohort-aggregator og tests i `src/game/balance`, nyt Balance Lab-overlay, Hub DEV-adgang, Pixel Arcade-styling, README, V2-GDD og progress-log.
 - Validering: `npx tsc --noEmit`, 40 Vitest-filer / 177 tests, ESLint, production-build og `git diff --check` består. Browser ved 384×844 bekræfter alle fire strategier, horisontal scroll kun inde i rapporttabellen, ingen global overflow og ingen console warnings/errors. Balance Lab og cohortmotoren code-splittes til en separat 15,89 kB chunk, der først indlæses ved DEV-knappen.
 - Kendte mangler: Strategierne er faste automatiske købsprioriteter og måler ikke fri spilleradfærd, animationstid, tøven, forståelse, Charms eller oplevet RNG-kvalitet. D1- og D2-milepælen falder i samme run, fordi de simulerede profiler har råd til Second Descent ved første clear; det bør vurderes som et separat pacing-signal. Vite rapporterer fortsat den eksisterende main-chunk-warning over 500 kB.
-- Git: Ikke committed endnu på `codex/arcade-foundation-v1`.
+- Git: Implementering commit `2486377`; progress-log follow-up på branch `codex/arcade-foundation-v1`.
 
 ### 2026-08-01 — Branch-farvede Talent Tree-infobokse
 
