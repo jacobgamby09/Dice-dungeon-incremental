@@ -19,15 +19,17 @@ export function SoulDieSummary({ values }: SoulDieSummaryProps) {
       <article aria-labelledby="soul-die-summary-title" className="die-summary die-summary--soul soul-die-summary">
         <div aria-hidden="true" className="die-summary__pedestal" />
         <header className="die-summary__header">
-          <CurrencyIcon currency="souls" size={18} />
+          <span aria-hidden="true" className="soul-die-summary__hero-icon">
+            <CurrencyIcon currency="souls" size={28} />
+          </span>
           <strong id="soul-die-summary-title">Soul Die</strong>
           <span>Reward Die</span>
         </header>
         <div aria-label={`Soul Die faces ${values.join(', ')}`} className="die-summary__faces soul-die-summary__faces">
           {values.map((value, index) => (
             <span className="face-cell" key={`soul-die-summary-face-${index + 1}`}>
+              <CurrencyIcon currency="souls" size={18} />
               <strong>×{value}</strong>
-              <CurrencyIcon currency="souls" size={11} />
             </span>
           ))}
         </div>
