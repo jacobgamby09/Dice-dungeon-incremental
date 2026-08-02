@@ -38,11 +38,12 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Dungeon 1 afsluttes nu med en synlig chapter transition:** Demon bruger en stabil Attack Die `7,7,7,8,8,8` og Shield Die `2,2,2,3,3,3` ved 45 HP. Første clear giver den unikke Iron Descent Key som milestone-loot og åbner Dungeon 2 atomisk; Dungeon 2 er synlig som låst fra fresh save, og `Second Descent` er fjernet fra Talent Tree med 75 XP-refund ved migration.
 - **Soul Die har nu samme Hub-hierarki som permanente dice:** System Die-kortet bruger en tydelig lilla die-header, større Soul-symbol og seks ensartede face-felter, hvor `×1/×2` er primær information. Det ændrer kun præsentationen; distribution, average og reward-flow er uændret.
-- **Dungeon-overgangen har nu sit første fulde progression-pass:** Dungeon 1 beholder sine første syv floors og får kun en mindre late-wall-reduktion på floor 8–10. En 100-seed balanced baseline lander nu på D1-clear median run 43 (P10–P90 37–51), første D2-run median 44 og D2-clear median 53.
+- **Dungeon-overgangen har nu sit første fulde progression-pass:** Dungeon 1 beholder sine første syv floors og får kun en mindre late-wall-reduktion på floor 8–10. Efter Demonens to-die-pass lander en 100-seed balanced baseline på D1-clear median run 44 (P10–P90 36–51), første D2-run median 45 og D2-clear median 55.
 - **Dungeon 2 har forskellige to-die-profiler:** Shieldbearer bruger Attack + Shield, Cultist Attack + Heal, og Orc/Blood Orc to Attack Dice med forskellige distributionsprofiler. Spiked Behemoth beholder Attack + Shield + Heal som tre-die boss og preview af Dungeon 3-kompleksitet.
 - **Bloodwell Die og tidlig slot 4 er implementeret:** Første Dungeon 1-clear åbner to separate Arsenal-køb á 36 XP. Fourth Grip giver slot 4; Bloodwell Doctrine giver en Heal-family Signature Die med fire Heal 2-faces og to faste Drain-faces på 1 Heal + 2 Attack. Striker, Iron Guard, Vitality, Executioner og Tower starter samtidig i et stærkere output-band.
-- **Balance Lab fortsætter nu gennem Dungeon 2:** Journeys stopper ikke længere ved D2-unlock og måler D2-start/clear, slot 4, Bloodwell, D2-floor samt gennemsnitligt Attack/Shield/Heal-output. Save-version 21 migrerer version-20 dice til de nye canonical minimums uden at overskrive højere face-investeringer.
+- **Balance Lab fortsætter nu gennem Dungeon 2:** Journeys stopper ikke længere ved D2-unlock og måler D2-start/clear, slot 4, Bloodwell, D2-floor samt gennemsnitligt Attack/Shield/Heal-output. Save-version 22 migrerer version-20 dice til de nye canonical minimums og version-21 `Second Descent` til key-unlock + XP-refund uden at overskrive højere face-investeringer.
 - **Et interaktivt Balance Lab er klar i Hubben:** DEV-overlayet simulerer 100, 250 eller 500 fresh-save-journeys uden at ændre save og sammenligner balanced, Arsenal-first, Workshop-first og economy-first gennem milestone-P10/median/P90, reach-rate og en run-kurve. Første 100-seed baseline viser Auto Combat median run 2 på alle paths, anden die median run 6–15 og Dungeon 1-clear median run 43–47.
 - **Talent Tree-infobokse følger nu den valgte branch:** Detail-overlayets ramme, ikonfelt, requirements, owned-state og aktive købsknap arver direkte nodens track-farve. Arsenal er blå, Workshop orange, Descent grøn, Fate lilla og kernetalenter cyan; låste/disabled handlinger forbliver neutralt grå.
 - **UI/UX hierarchy pass er færdigt lokalt på `codex/arcade-foundation-v1`:** Pixel Arcade bruger nu et bindende 3/2/1-linjesystem for shell, sektion og control, et fælles 4/8/12/16/24-spacing-system samt større minimumstekst for forklaringer. Workshop, Fate, outcomes, Hub, Loadout, Talent Tree, Combat og overlays er harmoniseret; komplette rammer er fjernet fra gentagne Loadout-items og rarity-grupper, mens systemfarver og primære handlinger er bevaret. Smalle desktop/mobile-viewports har ikke længere global horisontal overflow.
@@ -121,6 +122,9 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Fresh-save-playtest Demonens to stabile dice og afgør, om 45 HP giver den ønskede boss-tyngde uden at Shield føles som kunstig forlængelse.
+2. Verificér Iron Descent Key-revealet på fysisk iPhone/Safari og vurder, om det første garanterede milestone-loot føles stort nok før senere tilfældige loot-typer.
+3. Playtest overgangen direkte fra Boss Victory til den nu synlige, åbne Dungeon 2 og kontrollér, at spilleren forstår unlocket uden Talent Tree-instruktion.
 1. Fresh-save-playtest den konkrete D1→D2-overgang på mobil: køb Fourth Grip og Bloodwell i valgfri rækkefølge, kontrollér auto-fill/loadout-valget og vurder om begge 36-XP-køb føles som agency frem for obligatorisk bundle.
 2. Playtest mindst tre runs mod hver D2-profil og vurder især Cultists Heal-tempo, dobbelt-Attack-varians samt om enemy intent stadig er let at aflæse under Auto Combat.
 3. Sammenlign Bloodwell mod Vitality og rene Attack/Shield-loadouts. Drain skal være synligt stærk ved 2/6 uden at gøre Vitality irrelevant.
@@ -160,6 +164,7 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Demonens to-die-profil holder 100-seed medianen tæt på den tidligere D1-kurve, men simulatoren måler ikke den oplevede friktion ved at se 2–3 Shield gentaget over flere boss-rounds.
 - Bloodwell og slot 4 kan i den automatiske baseline begge købes samme run som D1-clear på grund af opsparet XP. Det giver den ønskede chapter-transition, men kan føles som to obligatoriske køb og skal testes med faktiske spillerpaths.
 - D2-clear ligger cirka ti runs efter D1-clear i balanced baseline. Simulatoren måler ikke animationstid eller frustration fra dobbelte høj-variance Attack-rolls, så den matematiske kurve kan opleves langsommere fysisk.
 - Dungeon-reglen 1/2/3 enemy dice er nu tydelig gennem D1, D2 og boss-previewet. Den bør ikke fortsætte mekanisk til fire dice i D4 uden et særskilt UI- og pacing-design.
@@ -265,6 +270,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-02 — Iron Descent Key og to-die Demon
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Dungeon 2 er synlig som låst fra fresh save og åbnes automatisk af den unikke Iron Descent Key fra første Demon-clear. Demon bruger nu en stabil Attack + Shield-profil, og landed enemy dice beholder deres fulde familiefarve.
+- Beslutninger: Dungeon-adgang købes ikke længere i Talent Tree. `Second Descent` er fjernet; version-21-ejere får 75 XP tilbage og bevarer Dungeon 2. Iron Key er milestone-loot, ikke en ny valuta eller et generelt inventory-system.
+- Berørte områder: Enemy content/UI, reward-transition og Boss Victory-loot, Dungeon Select, Talent Tree, save-version 22, devprofiler, simulator, tests, `CLASSIC_INCREMENTAL_V2.md` og README.
+- Validering: 100-seed balanced baseline giver D1-clear median 44 (P10–P90 36–51), første D2-run median 45 og D2-clear median 55. TypeScript, fuld testsuite, lint, production build og 384 px browserpass dækker låst Dungeon 2 samt fuldfarvet landed enemy die.
+- Kendte mangler: Iron Key-reveal og Demonens to dice skal stadig mærkes på fysisk Safari; key-ejerskab repræsenteres bevidst af den permanente Dungeon 2-unlock frem for et separat inventory.
+- Git: Gameplay, UI, migration, tests og dokumentation committed som `c7d5893` på `codex/arcade-foundation-v1`; denne logpost følger i separat dokumentationscommit.
 
 ### 2026-08-02 — Soul Die Hub presentation
 
