@@ -31,4 +31,16 @@ describe('die details panel', () => {
     expect(markup).toContain('Reserve')
     expect(markup).toContain('Spikes')
   })
+
+  it('explains Bloodwell Drain and its Heal-family evolution options', () => {
+    const die = createDieById('heal-die-bloodwell')!
+    const markup = renderToStaticMarkup(
+      <DieDetailsPanel die={die} onClose={() => undefined} />,
+    )
+
+    expect(markup).toContain('Bloodwell Die')
+    expect(markup).toContain('Drain · 2/6')
+    expect(markup).toContain('add 2 Attack')
+    expect(markup).toContain('Restoration')
+  })
 })

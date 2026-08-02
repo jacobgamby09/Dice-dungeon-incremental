@@ -11,6 +11,7 @@ import { SIGNATURE_VISUALS } from './signatureVisuals'
 
 export interface ScoreTransferPath {
   bleedValue?: number
+  drainAttackValue?: number
   executeBonus?: number
   faceId: string
   fortifyArmed?: number
@@ -51,6 +52,7 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
     path.regrowthValue ? `+${path.regrowthValue} Regrowth` : null,
     path.overflowValue ? `Up to ${path.overflowValue} Overflow` : null,
     path.secondaryAttackValue ? `+${path.secondaryAttackValue} Attack` : null,
+    path.drainAttackValue ? `Drain +${path.drainAttackValue} Attack` : null,
   ].filter((label): label is string => label !== null)
   const scoreStyle = {
     '--score-color': evolutionVisual?.accent ?? signatureVisual?.accent ?? FACE_META[path.type].color,

@@ -40,21 +40,21 @@ const STRIKER_DIE: DieInstance = {
   id: 'attack-die-2',
   name: 'Striker Die',
   family: 'attack',
-  faces: createFaces('attack-die-2', 'attack', [1, 1, 1, 1, 1, 1]),
+  faces: createFaces('attack-die-2', 'attack', [1, 1, 1, 2, 2, 3]),
 }
 
 const IRON_GUARD_DIE: DieInstance = {
   id: 'shield-die-1',
   name: 'Iron Guard Die',
   family: 'shield',
-  faces: createFaces('shield-die-1', 'shield', [1, 1, 1, 1, 1, 1]),
+  faces: createFaces('shield-die-1', 'shield', [1, 1, 2, 2, 2, 3]),
 }
 
 const VITALITY_DIE: DieInstance = {
   id: 'heal-die-1',
   name: 'Vitality Die',
   family: 'heal',
-  faces: createFaces('heal-die-1', 'heal', [1, 1, 1, 1, 1, 1]),
+  faces: createFaces('heal-die-1', 'heal', [1, 1, 1, 2, 2, 3]),
 }
 
 const EXECUTIONER_DIE: DieInstance = {
@@ -64,7 +64,7 @@ const EXECUTIONER_DIE: DieInstance = {
   faces: createFaces(
     'attack-die-executioner',
     'attack',
-    [1, 2, 3, 3, 3, 3],
+    [2, 2, 3, 3, 3, 3],
     { 4: 'execute', 5: 'execute' },
   ),
 }
@@ -76,8 +76,20 @@ const TOWER_DIE: DieInstance = {
   faces: createFaces(
     'shield-die-tower',
     'shield',
-    [1, 2, 3, 3, 3, 3],
+    [2, 2, 3, 3, 3, 3],
     { 4: 'fortify', 5: 'fortify' },
+  ),
+}
+
+const BLOODWELL_DIE: DieInstance = {
+  id: 'heal-die-bloodwell',
+  name: 'Bloodwell Die',
+  family: 'heal',
+  faces: createFaces(
+    'heal-die-bloodwell',
+    'heal',
+    [2, 2, 2, 2, 1, 1],
+    { 4: 'drain', 5: 'drain' },
   ),
 }
 
@@ -88,6 +100,7 @@ const DICE_CATALOG: DieInstance[] = [
   VITALITY_DIE,
   EXECUTIONER_DIE,
   TOWER_DIE,
+  BLOODWELL_DIE,
 ]
 
 const SOUL_DIE_FACE_IDS = Array.from(

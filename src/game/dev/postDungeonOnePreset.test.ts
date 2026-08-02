@@ -61,7 +61,7 @@ describe('post-Dungeon-1 developer preset', () => {
     })
   })
 
-  it('owns every basic family but equips a three-die Dungeon 2 loadout', () => {
+  it('owns every basic family and equips the four-die Dungeon 2 transition loadout', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
     const catalog = createDiceCatalog()
 
@@ -72,6 +72,7 @@ describe('post-Dungeon-1 developer preset', () => {
       'attack-die-1',
       'attack-die-2',
       'shield-die-1',
+      'heal-die-bloodwell',
     ])
     expect(new Set(profile.diceCollection.map((die) => die.family))).toEqual(
       new Set(['attack', 'shield', 'heal']),
@@ -83,7 +84,9 @@ describe('post-Dungeon-1 developer preset', () => {
         original.faces.map((face) => face.id),
       )
       expect(die.faces.every(
-        (face) => face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
+        (face) => face.signature
+          ? face.value === original.faces.find((candidate) => candidate.id === face.id)?.value
+          : face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
       )).toBe(true)
     }
     expect(profile.diceCollection.flatMap((die) => die.faces)
@@ -97,11 +100,7 @@ describe('post-Dungeon-1 developer preset', () => {
         .slice(0, rank)
         .reduce((rankTotal, talentRank) => rankTotal + talentRank.cost, 0)
     ), 0)
-    const upgradesPerDie = 6 * (POST_DUNGEON_ONE_DEV_PRESET.faceMinimum - 1)
-    const soulsPerDie = Array.from({ length: upgradesPerDie }, (_, index) => (
-      1 + Math.floor(index / 3)
-    )).reduce((total, cost) => total + cost, 0)
-    const soulsSpent = soulsPerDie * profile.diceCollection.length
+    const soulsSpent = (63 * 4) + 15
 
     expect(xpSpent).toBe(POST_DUNGEON_ONE_DEV_PRESET.xpSpent)
     expect(soulsSpent).toBe(POST_DUNGEON_ONE_DEV_PRESET.soulsSpent)

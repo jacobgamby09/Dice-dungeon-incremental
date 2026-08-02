@@ -27,14 +27,24 @@ describe('MVP content integrity', () => {
     const tower = dice.find((die) => die.id === 'shield-die-tower')
 
     expect(executioner?.name).toBe('Executioner Die')
-    expect(executioner?.faces.map((face) => face.value)).toEqual([1, 2, 3, 3, 3, 3])
+    expect(executioner?.faces.map((face) => face.value)).toEqual([2, 2, 3, 3, 3, 3])
     expect(executioner?.faces.map((face) => face.signature?.id ?? null)).toEqual([
       null, null, null, null, 'execute', 'execute',
     ])
     expect(tower?.name).toBe('Tower Die')
-    expect(tower?.faces.map((face) => face.value)).toEqual([1, 2, 3, 3, 3, 3])
+    expect(tower?.faces.map((face) => face.value)).toEqual([2, 2, 3, 3, 3, 3])
     expect(tower?.faces.map((face) => face.signature?.id ?? null)).toEqual([
       null, null, null, null, 'fortify', 'fortify',
+    ])
+  })
+
+  it('defines Bloodwell as a six-face Heal die with two fixed Drain signatures', () => {
+    const bloodwell = createDiceCatalog().find((die) => die.id === 'heal-die-bloodwell')
+
+    expect(bloodwell?.name).toBe('Bloodwell Die')
+    expect(bloodwell?.faces.map((face) => face.value)).toEqual([2, 2, 2, 2, 1, 1])
+    expect(bloodwell?.faces.map((face) => face.signature?.id ?? null)).toEqual([
+      null, null, null, null, 'drain', 'drain',
     ])
   })
 
@@ -60,10 +70,11 @@ describe('MVP content integrity', () => {
       encounter.dieIds.length === 1
       && ENEMY_DICE[encounter.dieIds[0]].type === 'attack'
     ))).toBe(true)
-    expect(ironDescent.slice(0, -1).every((encounter) => (
-      encounter.dieIds.length === 2
-      && encounter.dieIds.map((id) => ENEMY_DICE[id].type).join(',') === 'attack,shield'
-    ))).toBe(true)
+    expect(ironDescent.slice(0, -1).every((encounter) => encounter.dieIds.length === 2))
+      .toBe(true)
+    expect(ironDescent.slice(0, 4).map((encounter) => (
+      encounter.dieIds.map((id) => ENEMY_DICE[id].type).join('+')
+    ))).toEqual(['attack+shield', 'attack+heal', 'attack+attack', 'attack+attack'])
     expect(ironDescent.at(-1)?.dieIds.map((id) => ENEMY_DICE[id].type)).toEqual([
       'attack',
       'shield',

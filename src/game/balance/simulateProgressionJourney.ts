@@ -34,16 +34,23 @@ export interface ProgressionJourneyStrategy {
 
 export interface ProgressionJourneyMilestones {
   autoCombatRun: number | null
+  bloodwellDieRun: number | null
   dungeonOneClearRun: number | null
   dungeonTwoUnlockRun: number | null
+  dungeonTwoFirstRun: number | null
+  dungeonTwoClearRun: number | null
   firstJackpotForgeRun: number | null
   firstFaceUpgradeRun: number | null
   firstLoadoutChoiceRun: number | null
+  fourthSlotRun: number | null
   secondDieRun: number | null
 }
 
 export interface ProgressionJourneyRecord {
   averageFaceValue: number
+  averagePlayerAttack: number
+  averagePlayerHeal: number
+  averagePlayerShield: number
   dungeonId: DungeonId
   equippedDieIds: string[]
   highestFloorCleared: number
@@ -74,6 +81,8 @@ export const DEFAULT_JOURNEY_TALENT_PATH: readonly JourneyTalentStep[] = [
   { id: TALENT_IDS.healingArts },
   { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
   { id: TALENT_IDS.secondDescent },
+  { id: TALENT_IDS.fourthGrip },
+  { id: TALENT_IDS.bloodwellDoctrine },
 ]
 
 export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
@@ -81,6 +90,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
     'attack-die-1',
     'attack-die-2',
     'shield-die-1',
+    'heal-die-bloodwell',
     'heal-die-1',
   ],
   talentPath: DEFAULT_JOURNEY_TALENT_PATH,
@@ -89,7 +99,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 18,
+    saveVersion: 21,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
@@ -245,11 +255,15 @@ function selectLoadout(
 function createMilestones(): ProgressionJourneyMilestones {
   return {
     autoCombatRun: null,
+    bloodwellDieRun: null,
     dungeonOneClearRun: null,
     dungeonTwoUnlockRun: null,
+    dungeonTwoFirstRun: null,
+    dungeonTwoClearRun: null,
     firstJackpotForgeRun: null,
     firstFaceUpgradeRun: null,
     firstLoadoutChoiceRun: null,
+    fourthSlotRun: null,
     secondDieRun: null,
   }
 }
@@ -288,6 +302,13 @@ export function simulateProgressionJourney(
     setMilestone(milestones, 'secondDieRun', run, profile.diceCollection.length >= 2)
     setMilestone(
       milestones,
+      'bloodwellDieRun',
+      run,
+      profile.diceCollection.some((die) => die.id === 'heal-die-bloodwell'),
+    )
+    setMilestone(milestones, 'fourthSlotRun', run, getDiceCapacity(profile.talentRanks) >= 4)
+    setMilestone(
+      milestones,
       'autoCombatRun',
       run,
       hasAutoCombatUnlocked(profile.talentRanks),
@@ -302,6 +323,7 @@ export function simulateProgressionJourney(
     const dungeonId: DungeonId = profile.unlockedDungeonIds.includes('iron-depths')
       ? 'iron-depths'
       : 'prototype-depths'
+    setMilestone(milestones, 'dungeonTwoFirstRun', run, dungeonId === 'iron-depths')
     const equippedDice = profile.equippedDieIds.map((dieId) => (
       profile.diceCollection.find((die) => die.id === dieId)!
     ))
@@ -336,6 +358,12 @@ export function simulateProgressionJourney(
       run,
       dungeonId === 'prototype-depths' && result.completedDungeon,
     )
+    setMilestone(
+      milestones,
+      'dungeonTwoClearRun',
+      run,
+      dungeonId === 'iron-depths' && result.completedDungeon,
+    )
 
     profile = spendTalentPath(profile, strategy.talentPath)
     const postRunForge = spendSouls(profile, strategy, random)
@@ -356,6 +384,13 @@ export function simulateProgressionJourney(
     setMilestone(milestones, 'secondDieRun', run, profile.diceCollection.length >= 2)
     setMilestone(
       milestones,
+      'bloodwellDieRun',
+      run,
+      profile.diceCollection.some((die) => die.id === 'heal-die-bloodwell'),
+    )
+    setMilestone(milestones, 'fourthSlotRun', run, getDiceCapacity(profile.talentRanks) >= 4)
+    setMilestone(
+      milestones,
       'autoCombatRun',
       run,
       hasAutoCombatUnlocked(profile.talentRanks),
@@ -369,6 +404,9 @@ export function simulateProgressionJourney(
 
     records.push({
       averageFaceValue: getAverageFaceValue(profile.diceCollection),
+      averagePlayerAttack: result.averagePlayerAttack,
+      averagePlayerHeal: result.averagePlayerHeal,
+      averagePlayerShield: result.averagePlayerShield,
       dungeonId,
       equippedDieIds: [...profile.equippedDieIds],
       highestFloorCleared: result.highestFloorCleared,
@@ -377,7 +415,6 @@ export function simulateProgressionJourney(
       xpAfterSpending: profile.xp,
     })
 
-    if (profile.unlockedDungeonIds.includes('iron-depths')) break
   }
 
   return { finalProfile: profile, milestones, records }

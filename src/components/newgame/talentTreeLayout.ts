@@ -34,6 +34,7 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.towerDiscipline]: { x: 900, y: 430 },
   [TALENT_IDS.executionerDoctrine]: { x: 1020, y: 430 },
   [TALENT_IDS.fourthGrip]: { x: 780, y: 310 },
+  [TALENT_IDS.bloodwellDoctrine]: { x: 900, y: 310 },
 
   [TALENT_IDS.volatileTemper]: { x: 790, y: 850 },
   [TALENT_IDS.efficientTools]: { x: 790, y: 950 },

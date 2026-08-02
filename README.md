@@ -2,7 +2,7 @@
 
 Et mobile-first incremental combat-spil om permanente terninger. Hver besejret fjende giver permanent XP og ruller den permanente Soul Die mod enemyens Soul Value; XP åbner nye muligheder, mens Souls former konkrete dice gennem en billig tilfældig Chaos Forge eller en dyr præcis Forge.
 
-Den nuværende milepæl rummer to fulde incremental dungeons: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run. Dungeon 1 lærer det basale Attack-loop; Dungeon 2 introducerer enemies med Attack + Shield og en Spiked Behemoth-boss med Attack + Shield + Heal.
+Den nuværende milepæl rummer to fulde incremental dungeons: Hub → dungeon → kamp → XP/Souls reward-pulse → næste floor eller descent-resumé ved Defeat → permanent face-upgrade → nyt run. Dungeon 1 lærer det basale Attack-loop; Dungeon 2 introducerer to-die enemy-profiler med Attack + Shield, Attack + Heal eller Attack + Attack og afsluttes af en Spiked Behemoth med tre dice.
 
 ## Kør projektet
 
@@ -36,7 +36,7 @@ Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikk
 
 Hubben har et ikke-destruktivt balanceværktøj og flere bevidst beskyttede developer-handlinger:
 
-- `DEV · Balance Lab` simulerer 100–500 deterministiske fresh-save-journeys uden at ændre spillerens save. Fire købstrategier kan sammenlignes gennem milestone-percentiler og en run-for-run-kurve for floor-wall, face-værdi, Auto Combat, anden die, Dungeon 1-clear, XP og Souls.
+- `DEV · Balance Lab` simulerer 100–500 deterministiske fresh-save-journeys uden at ændre spillerens save. Fire købstrategier kan sammenlignes gennem milestone-percentiler og en run-for-run-kurve for D1/D2-walls, face-værdi, Auto Combat, slots, Bloodwell Die, XP og Souls.
 - `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med Build Diversity-profilen efter første clear: 15 Max HP, fire slots, seks ejede permanente dice, fire aktivt udstyrede dice, normale faces på mindst 3, én Power-, én Momentum- og én Rend-face samt The Iron Descent ulåst. Profilen repræsenterer 427 brugt XP og 545 brugte Souls. Auto Combat er købt men starter slået fra; Quick Draw er fortsat ukøbt.
 - `DEV · Fresh QoL test · 88 XP` erstatter det aktuelle save med den normale fresh-start, men giver præcis 88 uspente XP. Det finansierer Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw uden rest-XP, så den tidlige automation og hastighed kan testes uden at springe Talent Tree-købene over.
 - `DEV · Reset game` genskaber den almindelige fresh-save-start.
@@ -62,6 +62,7 @@ Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + w
 - Normale Attack-, Shield- og Heal-faces kan alle udvikles fra værdi 3 gennem hver sin pulje med tre evolutioner; identiteten følger face-ID'et permanent og virker i manuel, automatisk og suspenderet combat.
 - Evolution- og signature-faces har konsekvente hero-identiteter på tværs af Workshop, dice summaries, combat og score-transfer.
 - Second Descent åbner to valgfrie Signature Dice: Executioner har to Execute-faces, og Tower har to Fortify-faces. De resterende fire faces bruger henholdsvis Attack- og Shield-familiens evolutioner.
+- Første Dungeon 1-clear åbner Fourth Grip og Bloodwell Doctrine. Bloodwell er en Heal-family Signature Die med fire evolvérbare Heal 2-faces og to Drain-faces, som giver 1 Heal + 2 Attack.
 - Signature-faces er ikke family-evolutioner og får senere deres egen Face Mastery.
 - Momentum viser sin ventende `+2` mellem rolls og markerer den modtagende face; Rend viser både den kommende Bleed og den aktive Bleed-stack ved enemy HP.
 - Der findes ingen Gold, Coins eller Materials.

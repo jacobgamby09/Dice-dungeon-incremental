@@ -20,6 +20,9 @@ export interface SimulationBuild {
 }
 
 export interface DungeonRunSimulation {
+  averagePlayerAttack: number
+  averagePlayerHeal: number
+  averagePlayerShield: number
   completedDungeon: boolean
   defeatedAtFloor: number | null
   highestFloorCleared: number
@@ -62,6 +65,9 @@ export function simulateDungeonRun(
   let playerHp = build.playerMaxHp
   let highestFloorCleared = 0
   let roundsPlayed = 0
+  let totalPlayerAttack = 0
+  let totalPlayerHeal = 0
+  let totalPlayerShield = 0
   const roundsByFloor = DUNGEONS[dungeonId].floors.map(() => 0)
   let soulsCollected = 0
   let xpEarned = 0
@@ -96,6 +102,9 @@ export function simulateDungeonRun(
       }
 
       roundsPlayed += 1
+      totalPlayerAttack += totals.attack
+      totalPlayerHeal += totals.heal
+      totalPlayerShield += totals.shield
       roundsByFloor[floor.floor - 1] += 1
       const resolution = resolveRound({
         playerHp,
@@ -141,6 +150,9 @@ export function simulateDungeonRun(
 
       if (resolution.outcome === 'defeat') {
         return {
+          averagePlayerAttack: totalPlayerAttack / roundsPlayed,
+          averagePlayerHeal: totalPlayerHeal / roundsPlayed,
+          averagePlayerShield: totalPlayerShield / roundsPlayed,
           completedDungeon: false,
           defeatedAtFloor: floor.floor,
           highestFloorCleared,
@@ -158,6 +170,9 @@ export function simulateDungeonRun(
 
     if (!floorCleared) {
       return {
+        averagePlayerAttack: totalPlayerAttack / roundsPlayed,
+        averagePlayerHeal: totalPlayerHeal / roundsPlayed,
+        averagePlayerShield: totalPlayerShield / roundsPlayed,
         completedDungeon: false,
         defeatedAtFloor: floor.floor,
         highestFloorCleared,
@@ -173,6 +188,9 @@ export function simulateDungeonRun(
 
   const completedDungeon = highestFloorCleared === dungeon.floors.length
   return {
+    averagePlayerAttack: totalPlayerAttack / roundsPlayed,
+    averagePlayerHeal: totalPlayerHeal / roundsPlayed,
+    averagePlayerShield: totalPlayerShield / roundsPlayed,
     completedDungeon,
     defeatedAtFloor: null,
     highestFloorCleared,

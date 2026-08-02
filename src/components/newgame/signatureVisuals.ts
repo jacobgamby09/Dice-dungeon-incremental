@@ -21,6 +21,12 @@ export const SIGNATURE_VISUALS: Record<SignatureFaceId, SignatureVisual> = {
     shadow: '#082f49',
     surface: '#075985',
   },
+  drain: {
+    accent: '#f43f5e',
+    highlight: '#fff1f2',
+    shadow: '#4c0519',
+    surface: '#881337',
+  },
 }
 
 export function getSignatureVisualStyle(signatureId: SignatureFaceId): CSSProperties {

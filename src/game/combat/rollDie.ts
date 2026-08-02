@@ -33,6 +33,7 @@ export interface RollEffectContext {
 
 export interface RollEffectFeedback {
   bleedValue: number
+  drainAttackValue: number
   executeBonus: number
   fortifyArmed: number
   fortifyBonus: number
@@ -62,6 +63,7 @@ export function addRollEffects(
   let nextFortify = pendingFortify
   const feedback: RollEffectFeedback = {
     bleedValue: 0,
+    drainAttackValue: 0,
     executeBonus: 0,
     fortifyArmed: 0,
     fortifyBonus: 0,
@@ -153,6 +155,14 @@ export function addRollEffects(
     feedback.fortifyArmed = 2
   }
 
+  if (result.signature?.id === 'drain') {
+    nextTotals = {
+      ...nextTotals,
+      attack: nextTotals.attack + 2,
+    }
+    feedback.drainAttackValue = 2
+  }
+
   if (isLastRoll && nextMomentum > 0) {
     nextTotals = {
       ...nextTotals,
@@ -183,6 +193,7 @@ export function addRollEffects(
 
 export interface RollContribution {
   bleedValue: number
+  drainAttackValue: number
   executeBonus: number
   fortifyArmed: number
   fortifyBonus: number

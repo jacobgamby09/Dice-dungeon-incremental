@@ -50,6 +50,13 @@ describe('Classic V2 progression journey', () => {
     expect(result.milestones.dungeonOneClearRun!).toBeLessThanOrEqual(55)
     expect(result.milestones.dungeonTwoUnlockRun).not.toBeNull()
     expect(result.finalProfile.talentRanks[TALENT_IDS.secondDescent]).toBe(1)
+    expect(result.milestones.dungeonTwoFirstRun).not.toBeNull()
+    expect(result.milestones.dungeonTwoFirstRun).toBe(
+      result.milestones.dungeonTwoUnlockRun! + 1,
+    )
+    expect(result.milestones.fourthSlotRun).not.toBeNull()
+    expect(result.milestones.bloodwellDieRun).not.toBeNull()
+    expect(result.records.some((record) => record.dungeonId === 'iron-depths')).toBe(true)
   })
 
   it('produces jackpot Workshop moments after Workshop Die progression', () => {

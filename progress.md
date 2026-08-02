@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-08-01.
+Senest opdateret: 2026-08-02.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,6 +38,10 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Dungeon-overgangen har nu sit første fulde progression-pass:** Dungeon 1 beholder sine første syv floors og får kun en mindre late-wall-reduktion på floor 8–10. En 100-seed balanced baseline lander nu på D1-clear median run 43 (P10–P90 37–51), første D2-run median 44 og D2-clear median 53.
+- **Dungeon 2 har forskellige to-die-profiler:** Shieldbearer bruger Attack + Shield, Cultist Attack + Heal, og Orc/Blood Orc to Attack Dice med forskellige distributionsprofiler. Spiked Behemoth beholder Attack + Shield + Heal som tre-die boss og preview af Dungeon 3-kompleksitet.
+- **Bloodwell Die og tidlig slot 4 er implementeret:** Første Dungeon 1-clear åbner to separate Arsenal-køb á 36 XP. Fourth Grip giver slot 4; Bloodwell Doctrine giver en Heal-family Signature Die med fire Heal 2-faces og to faste Drain-faces på 1 Heal + 2 Attack. Striker, Iron Guard, Vitality, Executioner og Tower starter samtidig i et stærkere output-band.
+- **Balance Lab fortsætter nu gennem Dungeon 2:** Journeys stopper ikke længere ved D2-unlock og måler D2-start/clear, slot 4, Bloodwell, D2-floor samt gennemsnitligt Attack/Shield/Heal-output. Save-version 21 migrerer version-20 dice til de nye canonical minimums uden at overskrive højere face-investeringer.
 - **Et interaktivt Balance Lab er klar i Hubben:** DEV-overlayet simulerer 100, 250 eller 500 fresh-save-journeys uden at ændre save og sammenligner balanced, Arsenal-first, Workshop-first og economy-first gennem milestone-P10/median/P90, reach-rate og en run-kurve. Første 100-seed baseline viser Auto Combat median run 2 på alle paths, anden die median run 6–15 og Dungeon 1-clear median run 43–47.
 - **Talent Tree-infobokse følger nu den valgte branch:** Detail-overlayets ramme, ikonfelt, requirements, owned-state og aktive købsknap arver direkte nodens track-farve. Arsenal er blå, Workshop orange, Descent grøn, Fate lilla og kernetalenter cyan; låste/disabled handlinger forbliver neutralt grå.
 - **UI/UX hierarchy pass er færdigt lokalt på `codex/arcade-foundation-v1`:** Pixel Arcade bruger nu et bindende 3/2/1-linjesystem for shell, sektion og control, et fælles 4/8/12/16/24-spacing-system samt større minimumstekst for forklaringer. Workshop, Fate, outcomes, Hub, Loadout, Talent Tree, Combat og overlays er harmoniseret; komplette rammer er fjernet fra gentagne Loadout-items og rarity-grupper, mens systemfarver og primære handlinger er bevaret. Smalle desktop/mobile-viewports har ikke længere global horisontal overflow.
@@ -116,6 +120,9 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Fresh-save-playtest den konkrete D1→D2-overgang på mobil: køb Fourth Grip og Bloodwell i valgfri rækkefølge, kontrollér auto-fill/loadout-valget og vurder om begge 36-XP-køb føles som agency frem for obligatorisk bundle.
+2. Playtest mindst tre runs mod hver D2-profil og vurder især Cultists Heal-tempo, dobbelt-Attack-varians samt om enemy intent stadig er let at aflæse under Auto Combat.
+3. Sammenlign Bloodwell mod Vitality og rene Attack/Shield-loadouts. Drain skal være synligt stærk ved 2/6 uden at gøre Vitality irrelevant.
 1. Brug Balance Lab-baselinen til at beslutte, om Dungeon 1-clear median run 43–47 er den ønskede første arc, eller om enemy/reward/Workshop-kurven skal komprimeres; ændr derefter kun ét balanceled ad gangen og sammenlign alle fire strategier igen.
 2. Undersøg hvorfor Arsenal-first får anden die på median run 6 uden at slå balanced-clear på run 47, mens Workshop-first klarer på run 43 men udsætter anden die til run 15. Det er det stærkeste aktuelle signal om mulig ubalance mellem synlig power spike og reel effektivitet.
 3. Test fysisk de samme fire paths, fordi simulatoren ikke måler animationstid, tøven, forståelse eller tilfredsstillelsen ved konkrete RNG-resultater.
@@ -152,6 +159,9 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Bloodwell og slot 4 kan i den automatiske baseline begge købes samme run som D1-clear på grund af opsparet XP. Det giver den ønskede chapter-transition, men kan føles som to obligatoriske køb og skal testes med faktiske spillerpaths.
+- D2-clear ligger cirka ti runs efter D1-clear i balanced baseline. Simulatoren måler ikke animationstid eller frustration fra dobbelte høj-variance Attack-rolls, så den matematiske kurve kan opleves langsommere fysisk.
+- Dungeon-reglen 1/2/3 enemy dice er nu tydelig gennem D1, D2 og boss-previewet. Den bør ikke fortsætte mekanisk til fire dice i D4 uden et særskilt UI- og pacing-design.
 - Rarity-vægtene 50/30/15/5, 4× vægt på ukendte Charms inden for valgt rarity og alle otte Charm-ranks er første balancepass. Uden baseline pity kan korte spillerforløb variere meget; det er tilsigtet, men skal måles før kataloget udvides.
 - Echo Knot gentager i første version kun det rå output, ikke en eventuel face-evolution eller anden proc. Det holder proc-kæden sikker og læsbar, men kan senere føles mindre build-defining end forventet.
 - Face Mastery-rerolls bevarer Workshop-RNG og kan ramme samme face igen, men 1/2/3 rerolls og priserne 14/30/55 XP er første balancepass. Det skal måles, om rank 3 giver for meget target-kontrol, og om den stigende Soul-pris alene er en tilstrækkelig soft cap ved meget høje face-værdier.
@@ -254,6 +264,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-02 — Dungeon 2 identities og Bloodwell-progression
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: D1's late wall er marginalt kortere; D2 bruger fire genkendelige to-die archetypes; Bloodwell Die og Fourth Grip skaber et dobbelt power spike efter første boss-clear; Balance Lab følger nu journeys gennem hele D2.
+- Beslutninger: D1 er fortsat attack-only. D2 normals har præcis to dice, men ikke samme kombination. Bloodwell er Heal-family med 4/6 normale Heal 2-faces og 2/6 faste Drain-signatures på 1 Heal + 2 Attack. Slot 4 og Bloodwell er separate 36-XP-køb gated af Healing Arts og første D1-clear.
+- Berørte områder: Permanent dice/signatures, pure combat feedback, enemy dice/encounters, Talent Tree/content/layout, devprofil, progression simulator/cohort UI, save-version 21/migration, tests, README og V2-GDD.
+- Validering: `npx tsc --noEmit`, 40 testfiler med 182 tests, lint og production-build består. Mobile browsertest ved 384×844 verificerer Bloodwell-panelet, fire dice i loadout-rækkefølge og Shieldbearers Attack + Shield-intent uden horisontal overflow eller browser warnings/errors.
+- Kendte mangler: Fysisk iPhone-pacing og subjektiv D2-varians mangler. Dungeon 3 er ikke implementeret.
+- Git: Ikke committed.
 
 ### 2026-08-02 — Interaktiv fresh-save Balance Lab
 

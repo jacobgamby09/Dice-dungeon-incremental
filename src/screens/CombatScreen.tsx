@@ -357,6 +357,7 @@ export function CombatScreen() {
 
         setScoreTransfer({
           bleedValue: resultContribution?.bleedValue,
+          drainAttackValue: resultContribution?.drainAttackValue,
           executeBonus: resultContribution?.executeBonus,
           faceId: result.faceId,
           fortifyArmed: resultContribution?.fortifyArmed,

@@ -100,6 +100,39 @@ describe('Classic V2 directional talent progression', () => {
     ]).toEqual(['twin-dice', 'twin-dice', 'twin-dice'])
   })
 
+  it('opens the fourth slot and Bloodwell choice only after the first dungeon clear', () => {
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
+      [TALENT_IDS.strikerPattern]: 1,
+      [TALENT_IDS.shieldcraft]: 1,
+      [TALENT_IDS.thirdGrip]: 1,
+      [TALENT_IDS.healingArts]: 1,
+    }
+    const uncleared = createProfile(ranks, 999)
+    const cleared = {
+      ...uncleared,
+      dungeonProgress: {
+        ...uncleared.dungeonProgress,
+        'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
+      },
+    }
+
+    expect(getTalentPurchaseReason(
+      uncleared,
+      TALENTS_BY_ID[TALENT_IDS.fourthGrip],
+    )).toBe('dungeon')
+    expect(getTalentPurchaseReason(
+      uncleared,
+      TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine],
+    )).toBe('dungeon')
+    expect(canPurchaseTalent(cleared, TALENT_IDS.fourthGrip)).toBe(true)
+    expect(canPurchaseTalent(cleared, TALENT_IDS.bloodwellDoctrine)).toBe(true)
+    expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].ranks[0].effects).toEqual([
+      { type: 'grant_die', dieId: 'heal-die-bloodwell' },
+    ])
+  })
+
   it('upgrades Workshop Die power and target rerolls independently', () => {
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,

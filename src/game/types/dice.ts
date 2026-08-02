@@ -16,7 +16,7 @@ export type ShieldEvolutionId = (typeof SHIELD_EVOLUTION_IDS)[number]
 export type HealEvolutionId = (typeof HEAL_EVOLUTION_IDS)[number]
 export type FaceEvolutionId = (typeof FACE_EVOLUTION_IDS)[number]
 
-export const SIGNATURE_FACE_IDS = ['execute', 'fortify'] as const
+export const SIGNATURE_FACE_IDS = ['execute', 'fortify', 'drain'] as const
 export type SignatureFaceId = (typeof SIGNATURE_FACE_IDS)[number]
 
 export interface FaceEvolution {

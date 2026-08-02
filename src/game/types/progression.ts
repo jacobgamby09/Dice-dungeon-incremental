@@ -26,6 +26,7 @@ export const TALENT_ICON_KEYS = [
   'fourth-grip',
   'executioner-die',
   'tower-die',
+  'bloodwell-die',
   'volatile-temper',
   'face-mastery',
   'fate-seal',

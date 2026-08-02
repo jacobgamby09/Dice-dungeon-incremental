@@ -4,14 +4,14 @@ import type { DieFaces } from '../types/dice'
 import type { PlayerProfile, TalentRanks } from '../types/progression'
 
 export const POST_DUNGEON_ONE_DEV_PRESET = {
-  collectionCount: 4,
-  diceSlots: 3,
-  equippedCount: 3,
+  collectionCount: 5,
+  diceSlots: 4,
+  equippedCount: 4,
   evolutionCount: 0,
   faceMinimum: 4,
   maxHp: 17,
-  soulsSpent: 252,
-  xpSpent: 453,
+  soulsSpent: 267,
+  xpSpent: 525,
 } as const
 
 const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
@@ -25,6 +25,8 @@ const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
   [TALENT_IDS.thirdGrip]: 1,
   [TALENT_IDS.quickDraw]: 3,
   [TALENT_IDS.healingArts]: 1,
+  [TALENT_IDS.fourthGrip]: 1,
+  [TALENT_IDS.bloodwellDoctrine]: 1,
   [TALENT_IDS.volatileTemper]: 2,
   [TALENT_IDS.faceMastery]: 1,
 }
@@ -34,12 +36,14 @@ const POST_DUNGEON_ONE_DIE_IDS = [
   'attack-die-2',
   'shield-die-1',
   'heal-die-1',
+  'heal-die-bloodwell',
 ] as const
 
 const POST_DUNGEON_ONE_EQUIPPED_DIE_IDS = [
   'attack-die-1',
   'attack-die-2',
   'shield-die-1',
+  'heal-die-bloodwell',
 ] as const
 
 export function createPostDungeonOneDevProfile(
@@ -49,7 +53,9 @@ export function createPostDungeonOneDevProfile(
     ...die,
     faces: die.faces.map((face) => ({
       ...face,
-      value: Math.max(face.value, POST_DUNGEON_ONE_DEV_PRESET.faceMinimum),
+      value: face.signature
+        ? face.value
+        : Math.max(face.value, POST_DUNGEON_ONE_DEV_PRESET.faceMinimum),
     })) as DieFaces,
   }))
   return {

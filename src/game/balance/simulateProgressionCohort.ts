@@ -33,12 +33,15 @@ export interface MilestoneDistribution {
 
 export interface ProgressionCurvePoint {
   autoCombatRate: number
+  bloodwellRate: number
   averageFaceValue: number
   averageFloor: number
   averageSoulsAfterSpending: number
   averageXpAfterSpending: number
   dungeonOneClearRate: number
   dungeonTwoUnlockRate: number
+  dungeonTwoAverageFloor: number
+  fourthSlotRate: number
   medianFloor: number
   run: number
   secondDieRate: number
@@ -80,6 +83,8 @@ export const PROGRESSION_STRATEGY_PRESETS: readonly ProgressionStrategyPreset[] 
         { id: TALENT_IDS.healingArts },
         { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
         { id: TALENT_IDS.secondDescent },
+        { id: TALENT_IDS.fourthGrip },
+        { id: TALENT_IDS.bloodwellDoctrine },
       ],
     },
   },
@@ -104,6 +109,8 @@ export const PROGRESSION_STRATEGY_PRESETS: readonly ProgressionStrategyPreset[] 
         { id: TALENT_IDS.healingArts },
         { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
         { id: TALENT_IDS.secondDescent },
+        { id: TALENT_IDS.fourthGrip },
+        { id: TALENT_IDS.bloodwellDoctrine },
       ],
     },
   },
@@ -128,6 +135,8 @@ export const PROGRESSION_STRATEGY_PRESETS: readonly ProgressionStrategyPreset[] 
         { id: TALENT_IDS.healingArts },
         { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
         { id: TALENT_IDS.secondDescent },
+        { id: TALENT_IDS.fourthGrip },
+        { id: TALENT_IDS.bloodwellDoctrine },
       ],
     },
   },
@@ -141,6 +150,10 @@ export const PROGRESSION_MILESTONE_KEYS: readonly (keyof ProgressionJourneyMiles
   'firstJackpotForgeRun',
   'dungeonOneClearRun',
   'dungeonTwoUnlockRun',
+  'dungeonTwoFirstRun',
+  'fourthSlotRun',
+  'bloodwellDieRun',
+  'dungeonTwoClearRun',
 ]
 
 function percentile(sortedValues: readonly number[], percentileValue: number): number | null {
@@ -201,10 +214,14 @@ function createCurve(
     const floors = records
       .map((record) => record.highestFloorCleared)
       .sort((left, right) => left - right)
+    const dungeonTwoRecords = records.filter((record) => record.dungeonId === 'iron-depths')
 
     return {
       autoCombatRate: results.filter((result) => (
         hasReached(result, 'autoCombatRun', run)
+      )).length / results.length,
+      bloodwellRate: results.filter((result) => (
+        hasReached(result, 'bloodwellDieRun', run)
       )).length / results.length,
       averageFaceValue: average(records.map((record) => record.averageFaceValue)),
       averageFloor: average(floors),
@@ -215,6 +232,12 @@ function createCurve(
       )).length / results.length,
       dungeonTwoUnlockRate: results.filter((result) => (
         hasReached(result, 'dungeonTwoUnlockRun', run)
+      )).length / results.length,
+      dungeonTwoAverageFloor: average(
+        dungeonTwoRecords.map((record) => record.highestFloorCleared),
+      ),
+      fourthSlotRate: results.filter((result) => (
+        hasReached(result, 'fourthSlotRun', run)
       )).length / results.length,
       medianFloor: percentile(floors, 0.5) ?? 0,
       run,

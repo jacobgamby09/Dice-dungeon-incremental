@@ -118,4 +118,10 @@ export const SIGNATURE_DEFINITIONS: Record<SignatureFaceId, SignatureDefinition>
     shortDescription: '3 Shield · next Shield +2',
     description: 'Gain 3 Shield and empower the next Shield face by +2. If none follows, gain the +2 Shield immediately.',
   },
+  drain: {
+    id: 'drain',
+    name: 'Drain',
+    shortDescription: '1 Heal · 2 Attack',
+    description: 'Restore 1 HP and add 2 Attack to the current round.',
+  },
 }

@@ -141,7 +141,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 20
+const SAVE_VERSION = 21
 const LEGACY_FATECRAFT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
@@ -326,7 +326,10 @@ function reconstructRunStats(
   }
 }
 
-function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
+function migrateDieInstance(
+  existingDie: DieInstance,
+  migrateLegacyEvolution = true,
+): DieInstance | null {
   const canonicalDie = createDieById(existingDie.id)
   if (!canonicalDie) return null
 
@@ -346,14 +349,17 @@ function migrateDieInstance(existingDie: DieInstance): DieInstance | null {
           }
         : undefined
 
-      return migrateLegacyFaceEvolution({
+      const migratedFace = {
         ...canonicalFace,
         value: Math.max(canonicalFace.value, existingFace.value),
         evolutionReady: validEvolution
           ? undefined
           : existingFace.evolutionReady ?? undefined,
         evolution: validEvolution,
-      })
+      }
+      return migrateLegacyEvolution
+        ? migrateLegacyFaceEvolution(migratedFace)
+        : migratedFace
     }) as DieFaces,
   }
 }
@@ -414,6 +420,25 @@ function migratePendingFateDraw(
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 20) {
+    const persisted = persistedState as NewGameState
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        diceCollection: persisted.profile.diceCollection
+          .map((die) => migrateDieInstance(die, false))
+          .filter((die): die is DieInstance => die !== null),
+      },
+      run: {
+        ...persisted.run,
+        equippedDiceSnapshot: persisted.run.equippedDiceSnapshot
+          .map((die) => migrateDieInstance(die, false))
+          .filter((die): die is DieInstance => die !== null),
+      },
+    }
+  }
   if (version === 19) {
     const persisted = persistedState as NewGameState
     return {
@@ -620,7 +645,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
     ? existingProfile?.diceCollection?.filter((die) => die.id === 'attack-die-1') ?? []
     : existingProfile?.diceCollection ?? []
   const diceCollection = allowedExistingDice
-    .map(migrateDieInstance)
+    .map((die) => migrateDieInstance(die))
     .filter((die): die is DieInstance => die !== null)
   if (!diceCollection.some((die) => die.id === 'attack-die-1')) {
     diceCollection.unshift(cloneDie(freshProfile.diceCollection[0]))
@@ -723,7 +748,7 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         playerMaxHp: existingRun.playerMaxHp ?? BASE_PLAYER_HP,
         runStats: migratedRunStats,
         equippedDiceSnapshot: (existingRun.equippedDiceSnapshot ?? [])
-          .map(migrateDieInstance)
+          .map((die) => migrateDieInstance(die))
           .filter((die): die is DieInstance => die !== null),
         equippedCharmSnapshot: [],
         charmState: createCharmRunState(),

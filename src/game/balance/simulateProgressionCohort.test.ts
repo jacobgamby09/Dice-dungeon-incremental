@@ -34,6 +34,10 @@ describe('progression cohort simulation', () => {
         expect(point.autoCombatRate).toBeLessThanOrEqual(1)
         expect(point.dungeonOneClearRate).toBeGreaterThanOrEqual(0)
         expect(point.dungeonOneClearRate).toBeLessThanOrEqual(1)
+        expect(point.bloodwellRate).toBeGreaterThanOrEqual(0)
+        expect(point.bloodwellRate).toBeLessThanOrEqual(1)
+        expect(point.fourthSlotRate).toBeGreaterThanOrEqual(0)
+        expect(point.fourthSlotRate).toBeLessThanOrEqual(1)
         expect(point.secondDieRate).toBeGreaterThanOrEqual(0)
         expect(point.secondDieRate).toBeLessThanOrEqual(1)
       }

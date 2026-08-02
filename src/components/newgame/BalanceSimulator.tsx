@@ -25,8 +25,12 @@ const DISPLAYED_MILESTONES: readonly {
   { key: 'secondDieRun', label: 'Second die', target: 'Target · Run 6–15' },
   { key: 'firstLoadoutChoiceRun', label: 'First loadout choice' },
   { key: 'firstJackpotForgeRun', label: 'First +2/+3 Forge' },
-  { key: 'dungeonOneClearRun', label: 'Dungeon 1 clear', target: 'Target · Run 12–55' },
+  { key: 'dungeonOneClearRun', label: 'Dungeon 1 clear', target: 'Target · Run 35–50' },
   { key: 'dungeonTwoUnlockRun', label: 'Dungeon 2 unlock', target: 'Target · By run 60' },
+  { key: 'dungeonTwoFirstRun', label: 'First Dungeon 2 run' },
+  { key: 'fourthSlotRun', label: 'Fourth dice slot', target: 'Target · At D1 clear' },
+  { key: 'bloodwellDieRun', label: 'Bloodwell Die', target: 'Target · At D1 clear' },
+  { key: 'dungeonTwoClearRun', label: 'Dungeon 2 clear' },
 ]
 
 const CURVE_CHECKPOINTS = new Set([1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 60, 80])
@@ -123,6 +127,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
               <option value={40}>40</option>
               <option value={60}>60</option>
               <option value={80}>80</option>
+              <option value={100}>100</option>
             </select>
           </label>
           <label>
@@ -171,7 +176,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
         <section aria-labelledby="balance-curve-title" className="balance-lab__section">
           <header>
             <h3 id="balance-curve-title">Progression curve</h3>
-            <span>After spending · completed journeys hold their final D1 record</span>
+            <span>After spending · journeys continue into Dungeon 2</span>
           </header>
           <div className="balance-lab__table-scroll" role="region" tabIndex={0} aria-label="Progression curve table">
             <table>
@@ -185,6 +190,9 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                   <th scope="col">2nd die</th>
                   <th scope="col">D1 clear</th>
                   <th scope="col">D2 open</th>
+                  <th scope="col">D2 floor</th>
+                  <th scope="col">4 slots</th>
+                  <th scope="col">Bloodwell</th>
                   <th scope="col">XP</th>
                   <th scope="col">Souls</th>
                 </tr>
@@ -200,6 +208,9 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                     <td>{formatPercent(point.secondDieRate)}</td>
                     <td>{formatPercent(point.dungeonOneClearRate)}</td>
                     <td>{formatPercent(point.dungeonTwoUnlockRate)}</td>
+                    <td>{formatDecimal(point.dungeonTwoAverageFloor)}</td>
+                    <td>{formatPercent(point.fourthSlotRate)}</td>
+                    <td>{formatPercent(point.bloodwellRate)}</td>
                     <td>{formatDecimal(point.averageXpAfterSpending)}</td>
                     <td>{formatDecimal(point.averageSoulsAfterSpending)}</td>
                   </tr>

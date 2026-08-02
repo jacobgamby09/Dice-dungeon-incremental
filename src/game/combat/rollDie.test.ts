@@ -22,7 +22,7 @@ describe('rollDie', () => {
     const result = rollDie(die, () => 0.5)
     const totals = addRollToTotals({ attack: 4, shield: 1, heal: 2, bleed: 0 }, result)
 
-    expect(totals).toMatchObject({ attack: 4, shield: 2, heal: 2, bleed: 0 })
+    expect(totals).toMatchObject({ attack: 4, shield: 3, heal: 2, bleed: 0 })
   })
 
   it('carries Momentum into the next rolled face and falls back to Attack when last', () => {
@@ -169,6 +169,21 @@ describe('rollDie', () => {
     expect(second.totals.shield).toBe(6)
     expect(second.feedback.fortifyBonus).toBe(2)
     expect(fallback.totals.shield).toBe(5)
+  })
+
+  it('turns a Bloodwell Drain signature into Heal plus Attack', () => {
+    const bloodwell = createDiceCatalog().find((die) => die.id === 'heal-die-bloodwell')!
+    const drain = rollDie(bloodwell, () => 0.9)
+    const applied = addRollEffects(
+      { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      0,
+      drain,
+      true,
+    )
+
+    expect(drain.signature?.id).toBe('drain')
+    expect(applied.totals).toMatchObject({ attack: 2, heal: 1 })
+    expect(applied.feedback.drainAttackValue).toBe(2)
   })
 
   it.each([

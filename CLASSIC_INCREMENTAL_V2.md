@@ -2,9 +2,9 @@
 
 - **Status:** Autoritativt designdokument for den spilbare eksperiment-branch
 - **Branch:** `codex/arcade-foundation-v1`
-- **GDD-version:** 1.1
-- **Senest opdateret:** 2026-07-30
-- **Aktuel save-version:** 16
+- **GDD-version:** 1.2
+- **Senest opdateret:** 2026-08-02
+- **Aktuel save-version:** 21
 
 Denne GDD beskriver Classic Incremental V2. Hvis dokumentet er i konflikt med
 `NEW_GAME_GDD.md`, gælder denne fil for V2-branchen. Production-spillet på `main`
@@ -330,11 +330,12 @@ Faces med samme værdi er fortsat separate objekter.
 | Stabilt ID | Navn | Family | Startfaces | Adgang |
 | --- | --- | --- | --- | --- |
 | `attack-die-1` | Worn Blade Die | Attack | `1–1–1–1–1–1` | Fresh start |
-| `attack-die-2` | Striker Die | Attack | `1–1–1–1–1–1` | Striker Pattern |
-| `shield-die-1` | Iron Guard Die | Shield | `1–1–1–1–1–1` | Shieldcraft |
-| `heal-die-1` | Vitality Die | Heal | `1–1–1–1–1–1` | Healing Arts |
-| `attack-die-executioner` | Executioner Die | Attack | `1–2–3–3 + 2 Execute` | Executioner Doctrine |
-| `shield-die-tower` | Tower Die | Shield | `1–2–3–3 + 2 Fortify` | Tower Discipline |
+| `attack-die-2` | Striker Die | Attack | `1–1–1–2–2–3` | Striker Pattern |
+| `shield-die-1` | Iron Guard Die | Shield | `1–1–2–2–2–3` | Shieldcraft |
+| `heal-die-1` | Vitality Die | Heal | `1–1–1–2–2–3` | Healing Arts |
+| `attack-die-executioner` | Executioner Die | Attack | `2–2–3–3 + 2 Execute` | Executioner Doctrine |
+| `shield-die-tower` | Tower Die | Shield | `2–2–3–3 + 2 Fortify` | Tower Discipline |
+| `heal-die-bloodwell` | Bloodwell Die | Heal | `2–2–2–2 + 2 Drain` | Bloodwell Doctrine efter Dungeon 1-clear |
 
 Worn Blade og Striker starter mekanisk ens i V2. Deres langsigtede forskel opstår
 gennem uafhængig random growth, forskellige Workshop-forløb og senere
@@ -352,6 +353,11 @@ family-evolutions.
 - giver 3 Shield;
 - giver +2 til næste Shield-face i samme roll-sekvens;
 - hvis intet Shield-face følger, gives +2 Shield straks.
+
+`Drain`:
+
+- giver 1 Heal;
+- tilføjer samtidig 2 Attack til rundens player-total.
 
 Signature-faces kan ikke vælges af den nuværende Workshop.
 
@@ -499,7 +505,8 @@ talenter, så centrale mål kan nås ad flere veje.
 | Shieldcraft | 42 XP | Second Grip **eller** Striker Pattern | Iron Guard Die |
 | Third Grip | 58 XP | Shieldcraft | +1 slot |
 | Healing Arts | 78 XP | Third Grip | Vitality Die |
-| Fourth Grip | 105 XP | Healing Arts | +1 slot |
+| Fourth Grip | 36 XP | Healing Arts + Dungeon 1 clear | +1 slot |
+| Bloodwell Doctrine | 36 XP | Healing Arts + Dungeon 1 clear | Bloodwell Die |
 | Executioner Doctrine | 135 XP | Third Grip | Executioner Die |
 | Tower Discipline | 110 XP | Third Grip | Tower Die |
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
@@ -673,32 +680,35 @@ Alle enemies har præcis én Attack Die.
 | 5 | Slime | 2 | 17 | `3–3–3–4–4–4` | 11 | 1 |
 | 6 | Slime Crawler | 2 | 23 | `3–3–3–4–4–5` | 15 | 1 |
 | 7 | Goblin | 2 | 30 | `4–4–4–4–5–5` | 20 | 1 |
-| 8 | Skeleton | 2 | 38 | `4–4–4–5–5–6` | 28 | 1 |
-| 9 | Skeleton Elite | 3 | 48 | `5–5–5–6–6–7` | 38 | 2 |
-| 10 | Demon | Boss | 62 | `6–6–6–7–8–9` | 55 | 3 |
+| 8 | Skeleton | 2 | 36 | `4–4–4–5–5–6` | 28 | 1 |
+| 9 | Skeleton Elite | 3 | 42 | `5–5–5–6–6–7` | 38 | 2 |
+| 10 | Demon | Boss | 55 | `6–6–6–7–8–9` | 55 | 3 |
 
 ### 11.2 Dungeon 2 — The Iron Descent
 
 Formål:
 
 - introducere multi-die enemy intent;
-- gøre enemy Shield til den centrale mechanic;
+- lære spilleren at aflæse kombinationer af enemy-dice;
 - teste værdien af player Shield, Heal og større loadouts;
-- introducere enemy Heal på bossen.
+- introducere Shield, Heal og dobbelte Attack-profiler før bossens tre-die preview.
 
-Normale enemies har én Attack Die og én Shield Die. Bossen har desuden Heal.
+Normale enemies har præcis to dice, men forskellige roller: Shieldbearer bruger
+Attack + Shield, Cultist bruger Attack + Heal, og Orc/Blood Orc bruger to Attack
+Dice. Spiked Behemoth bruger Attack + Shield + Heal som preview af Dungeon 3's
+tre-die-sprog.
 
 | Floor | Enemy | Level | HP | Attack | Shield | Heal | XP | Soul Value |
 | ---: | --- | ---: | ---: | --- | --- | --- | ---: | ---: |
 | 1 | Shieldbearer | 1 | 22 | `5–5–6–6–7–7` | `0–1–1–1–2–2` | — | 48 | 5 |
-| 2 | Cultist | 1 | 26 | `5–6–6–6–7–8` | `0–1–1–2–2–2` | — | 52 | 5 |
-| 3 | Orc | 1 | 30 | `6–6–6–7–7–8` | `1–1–1–2–2–3` | — | 58 | 5 |
-| 4 | Blood Orc | 1 | 34 | `6–6–7–7–8–8` | `1–1–2–2–2–3` | — | 64 | 5 |
+| 2 | Cultist | 1 | 26 | `4–4–5–5–5–6` | — | `0–1–1–2–2–3` | 52 | 5 |
+| 3 | Orc | 1 | 30 | `2–2–2–3–3–4` + `3–3–4–4–4–5` | — | — | 58 | 5 |
+| 4 | Blood Orc | 1 | 34 | `2–2–3–3–4–6` + `2–3–3–4–5–7` | — | — | 64 | 5 |
 | 5 | Shieldbearer | 2 | 39 | `6–7–7–7–8–9` | `1–2–2–2–3–3` | — | 72 | 6 |
-| 6 | Cultist | 2 | 44 | `7–7–7–8–8–9` | `1–2–2–3–3–3` | — | 80 | 6 |
-| 7 | Orc | 2 | 50 | `7–7–8–8–9–9` | `2–2–2–3–3–4` | — | 90 | 6 |
-| 8 | Blood Orc | 2 | 57 | `7–8–8–8–9–10` | `2–2–3–3–4–4` | — | 102 | 6 |
-| 9 | Blood Orc Elite | 3 | 65 | `8–8–8–9–9–10` | `2–3–3–4–4–5` | — | 118 | 8 |
+| 6 | Cultist | 2 | 44 | `5–5–6–6–6–7` | — | `1–1–2–2–3–4` | 80 | 6 |
+| 7 | Orc | 2 | 50 | `3–3–4–4–5–5` + `4–4–5–5–6–6` | — | — | 90 | 6 |
+| 8 | Blood Orc | 2 | 57 | `3–3–4–4–6–8` + `3–4–4–5–7–9` | — | — | 102 | 6 |
+| 9 | Blood Orc Elite | 3 | 65 | `4–4–5–5–7–9` + `4–5–5–6–8–10` | — | — | 118 | 8 |
 | 10 | Spiked Behemoth | Boss | 80 | `8–9–9–9–10–11` | `3–3–4–4–5–6` | `0–0–1–1–2–3` | 160 | 12 |
 
 Dungeon 2’s tal er implementerede, men endnu ikke endeligt balanceret til V2’s
@@ -877,13 +887,15 @@ og falske valg, men de erstatter ikke fri spilleradfærd eller fysisk playtest.
 - Otte Charms fordelt i Common, Rare, Epic og orange Legendary med tre ranks
   og tre mulige loadout-slots.
 - Charm progress/procs i Combat og outcomes.
-- Save-version 20 med rarity-progress, Soul Die cycle, single-result pending
+- Save-version 21 med rarity-progress, Soul Die cycle, single-result pending
   Fate Draw, Charm collection, loadout og run-snapshots.
+- Version 20 migrerer Striker, Iron Guard, Vitality, Executioner og Tower til deres
+  stærkere canonical baselines uden at overskrive højere investerede face-værdier.
 - Gamle Twin Arsenal-køb splittes tabsfrit; et allerede købt tomt Fatecraft refunderes fuldt.
 
 ### Implementeret, men endnu ikke endeligt V2-balanceret
 
-- Dungeon 2’s HP, dice og rewards.
+- Dungeon 2’s endelige HP, dice og rewards efter den første kombinations-tuning.
 - Executioner Die.
 - Tower Die.
 - Deep Arsenal/Descent-priser.
@@ -923,7 +935,7 @@ og falske valg, men de erstatter ikke fri spilleradfærd eller fysisk playtest.
 1. Gennemfør en fysisk fresh-save-playtest på iPhone.
 2. Mål realtid til første kill, første Forge, Auto Combat, floor 3, Second Grip og Striker Pattern.
 3. Log 15–25 Workshop-køb og vurder variation, tempo, Soul soft-cap og reroll-værdi.
-4. Retune Dungeon 2 til den målte V2-kurve.
+4. Fysisk playtest D2's Attack+Heal og dobbelte Attack-profiler samt Bloodwell-loadoutet.
 5. Playtest Fatecraft, første Fate Draw og mindst to simultaneous Charm-procs.
 6. Mål acquisition rate og rank-up tempo gennem Dungeon 1 og 2.
 7. Beslut derefter, om V2 skal erstatte production, fortsætte separat eller levere

@@ -21,6 +21,7 @@ import {
   Link2,
   Network,
   Clover,
+  Droplets,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -38,6 +39,7 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'fourth-grip': Layers3,
   'executioner-die': Skull,
   'tower-die': ShieldCheck,
+  'bloodwell-die': Droplets,
   'volatile-temper': Flame,
   'face-mastery': Sparkles,
   'fate-seal': Gem,

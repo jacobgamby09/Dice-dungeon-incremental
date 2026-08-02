@@ -30,6 +30,10 @@ const DIE_PROFILES: Record<string, DieProfile> = {
     description: 'Four evolvable Shield faces surround two Fortify signatures that empower another Shield roll.',
     tags: ['Signature', 'Shield engine'],
   },
+  'heal-die-bloodwell': {
+    description: 'Four evolvable Heal faces surround two Drain signatures that restore HP while adding Attack.',
+    tags: ['Signature', 'Hybrid sustain'],
+  },
 }
 
 export function getDieProfile(die: DieInstance): DieProfile {

@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(20)
+    expect(profile.saveVersion).toBe(21)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -437,9 +437,10 @@ describe('Classic V2 store progression loop', () => {
       'attack-die-1',
       'attack-die-2',
       'shield-die-1',
+      'heal-die-bloodwell',
     ])
     expect(getPlayerMaxHp(state.profile.talentRanks)).toBe(17)
-    expect(getDiceCapacity(state.profile.talentRanks)).toBe(3)
+    expect(getDiceCapacity(state.profile.talentRanks)).toBe(4)
 
     state.startRun('iron-depths')
     expect(useNewGameStore.getState().run.enemy?.intentRolls.map((roll) => roll.type))
@@ -553,7 +554,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 20,
+        saveVersion: 21,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
@@ -598,7 +599,7 @@ describe('Classic V2 store progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
       expect(migrated.screen).toBe('hub')
-      expect(migrated.profile.saveVersion).toBe(20)
+      expect(migrated.profile.saveVersion).toBe(21)
       expect(migrated.profile.soulDie).toEqual({ drawPileFaceIds: [] })
       expect(migrated.profile.fatePity).toBe(0)
     } finally {
@@ -645,7 +646,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       expect(useNewGameStore.getState().profile).toMatchObject({
-        saveVersion: 20,
+        saveVersion: 21,
         pendingFateDraw: {
           operationId: 'legacy-fate-draw',
           selectedCharmId: 'echo-knot',
@@ -689,7 +690,7 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 20,
+        saveVersion: 21,
         xp: 27,
       })
     } finally {
@@ -731,7 +732,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       const profile = useNewGameStore.getState().profile
-      expect(profile.saveVersion).toBe(20)
+      expect(profile.saveVersion).toBe(21)
       expect(profile.talentRanks).toMatchObject({
         [TALENT_IDS.twinArsenal]: 1,
         [TALENT_IDS.strikerPattern]: 1,
@@ -740,6 +741,49 @@ describe('Classic V2 store progression loop', () => {
       expect(profile.xp).toBe(75)
       expect(profile.diceCollection.map((die) => die.id)).toContain('attack-die-2')
       expect(getDiceCapacity(profile.talentRanks)).toBe(2)
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
+  it('migrates version 20 dice to the stronger canonical baselines without losing upgrades', async () => {
+    const current = useNewGameStore.getState()
+    const legacyStriker = createDiceCatalog().find((die) => die.id === 'attack-die-2')!
+    legacyStriker.faces = legacyStriker.faces.map((face, index) => ({
+      ...face,
+      value: index === 3 ? 7 : 1,
+    })) as typeof legacyStriker.faces
+    let saved: StorageValue<NewGameState> | null = {
+      state: {
+        ...current,
+        profile: {
+          ...current.profile,
+          saveVersion: 20,
+          diceCollection: [current.profile.diceCollection[0], legacyStriker],
+        },
+      },
+      version: 20,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const striker = useNewGameStore.getState().profile.diceCollection.find(
+        (die) => die.id === 'attack-die-2',
+      )!
+      expect(useNewGameStore.getState().profile.saveVersion).toBe(21)
+      expect(striker.faces.map((face) => face.value)).toEqual([1, 1, 1, 7, 2, 3])
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()
