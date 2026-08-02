@@ -275,7 +275,7 @@ Brug denne skabelon:
 - Berørte områder: Permanent dice/signatures, pure combat feedback, enemy dice/encounters, Talent Tree/content/layout, devprofil, progression simulator/cohort UI, save-version 21/migration, tests, README og V2-GDD.
 - Validering: `npx tsc --noEmit`, 40 testfiler med 182 tests, lint og production-build består. Mobile browsertest ved 384×844 verificerer Bloodwell-panelet, fire dice i loadout-rækkefølge og Shieldbearers Attack + Shield-intent uden horisontal overflow eller browser warnings/errors.
 - Kendte mangler: Fysisk iPhone-pacing og subjektiv D2-varians mangler. Dungeon 3 er ikke implementeret.
-- Git: Ikke committed.
+- Git: Gameplay-commit `5de1b88` på `codex/arcade-foundation-v1`; log-opdateringen commits separat før push.
 
 ### 2026-08-02 — Interaktiv fresh-save Balance Lab
 
