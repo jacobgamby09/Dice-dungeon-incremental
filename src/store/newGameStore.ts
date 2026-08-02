@@ -141,8 +141,10 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 21
+const SAVE_VERSION = 22
 const LEGACY_FATECRAFT_REFUND = 75
+const LEGACY_SECOND_DESCENT_ID = 'second-descent'
+const LEGACY_SECOND_DESCENT_REFUND = 75
 export const NEW_GAME_SAVE_KEY = 'new-dice-dungeon-save'
 const NON_BROWSER_STORAGE: StateStorage = {
   getItem: () => null,
@@ -420,6 +422,37 @@ function migratePendingFateDraw(
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 21) {
+    const persisted = persistedState as NewGameState
+    const legacySecondDescentRank = Number(
+      persisted.profile?.talentRanks?.[LEGACY_SECOND_DESCENT_ID] ?? 0,
+    )
+    const hadSecondDescent = Number.isFinite(legacySecondDescentRank)
+      && legacySecondDescentRank > 0
+    const talentRanks = { ...persisted.profile.talentRanks }
+    delete talentRanks[LEGACY_SECOND_DESCENT_ID]
+    const clearedFirstDungeon = (
+      persisted.profile.dungeonProgress?.['prototype-depths']?.clearCount ?? 0
+    ) > 0
+    const unlockedDungeonIds = [...persisted.profile.unlockedDungeonIds]
+    if (
+      (clearedFirstDungeon || hadSecondDescent)
+      && !unlockedDungeonIds.includes('iron-depths')
+    ) {
+      unlockedDungeonIds.push('iron-depths')
+    }
+    return {
+      ...persisted,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        xp: persisted.profile.xp
+          + (hadSecondDescent ? LEGACY_SECOND_DESCENT_REFUND : 0),
+        talentRanks,
+        unlockedDungeonIds,
+      },
+    }
+  }
   if (version === 20) {
     const persisted = persistedState as NewGameState
     return {
@@ -1035,6 +1068,15 @@ export const useNewGameStore = create<NewGameState>()(
           )
           const floorDefinition = dungeon.floors[state.run.encounterIndex]
           const dungeonComplete = floorDefinition.isBoss
+          const dungeonKey = dungeonComplete
+            && state.run.dungeonId === 'prototype-depths'
+            && !state.profile.unlockedDungeonIds.includes('iron-depths')
+            && !rewardAlreadyClaimed
+            ? 'iron-descent-key' as const
+            : undefined
+          const unlockedDungeonIds = dungeonKey
+            ? [...state.profile.unlockedDungeonIds, 'iron-depths' as const]
+            : state.profile.unlockedDungeonIds
           const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
           const dungeonProgress = {
             ...state.profile.dungeonProgress,
@@ -1056,6 +1098,7 @@ export const useNewGameStore = create<NewGameState>()(
               fatePity: fateDrop.nextPity,
               soulDie: soulDraw.nextState,
               dungeonProgress,
+              unlockedDungeonIds,
             },
             run: {
               ...state.run,
@@ -1103,6 +1146,7 @@ export const useNewGameStore = create<NewGameState>()(
                 fateTokens: fateDrop.tokens,
                 fatePity: fateDrop.nextPity,
                 fatePityTriggered: fateDrop.pityTriggered,
+                dungeonKey,
                 dungeonComplete,
               },
             },
@@ -1338,18 +1382,11 @@ export const useNewGameStore = create<NewGameState>()(
         if (!nextRank) return false
 
         const diceCollection = [...state.profile.diceCollection]
-        const unlockedDungeonIds = [...state.profile.unlockedDungeonIds]
         for (const effect of nextRank.effects) {
           if (effect.type === 'grant_die') {
             if (diceCollection.some((die) => die.id === effect.dieId)) continue
             const grantedDie = createDieById(effect.dieId)
             if (grantedDie) diceCollection.push(grantedDie)
-          }
-          if (
-            effect.type === 'unlock_dungeon'
-            && !unlockedDungeonIds.includes(effect.dungeonId)
-          ) {
-            unlockedDungeonIds.push(effect.dungeonId)
           }
         }
         const talentRanks = {
@@ -1373,7 +1410,6 @@ export const useNewGameStore = create<NewGameState>()(
             talentRanks,
             diceCollection,
             equippedDieIds,
-            unlockedDungeonIds,
           },
         })
         return true

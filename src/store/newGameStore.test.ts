@@ -44,7 +44,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(21)
+    expect(profile.saveVersion).toBe(22)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -458,7 +458,6 @@ describe('Classic V2 store progression loop', () => {
     expect(state.profile.talentRanks).toMatchObject({
       [TALENT_IDS.fieldStudies]: 1,
       [TALENT_IDS.fatecraft]: 1,
-      [TALENT_IDS.secondDescent]: 1,
     })
     expect(state.profile).toMatchObject({
       fateTokens: 1000,
@@ -467,29 +466,6 @@ describe('Classic V2 store progression loop', () => {
       equippedCharmIds: [],
       pendingFateDraw: null,
     })
-  })
-
-  it('unlocks The Iron Descent only after its path and Dungeon 1 clear', () => {
-    const state = useNewGameStore.getState()
-    useNewGameStore.setState({
-      profile: {
-        ...state.profile,
-        xp: 75,
-        talentRanks: {
-          [TALENT_IDS.battleHardenedOne]: 1,
-          [TALENT_IDS.autoCombat]: 1,
-          [TALENT_IDS.quickDraw]: 1,
-          [TALENT_IDS.battleHardenedTwo]: 1,
-        },
-        dungeonProgress: {
-          ...state.profile.dungeonProgress,
-          'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
-        },
-      },
-    })
-
-    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.secondDescent)).toBe(true)
-    expect(useNewGameStore.getState().profile.unlockedDungeonIds).toContain('iron-depths')
   })
 
   it('defines ten floors and awards the boss reward exactly once', () => {
@@ -515,8 +491,59 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().beginRoundResolution(() => 0)?.outcome).toBe('victory')
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(103)
     expect(useNewGameStore.getState().profile.xp).toBe(55)
+    expect(useNewGameStore.getState().profile.unlockedDungeonIds).toEqual([
+      'prototype-depths',
+      'iron-depths',
+    ])
+    expect(useNewGameStore.getState().run.lastReward?.dungeonKey)
+      .toBe('iron-descent-key')
     expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(103)
+  })
+
+  it('migrates the removed Second Descent talent into the key unlock and refunds its XP', async () => {
+    const current = useNewGameStore.getState()
+    let saved: StorageValue<NewGameState> | null = {
+      state: {
+        ...current,
+        profile: {
+          ...current.profile,
+          saveVersion: 21,
+          xp: 11,
+          talentRanks: { 'second-descent': 1 },
+          unlockedDungeonIds: ['prototype-depths'],
+          dungeonProgress: {
+            ...current.profile.dungeonProgress,
+            'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
+          },
+        },
+      },
+      version: 21,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => {
+        saved = structuredClone(value)
+      },
+      removeItem: () => {
+        saved = null
+      },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      const migrated = useNewGameStore.getState().profile
+
+      expect(migrated.saveVersion).toBe(22)
+      expect(migrated.xp).toBe(86)
+      expect(migrated.talentRanks['second-descent']).toBeUndefined()
+      expect(migrated.unlockedDungeonIds).toContain('iron-depths')
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
   })
 
   it('intentionally resets a V1 save when entering the isolated V2 branch', async () => {
@@ -554,7 +581,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 21,
+        saveVersion: 22,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
@@ -599,7 +626,7 @@ describe('Classic V2 store progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
       expect(migrated.screen).toBe('hub')
-      expect(migrated.profile.saveVersion).toBe(21)
+      expect(migrated.profile.saveVersion).toBe(22)
       expect(migrated.profile.soulDie).toEqual({ drawPileFaceIds: [] })
       expect(migrated.profile.fatePity).toBe(0)
     } finally {
@@ -646,7 +673,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       expect(useNewGameStore.getState().profile).toMatchObject({
-        saveVersion: 21,
+        saveVersion: 22,
         pendingFateDraw: {
           operationId: 'legacy-fate-draw',
           selectedCharmId: 'echo-knot',
@@ -690,7 +717,7 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 21,
+        saveVersion: 22,
         xp: 27,
       })
     } finally {
@@ -732,7 +759,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       const profile = useNewGameStore.getState().profile
-      expect(profile.saveVersion).toBe(21)
+      expect(profile.saveVersion).toBe(22)
       expect(profile.talentRanks).toMatchObject({
         [TALENT_IDS.twinArsenal]: 1,
         [TALENT_IDS.strikerPattern]: 1,
@@ -782,7 +809,7 @@ describe('Classic V2 store progression loop', () => {
       const striker = useNewGameStore.getState().profile.diceCollection.find(
         (die) => die.id === 'attack-die-2',
       )!
-      expect(useNewGameStore.getState().profile.saveVersion).toBe(21)
+      expect(useNewGameStore.getState().profile.saveVersion).toBe(22)
       expect(striker.faces.map((face) => face.value)).toEqual([1, 1, 1, 7, 2, 3])
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })

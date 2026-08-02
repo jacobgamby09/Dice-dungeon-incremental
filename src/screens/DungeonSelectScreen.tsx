@@ -1,4 +1,4 @@
-import { Skull, Swords } from 'lucide-react'
+import { KeyRound, LockKeyhole, Skull, Swords } from 'lucide-react'
 import { DUNGEONS } from '../game/content/dungeons'
 import type { DungeonId } from '../game/types/dungeon'
 import { useNewGameStore } from '../store/newGameStore'
@@ -17,20 +17,40 @@ export function DungeonSelectScreen() {
       </header>
 
       <section className="dungeon-list">
-        {unlockedDungeonIds.map((dungeonId: DungeonId, dungeonIndex) => {
+        {(Object.keys(DUNGEONS) as DungeonId[]).map((dungeonId, dungeonIndex) => {
           const dungeon = DUNGEONS[dungeonId]
+          const isUnlocked = unlockedDungeonIds.includes(dungeonId)
           return (
-            <article className="dungeon-card" key={dungeon.id}>
-              <div className="dungeon-card__icon"><Skull aria-hidden="true" size={30} /></div>
+            <article
+              aria-label={`${dungeon.name}, ${isUnlocked ? 'unlocked' : 'locked'}`}
+              className={`dungeon-card${isUnlocked ? '' : ' dungeon-card--locked'}`}
+              key={dungeon.id}
+            >
+              <div className="dungeon-card__icon">
+                {isUnlocked
+                  ? <Skull aria-hidden="true" size={30} />
+                  : <LockKeyhole aria-hidden="true" size={30} />}
+              </div>
               <div>
                 <span className="eyebrow">Dungeon {dungeonIndex + 1}</span>
                 <h2>{dungeon.name}</h2>
                 <p>{dungeon.description}</p>
                 <span className="encounter-count"><Swords aria-hidden="true" size={14} /> {dungeon.floors.length} floors</span>
                 <span className="encounter-count">Best: {dungeonProgress[dungeon.id].highestFloorCleared}/{dungeon.floors.length}</span>
+                {!isUnlocked ? (
+                  <span className="dungeon-card__requirement">
+                    <KeyRound aria-hidden="true" size={16} />
+                    Defeat the Demon and claim the Iron Descent Key
+                  </span>
+                ) : null}
               </div>
-              <button className="pixel-button pixel-button--danger" onClick={() => startRun(dungeon.id)} type="button">
-                Descend
+              <button
+                className="pixel-button pixel-button--danger"
+                disabled={!isUnlocked}
+                onClick={() => startRun(dungeon.id)}
+                type="button"
+              >
+                {isUnlocked ? 'Descend' : 'Locked'}
               </button>
             </article>
           )

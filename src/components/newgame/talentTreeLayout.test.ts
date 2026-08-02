@@ -35,7 +35,7 @@ describe('Talent Tree canvas layout', () => {
     )
 
     expect(offset.x).toBeCloseTo(-317.84)
-    expect(offset.y).toBe(-1050)
+    expect(offset.y).toBe(-910)
   })
 
   it('keeps connected nodes in a compact radial cluster', () => {

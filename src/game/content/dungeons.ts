@@ -4,7 +4,7 @@ export const DUNGEONS: Record<DungeonId, DungeonDefinition> = {
   'prototype-depths': {
     id: 'prototype-depths',
     name: 'The First Descent',
-    description: 'Master the core loop across ten attack-only encounters and defeat the Demon.',
+    description: 'Master the core loop, then face the Demon and its first layered intent.',
     floors: [
       { floor: 1, encounterId: 'descent-1-slime-l1', isBoss: false },
       { floor: 2, encounterId: 'descent-1-slime-crawler-l1', isBoss: false },

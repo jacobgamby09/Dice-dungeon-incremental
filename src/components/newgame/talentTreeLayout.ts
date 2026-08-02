@@ -43,8 +43,6 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.autoCombat]: { x: 900, y: 1020 },
   [TALENT_IDS.quickDraw]: { x: 820, y: 1140 },
   [TALENT_IDS.battleHardenedTwo]: { x: 980, y: 1140 },
-  [TALENT_IDS.secondDescent]: { x: 900, y: 1280 },
-
   [TALENT_IDS.fieldStudies]: { x: 1010, y: 850 },
   [TALENT_IDS.soulHarvest]: { x: 1010, y: 950 },
   [TALENT_IDS.fatecraft]: { x: 1140, y: 900 },

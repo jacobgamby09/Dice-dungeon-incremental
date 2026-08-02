@@ -11,7 +11,7 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   faceMinimum: 4,
   maxHp: 17,
   soulsSpent: 267,
-  xpSpent: 525,
+  xpSpent: 450,
 } as const
 
 const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
@@ -20,7 +20,6 @@ const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
   [TALENT_IDS.strikerPattern]: 1,
   [TALENT_IDS.autoCombat]: 1,
   [TALENT_IDS.shieldcraft]: 1,
-  [TALENT_IDS.secondDescent]: 1,
   [TALENT_IDS.battleHardenedTwo]: 2,
   [TALENT_IDS.thirdGrip]: 1,
   [TALENT_IDS.quickDraw]: 3,

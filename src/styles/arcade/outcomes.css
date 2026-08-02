@@ -67,6 +67,39 @@
   border-width: var(--arcade-frame-section);
 }
 
+.dungeon-card--locked {
+  border-color: #4a4a55;
+  color: var(--arcade-muted);
+}
+
+.dungeon-card--locked .dungeon-card__icon {
+  border-color: #4a4a55;
+  background: #111118;
+  color: #8b8b98;
+}
+
+.dungeon-card__requirement {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  border-left: var(--arcade-frame-subtle) solid #f59e0b;
+  background: #171006;
+  padding: 8px;
+  color: #fbbf24;
+  font-family: var(--arcade-font-ui);
+  font-size: var(--arcade-text-helper);
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.dungeon-card--locked button:disabled {
+  border-color: #41414a;
+  background: #111118;
+  color: #73737f;
+  opacity: 1;
+}
+
 .outcome-screen,
 .dungeon-select-screen,
 .loadout-screen {
@@ -333,6 +366,25 @@
 
 .outcome-reward--fate {
   width: 100%;
+}
+
+.outcome-reward--dungeon-key {
+  width: 100%;
+  border-color: #f59e0b;
+  background: #160e04;
+  box-shadow: inset 0 0 0 2px #000;
+}
+
+.outcome-reward--dungeon-key .outcome-reward__icon {
+  border-color: #f59e0b;
+  background: #2a1804;
+  color: #fbbf24;
+  filter: drop-shadow(0 0 5px rgb(245 158 11 / 45%));
+}
+
+.outcome-reward--dungeon-key > strong {
+  color: #fbbf24;
+  font-size: clamp(0.83rem, 4vw, 1.05rem);
 }
 
 .outcome-loot {

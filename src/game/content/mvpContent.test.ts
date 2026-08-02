@@ -60,16 +60,22 @@ describe('MVP content integrity', () => {
     }
   })
 
-  it('keeps Dungeon 1 attack-only and gives Dungeon 2 layered dice', () => {
+  it('keeps regular Dungeon 1 enemies attack-only and previews layered dice on its boss', () => {
     const firstDescent = DUNGEONS['prototype-depths'].floors
       .map((floor) => ENCOUNTERS[floor.encounterId])
     const ironDescent = DUNGEONS['iron-depths'].floors
       .map((floor) => ENCOUNTERS[floor.encounterId])
 
-    expect(firstDescent.every((encounter) => (
+    expect(firstDescent.slice(0, -1).every((encounter) => (
       encounter.dieIds.length === 1
       && ENEMY_DICE[encounter.dieIds[0]].type === 'attack'
     ))).toBe(true)
+    expect(firstDescent.at(-1)?.dieIds.map((id) => ENEMY_DICE[id].type))
+      .toEqual(['attack', 'shield'])
+    expect(ENEMY_DICE['demon-attack'].faces.map((face) => face.value))
+      .toEqual([7, 7, 7, 8, 8, 8])
+    expect(ENEMY_DICE['demon-shield'].faces.map((face) => face.value))
+      .toEqual([2, 2, 2, 3, 3, 3])
     expect(ironDescent.slice(0, -1).every((encounter) => encounter.dieIds.length === 2))
       .toBe(true)
     expect(ironDescent.slice(0, 4).map((encounter) => (

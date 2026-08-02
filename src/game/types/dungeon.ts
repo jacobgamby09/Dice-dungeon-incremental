@@ -21,6 +21,7 @@ export type EnemyId =
   | 'demon'
   | 'spiked-behemoth'
 export type DungeonId = 'prototype-depths' | 'iron-depths'
+export type DungeonKeyId = 'iron-descent-key'
 export type EncounterId =
   | 'descent-1-slime-l1'
   | 'descent-1-slime-crawler-l1'
@@ -113,6 +114,7 @@ export interface EncounterReward {
   fateTokens?: number
   fatePity?: number
   fatePityTriggered?: boolean
+  dungeonKey?: DungeonKeyId
   dungeonComplete: boolean
 }
 

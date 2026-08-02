@@ -80,7 +80,6 @@ export const DEFAULT_JOURNEY_TALENT_PATH: readonly JourneyTalentStep[] = [
   { id: TALENT_IDS.thirdGrip },
   { id: TALENT_IDS.healingArts },
   { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
-  { id: TALENT_IDS.secondDescent },
   { id: TALENT_IDS.fourthGrip },
   { id: TALENT_IDS.bloodwellDoctrine },
 ]
@@ -99,7 +98,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 21,
+    saveVersion: 22,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
@@ -135,7 +134,6 @@ function purchaseTalent(profile: PlayerProfile, talentId: string): PlayerProfile
   if (!nextRank) return null
 
   const diceCollection = [...profile.diceCollection]
-  const unlockedDungeonIds = [...profile.unlockedDungeonIds]
   for (const effect of nextRank.effects) {
     if (
       effect.type === 'grant_die'
@@ -143,12 +141,6 @@ function purchaseTalent(profile: PlayerProfile, talentId: string): PlayerProfile
     ) {
       const die = createDieById(effect.dieId)
       if (die) diceCollection.push(die)
-    }
-    if (
-      effect.type === 'unlock_dungeon'
-      && !unlockedDungeonIds.includes(effect.dungeonId)
-    ) {
-      unlockedDungeonIds.push(effect.dungeonId)
     }
   }
 
@@ -160,7 +152,6 @@ function purchaseTalent(profile: PlayerProfile, talentId: string): PlayerProfile
       [talentId]: currentRank + 1,
     },
     diceCollection,
-    unlockedDungeonIds,
   }
 }
 
@@ -339,6 +330,11 @@ export function simulateProgressionJourney(
       bankedSouls: profile.bankedSouls + result.soulsCollected,
       xp: profile.xp + result.xpEarned,
       soulDie: result.soulDieState,
+      unlockedDungeonIds: dungeonId === 'prototype-depths'
+        && result.completedDungeon
+        && !profile.unlockedDungeonIds.includes('iron-depths')
+        ? [...profile.unlockedDungeonIds, 'iron-depths']
+        : profile.unlockedDungeonIds,
       dungeonProgress: {
         ...profile.dungeonProgress,
         [dungeonId]: {

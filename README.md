@@ -61,7 +61,8 @@ Talent Tree kan panoreres frit og zoomes med pinch, `− / +` eller Ctrl/Cmd + w
 - Workshop tilbyder controlled RNG: Chaos Forge forbedrer en tilfældig eligible face billigere, mens Precision Forge vælger den konkrete face til en premium.
 - Normale Attack-, Shield- og Heal-faces kan alle udvikles fra værdi 3 gennem hver sin pulje med tre evolutioner; identiteten følger face-ID'et permanent og virker i manuel, automatisk og suspenderet combat.
 - Evolution- og signature-faces har konsekvente hero-identiteter på tværs af Workshop, dice summaries, combat og score-transfer.
-- Second Descent åbner to valgfrie Signature Dice: Executioner har to Execute-faces, og Tower har to Fortify-faces. De resterende fire faces bruger henholdsvis Attack- og Shield-familiens evolutioner.
+- Third Grip åbner to valgfrie Signature Dice: Executioner har to Execute-faces, og Tower har to Fortify-faces. De resterende fire faces bruger henholdsvis Attack- og Shield-familiens evolutioner.
+- Dungeon 2 er synlig fra start, men åbnes automatisk af den unikke Iron Descent Key fra første Demon-clear frem for et Talent Tree-køb.
 - Første Dungeon 1-clear åbner Fourth Grip og Bloodwell Doctrine. Bloodwell er en Heal-family Signature Die med fire evolvérbare Heal 2-faces og to Drain-faces, som giver 1 Heal + 2 Attack.
 - Signature-faces er ikke family-evolutioner og får senere deres egen Face Mastery.
 - Momentum viser sin ventende `+2` mellem rolls og markerer den modtagende face; Rend viser både den kommende Bleed og den aktive Bleed-stack ved enemy HP.

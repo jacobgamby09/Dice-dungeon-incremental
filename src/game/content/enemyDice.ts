@@ -52,7 +52,10 @@ export const ENEMY_DICE: Record<EnemyDieId, EnemyDieDefinition> = {
     'skeleton-elite-attack', 'Skeleton Elite Attack Die', 'attack', [5, 5, 5, 6, 6, 7],
   ),
   'demon-attack': createEnemyDie(
-    'demon-attack', 'Demon Attack Die', 'attack', [6, 6, 6, 7, 8, 9],
+    'demon-attack', 'Demon Attack Die', 'attack', [7, 7, 7, 8, 8, 8],
+  ),
+  'demon-shield': createEnemyDie(
+    'demon-shield', 'Demon Shield Die', 'shield', [2, 2, 2, 3, 3, 3],
   ),
 
   'shieldbearer-l1-attack': createEnemyDie(

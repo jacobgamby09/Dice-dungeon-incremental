@@ -1,8 +1,11 @@
 import { motion, useReducedMotion } from 'framer-motion'
+import { KeyRound } from 'lucide-react'
 import { CurrencyIcon } from './CurrencyIcon'
 import { FateTokenIcon } from './FateTokenIcon'
 import { SoulDieReward } from './SoulDieReward'
 import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
+import type { DungeonKeyId } from '../../game/types/dungeon'
+import { DUNGEON_KEYS } from '../../game/content/dungeonKeys'
 
 interface OutcomeRewardsProps {
   heading: string
@@ -17,6 +20,7 @@ interface OutcomeRewardsProps {
   totalFateTokens?: number
   soulDieValues?: SoulDieValues
   soulRoll?: SoulDieRollResult
+  dungeonKey?: DungeonKeyId
   showLootSection?: boolean
 }
 
@@ -38,6 +42,7 @@ export function OutcomeRewards({
   totalFateTokens,
   soulDieValues,
   soulRoll,
+  dungeonKey,
   showLootSection = false,
 }: OutcomeRewardsProps) {
   const prefersReducedMotion = useReducedMotion()
@@ -87,9 +92,20 @@ export function OutcomeRewards({
 
       </div>
 
-      {(showLootSection || (totalFateTokens !== undefined && fateTokensEarned > 0)) ? (
+      {(showLootSection || dungeonKey || (totalFateTokens !== undefined && fateTokensEarned > 0)) ? (
         <section aria-label="Loot found" className="outcome-loot">
           <span className="eyebrow">Loot</span>
+          {dungeonKey ? (
+            <div className="outcome-reward outcome-reward--dungeon-key">
+              <span aria-hidden="true" className="outcome-reward__icon">
+                <KeyRound size={30} />
+              </span>
+              <span>Milestone Loot</span>
+              <strong>{DUNGEON_KEYS[dungeonKey].name}</strong>
+              <em>{DUNGEON_KEYS[dungeonKey].description}</em>
+              <small>Dungeon 2 unlocked</small>
+            </div>
+          ) : null}
           {totalFateTokens !== undefined && fateTokensEarned > 0 ? (
             <div className="outcome-reward outcome-reward--fate">
               <span aria-hidden="true" className="outcome-reward__icon">
@@ -100,9 +116,9 @@ export function OutcomeRewards({
               <em>Fate Token{fateTokensEarned === 1 ? '' : 's'}</em>
               <small>{totalFateTokens} total</small>
             </div>
-          ) : (
+          ) : !dungeonKey ? (
             <p>No special loot this descent.</p>
-          )}
+          ) : null}
         </section>
       ) : null}
     </motion.section>

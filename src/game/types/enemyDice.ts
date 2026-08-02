@@ -11,6 +11,7 @@ export type EnemyDieId =
   | 'skeleton-l2-attack'
   | 'skeleton-elite-attack'
   | 'demon-attack'
+  | 'demon-shield'
   | 'shieldbearer-l1-attack'
   | 'shieldbearer-l1-shield'
   | 'cultist-l1-attack'

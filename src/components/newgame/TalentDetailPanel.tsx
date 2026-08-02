@@ -5,7 +5,6 @@ import {
   Heart,
   X,
   Zap,
-  Map,
   Flame,
   Gem,
   BookOpen,
@@ -54,7 +53,6 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   workshop_target_rerolls: Dices,
   unlock_auto_combat: Bot,
   unlock_charms: Gem,
-  unlock_dungeon: Map,
   xp_per_kill: BookOpen,
   soul_die_faces: Coins,
   workshop_cost_multiplier: Hammer,
@@ -80,8 +78,6 @@ function getEffectLabel(effect: TalentEffect): string {
       return 'Auto Combat Toggle'
     case 'unlock_charms':
       return 'Unlock Charm System'
-    case 'unlock_dungeon':
-      return 'Unlock The Iron Descent'
     case 'xp_per_kill':
       return `+${effect.amount} XP per Enemy`
     case 'soul_die_faces':

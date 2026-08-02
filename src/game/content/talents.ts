@@ -17,7 +17,6 @@ export const TALENT_IDS = {
   autoCombat: 'auto-roll',
   quickDraw: 'quick-draw',
   battleHardenedTwo: 'battle-hardened-2',
-  secondDescent: 'second-descent',
   fieldStudies: 'field-studies',
   soulHarvest: 'soul-harvest',
   fatecraft: 'fatecraft',
@@ -207,24 +206,6 @@ export const TALENTS: TalentDefinition[] = [
       { cost: 28, effects: [{ type: 'max_hp', amount: 2 }] },
       { cost: 42, effects: [{ type: 'max_hp', amount: 2 }] },
     ],
-    track: 'descent',
-  },
-  {
-    id: TALENT_IDS.secondDescent,
-    name: 'Second Descent',
-    description: 'Open the path to The Iron Descent through any two connected disciplines.',
-    iconKey: 'second-descent',
-    prerequisiteIds: [
-      TALENT_IDS.quickDraw,
-      TALENT_IDS.battleHardenedTwo,
-    ],
-    prerequisiteCount: 1,
-    requirements: [{
-      type: 'dungeon_clear',
-      dungeonId: 'prototype-depths',
-      count: 1,
-    }],
-    ranks: [{ cost: 75, effects: [{ type: 'unlock_dungeon', dungeonId: 'iron-depths' }] }],
     track: 'descent',
   },
   {

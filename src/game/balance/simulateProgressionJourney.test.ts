@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { TALENT_IDS } from '../content/talents'
 import {
   DEFAULT_JOURNEY_STRATEGY,
   simulateProgressionJourney,
@@ -49,7 +48,7 @@ describe('Classic V2 progression journey', () => {
     expect(result.milestones.dungeonOneClearRun!).toBeGreaterThanOrEqual(12)
     expect(result.milestones.dungeonOneClearRun!).toBeLessThanOrEqual(55)
     expect(result.milestones.dungeonTwoUnlockRun).not.toBeNull()
-    expect(result.finalProfile.talentRanks[TALENT_IDS.secondDescent]).toBe(1)
+    expect(result.finalProfile.unlockedDungeonIds).toContain('iron-depths')
     expect(result.milestones.dungeonTwoFirstRun).not.toBeNull()
     expect(result.milestones.dungeonTwoFirstRun).toBe(
       result.milestones.dungeonTwoUnlockRun! + 1,

@@ -17,7 +17,6 @@ export const TALENT_ICON_KEYS = [
   'battle-heart',
   'twin-dice',
   'shieldcraft',
-  'second-descent',
   'battle-heart-advanced',
   'third-grip',
   'quick-draw',
@@ -54,7 +53,6 @@ export type TalentEffect =
   | { type: 'unlock_auto_combat' }
   | { type: 'unlock_charms' }
   | { type: 'charm_rarity_protection'; epicThreshold: number; legendaryThreshold?: number }
-  | { type: 'unlock_dungeon'; dungeonId: DungeonId }
 
 export type TalentRequirement = {
   type: 'dungeon_clear'

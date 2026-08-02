@@ -48,7 +48,6 @@ describe('Fatecraft start developer preset', () => {
     expect(profile.talentRanks).toMatchObject({
       [TALENT_IDS.fieldStudies]: 1,
       [TALENT_IDS.fatecraft]: 1,
-      [TALENT_IDS.secondDescent]: 1,
     })
     expect(profile.talentRanks[TALENT_IDS.wovenPair]).toBeUndefined()
     expect(getCharmCapacity(profile.talentRanks)).toBe(1)

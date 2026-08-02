@@ -515,7 +515,6 @@ talenter, så centrale mål kan nås ad flere veje.
 | Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
 | Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
 | Deep Reserves | 18 / 28 / 42 XP | Auto Combat | +2 Max HP per rank |
-| Second Descent | 75 XP | Quick Draw **eller** Deep Reserves + Dungeon 1 clear | Unlock The Iron Descent |
 | Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
 | Soul Die Mastery | 5 / 14 / 30 XP | Inner Spark rank 1 | Soul Die: `1,1,2,2,2,2` → `1,1,2,2,2,3` → `1,2,2,2,2,3` |
 | Fatecraft | 30 XP | Field Studies **eller** Soul Die Mastery + Dungeon 1 clear | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
@@ -669,20 +668,26 @@ Formål:
 - lade spilleren lære Auto Combat;
 - skabe en længere første incremental-bue uden enemy Shield eller Heal.
 
-Alle enemies har præcis én Attack Die.
+De første ni enemies har præcis én Attack Die. Demon bryder mønsteret som den
+første to-die enemy og viser dermed Dungeon 2's intentionssprog i et tydeligt
+boss-encounter.
 
-| Floor | Enemy | Level | HP | Attack faces | XP | Soul Value |
-| ---: | --- | ---: | ---: | --- | ---: | ---: |
-| 1 | Slime | 1 | 3 | `2–2–2–2–2–2` | 4 | 1 |
-| 2 | Slime Crawler | 1 | 5 | `2–2–2–3–3–3` | 5 | 1 |
-| 3 | Goblin | 1 | 8 | `2–2–3–3–3–4` | 6 | 1 |
-| 4 | Skeleton | 1 | 12 | `3–3–3–4–4–4` | 8 | 1 |
-| 5 | Slime | 2 | 17 | `3–3–3–4–4–4` | 11 | 1 |
-| 6 | Slime Crawler | 2 | 23 | `3–3–3–4–4–5` | 15 | 1 |
-| 7 | Goblin | 2 | 30 | `4–4–4–4–5–5` | 20 | 1 |
-| 8 | Skeleton | 2 | 36 | `4–4–4–5–5–6` | 28 | 1 |
-| 9 | Skeleton Elite | 3 | 42 | `5–5–5–6–6–7` | 38 | 2 |
-| 10 | Demon | Boss | 55 | `6–6–6–7–8–9` | 55 | 3 |
+| Floor | Enemy | Level | HP | Attack faces | Shield faces | XP | Soul Value |
+| ---: | --- | ---: | ---: | --- | --- | ---: | ---: |
+| 1 | Slime | 1 | 3 | `2–2–2–2–2–2` | — | 4 | 1 |
+| 2 | Slime Crawler | 1 | 5 | `2–2–2–3–3–3` | — | 5 | 1 |
+| 3 | Goblin | 1 | 8 | `2–2–3–3–3–4` | — | 6 | 1 |
+| 4 | Skeleton | 1 | 12 | `3–3–3–4–4–4` | — | 8 | 1 |
+| 5 | Slime | 2 | 17 | `3–3–3–4–4–4` | — | 11 | 1 |
+| 6 | Slime Crawler | 2 | 23 | `3–3–3–4–4–5` | — | 15 | 1 |
+| 7 | Goblin | 2 | 30 | `4–4–4–4–5–5` | — | 20 | 1 |
+| 8 | Skeleton | 2 | 36 | `4–4–4–5–5–6` | — | 28 | 1 |
+| 9 | Skeleton Elite | 3 | 42 | `5–5–5–6–6–7` | — | 38 | 2 |
+| 10 | Demon | Boss | 45 | `7–7–7–8–8–8` | `2–2–2–3–3–3` | 55 | 3 |
+
+Dungeon 2 er synlig, men låst, fra fresh save. Første Demon-clear giver den
+garanterede og unikke `Iron Descent Key` som milestone-loot og åbner automatisk
+The Iron Descent. Dungeon-adgang købes ikke i Talent Tree.
 
 ### 11.2 Dungeon 2 — The Iron Descent
 
@@ -769,7 +774,7 @@ Den deterministiske journey-simulator bruger en canonical prioritet:
 10. Third Grip.
 11. Healing Arts.
 12. Deep Reserves.
-13. Second Descent.
+13. Fourth Grip og Bloodwell Doctrine efter første Dungeon 1-clear.
 
 Aktuelle regression-rails:
 

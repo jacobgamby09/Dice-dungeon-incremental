@@ -16,12 +16,12 @@ describe('enemy dice', () => {
     })
   })
 
-  it('maps a legacy numeric intent to a stable face without changing its value', () => {
+  it('maps a legacy numeric intent to the nearest stable canonical face', () => {
     const die = getEnemyDie('demon-attack')
     const result = findEnemyRollByValue(die, 9)
 
-    expect(result.faceId).toBe('demon-attack-face-6')
-    expect(result.value).toBe(9)
+    expect(result.faceId).toBe('demon-attack-face-4')
+    expect(result.value).toBe(8)
   })
 
   it('aggregates mixed attack, shield and heal results', () => {

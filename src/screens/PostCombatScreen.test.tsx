@@ -62,6 +62,9 @@ describe('PostCombatScreen incremental reward flow', () => {
     delete (mockedStore.state.run.lastReward as typeof mockedStore.state.run.lastReward & {
       soulRoll?: unknown
     }).soulRoll
+    delete (mockedStore.state.run.lastReward as typeof mockedStore.state.run.lastReward & {
+      dungeonKey?: unknown
+    }).dungeonKey
     mockedStore.state.run.enemy.spriteName = 'Slime'
     mockedStore.state.run.playerHp = 10
     mockedStore.state.run.playerMaxHp = 10
@@ -93,6 +96,7 @@ describe('PostCombatScreen incremental reward flow', () => {
       isBoss: true,
       xp: 60,
       souls: 60,
+      dungeonKey: 'iron-descent-key',
       dungeonComplete: true,
     })
     mockedStore.state.run.enemy.spriteName = 'Demon'
@@ -110,6 +114,8 @@ describe('PostCombatScreen incremental reward flow', () => {
     expect(markup).toContain('+242')
     expect(markup).toContain('+210')
     expect(markup).toContain('10 enemies defeated')
+    expect(markup).toContain('Iron Descent Key')
+    expect(markup).toContain('Dungeon 2 unlocked')
     expect(markup).toContain('Return to Hub')
     expect(markup).not.toContain('Continue to Floor 11')
   })
