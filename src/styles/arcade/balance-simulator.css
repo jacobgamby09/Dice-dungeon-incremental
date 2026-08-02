@@ -1,0 +1,336 @@
+.balance-lab-loading {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.92);
+  color: var(--arcade-cyan);
+  font: 850 0.72rem/1.2 var(--arcade-font-ui);
+  text-transform: uppercase;
+}
+
+.balance-lab-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  justify-items: center;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.92);
+  padding: 12px;
+}
+
+.balance-lab {
+  width: 100%;
+  max-width: 760px;
+  min-width: 0;
+  margin: 12px auto;
+  border: var(--arcade-frame-strong) solid var(--arcade-cyan);
+  background: var(--arcade-black);
+  box-shadow: 5px 5px 0 #09343a;
+  color: var(--arcade-white);
+}
+
+.balance-lab > *,
+.balance-lab__section,
+.balance-lab__controls,
+.balance-lab__footer {
+  min-width: 0;
+}
+
+.balance-lab__header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-line-section);
+  padding: 12px;
+}
+
+.balance-lab__header h2,
+.balance-lab__section h3 {
+  margin: 0;
+  color: var(--arcade-white);
+}
+
+.balance-lab__header h2 {
+  font-size: 1.25rem;
+}
+
+.balance-lab__icon,
+.balance-lab__header > button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: var(--arcade-frame-section) solid var(--arcade-cyan);
+  background: #08252a;
+  color: var(--arcade-cyan);
+}
+
+.balance-lab__header > button {
+  border-color: var(--arcade-line-control);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.balance-lab__intro,
+.balance-lab__strategy-note {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.balance-lab__strategy-note {
+  border-bottom: var(--arcade-frame-section) solid var(--arcade-line-section);
+  color: #b8dfe4;
+}
+
+.balance-lab__strategy-note strong {
+  color: var(--arcade-cyan);
+}
+
+.balance-lab__controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  border-block: var(--arcade-frame-subtle) solid var(--arcade-line-control);
+  padding: 10px 12px;
+}
+
+.balance-lab__controls label {
+  display: grid;
+  gap: 5px;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.6rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.balance-lab__controls select,
+.balance-lab__controls input {
+  min-width: 0;
+  min-height: 42px;
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
+  border-radius: 0;
+  background: #08080d;
+  padding: 7px;
+  color: var(--arcade-white);
+  font: 750 0.72rem/1.2 var(--arcade-font-ui);
+}
+
+.balance-lab__run {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  border: var(--arcade-frame-section) solid var(--arcade-white);
+  background: #086774;
+  color: var(--arcade-white);
+  font: 850 0.72rem/1 var(--arcade-font-ui);
+  text-transform: uppercase;
+}
+
+.balance-lab__section {
+  padding: 12px;
+}
+
+.balance-lab__section + .balance-lab__section {
+  border-top: var(--arcade-frame-section) solid var(--arcade-line-section);
+}
+
+.balance-lab__section > header {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.balance-lab__section h3 {
+  font-size: 0.9rem;
+}
+
+.balance-lab__section > header span {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.58rem;
+}
+
+.balance-lab__milestones {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.balance-lab__milestones article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 8px;
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
+  border-left: 3px solid var(--arcade-cyan);
+  background: #06090d;
+  padding: 9px;
+}
+
+.balance-lab__milestones article > span,
+.balance-lab__milestones article > small {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.balance-lab__milestones article > strong {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  color: var(--arcade-cyan);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.balance-lab__milestones dl {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin: 6px 0 0;
+  border-top: 1px solid var(--arcade-line-control);
+  padding-top: 6px;
+}
+
+.balance-lab__milestones dl div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.balance-lab__milestones dt,
+.balance-lab__milestones dd,
+.balance-lab__milestones em {
+  margin: 0;
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.56rem;
+  font-style: normal;
+}
+
+.balance-lab__milestones dd {
+  color: var(--arcade-white);
+  font-weight: 900;
+}
+
+.balance-lab__milestones em {
+  grid-column: 1 / -1;
+  color: var(--arcade-yellow);
+}
+
+.balance-lab__table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
+}
+
+.balance-lab table {
+  width: 100%;
+  min-width: 690px;
+  border-collapse: collapse;
+  font-family: var(--arcade-font-ui);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-lab th,
+.balance-lab td {
+  border-bottom: 1px solid #292932;
+  padding: 7px 6px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.balance-lab thead th {
+  background: #0b2024;
+  color: var(--arcade-cyan);
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.balance-lab th:first-child,
+.balance-lab td:first-child {
+  position: sticky;
+  left: 0;
+  background: #08080d;
+  text-align: left;
+}
+
+.balance-lab thead th:first-child {
+  background: #0b2024;
+}
+
+.balance-lab__footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border-top: var(--arcade-frame-section) solid var(--arcade-line-section);
+  padding: 12px;
+}
+
+.balance-lab__footer span {
+  color: var(--arcade-muted);
+  font-family: var(--arcade-font-ui);
+  font-size: 0.58rem;
+  line-height: 1.4;
+}
+
+.balance-lab__footer button {
+  min-height: 42px;
+  border: var(--arcade-frame-subtle) solid var(--arcade-white);
+  background: var(--arcade-black);
+  padding: 8px 14px;
+  color: var(--arcade-white);
+  font: 850 0.66rem/1 var(--arcade-font-ui);
+  text-transform: uppercase;
+}
+
+.balance-lab button:focus-visible,
+.balance-lab select:focus-visible,
+.balance-lab input:focus-visible,
+.balance-lab__table-scroll:focus-visible {
+  outline: 2px solid var(--arcade-yellow);
+  outline-offset: 2px;
+}
+
+@media (max-width: 620px) {
+  .balance-lab-backdrop {
+    padding: 5px;
+  }
+
+  .balance-lab {
+    margin: 4px auto;
+  }
+
+  .balance-lab__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .balance-lab__milestones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .balance-lab__section > header,
+  .balance-lab__footer {
+    align-items: stretch;
+    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+}

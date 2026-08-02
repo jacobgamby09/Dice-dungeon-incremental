@@ -32,10 +32,11 @@ src/
 
 Det nye save-key er `new-dice-dungeon-save`; det gamle spils save kan derfor ikke påvirke prototypen.
 
-## Developer-profiler
+## Developer-profiler og balanceværktøj
 
-Hubben har to bevidst totrins-beskyttede developer-handlinger:
+Hubben har et ikke-destruktivt balanceværktøj og flere bevidst beskyttede developer-handlinger:
 
+- `DEV · Balance Lab` simulerer 100–500 deterministiske fresh-save-journeys uden at ændre spillerens save. Fire købstrategier kan sammenlignes gennem milestone-percentiler og en run-for-run-kurve for floor-wall, face-værdi, Auto Combat, anden die, Dungeon 1-clear, XP og Souls.
 - `DEV · Load Dungeon 2 profile` erstatter det aktuelle save med Build Diversity-profilen efter første clear: 15 Max HP, fire slots, seks ejede permanente dice, fire aktivt udstyrede dice, normale faces på mindst 3, én Power-, én Momentum- og én Rend-face samt The Iron Descent ulåst. Profilen repræsenterer 427 brugt XP og 545 brugte Souls. Auto Combat er købt men starter slået fra; Quick Draw er fortsat ukøbt.
 - `DEV · Fresh QoL test · 88 XP` erstatter det aktuelle save med den normale fresh-start, men giver præcis 88 uspente XP. Det finansierer Battle-Hardened I, Twin Arsenal, Auto Combat, Shieldcraft og Quick Draw uden rest-XP, så den tidlige automation og hastighed kan testes uden at springe Talent Tree-købene over.
 - `DEV · Reset game` genskaber den almindelige fresh-save-start.

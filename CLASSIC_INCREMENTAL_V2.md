@@ -768,11 +768,18 @@ Aktuelle regression-rails:
 | Første permanent face-upgrade | Run 1 |
 | Auto Combat | Run 2–3 |
 | Anden permanent die | Run 6–15 |
-| Første Dungeon 1-clear | Run 12–45 |
+| Første Dungeon 1-clear | Run 12–55 |
 
 Disse er balancegrænser, ikke endelige release-løfter. Simulatoren måler runs og
 matematik, men ikke realtid, animationstempo, ventetid eller spillerens subjektive
 motivation.
+
+Hubben giver adgang til et ikke-destruktivt `DEV · Balance Lab`, som kører
+100–500 fresh-save-journeys mod de samme pure combat-, reward-, Talent Tree- og
+Workshop-regler. Værktøjet viser P10, median, P90 og reach-rate for milepæle samt
+en run-kurve. Fire canonical strategier — balanced, Arsenal-first,
+Workshop-first og economy-first — gør det muligt at opdage obligatoriske paths
+og falske valg, men de erstatter ikke fri spilleradfærd eller fysisk playtest.
 
 ### Pacing-mål
 

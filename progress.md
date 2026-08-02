@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Et interaktivt Balance Lab er klar i Hubben:** DEV-overlayet simulerer 100, 250 eller 500 fresh-save-journeys uden at ændre save og sammenligner balanced, Arsenal-first, Workshop-first og economy-first gennem milestone-P10/median/P90, reach-rate og en run-kurve. Første 100-seed baseline viser Auto Combat median run 2 på alle paths, anden die median run 6–15 og Dungeon 1-clear median run 43–47.
 - **Talent Tree-infobokse følger nu den valgte branch:** Detail-overlayets ramme, ikonfelt, requirements, owned-state og aktive købsknap arver direkte nodens track-farve. Arsenal er blå, Workshop orange, Descent grøn, Fate lilla og kernetalenter cyan; låste/disabled handlinger forbliver neutralt grå.
 - **UI/UX hierarchy pass er færdigt lokalt på `codex/arcade-foundation-v1`:** Pixel Arcade bruger nu et bindende 3/2/1-linjesystem for shell, sektion og control, et fælles 4/8/12/16/24-spacing-system samt større minimumstekst for forklaringer. Workshop, Fate, outcomes, Hub, Loadout, Talent Tree, Combat og overlays er harmoniseret; komplette rammer er fjernet fra gentagne Loadout-items og rarity-grupper, mens systemfarver og primære handlinger er bevaret. Smalle desktop/mobile-viewports har ikke længere global horisontal overflow.
 - **Combat-rækkefølge, Workshop-reroll og System Dice er poleret lokalt på `codex/arcade-foundation-v1`:** Player-dice ruller nu altid i den rækkefølge, spilleren har valgt i Loadout Rack, hvor et nyt Roll Order-panel kan flytte dice frem og tilbage. Workshop-targetanimationen går kun fremad rundt om de seks faces, og Face Mastery-handlingen ligger nu tydeligt i Step 1 som `Roll Another Face`. Soul Die præsenteres i Hub som en permanent System Die med samme visuelle hierarki som spillerens permanente dice.
@@ -115,6 +116,9 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+1. Brug Balance Lab-baselinen til at beslutte, om Dungeon 1-clear median run 43–47 er den ønskede første arc, eller om enemy/reward/Workshop-kurven skal komprimeres; ændr derefter kun ét balanceled ad gangen og sammenlign alle fire strategier igen.
+2. Undersøg hvorfor Arsenal-first får anden die på median run 6 uden at slå balanced-clear på run 47, mens Workshop-first klarer på run 43 men udsætter anden die til run 15. Det er det stærkeste aktuelle signal om mulig ubalance mellem synlig power spike og reel effektivitet.
+3. Test fysisk de samme fire paths, fordi simulatoren ikke måler animationstid, tøven, forståelse eller tilfredsstillelsen ved konkrete RNG-resultater.
 1. Gennemfør et fysisk iPhone/Safari-pass af Workshop, Fate Sanctum, Victory/Defeat og Loadout ved både normal og kort viewport, og sammenlign linjevægt samt tekststørrelse med browserbaselinen.
 2. Start derefter det planlagte early-game-balancepass over de første 15–20 runs uden at tilføje nye Hub-anbefalinger eller affordability-badges.
 1. Fresh-save-playtest 10–20 Fate Draws og mål faktisk rarity-fordeling, duplicate-friktion og om Common stadig føles som et værdifuldt resultat.
@@ -250,6 +254,19 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-02 — Interaktiv fresh-save Balance Lab
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hubben har fået et ikke-destruktivt `DEV · Balance Lab`, som kan køre 100/250/500 fresh-save-journeys med valgfrit seed og 40/60/80 run-loft. Rapporten viser P10, median, P90 og reach-rate for syv milepæle samt checkpoints for floor-wall, face-værdi, Auto Combat, anden die, D1-clear, D2-unlock og resterende XP/Souls. Balanced, Arsenal-first, Workshop-first og economy-first kan sammenlignes med samme live gameplay-regler.
+- Beslutninger: Simulatoren genbruger pure combat, rewards, Talent Tree og Workshop og må aldrig mutere det rigtige save. Afsluttede journeys bærer deres sidste Dungeon 1-record frem i kurven, så tidlige succeser ikke forsvinder fra senere cohort-checkpoints. Regression-railen for første Dungeon 1-clear er harmoniseret til run 12–55.
+- Første resultater: 100 seeds fra 431 viser balanced medianer på face-upgrade 1, Auto Combat 2, anden die 7, første loadout-valg 15, første +2/+3 Forge 3 og D1/D2 47 med P10–P90 39–55 samt 93% reach inden run 60. Arsenal-first giver anden die run 6 men D1 median 47; Workshop-first giver anden die run 15 men hurtigste D1 median 43; economy-first lander på run 11 og D1 median 45.
+- Berørte områder: Ny cohort-aggregator og tests i `src/game/balance`, nyt Balance Lab-overlay, Hub DEV-adgang, Pixel Arcade-styling, README, V2-GDD og progress-log.
+- Validering: `npx tsc --noEmit`, 40 Vitest-filer / 177 tests, ESLint, production-build og `git diff --check` består. Browser ved 384×844 bekræfter alle fire strategier, horisontal scroll kun inde i rapporttabellen, ingen global overflow og ingen console warnings/errors. Balance Lab og cohortmotoren code-splittes til en separat 15,89 kB chunk, der først indlæses ved DEV-knappen.
+- Kendte mangler: Strategierne er faste automatiske købsprioriteter og måler ikke fri spilleradfærd, animationstid, tøven, forståelse, Charms eller oplevet RNG-kvalitet. D1- og D2-milepælen falder i samme run, fordi de simulerede profiler har råd til Second Descent ved første clear; det bør vurderes som et separat pacing-signal. Vite rapporterer fortsat den eksisterende main-chunk-warning over 500 kB.
+- Git: Ikke committed endnu på `codex/arcade-foundation-v1`.
 
 ### 2026-08-01 — Branch-farvede Talent Tree-infobokse
 

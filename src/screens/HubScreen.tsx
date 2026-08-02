@@ -1,4 +1,5 @@
 import {
+  Activity,
   Backpack,
   Castle,
   Dices,
@@ -11,7 +12,7 @@ import {
   Sparkles,
   TriangleAlert,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
@@ -28,7 +29,13 @@ import { getDiceCapacity, getSoulDieValues } from '../game/progression/talents'
 import { hasCharmsUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
+const BalanceSimulator = lazy(async () => {
+  const module = await import('../components/newgame/BalanceSimulator')
+  return { default: module.BalanceSimulator }
+})
+
 export function HubScreen() {
+  const [balanceLabOpen, setBalanceLabOpen] = useState(false)
   const [devAction, setDevAction] = useState<'charm' | 'early-qol' | 'preset' | 'reset' | null>(null)
   const [loadedPreset, setLoadedPreset] = useState<'charm' | 'early-qol' | 'dungeon-two' | null>(null)
   const [isRackDragging, setIsRackDragging] = useState(false)
@@ -370,6 +377,14 @@ export function HubScreen() {
           <div className="dev-tools__triggers">
             <button
               className="dev-preset__trigger"
+              onClick={() => setBalanceLabOpen(true)}
+              type="button"
+            >
+              <Activity aria-hidden="true" size={15} />
+              DEV · Balance Lab
+            </button>
+            <button
+              className="dev-preset__trigger"
               onClick={() => setDevAction('charm')}
               type="button"
             >
@@ -403,6 +418,12 @@ export function HubScreen() {
           </div>
         )}
       </section>
+
+      {balanceLabOpen ? (
+        <Suspense fallback={<div aria-live="polite" className="balance-lab-loading">Loading Balance Lab…</div>}>
+          <BalanceSimulator onClose={() => setBalanceLabOpen(false)} />
+        </Suspense>
+      ) : null}
     </main>
   )
 }
