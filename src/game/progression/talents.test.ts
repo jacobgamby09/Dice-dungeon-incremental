@@ -101,7 +101,7 @@ describe('Classic V2 directional talent progression', () => {
     ]).toEqual(['twin-dice', 'twin-dice', 'twin-dice'])
   })
 
-  it('opens the fourth slot and Bloodwell choice only after the first dungeon clear', () => {
+  it('soft-gates the fourth slot and Bloodwell through XP instead of dungeon clears', () => {
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,
       [TALENT_IDS.twinArsenal]: 1,
@@ -110,28 +110,43 @@ describe('Classic V2 directional talent progression', () => {
       [TALENT_IDS.thirdGrip]: 1,
       [TALENT_IDS.healingArts]: 1,
     }
-    const uncleared = createProfile(ranks, 999)
-    const cleared = {
-      ...uncleared,
-      dungeonProgress: {
-        ...uncleared.dungeonProgress,
-        'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
-      },
-    }
+    const almostAffordable = createProfile(ranks, 2599)
+    const affordable = createProfile(ranks, 2600)
 
     expect(getTalentPurchaseReason(
-      uncleared,
+      almostAffordable,
       TALENTS_BY_ID[TALENT_IDS.fourthGrip],
-    )).toBe('dungeon')
+    )).toBe('xp')
     expect(getTalentPurchaseReason(
-      uncleared,
+      createProfile(ranks, 2199),
       TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine],
-    )).toBe('dungeon')
-    expect(canPurchaseTalent(cleared, TALENT_IDS.fourthGrip)).toBe(true)
-    expect(canPurchaseTalent(cleared, TALENT_IDS.bloodwellDoctrine)).toBe(true)
+    )).toBe('xp')
+    expect(canPurchaseTalent(affordable, TALENT_IDS.fourthGrip)).toBe(true)
+    expect(canPurchaseTalent(createProfile(ranks, 2200), TALENT_IDS.bloodwellDoctrine)).toBe(true)
+    expect(TALENTS_BY_ID[TALENT_IDS.fourthGrip].requirements).toBeUndefined()
+    expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].requirements).toBeUndefined()
     expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].ranks[0].effects).toEqual([
       { type: 'grant_die', dieId: 'heal-die-bloodwell' },
     ])
+  })
+
+  it('uses XP rather than a Dungeon 2 clear to soft-gate Trinity Knot', () => {
+    const ranks = {
+      [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.fieldStudies]: 1,
+      [TALENT_IDS.fatecraft]: 1,
+      [TALENT_IDS.wovenPair]: 1,
+    }
+    const profile = createProfile(ranks, 3000)
+
+    expect(canPurchaseTalent(profile, TALENT_IDS.trinityKnot)).toBe(true)
+    expect(TALENTS_BY_ID[TALENT_IDS.trinityKnot].requirements).toBeUndefined()
+  })
+
+  it('does not hard-gate any Talent Tree node behind a dungeon clear', () => {
+    expect(Object.values(TALENTS_BY_ID).every((talent) => (
+      !talent.requirements?.some((requirement) => requirement.type === 'dungeon_clear')
+    ))).toBe(true)
   })
 
   it('upgrades Workshop Die power and target rerolls independently', () => {
@@ -181,23 +196,14 @@ describe('Classic V2 directional talent progression', () => {
     expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 3 })).toBeCloseTo(0.512)
   })
 
-  it('opens Fatecraft after Dungeon 1 through either efficiency branch', () => {
+  it('opens Fatecraft before Dungeon 1 clear through either efficiency branch', () => {
     const talent = TALENTS_BY_ID[TALENT_IDS.fatecraft]
     const ranks = {
       [TALENT_IDS.battleHardenedOne]: 1,
       [TALENT_IDS.fieldStudies]: 1,
     }
     const uncleared = createProfile(ranks, 999)
-    const cleared = {
-      ...uncleared,
-      dungeonProgress: {
-        ...uncleared.dungeonProgress,
-        'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
-      },
-    }
-
-    expect(getTalentPurchaseReason(uncleared, talent)).toBe('dungeon')
-    expect(getTalentPurchaseReason(cleared, talent)).toBeNull()
+    expect(getTalentPurchaseReason(uncleared, talent)).toBeNull()
 
     const charmRanks = { ...ranks, [TALENT_IDS.fatecraft]: 1 }
     expect(hasCharmsUnlocked(charmRanks)).toBe(true)

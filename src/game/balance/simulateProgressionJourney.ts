@@ -1,6 +1,7 @@
 import { createDieById, createStartingDice } from '../content/dice'
 import { IMPRINT_DEFINITIONS } from '../content/imprints'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
+import { FATE_DRAW_COST, claimFateDraw, createFateDraw } from '../progression/fate'
 import {
   completeWorkshopForge,
   getChaosForgeCost,
@@ -8,6 +9,8 @@ import {
 } from '../forge/forge'
 import {
   canPurchaseTalent,
+  getCharmCapacity,
+  getCharmRarityProtection,
   getDiceCapacity,
   getNextTalentRank,
   getPlayerMaxHp,
@@ -17,6 +20,7 @@ import {
   getWorkshopCostMultiplier,
   getImprintForgeBonusChance,
   hasAutoCombatUnlocked,
+  hasCharmsUnlocked,
 } from '../progression/talents'
 import {
   applyForgedFaceToBaseDie,
@@ -25,6 +29,8 @@ import {
 import type { DieInstance } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
 import type { PlayerProfile } from '../types/progression'
+import { CHARM_IDS } from '../types/charms'
+import type { CharmId, CharmSnapshot } from '../types/charms'
 import { createSeededRandom, simulateDungeonRun } from './simulateDungeon'
 import { createSoulDieState } from '../progression/soulDie'
 
@@ -34,6 +40,7 @@ export interface JourneyTalentStep {
 }
 
 export interface ProgressionJourneyStrategy {
+  dungeonOneUntilTalentId?: string
   loadoutPriority: readonly string[]
   talentPath: readonly JourneyTalentStep[]
 }
@@ -49,6 +56,8 @@ export interface ProgressionJourneyMilestones {
   firstFaceUpgradeRun: number | null
   firstLoadoutChoiceRun: number | null
   firstImprintRun: number | null
+  fatecraftRun: number | null
+  firstCharmRun: number | null
   fourthSlotRun: number | null
   relayImprintRun: number | null
   crescendoImprintRun: number | null
@@ -64,6 +73,8 @@ export interface ProgressionJourneyRecord {
   equippedDieIds: string[]
   highestFloorCleared: number
   imprintCount: number
+  charmCount: number
+  fateTokensAfterSpending: number
   run: number
   soulsAfterSpending: number
   xpAfterSpending: number
@@ -168,11 +179,11 @@ function purchaseTalent(profile: PlayerProfile, talentId: string): PlayerProfile
 
 function spendTalentPath(
   profile: PlayerProfile,
-  talentPath: readonly JourneyTalentStep[],
+  strategy: ProgressionJourneyStrategy,
 ): PlayerProfile {
   let nextProfile = profile
 
-  for (const step of talentPath) {
+  for (const step of strategy.talentPath) {
     const talent = TALENTS_BY_ID[step.id]
     if (!talent) continue
     const targetRank = Math.min(step.targetRank ?? 1, talent.ranks.length)
@@ -185,6 +196,44 @@ function spendTalentPath(
   }
 
   return nextProfile
+}
+
+function getEquippedCharmSnapshots(profile: PlayerProfile): CharmSnapshot[] {
+  return profile.equippedCharmIds.flatMap((charmId) => {
+    const rank = profile.charmRanks[charmId] ?? 0
+    return rank > 0 ? [{ id: charmId, rank }] : []
+  })
+}
+
+function spendFateTokens(profile: PlayerProfile, random: () => number): PlayerProfile {
+  if (!hasCharmsUnlocked(profile.talentRanks)) return profile
+  let nextProfile = profile
+
+  for (let drawIndex = 0; drawIndex < 48; drawIndex += 1) {
+    if (nextProfile.fateTokens < FATE_DRAW_COST) break
+    const created = createFateDraw(
+      nextProfile.charmRanks,
+      `journey-fate-${drawIndex}`,
+      nextProfile.charmRarityProgress,
+      getCharmRarityProtection(nextProfile.talentRanks),
+      random,
+    )
+    if (!created) break
+    const charmRanks = claimFateDraw(nextProfile.charmRanks, created.draw)
+    if (!charmRanks) break
+    nextProfile = {
+      ...nextProfile,
+      charmRanks,
+      charmRarityProgress: created.nextProgress,
+      fateTokens: nextProfile.fateTokens - created.draw.cost,
+    }
+  }
+
+  const capacity = getCharmCapacity(nextProfile.talentRanks)
+  const equippedCharmIds = CHARM_IDS
+    .filter((charmId) => (nextProfile.charmRanks[charmId] ?? 0) > 0)
+    .slice(0, capacity) as CharmId[]
+  return { ...nextProfile, equippedCharmIds }
 }
 
 function getPriorityDice(
@@ -328,6 +377,8 @@ function createMilestones(): ProgressionJourneyMilestones {
     firstFaceUpgradeRun: null,
     firstLoadoutChoiceRun: null,
     firstImprintRun: null,
+    fatecraftRun: null,
+    firstCharmRun: null,
     fourthSlotRun: null,
     relayImprintRun: null,
     crescendoImprintRun: null,
@@ -360,7 +411,8 @@ export function simulateProgressionJourney(
   let profile = createJourneyProfile()
 
   for (let run = 1; run <= maxRuns; run += 1) {
-    profile = spendTalentPath(profile, strategy.talentPath)
+    profile = spendTalentPath(profile, strategy)
+    profile = spendFateTokens(profile, random)
     const preRunForge = spendSouls(profile, strategy, random)
     profile = selectLoadout(preRunForge.profile, strategy.loadoutPriority)
 
@@ -386,8 +438,14 @@ export function simulateProgressionJourney(
       run,
       profile.diceCollection.length > getDiceCapacity(profile.talentRanks),
     )
+    setMilestone(milestones, 'fatecraftRun', run, hasCharmsUnlocked(profile.talentRanks))
+    setMilestone(milestones, 'firstCharmRun', run, Object.keys(profile.charmRanks).length > 0)
 
+    const isHoldingInDungeonOne = strategy.dungeonOneUntilTalentId
+      ? getTalentRank(profile.talentRanks, strategy.dungeonOneUntilTalentId) === 0
+      : false
     const dungeonId: DungeonId = profile.unlockedDungeonIds.includes('iron-depths')
+      && !isHoldingInDungeonOne
       ? 'iron-depths'
       : 'prototype-depths'
     setMilestone(milestones, 'dungeonTwoFirstRun', run, dungeonId === 'iron-depths')
@@ -395,7 +453,9 @@ export function simulateProgressionJourney(
       profile.diceCollection.find((die) => die.id === dieId)!
     ))
     const result = simulateDungeonRun(dungeonId, {
+      charms: getEquippedCharmSnapshots(profile),
       dice: equippedDice,
+      fatePity: profile.fatePity,
       playerMaxHp: getPlayerMaxHp(profile.talentRanks),
       talentRanks: profile.talentRanks,
       soulDieState: profile.soulDie,
@@ -409,6 +469,8 @@ export function simulateProgressionJourney(
       xp: profile.xp + result.xpEarned,
       soulDie: result.soulDieState,
       imprints: result.imprints,
+      fateTokens: profile.fateTokens + result.fateTokensCollected,
+      fatePity: result.fatePity,
       unlockedDungeonIds: dungeonId === 'prototype-depths'
         && result.completedDungeon
         && !profile.unlockedDungeonIds.includes('iron-depths')
@@ -453,7 +515,8 @@ export function simulateProgressionJourney(
       profile.imprints.some((imprint) => imprint.definitionId === 'crescendo'),
     )
 
-    profile = spendTalentPath(profile, strategy.talentPath)
+    profile = spendTalentPath(profile, strategy)
+    profile = spendFateTokens(profile, random)
     const postRunForge = spendSouls(profile, strategy, random)
     profile = selectLoadout(postRunForge.profile, strategy.loadoutPriority)
 
@@ -489,16 +552,20 @@ export function simulateProgressionJourney(
       run,
       profile.unlockedDungeonIds.includes('iron-depths'),
     )
+    setMilestone(milestones, 'fatecraftRun', run, hasCharmsUnlocked(profile.talentRanks))
+    setMilestone(milestones, 'firstCharmRun', run, Object.keys(profile.charmRanks).length > 0)
 
     records.push({
       averageFaceValue: getAverageFaceValue(profile.diceCollection),
       averagePlayerAttack: result.averagePlayerAttack,
       averagePlayerHeal: result.averagePlayerHeal,
       averagePlayerShield: result.averagePlayerShield,
+      charmCount: Object.keys(profile.charmRanks).length,
       dungeonId,
       equippedDieIds: [...profile.equippedDieIds],
       highestFloorCleared: result.highestFloorCleared,
       imprintCount: profile.imprints.length,
+      fateTokensAfterSpending: profile.fateTokens,
       run,
       soulsAfterSpending: profile.bankedSouls,
       xpAfterSpending: profile.xp,

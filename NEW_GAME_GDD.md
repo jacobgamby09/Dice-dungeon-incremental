@@ -130,9 +130,9 @@ Dice Architecture v1 skelner mellem tre lag:
 
 - `Family` er Attack, Shield eller Heal og bestemmer farvesprog, basisoutput og de tre evolutioner, som et normalt face kan vælge.
 - `Die model` er den konkrete permanente terning og bestemmer navn, startfordeling og eventuelle signature-faces.
-- `Face` er den individuelle side. Normale family-faces er frie Forge-lærreder; signature-faces har allerede en unik mechanic og kan derfor ikke stable en family-evolution ovenpå.
+- `Face` er den individuelle side. Normale family-faces er frie Forge-lærreder; signature-faces har allerede en unik mechanic og kan derfor ikke stable en family-evolution ovenpå. Signature-faces kan stadig rammes af den normale Workshop og beholder deres stabile face-ID og mechanic, mens deres numeriske face-værdi stiger.
 
-Standard Dice har seks normale family-faces. Signature Dice har i første model fire normale family-faces og to signature-faces. To af seks giver en reel identitet gennem korte encounters uden at fjerne størstedelen af spillerens Forge-valg. Signature-faces får senere deres egen Face Mastery-kurve; Mastery unlockes med XP og betales på konkrete faces med Souls, men er endnu ikke implementeret.
+Standard Dice har seks normale family-faces. Signature Dice har i første model fire normale family-faces og to signature-faces. To af seks giver en reel identitet gennem korte encounters uden at fjerne størstedelen af spillerens Workshop-valg. De seks fysiske positioner indgår alle i samme tilfældige Workshop target-roll.
 
 MVP-katalog:
 
@@ -140,14 +140,19 @@ MVP-katalog:
 - `attack-die-2`, Striker Die: `1, 1, 1, 2, 3, 3 Attack`.
 - `shield-die-1`, Iron Guard Die: `1, 1, 2, 2, 2, 3 Shield`.
 - `heal-die-1`, Vitality Die: `1, 1, 1, 1, 2, 2 Heal`.
-- `attack-die-executioner`, Executioner Die: `1, 2, 3, 3 Attack + 2 Execute`. Execute giver 3 Attack og bliver til 5 Attack, når enemy begyndte roll-sekvensen på højst 50% HP.
-- `shield-die-tower`, Tower Die: `1, 2, 3, 3 Shield + 2 Fortify`. Fortify giver 3 Shield og +2 til næste Shield-face; hvis ingen Shield-face følger, falder bonussen straks tilbage til Shield.
+- `attack-die-executioner`, Executioner Die: `1, 2, 3, 3 Attack + 2 Execute`. Et Execute-face giver sin aktuelle face-værdi som Attack og yderligere +3 Attack, når enemy begyndte roll-sekvensen på højst 50% HP.
+- `shield-die-tower`, Tower Die: `1, 2, 3, 3 Shield + 2 Fortify`. Et Fortify-face giver sin aktuelle face-værdi som Shield og +2 til næste Shield-face; hvis ingen Shield-face følger, falder bonussen straks tilbage til Shield.
+- `heal-die-bloodwell`, Bloodwell Die: fire normale Heal-faces og to Drain-faces. Et Drain-face giver sin aktuelle face-værdi som Heal samt +2 Attack.
 
 Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete terninger kommer fra XP-talenter.
 
 ## MVP Talent Tree
 
 Talent Tree bruger kun XP. Alle specialiseringsgrene bliver tilgængelige efter `Shieldcraft` og udelukker ikke hinanden. Spilleren vælger købsrækkefølge, ikke en permanent låst klasse.
+
+Talent Tree har ingen Dungeon-clear-krav. Alle nodes kan principielt nås fra fresh save gennem deres forbundne prerequisites, mens store chapter-power-spikes bruger høje XP-priser som soft gates. Fourth Grip koster 2.600 XP, Bloodwell Doctrine 2.200 XP og Trinity Knot 3.000 XP. Spilleren kan derfor grinde dem i en tidligere Dungeon, men højere Dungeons er den klart mere effektive vej.
+
+Dungeon 2 udgør det næste XP-band: de første fire encounters giver samlet 333 XP mod 190 XP for et komplet Dungeon 1-clear. En 100-seed soft-gate-simulation gav D1-clear median run 39, første D2-run run 40, Fourth Grip run 40 og Bloodwell run 44. En målrettet D1-grind efter Bloodwell nåede den først omkring run 46, så friheden bevares uden at D1 bliver den optimale progression.
 
 Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, så noden samlet kan give +6 Max HP. Rank 1 åbner vejen til `Twin Arsenal`; rank 2 og 3 er valgfrie og blokerer ikke videre progression.
 
@@ -162,7 +167,8 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 | Third Grip | 40 XP | Shieldcraft | +1 dice slot |
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
 | Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
-| Fourth Grip | 90 XP | Healing Arts | +1 dice slot |
+| Fourth Grip | 2.600 XP | Healing Arts | +1 dice slot |
+| Bloodwell Doctrine | 2.200 XP | Healing Arts | Én Bloodwell Signature Die |
 | Executioner Doctrine | 45 XP | Second Descent | Én Executioner Die |
 | Tower Discipline | 45 XP | Second Descent | Én Tower Die |
 
@@ -295,7 +301,7 @@ Heal:
 - `Regrowth`: 3 Heal og 2 yderligere Heal i næste round.
 - `Overflow`: 3 Heal; op til 2 faktisk overheal bliver til Shield i samme round.
 
-Hver evolution ligger omkring et første output-budget på 5, men timing, Shield-bypass og konvertering har forskellig reel værdi. Flere normale faces på samme die må vælge samme evolution. Signature-faces er allerede specialiserede, vises separat i Workshop og er ikke eligible til Chaos eller Precision Forge i denne Mastery-fase.
+Hver evolution ligger omkring et første output-budget på 5, men timing, Shield-bypass og konvertering har forskellig reel værdi. Flere normale faces på samme die må vælge samme evolution. Signature-faces er allerede specialiserede og kan ikke få en family-evolution, men de er normale Workshop-targets og deres numeriske base-output kan opgraderes uden cap.
 
 Evolutioner skal kunne identificeres på selve face-fladen uden at læse et tooltip. Den visuelle identitet er bindende på tværs af Workshop, dice summaries, den aktive combat-die, draw order og score-transfer:
 
@@ -309,7 +315,7 @@ Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face l
 
 ## Dungeon Imprints
 
-Imprints er permanente, flytbare face-relics fra dungeon-loot. Et monteret Imprint overlayer visuelt og mekanisk ét fysisk face, men det oprindelige face opbevares uændret og vender tilbage ved afmontering. Effektiv face-værdi er `max(host face, Imprint minimum) + refinement`, så et Imprint aldrig nedgraderer en stærkere host. Refinement følger selve Imprintet mellem dice.
+Imprints er permanente, flytbare face-relics fra dungeon-loot. Et monteret Imprint overlayer visuelt og mekanisk ét fysisk face, men det oprindelige face opbevares uændret og vender tilbage ved afmontering. Effektiv face-værdi er `max(host face, Imprint base) + refinement`, så et Imprint aldrig nedgraderer en stærkere host. Refinement følger selve Imprintet mellem dice.
 
 Dungeon 1 introducerer tre ordering-baserede Imprints:
 
@@ -317,7 +323,7 @@ Dungeon 1 introducerer tre ordering-baserede Imprints:
 - Epic `Relay Strike`: minimum 2 Attack; næste die får +50% til sit primære output, afrundet op.
 - Legendary `Crescendo`: minimum 3 Attack; +25% Attack per tidligere roll op til +100%, afrundet op.
 
-Alle Dungeon 1-enemies kan droppe et endnu ukendt Imprint med floor- og bossvægtning. Basechancerne før multipliers er 1,6% Rare, 0,8% Epic og 0,2% Legendary. Første Dungeon 1-boss-clear garanterer Lead Edge sammen med Iron Descent Key, hvis det ikke allerede er fundet. Duplicates findes ikke i første version.
+Alle Dungeon 1-enemies kan droppe et endnu ukendt Imprint med floor- og bossvægtning. Basechancerne før multipliers er 1,6% Rare, 0,8% Epic og 0,2% Legendary. Første Dungeon 1-boss-clear garanterer Lead Edge sammen med Iron Descent Key, hvis det ikke allerede er fundet. Duplicates findes ikke i første version. Reward-UI må kun vise et Imprint, når samme stabile instance-ID allerede findes i den persisterede inventory.
 
 Imprints monteres, flyttes og fjernes gratis i en separat Hub-sektion, kun uden for aktive runs. Et Imprint kan kun bindes til samme face-familie som sit output. Ét Imprint kan sidde på hver die; faste signature-faces kan ikke erstattes. Ét Legendary Imprint må være aktivt i loadout ad gangen.
 

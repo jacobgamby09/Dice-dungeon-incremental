@@ -93,6 +93,69 @@
   line-height: 1.35;
 }
 
+.dungeon-loot-table {
+  grid-column: 1 / -1;
+  margin-top: 12px;
+  border-top: 2px solid var(--arcade-line-control);
+  padding-top: 10px;
+}
+
+.dungeon-loot-table > header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--arcade-yellow);
+}
+
+.dungeon-loot-table h3 {
+  margin: 0;
+  font: 700 0.7rem/1 var(--arcade-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dungeon-loot-table ul {
+  display: grid;
+  gap: 6px;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dungeon-loot-table li {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 3px 8px;
+  border-left: 3px solid var(--arcade-yellow);
+  padding: 6px 8px;
+  background: #09090d;
+}
+
+.dungeon-loot-table li > span {
+  grid-row: 1 / 3;
+  align-self: center;
+  color: var(--arcade-yellow);
+  font: 800 0.56rem/1 var(--arcade-font-ui);
+  text-transform: uppercase;
+}
+
+.dungeon-loot-table li > strong {
+  color: #fff;
+  font-size: 0.76rem;
+}
+
+.dungeon-loot-table li > small {
+  color: var(--arcade-muted);
+  font-size: 0.63rem;
+}
+
+.dungeon-loot-table__entry--rare { border-left-color: #22d3ee !important; }
+.dungeon-loot-table__entry--rare > span { color: #22d3ee !important; }
+.dungeon-loot-table__entry--epic { border-left-color: #e879f9 !important; }
+.dungeon-loot-table__entry--epic > span { color: #e879f9 !important; }
+.dungeon-loot-table__entry--legendary { border-left-color: #fb923c !important; }
+.dungeon-loot-table__entry--legendary > span { color: #fb923c !important; }
+
 .dungeon-card--locked button:disabled {
   border-color: #41414a;
   background: #111118;

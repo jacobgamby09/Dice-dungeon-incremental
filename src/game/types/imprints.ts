@@ -33,6 +33,11 @@ export interface ImprintInstance {
   attachment?: ImprintAttachment
 }
 
+export interface ImprintDropReceipt {
+  definitionId: ImprintId
+  instanceId: string
+}
+
 export interface ImprintSnapshot {
   instanceId: string
   definitionId: ImprintId

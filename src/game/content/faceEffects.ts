@@ -109,19 +109,19 @@ export const SIGNATURE_DEFINITIONS: Record<SignatureFaceId, SignatureDefinition>
   execute: {
     id: 'execute',
     name: 'Execute',
-    shortDescription: '3 Attack · 5 below half HP',
-    description: 'Deal 3 Attack. If the enemy began the roll sequence at 50% HP or less, deal 5 Attack instead.',
+    shortDescription: 'Face Attack · +3 below half HP',
+    description: 'Deal this face\'s Attack. If the enemy began the roll sequence at 50% HP or less, gain +3 Attack.',
   },
   fortify: {
     id: 'fortify',
     name: 'Fortify',
-    shortDescription: '3 Shield · next Shield +2',
-    description: 'Gain 3 Shield and empower the next Shield face by +2. If none follows, gain the +2 Shield immediately.',
+    shortDescription: 'Face Shield · next Shield +2',
+    description: 'Gain this face\'s Shield and empower the next Shield face by +2. If none follows, gain the +2 Shield immediately.',
   },
   drain: {
     id: 'drain',
     name: 'Drain',
-    shortDescription: '1 Heal · 2 Attack',
-    description: 'Restore 1 HP and add 2 Attack to the current round.',
+    shortDescription: 'Face Heal · +2 Attack',
+    description: 'Restore this face\'s HP and add 2 Attack to the current round.',
   },
 }

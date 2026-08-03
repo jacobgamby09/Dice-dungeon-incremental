@@ -105,6 +105,7 @@ export function WorkshopScreen() {
   const selectedDie = effectiveDice.find((die) => (
     die.id === (pendingForge?.dieId ?? selectedDieId)
   )) ?? effectiveDice[0]
+  const highlightedFace = selectedDie?.faces.find((face) => face.id === highlightedFaceId)
   const workshopFaces = useMemo(
     () => getWorkshopDieFaces(talentRanks),
     [talentRanks],
@@ -349,7 +350,7 @@ export function WorkshopScreen() {
                       ? { scale: [1, 1.12, 1.05], y: [0, -5, -3] }
                       : { scale: 1, y: 0 }}
                     aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}`}
-                    className={`workshop-target__face workshop-target__face--${face.type}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}`}
+                    className={`workshop-target__face workshop-target__face--${face.type}${face.imprint ? ` workshop-target__face--imprint workshop-target__face--imprint-${face.imprint.rarity}` : ''}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}`}
                     key={face.id}
                     transition={{ duration: 0.14 }}
                   >
@@ -358,12 +359,27 @@ export function WorkshopScreen() {
                     {face.imprint ? (
                       <ImprintIcon id={face.imprint.definitionId} rarity={face.imprint.rarity} size={18} />
                     ) : <FaceIcon type={face.type} size={17} />}
-                    {face.imprint ? <span className={`workshop-target__imprint-rarity workshop-target__imprint-rarity--${face.imprint.rarity}`}>{face.imprint.name}</span> : null}
+                    {face.imprint ? <span className="workshop-target__imprint-badge">Imprint</span> : null}
                     {isLockedTarget ? <em>Target</em> : null}
                   </motion.div>
                 )
               })}
             </div>
+
+            {phase !== 'selecting_target' && highlightedFace?.imprint ? (
+              <div className={`workshop-target__imprint-detail workshop-target__imprint-detail--${highlightedFace.imprint.rarity}`}>
+                <ImprintIcon
+                  id={highlightedFace.imprint.definitionId}
+                  rarity={highlightedFace.imprint.rarity}
+                  size={30}
+                />
+                <div>
+                  <span>{highlightedFace.imprint.rarity} Imprint · Effective {highlightedFace.value}</span>
+                  <strong>{highlightedFace.imprint.name}</strong>
+                  <small>Refinement +{highlightedFace.imprint.refinement} · Workshop upgrades Refinement when this face is selected.</small>
+                </div>
+              </div>
+            ) : null}
 
             {phase === 'target_locked' && pendingForge?.rerollsRemaining ? (
               <button

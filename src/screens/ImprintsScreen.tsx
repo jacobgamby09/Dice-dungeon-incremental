@@ -1,7 +1,8 @@
-import { ChevronLeft, Link, Unlink } from 'lucide-react'
+import { ArrowRight, ChevronLeft, Link, Sparkles, Unlink } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { ImprintIcon } from '../components/newgame/ImprintIcon'
-import { IMPRINT_DEFINITIONS, getImprintMinimumValue } from '../game/content/imprints'
+import { DUNGEONS } from '../game/content/dungeons'
+import { IMPRINT_DEFINITIONS } from '../game/content/imprints'
 import type { ImprintInstance } from '../game/types/imprints'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -13,6 +14,17 @@ export function ImprintsScreen() {
   const detach = useNewGameStore((state) => state.detachImprint)
   const [selectedId, setSelectedId] = useState(imprints[0]?.id ?? '')
   const selected = imprints.find((imprint) => imprint.id === selectedId) ?? imprints[0]
+  const selectedDefinition = selected ? IMPRINT_DEFINITIONS[selected.definitionId] : null
+  const attachedDie = selected?.attachment
+    ? dice.find((die) => die.id === selected.attachment?.dieId)
+    : undefined
+  const attachedFace = selected?.attachment
+    ? attachedDie?.faces.find((face) => face.id === selected.attachment?.faceId)
+    : undefined
+  const effectiveValue = selected && selectedDefinition
+    ? Math.max(attachedFace?.value ?? selectedDefinition.baseValue, selectedDefinition.baseValue)
+      + selected.refinement
+    : 0
   const grouped = useMemo(() => ({
     rare: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'rare'),
     epic: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'epic'),
@@ -27,10 +39,18 @@ export function ImprintsScreen() {
         <strong>{imprints.length}/3</strong>
       </header>
 
-      <p className="imprints-intro">
-        Bind an Imprint to one physical face. Its refinement follows it when moved;
-        the original face returns unchanged when removed.
-      </p>
+      <section className="imprints-guide" aria-labelledby="imprints-guide-title">
+        <header>
+          <Sparkles aria-hidden="true" size={18} />
+          <div><span>Permanent face crafting</span><h2 id="imprints-guide-title">How Imprints Work</h2></div>
+        </header>
+        <ol>
+          <li><strong>1 · Find</strong><span>Discover Imprints in Dungeon loot.</span></li>
+          <li><strong>2 · Bind</strong><span>Attach one to a matching permanent face.</span></li>
+          <li><strong>3 · Refine</strong><span>Workshop hits raise its permanent Refinement.</span></li>
+        </ol>
+        <p>Removing or moving an Imprint restores the original face. Its Refinement always travels with it.</p>
+      </section>
 
       {(['rare', 'epic', 'legendary'] as const).map((rarity) => (
         <section className={`imprint-rarity imprint-rarity--${rarity}`} key={rarity}>
@@ -48,23 +68,41 @@ export function ImprintsScreen() {
         </section>
       ))}
 
-      {selected ? (
-        <section className={`imprint-binding imprint-binding--${IMPRINT_DEFINITIONS[selected.definitionId].rarity}`}>
+      {selected && selectedDefinition ? (
+        <section className={`imprint-binding imprint-binding--${selectedDefinition.rarity}`}>
           <header>
-            <ImprintIcon id={selected.definitionId} rarity={IMPRINT_DEFINITIONS[selected.definitionId].rarity} size={42} />
+            <ImprintIcon id={selected.definitionId} rarity={selectedDefinition.rarity} size={42} />
             <div>
-              <span>{IMPRINT_DEFINITIONS[selected.definitionId].rarity} imprint</span>
-              <h2>{IMPRINT_DEFINITIONS[selected.definitionId].name}</h2>
+              <span>{selectedDefinition.rarity} imprint</span>
+              <h2>{selectedDefinition.name}</h2>
             </div>
-            <strong>Min. {getImprintMinimumValue(selected)}</strong>
+            <strong>{effectiveValue}</strong>
           </header>
-          <p>{IMPRINT_DEFINITIONS[selected.definitionId].description}</p>
-          <small>Refinement +{selected.refinement}</small>
+          <p>{selectedDefinition.description}</p>
+
+          <dl className="imprint-stats">
+            <div><dt>Dungeon source</dt><dd>{DUNGEONS[selectedDefinition.dungeonId].name}</dd></div>
+            <div><dt>Host face</dt><dd>{attachedFace ? attachedFace.value : 'Not bound'}</dd></div>
+            <div><dt>Imprint base</dt><dd>{selectedDefinition.baseValue}</dd></div>
+            <div><dt>Refinement</dt><dd>+{selected.refinement}</dd></div>
+            <div className="imprint-stats__result"><dt>Effective face</dt><dd>{effectiveValue}</dd></div>
+          </dl>
+
+          <div className="imprint-formula" aria-label="Effective Imprint value formula">
+            <span>Higher of host {attachedFace?.value ?? '—'} or base {selectedDefinition.baseValue}</span>
+            <ArrowRight aria-hidden="true" size={16} />
+            <span>+{selected.refinement} Refinement</span>
+            <ArrowRight aria-hidden="true" size={16} />
+            <strong>{effectiveValue}</strong>
+          </div>
+          <p className="imprint-refinement-note">
+            Refinement is permanent power stored on the Imprint. It is earned when Workshop selects this face and remains when the Imprint moves.
+          </p>
 
           {selected.attachment ? (
             <div className="imprint-current-binding">
               <span>Bound to</span>
-              <strong>{dice.find((die) => die.id === selected.attachment?.dieId)?.name ?? 'Unknown die'}</strong>
+              <strong>{attachedDie?.name ?? 'Unknown die'} · Face {(attachedDie?.faces.findIndex((face) => face.id === attachedFace?.id) ?? -1) + 1}</strong>
               <button onClick={() => detach(selected.id)} type="button"><Unlink size={17} /> Remove</button>
             </div>
           ) : null}
@@ -85,7 +123,7 @@ export function ImprintsScreen() {
                         disabled={
                           Boolean(face.signature)
                           || occupied
-                          || face.type !== IMPRINT_DEFINITIONS[selected.definitionId].type
+                          || face.type !== selectedDefinition.type
                         }
                         key={face.id}
                         onClick={() => attach(selected.id, die.id, face.id)}

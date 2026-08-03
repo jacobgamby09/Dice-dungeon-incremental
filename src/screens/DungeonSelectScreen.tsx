@@ -1,11 +1,13 @@
-import { KeyRound, LockKeyhole, Skull, Swords } from 'lucide-react'
+import { Gem, KeyRound, LockKeyhole, Skull, Swords } from 'lucide-react'
 import { DUNGEONS } from '../game/content/dungeons'
+import { getDungeonLootTable } from '../game/content/dungeonLootTables'
 import type { DungeonId } from '../game/types/dungeon'
 import { useNewGameStore } from '../store/newGameStore'
 
 export function DungeonSelectScreen() {
   const unlockedDungeonIds = useNewGameStore((state) => state.profile.unlockedDungeonIds)
   const dungeonProgress = useNewGameStore((state) => state.profile.dungeonProgress)
+  const imprints = useNewGameStore((state) => state.profile.imprints)
   const startRun = useNewGameStore((state) => state.startRun)
   const goToHub = useNewGameStore((state) => state.goToHub)
 
@@ -20,6 +22,8 @@ export function DungeonSelectScreen() {
         {(Object.keys(DUNGEONS) as DungeonId[]).map((dungeonId, dungeonIndex) => {
           const dungeon = DUNGEONS[dungeonId]
           const isUnlocked = unlockedDungeonIds.includes(dungeonId)
+          const lootTable = getDungeonLootTable(dungeonId)
+          const showLootTable = imprints.length > 0 && lootTable.length > 0
           return (
             <article
               aria-label={`${dungeon.name}, ${isUnlocked ? 'unlocked' : 'locked'}`}
@@ -42,6 +46,31 @@ export function DungeonSelectScreen() {
                     <KeyRound aria-hidden="true" size={16} />
                     Defeat the Demon and claim the Iron Descent Key
                   </span>
+                ) : null}
+                {showLootTable ? (
+                  <section className="dungeon-loot-table" aria-label={`${dungeon.name} loot table`}>
+                    <header>
+                      <Gem aria-hidden="true" size={15} />
+                      <h3>Known Loot</h3>
+                    </header>
+                    <ul>
+                      {lootTable.map((entry) => {
+                        const discovered = entry.kind === 'dungeon-key'
+                          ? unlockedDungeonIds.includes('iron-depths')
+                          : imprints.some((imprint) => imprint.definitionId === entry.id)
+                        return (
+                          <li
+                            className={entry.kind === 'imprint' ? `dungeon-loot-table__entry--${entry.rarity}` : ''}
+                            key={`${entry.kind}-${entry.id}`}
+                          >
+                            <span>{entry.kind === 'dungeon-key' ? 'Key' : entry.rarity}</span>
+                            <strong>{discovered ? entry.name : `Undiscovered ${entry.kind === 'dungeon-key' ? 'Key' : 'Imprint'}`}</strong>
+                            <small>{entry.source}</small>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </section>
                 ) : null}
               </div>
               <button

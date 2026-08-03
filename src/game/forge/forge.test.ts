@@ -140,14 +140,19 @@ describe('Classic V2 Workshop Forge', () => {
     expect(precisionForge(die, die.faces[0].id)?.die.faces[0].value).toBe(2)
   })
 
-  it('never includes signature faces in the normal Workshop pool', () => {
+  it('includes signature faces in both Workshop paths and preserves their identity', () => {
     const executioner = createDiceCatalog().find(
       (candidate) => candidate.id === 'attack-die-executioner',
     )!
     const signatureFace = executioner.faces[4]
 
     expect(signatureFace.signature?.id).toBe('execute')
-    expect(getPrecisionForgeCost(signatureFace)).toBeNull()
-    expect(getChaosEligibleFaces(executioner)).not.toContain(signatureFace)
+    expect(getPrecisionForgeCost(signatureFace)).toBeGreaterThan(0)
+    expect(getChaosEligibleFaces(executioner)).toContain(signatureFace)
+    expect(precisionForge(executioner, signatureFace.id)?.die.faces[4]).toMatchObject({
+      id: signatureFace.id,
+      value: signatureFace.value + 1,
+      signature: { id: 'execute' },
+    })
   })
 })

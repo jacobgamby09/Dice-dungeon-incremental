@@ -8,8 +8,8 @@ import type {
 import { TALENT_TREE_LAYOUT, TALENT_TREE_WORLD } from '../components/newgame/talentTreeLayout'
 import type { TalentTreePoint } from '../components/newgame/talentTreeLayout'
 
-export const TALENT_EDITOR_DRAFT_VERSION = 1
-export const TALENT_EDITOR_STORAGE_KEY = 'dice-dungeon-talent-editor-draft-v1'
+export const TALENT_EDITOR_DRAFT_VERSION = 2
+export const TALENT_EDITOR_STORAGE_KEY = 'dice-dungeon-talent-editor-draft-v2'
 
 export type EditorDevice = 'free' | '320' | '384' | '430'
 export type EditorMode = 'design' | 'preview' | 'connect'
@@ -311,6 +311,10 @@ export const EDITOR_EFFECT_TYPES: TalentEffect['type'][] = [
   'unlock_auto_combat',
   'unlock_charms',
   'charm_rarity_protection',
+  'fate_drop_multiplier',
+  'imprint_drop_multiplier',
+  'imprint_forge_bonus_chance',
+  'dungeon_loot_multiplier',
 ]
 
 export function isTalentTrack(value: string): value is TalentTrack {
@@ -323,6 +327,7 @@ export function isTalentIconKey(value: string): value is TalentIconKey {
     'quick-draw', 'healing-arts', 'auto-roll', 'fourth-grip', 'executioner-die',
     'tower-die', 'bloodwell-die', 'volatile-temper', 'face-mastery', 'fate-seal',
     'striker-pattern', 'soul-efficiency', 'xp-efficiency', 'workshop-efficiency',
-    'charm-pair', 'charm-trinity', 'fate-favor',
+    'charm-pair', 'charm-trinity', 'fate-favor', 'resonant-etching',
+    'occult-prospecting', 'deep-delver',
   ].includes(value)
 }

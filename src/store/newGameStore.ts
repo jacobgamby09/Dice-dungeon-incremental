@@ -59,7 +59,7 @@ import {
   applyImprintsToDice,
   applyForgedFaceToBaseDie,
   canAttachImprint,
-  grantImprint,
+  grantImprintDrop,
   rollImprintDrop,
 } from '../game/progression/imprints'
 import {
@@ -358,7 +358,13 @@ function migrateDieInstance(
     faces: canonicalDie.faces.map((canonicalFace, index) => {
       const existingFace = existingDie.faces.find((face) => face.id === canonicalFace.id)
         ?? existingDie.faces[index]
-      if (canonicalFace.signature || !existingFace) return canonicalFace
+      if (!existingFace) return canonicalFace
+
+      if (canonicalFace.signature) {
+        return existingFace.signature?.id === canonicalFace.signature.id
+          ? { ...canonicalFace, value: Math.max(canonicalFace.value, existingFace.value) }
+          : canonicalFace
+      }
 
       const storedEvolution = existingFace.evolution
       const validEvolution = storedEvolution
@@ -1137,7 +1143,7 @@ export const useNewGameStore = create<NewGameState>()(
             ? 'iron-descent-key' as const
             : undefined
           const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
-          const imprintDrop = rewardAlreadyClaimed
+          const rolledImprintId = rewardAlreadyClaimed
             ? null
             : rollImprintDrop({
                 dungeonId: state.run.dungeonId!,
@@ -1150,13 +1156,15 @@ export const useNewGameStore = create<NewGameState>()(
                   * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
                   * getDungeonLootMultiplier(state.profile.talentRanks),
               })
-          const imprints = imprintDrop
-            ? grantImprint(
+          const imprintGrant = rolledImprintId
+            ? grantImprintDrop(
                 state.profile.imprints,
-                imprintDrop,
-                `imprint-${imprintDrop}-${state.run.dungeonId}-${floorDefinition.floor}-${previousProgress.clearCount}`,
+                rolledImprintId,
+                `imprint-${rolledImprintId}-${state.run.dungeonId}-${floorDefinition.floor}-${previousProgress.clearCount}`,
               )
-            : state.profile.imprints
+            : { imprints: state.profile.imprints, receipt: null }
+          const imprints = imprintGrant.imprints
+          const imprintDrop = imprintGrant.receipt
           const unlockedDungeonIds = dungeonKey
             ? [...state.profile.unlockedDungeonIds, 'iron-depths' as const]
             : state.profile.unlockedDungeonIds

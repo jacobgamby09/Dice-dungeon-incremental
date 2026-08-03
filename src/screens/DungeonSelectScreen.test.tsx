@@ -16,6 +16,7 @@ describe('DungeonSelectScreen', () => {
     expect(markup).toContain('Defeat the Demon and claim the Iron Descent Key')
     expect(markup).toContain('The Iron Descent, locked')
     expect(markup).toContain('disabled=""')
+    expect(markup).not.toContain('Known Loot')
   })
 
 })

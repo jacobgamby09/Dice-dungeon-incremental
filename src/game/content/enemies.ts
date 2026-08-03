@@ -142,7 +142,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 1,
     maxHp: 22,
     dieIds: ['shieldbearer-l1-attack', 'shieldbearer-l1-shield'],
-    xpReward: 48,
+    xpReward: 72,
     soulValue: 5,
   },
   'descent-2-cultist-l1': {
@@ -151,7 +151,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 1,
     maxHp: 26,
     dieIds: ['cultist-l1-attack', 'cultist-l1-heal'],
-    xpReward: 52,
+    xpReward: 78,
     soulValue: 5,
   },
   'descent-2-orc-l1': {
@@ -160,7 +160,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 1,
     maxHp: 30,
     dieIds: ['orc-l1-attack', 'orc-l1-attack-heavy'],
-    xpReward: 58,
+    xpReward: 87,
     soulValue: 5,
   },
   'descent-2-blood-orc-l1': {
@@ -169,7 +169,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 1,
     maxHp: 34,
     dieIds: ['blood-orc-l1-attack', 'blood-orc-l1-attack-heavy'],
-    xpReward: 64,
+    xpReward: 96,
     soulValue: 5,
   },
   'descent-2-shieldbearer-l2': {
@@ -178,7 +178,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 2,
     maxHp: 60,
     dieIds: ['shieldbearer-l2-attack', 'shieldbearer-l2-shield'],
-    xpReward: 72,
+    xpReward: 108,
     soulValue: 6,
   },
   'descent-2-cultist-l2': {
@@ -187,7 +187,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 2,
     maxHp: 62,
     dieIds: ['cultist-l2-attack', 'cultist-l2-heal'],
-    xpReward: 80,
+    xpReward: 120,
     soulValue: 6,
   },
   'descent-2-orc-l2': {
@@ -196,7 +196,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 2,
     maxHp: 50,
     dieIds: ['orc-l2-attack', 'orc-l2-attack-heavy'],
-    xpReward: 90,
+    xpReward: 135,
     soulValue: 6,
   },
   'descent-2-blood-orc-l2': {
@@ -205,7 +205,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 2,
     maxHp: 57,
     dieIds: ['blood-orc-l2-attack', 'blood-orc-l2-attack-heavy'],
-    xpReward: 102,
+    xpReward: 153,
     soulValue: 6,
   },
   'descent-2-blood-orc-elite': {
@@ -214,7 +214,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     level: 3,
     maxHp: 65,
     dieIds: ['blood-orc-elite-attack', 'blood-orc-elite-attack-heavy'],
-    xpReward: 118,
+    xpReward: 177,
     soulValue: 8,
     rewardTier: 'elite',
   },
@@ -228,7 +228,7 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
       'spiked-behemoth-shield',
       'spiked-behemoth-heal',
     ],
-    xpReward: 160,
+    xpReward: 240,
     soulValue: 12,
     rewardTier: 'boss',
   },

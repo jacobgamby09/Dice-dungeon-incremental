@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { createDieById } from '../content/dice'
 import { applyImprintRoll } from '../combat/imprints'
 import { selectWorkshopTargetFace } from '../forge/forge'
-import { applyImprintsToDice, canAttachImprint, rollImprintDrop } from './imprints'
+import {
+  applyImprintsToDice,
+  canAttachImprint,
+  getVerifiedImprintDropIds,
+  grantImprintDrop,
+  rollImprintDrop,
+} from './imprints'
 import type { ImprintInstance } from '../types/imprints'
 
 const leadEdge: ImprintInstance = {
@@ -106,6 +112,20 @@ describe('Imprints', () => {
     expect(rollImprintDrop({
       dungeonId: 'prototype-depths', floor: 10, isBoss: true, clearCount: 1, owned: [leadEdge], random: () => 0.99,
     })).toBeNull()
+  })
+
+  it('only exposes an Imprint reward backed by the exact granted inventory instance', () => {
+    const grant = grantImprintDrop([], 'crescendo', 'crescendo-instance')
+
+    expect(grant.receipt).toEqual({
+      definitionId: 'crescendo',
+      instanceId: 'crescendo-instance',
+    })
+    expect(getVerifiedImprintDropIds([grant.receipt!], grant.imprints)).toEqual(['crescendo'])
+    expect(getVerifiedImprintDropIds([{
+      definitionId: 'crescendo',
+      instanceId: 'missing-instance',
+    }], grant.imprints)).toEqual([])
   })
 })
 

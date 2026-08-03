@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  TALENT_EDITOR_DRAFT_VERSION,
   createDraftFromCanonical,
   createEditorNode,
   exportDraftTypeScript,
@@ -14,7 +15,16 @@ describe('Talent Tree Editor model', () => {
     const second = createDraftFromCanonical()
 
     expect(first.nodes.length).toBeGreaterThan(10)
+    expect(first.version).toBe(TALENT_EDITOR_DRAFT_VERSION)
     expect(validateTalentDraft(first).filter((issue) => issue.severity === 'error')).toEqual([])
+
+    const fourthGrip = first.nodes.find((node) => node.id === 'fourth-grip')!
+    const bloodwell = first.nodes.find((node) => node.id === 'bloodwell-doctrine')!
+    const trinityKnot = first.nodes.find((node) => node.id === 'trinity-knot')!
+    expect(fourthGrip.ranks[0].cost).toBe(2600)
+    expect(bloodwell.ranks[0].cost).toBe(2200)
+    expect(trinityKnot.ranks[0].cost).toBe(3000)
+    expect(first.nodes.every((node) => node.requirements === undefined)).toBe(true)
 
     first.nodes[0].name = 'Changed only in draft'
     first.layout[first.nodes[0].id].x += 100

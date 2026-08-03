@@ -3,6 +3,7 @@ import { DoorOpen, Skull, Swords } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { OutcomeRewards } from '../components/newgame/OutcomeRewards'
 import { DUNGEONS } from '../game/content/dungeons'
+import { getVerifiedImprintDropIds } from '../game/progression/imprints'
 import { useNewGameStore } from '../store/newGameStore'
 
 const DEFEAT_INITIAL = { opacity: 0, scale: 0.9, y: -12 }
@@ -18,6 +19,7 @@ export function DefeatScreen() {
     souls: state.profile.bankedSouls,
     fateTokens: state.profile.fateTokens,
     xp: state.profile.xp,
+    imprints: state.profile.imprints,
   })))
   const run = useNewGameStore(useShallow((state) => ({
     dungeonId: state.run.dungeonId,
@@ -31,6 +33,10 @@ export function DefeatScreen() {
   const reachedFloor = totalFloors > 0
     ? Math.min(run.encounterIndex + 1, totalFloors)
     : 0
+  const verifiedImprintDrops = getVerifiedImprintDropIds(
+    run.runStats.imprintsFound ?? [],
+    profile.imprints,
+  )
 
   return (
     <main className="game-shell outcome-screen defeat-screen">
@@ -70,7 +76,7 @@ export function DefeatScreen() {
         charmBonusSouls={run.runStats.charmBonusSoulsEarned ?? 0}
         fateTokensEarned={run.runStats.fateTokensEarned ?? 0}
         heading="This descent"
-        imprintDrops={run.runStats.imprintsFound ?? []}
+        imprintDrops={verifiedImprintDrops}
         showLootSection
         soulsEarned={run.runStats.soulsEarned}
         totalSouls={profile.souls}

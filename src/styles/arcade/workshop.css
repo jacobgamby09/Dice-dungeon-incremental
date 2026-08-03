@@ -131,6 +131,53 @@
   color: var(--arcade-yellow);
 }
 
+.workshop-target__faces {
+  margin-bottom: 9px;
+}
+
+.workshop-target__face--imprint-rare { --imprint-workshop-color: #22d3ee; }
+.workshop-target__face--imprint-epic { --imprint-workshop-color: #e879f9; }
+.workshop-target__face--imprint-legendary { --imprint-workshop-color: #fb923c; }
+
+.workshop-target__face--imprint {
+  border-color: var(--imprint-workshop-color);
+  background: color-mix(in srgb, var(--imprint-workshop-color) 17%, var(--arcade-black));
+  color: var(--imprint-workshop-color);
+}
+
+.workshop-target__imprint-badge {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  color: var(--imprint-workshop-color);
+  font: 800 0.34rem/1 var(--arcade-font-ui);
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.workshop-target__imprint-detail {
+  --imprint-workshop-color: #22d3ee;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  margin: 12px 8px 4px;
+  border: 2px solid var(--imprint-workshop-color);
+  border-left-width: 5px;
+  padding: 9px;
+  background: color-mix(in srgb, var(--imprint-workshop-color) 12%, #000);
+}
+
+.workshop-target__imprint-detail--epic { --imprint-workshop-color: #e879f9; }
+.workshop-target__imprint-detail--legendary { --imprint-workshop-color: #fb923c; }
+.workshop-target__imprint-detail > div { display: grid; gap: 3px; min-width: 0; }
+.workshop-target__imprint-detail span { color: var(--imprint-workshop-color); font: 800 0.48rem/1.2 var(--arcade-font-ui); text-transform: uppercase; }
+.workshop-target__imprint-detail strong { color: #fff; font: 800 0.68rem/1.2 var(--arcade-font-display); }
+.workshop-target__imprint-detail small { color: var(--arcade-muted); font-size: 0.58rem; line-height: 1.35; }
+
 .workshop-ritual__conduit {
   color: var(--arcade-yellow);
 }
@@ -189,15 +236,15 @@
 .workshop-target__reroll {
   align-items: center;
   width: calc(100% - 16px);
-  margin: 2px 8px 9px;
+  margin: 14px 8px 9px;
   background: #151300;
   border: var(--arcade-frame-subtle) solid var(--arcade-yellow);
   color: var(--arcade-yellow);
   cursor: pointer;
   display: flex;
   gap: 0.65rem;
-  min-height: 46px;
-  padding: 0.55rem 0.75rem;
+  min-height: 54px;
+  padding: 0.72rem 0.85rem;
   text-align: left;
   text-transform: uppercase;
 }

@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-08-02.
+Senest opdateret: 2026-08-03.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,7 +38,9 @@ Brug denne skabelon:
 
 ## Aktuel status
 
-- **Imprint-balance og simulator-paritet er implementeret lokalt:** Imprints bevarer nu en stærkere host-face (`max(host, minimum) + refinement`), kan kun bindes til samme face-familie og skalerer med procentbaserede ordering-effekter. Balance Lab simulerer nu Imprint-drops, binding, loadout-order og Workshop-refinement. En 1.000-seed balanced baseline lander på D1-clear median run 40, første D2-run median floor 5 og D2-clear median 10 runs efter D1-clear.
+- **Talent Tree bruger nu rene XP-soft-gates:** Ingen talent-node kræver længere et Dungeon-clear. Fourth Grip koster 2.600 XP, Bloodwell Doctrine 2.200 XP og Trinity Knot 3.000 XP, mens Dungeon 2's XP-rewards er løftet 50%. De første fire D2-floors giver nu 333 XP mod 190 XP for et fuldt D1-clear. En 100-seed balanced simulation lander på D1-clear median run 39, første D2-run run 40, Fourth Grip run 40, Bloodwell run 44 og D2-clear run 51.
+- **Imprint reliability, signature-scaling og loot-discovery-passet er implementeret lokalt:** Et Imprint-drop vises nu kun, hvis samme stabile instance-ID blev oprettet atomisk i inventory; dette dækker også Rare-ejet → Legendary boss-drop og reload. Execute/Fortify/Drain-faces er almindelige 1/6 Workshop-targets, beholder mechanic/ID og skalerer deres face-output. Imprint-tabben forklarer Find → Bind → Refine, formel og source; Dungeon 1 viser discovered/undiscovered loot efter første Imprint; Workshop viser Imprint-rarity, effective value, Refinement og en ryddelig reroll-handling. Den tidligere Fourth Grip/Bloodwell boss-gate er erstattet af det nyere XP-soft-gate-pass ovenfor.
+- **Imprint-balance og simulator-paritet er implementeret lokalt:** Imprints bevarer nu en stærkere host-face (`max(host, Imprint base) + refinement`), kan kun bindes til samme face-familie og skalerer med procentbaserede ordering-effekter. Balance Lab simulerer nu Imprint-drops, binding, loadout-order, Workshop-refinement, Fate Tokens og live Charm-procs. En 1.000-seed balanced baseline lander på D1-clear median run 40, første D2-run median floor 5 og D2-clear median 10 runs efter D1-clear.
 - **Dungeon Imprints er implementeret lokalt og har et komplet test-flow:** Første Dungeon 1-boss-clear giver garanteret Rare `Lead Edge` sammen med Dungeon 2-nøglen. `Relay Strike` og `Crescendo` kan findes på senere runs. Imprints er permanente, unikke, flytbare face-overlays med egen refinement, separat Hub-skærm, præcis 1/6 Workshop-targeting, run-snapshots, ordering-baserede combat-effekter, rarity-visuals og loot-præsentation. Landede Imprints kan inspiceres direkte i combat; overlayet pauser Auto Combat. Post-Dungeon-1 DEV-profilen indeholder alle tre D1-Imprints og 500 Souls til hurtig attach/Workshop/combat-test.
 
 - **En enkel lokal Talent Tree Outline Editor er implementeret:** `npm run talent-editor` åbner et visuelt board med spillets rigtige TalentNode-look. Man kan oprette, slette og flytte nodes, redigere titel/note, tilføje eller fjerne links, undo/redo, autosave og eksportere et rent outline. Priser, ranks, effects og balance er bevidst fjernet fra editorens UI.
@@ -62,10 +64,10 @@ Brug denne skabelon:
 - **Fate Draw og egne valutaikoner er implementeret på `codex/arcade-foundation-v1`:** Et Draw fastlåser ét resultat atomisk og afslører det i et skærmfyldende slot-machine-overlay med reel-animation, landing, partikler og reload-sikker claim. XP og Souls bruger egne pixel-assets konsekvent i Hub, Combat, Talent Tree, Workshop og outcomes; Charm-rarity og save-version 20 er beskrevet i den nyere status ovenfor.
 - **Hubben har nu et direkte Dungeon 2 + Fatecraft-devstart:** Profilen er et realistisk post-Dungeon-1-snapshot med The Iron Descent åben, Fatecraft købt, ét tomt Charm-slot, 1000 Fate Tokens, 0 Charms og 0 skjult pity. Den er bevidst testkapital til mange gentagne Fate Draws, mens det efterfølgende drop-flow fortsat starter rent.
 - **Soul reward-flow og Pixel Arcade-rammer er poleret på `codex/arcade-foundation-v1`:** Soul Die gennemfører nu altid sit synlige 680 ms-rul efter et kill, også når Auto Combat er aktivt. Defeat viser XP og Souls som to ligeværdige reward-kort med ikoner og har et separat Loot-område klar til Fate Tokens og fremtidige drops. Den fælles game shell har nu en lukket fire-sidet ramme på Hub, Combat, Workshop, Talent Tree og outcomes.
-- **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle normale, ikke-evolved faces forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Fatecraft-panelet viser samtidig separat status for alternative talentkrav, Dungeon 1-clear og aktuel XP.
+- **Workshoppen har nu fri face-skalering og Face Mastery target-rerolls på `codex/arcade-foundation-v1`:** Hard face cap og jackpot-clamping er fjernet; alle ikke-evolved faces, inklusive signature-faces, forbliver i den uniforme target-pulje, mens den eksisterende stigende Soul-pris fungerer som soft cap. Face Mastery giver nu 1/2/3 valgfrie target-rerolls per Forge til 14/30/55 XP. Imprint-targets opgraderer deres flytbare Refinement i stedet for host-facet.
 - **Soul Loot-patchen er implementeret lokalt på `codex/arcade-foundation-v1`:** Hver enemy har nu en `Soul Value`, og en permanent seks-sidet Soul Die ruller automatisk efter hvert kill. Dens stabile faces trækkes uden replacement gennem en persisteret shuffle-cycle, payout fastlåses sammen med reward-transitionen, og de tre tidligere Soul Harvest-ranks forbedrer nu konkrete Soul Die-distributioner. Hub og Victory viser den nye die, Workshop starter ved 1 Soul, og save-version 17 bevarer version-16 progression.
 - **Fate og Talent Tree er strammet op i samme patch:** Fate Tokens og intern bad-luck protection aktiveres først efter Fatecraft; pity er fjernet fra alt player-facing UI. Talent Tree viser XP-pris på hver åben node, antal affordable upgrades i HUD, og alle prerequisites/layout-koordinater er omlagt til paths uden geometriske kryds.
-- **Charm-systemets fundament er aktivt:** `Fatecraft` åbner efter Dungeon 1 via Field Studies eller Soul Die Mastery og giver profile-level Fate Token-drops, skjult Token-drop protection, Fate Sanctum samt første Charm-slot. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, og equipped Charms snapshots ved run-start. Det aktuelle otte-Charm-katalog og rarity-reglerne fremgår af den nyeste status.
+- **Charm-systemets fundament er aktivt:** `Fatecraft` kan åbnes før Dungeon 1-clear via Field Studies eller Soul Die Mastery og giver profile-level Fate Token-drops, skjult Token-drop protection, Fate Sanctum samt første Charm-slot. `Woven Pair` og `Trinity Knot` udvider til to/tre slots, og equipped Charms snapshots ved run-start. Det aktuelle otte-Charm-katalog og rarity-reglerne fremgår af den nyeste status.
 - **Talent Tree v3 er implementeret lokalt på `codex/arcade-foundation-v1`:** Træet er nu et kompakt firesektor-net med flere samtidige valg og `any/count`-junctions. North splitter slot 2 og Striker Die i `Second Grip`/`Striker Pattern`; West har Workshop Die, `Efficient Tools` og Face Mastery; South har live Auto Combat, speed, HP og dungeon-adgang; East har `Field Studies`, `Soul Die Mastery` og den nu aktive Fatecraft/Woven Pair/Trinity Knot-gren. XP/Soul-bonusser vises eksplicit på outcomes, Workshop-rabat gælder begge Forge-typer, og save-version 17 migrerer Soul Die- og Charm/Fate-defaults uden progressionstab.
 - **Offline-fremdrift er fjernet:** Auto Combat kører kun, mens spillet er åbent. Background fast-forward, away recap, checkpoints, simulatorlogik, state og CSS er fjernet; aktive runs persisteres stadig præcist.
 - **Arcade Polish v1 er implementeret og pushed på `codex/arcade-foundation-v1`:** Combat har nu tydelige roll-states, familie-farvet landing, source/travel/arrival-scorefeedback, separate HP-overlays for damage/heal/block, eksplicit partial-block-feedback, resolution-toner samt en klar cyan Auto Combat/Pause-mode. Det store roll-felt forbliver rent sort i alle states; feedback er afgrænset til terning, transfer og destination. Typografi og funktionelle UI-ikoner er samtidig strammet op på tværs af Hub, Combat, Workshop, Talent Tree og outcomes uden ændringer i gameplay, rewards, economy eller save-format.
@@ -126,6 +128,8 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+- Fresh-save-playtest den nye XP-band-overgang: kontrollér om Fourth Grips 2.600 XP og Bloodwells 2.200 XP opleves som spændende langsigtede valg, og om D2's 50% højere XP tydeligt kommunikerer, at et risikabelt D2-push er mere effektivt end sikker D1-farm.
+- Kør et fysisk boss-drop → reload → Imprint-tab-pass på iPhone, og bekræft at Rare-ejet → Epic/Legendary altid ses både i loot og inventory. Test samtidig Workshop på opgraderede Execute/Fortify/Drain-faces.
 - Fysisk playtest den nye D2-mid-wall ved Shieldbearer II og Cultist II. Simulatoren rammer målet matematisk, men især Cultists højere Attack + Heal skal føles som et tydeligt build-check og ikke som et tilfældigt spike.
 - Mål D1-Imprint-acquisition i rigtig spilletid. Den nye baseline finder første Imprint median run 14; Relay Strike findes i 85,1% og Crescendo i 37,6% af journeys før/ved D1-clear. Afgør efter playtest, om det giver tilstrækkelig grund til at farme D1 efter clear.
 - Playtest første boss-drop → Imprints → attach → Workshop → combat-sløjfen ved 384 px. Tun især hvor tydeligt det er, at det oprindelige face bevares, om Lead Edge føles som et reelt power spike, og om D1 Epic/Legendary-raterne giver en motiverende farm uden at blokere Dungeon 2.
@@ -173,8 +177,10 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Alle D1-gates blev eksplicit afvist af simulatoren: median første clear faldt fra run 40 til 24. Kun Fatecraft er derfor åbnet; Fourth Grip/Bloodwell-gaten skal først genovervejes, hvis den faktiske D1-pacing ændres.
+- Simulatoren modellerer nu live Charm-procs og Fate Token-flow, men den balancerede standardstrategi prioriterer ikke Fatecraft. Balance Lab har derfor separate `Only Fatecraft open` og `All open · Fate first`-strategier; spillerens reelle købsadfærd skal stadig måles.
 - Imprint-dropchancerne er nu Rare 1,6%, Epic 0,8% og Legendary 0,2% før floor/boss/talentmultipliers. 1.000-seed journey-data finder Relay Strike i 85,1% og Crescendo i 37,6% af profilerne inden D1-arcens afslutning; fysisk spilletid og oplevet lootværdi skal afgøre, om især Epic er for almindelig.
-- Den automatiske browser-screenshotkontrol kunne ikke køres, fordi `agent-browser` ikke findes i miljøets PATH. Lokal Vite svarede HTTP 200, og TypeScript/tests/lint/build bestod; visuel 384 px-godkendelse mangler stadig.
+- Det lokale 384×844 browserpass dækker nu Imprint-guide/formel, Dungeon-loottable og et faktisk Imprint-target med reroll i Workshop uden overflow, overlap eller console errors. Fysisk Safari-touch og font rendering er stadig ikke dækket.
 
 - Talent Tree Editor skriver bevidst ikke direkte til source-filer og beskriver kun node/link-outline. Eksporten skal reviewes, og alle mechanics kræver rigtig engine-, type-, migration- og testimplementering før integration.
 - Demonens to-die-profil holder 100-seed medianen tæt på den tidligere D1-kurve, men simulatoren måler ikke den oplevede friktion ved at se 2–3 Shield gentaget over flere boss-rounds.
@@ -283,6 +289,30 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-03 — Åbent Talent Tree med XP-soft-gates
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Alle Dungeon-clear-krav er fjernet fra Talent Tree. Fourth Grip, Bloodwell Doctrine og Trinity Knot kan købes gennem deres normale prerequisite-paths fra fresh save, men ligger i et nyt højt XP-band. D2-rewards er løftet 50%, og Balance Lab har særskilte Fate-first samt D1-grind-profiler. Den lokale Talent Tree-editor er migreret til draft-format/storage v2, nulstiller dermed gamle autosaves én gang og indlæser det nye canonical tree med opdaterede nodes, links, priser, effekter og ikoner.
+- Beslutninger: Fourth Grip koster 2.600 XP, Bloodwell Doctrine 2.200 XP og Trinity Knot 3.000 XP. D1 giver fortsat 190 XP for et fuldt clear; D2's første fire floors giver 333 XP. 100-seed balanced gav D1-clear 39, D2-start 40, Fourth Grip 40, Bloodwell 44 og D2-clear 51; målrettet D1-grind efter Bloodwell landede omkring run 46 og er derfor mulig, men langsommere.
+- Berørte områder: Talent-content og tests, D2 encounter-rewards, progression simulator/Balance Lab, lokal Talent Tree-editor, GDD og progress-log.
+- Validering: 100-seed balancekørsler, `npx tsc --noEmit`, 45 testfiler/209 tests, `npm run lint`, `npm run build` og `git diff --check` bestod. Build viser kun den kendte main-chunk warning over 500 kB.
+- Kendte mangler: De høje XP-tal og D2-reward-springet kræver fysisk playtest; simulatoren måler ikke oplevet reward-tyngde eller spillerens frie købsrækkefølge fuldt ud.
+- Git: Ikke committed på `codex/arcade-foundation-v1`.
+
+### 2026-08-03 — Imprint reliability, scalable signatures og loot discovery
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Imprint-rewards har nu en atomisk receipt med definition- og instance-ID, og outcome-skærme verificerer inventory før loot vises. Signature-faces kan rammes og forbedres af Workshop uden at miste Execute/Fortify/Drain. Imprint-tabben har onboarding, source, host/base/refinement/effective-formel og bindingsdetaljer; Dungeon 1 viser discovered/undiscovered loot; Workshop har et tydeligt rarity-face, Refinement-forklaring og forbedret reroll-spacing.
+- Beslutninger: Execute er `face Attack +3` under halv enemy HP; Fortify er `face Shield +2 til næste Shield`; Drain er `face Heal +2 Attack`. En 250-seed sammenligning viste D1 median 40 med gates, 24 uden alle gates og 42 med kun tidlig Fatecraft. Fatecraft mister derfor D1-clear-kravet, mens Fourth Grip og Bloodwell forbliver gated.
+- Berørte områder: Imprint types/progression/store/outcomes, signature combat/content/Workshop, Fatecraft-talenter, Dungeon loot-table content/UI, Imprint- og Workshop-UI, progression simulator/Balance Lab, GDD og tests.
+- Validering: `npx tsc --noEmit`, 45 testfiler/205 tests, `npm run lint`, `npm run build` og et lokalt 384×844 browserpass bestod. Browserpasset fandt ingen horizontal overflow, error overlay eller console errors og verificerede et reelt Lead Edge-target med reroll.
+- Kendte mangler: Eksisterende mistede Imprints rekonstrueres ikke, fordi save-recovery bevidst blev fravalgt. Der findes stadig kun Imprint-loot i Dungeon 1, og den tidlige Fatecraft-path kræver fysisk playtest. Vite viser fortsat den kendte main-chunk warning over 500 kB.
+- Git: Ikke committed på `codex/arcade-foundation-v1`.
 
 ### 2026-08-02 — Imprint-balance og 1.000-seed simulator-pass
 

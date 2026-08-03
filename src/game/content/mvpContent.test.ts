@@ -98,6 +98,21 @@ describe('MVP content integrity', () => {
     expect(secondSlot.ranks[0].cost + secondDie.ranks[0].cost).toBe(firstEnemyXp * 8)
   })
 
+  it('makes an early Dungeon 2 push worth more XP than a complete Dungeon 1 clear', () => {
+    const dungeonOneXp = DUNGEONS['prototype-depths'].floors.reduce(
+      (total, floor) => total + ENCOUNTERS[floor.encounterId].xpReward,
+      0,
+    )
+    const firstFourDungeonTwoXp = DUNGEONS['iron-depths'].floors.slice(0, 4).reduce(
+      (total, floor) => total + ENCOUNTERS[floor.encounterId].xpReward,
+      0,
+    )
+
+    expect(dungeonOneXp).toBe(190)
+    expect(firstFourDungeonTwoXp).toBe(333)
+    expect(firstFourDungeonTwoXp).toBeGreaterThan(dungeonOneXp)
+  })
+
   it('gives permanent Soul loot from every encounter and funds the first face upgrade immediately', () => {
     expect(Object.values(ENCOUNTERS).every((encounter) => encounter.soulValue > 0)).toBe(true)
     expect(ENCOUNTERS['descent-1-slime-l1'].soulValue).toBe(getFaceUpgradeCost(1))

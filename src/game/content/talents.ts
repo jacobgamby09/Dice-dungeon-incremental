@@ -32,7 +32,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.resonantEtching,
     name: 'Resonant Etching',
-    description: 'When Workshop power lands on an Imprint, gain a chance for +1 additional refinement.',
+    description: 'Each rank adds a 12% chance for a Workshop hit on an Imprint to gain +1 extra Refinement.',
     iconKey: 'resonant-etching',
     prerequisiteIds: [TALENT_IDS.faceMastery],
     ranks: [
@@ -105,29 +105,19 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.fourthGrip,
     name: 'Fourth Grip',
-    description: 'Gain a fourth dice slot after conquering The First Descent.',
+    description: 'Gain a fourth dice slot. Its high XP cost makes deeper Dungeons the fastest path.',
     iconKey: 'twin-dice',
     prerequisiteIds: [TALENT_IDS.healingArts],
-    requirements: [{
-      type: 'dungeon_clear',
-      dungeonId: 'prototype-depths',
-      count: 1,
-    }],
-    ranks: [{ cost: 36, effects: [{ type: 'dice_slots', amount: 1 }] }],
+    ranks: [{ cost: 2600, effects: [{ type: 'dice_slots', amount: 1 }] }],
     track: 'arsenal',
   },
   {
     id: TALENT_IDS.bloodwellDoctrine,
     name: 'Bloodwell Doctrine',
-    description: 'Receive a Heal Signature Die with two Drain faces after conquering The First Descent.',
+    description: 'Receive a Heal Signature Die with two Drain faces. Deeper Dungeons fund it faster.',
     iconKey: 'bloodwell-die',
     prerequisiteIds: [TALENT_IDS.healingArts],
-    requirements: [{
-      type: 'dungeon_clear',
-      dungeonId: 'prototype-depths',
-      count: 1,
-    }],
-    ranks: [{ cost: 36, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
+    ranks: [{ cost: 2200, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
     track: 'arsenal',
   },
   {
@@ -268,11 +258,6 @@ export const TALENTS: TalentDefinition[] = [
     iconKey: 'fate-seal',
     prerequisiteIds: [TALENT_IDS.fieldStudies, TALENT_IDS.soulHarvest],
     prerequisiteCount: 1,
-    requirements: [{
-      type: 'dungeon_clear',
-      dungeonId: 'prototype-depths',
-      count: 1,
-    }],
     ranks: [{
       cost: 30,
       effects: [
@@ -323,12 +308,7 @@ export const TALENTS: TalentDefinition[] = [
     description: 'Open a third and final Charm slot.',
     iconKey: 'charm-trinity',
     prerequisiteIds: [TALENT_IDS.wovenPair],
-    requirements: [{
-      type: 'dungeon_clear',
-      dungeonId: 'iron-depths',
-      count: 1,
-    }],
-    ranks: [{ cost: 90, effects: [{ type: 'charm_slots', amount: 1 }] }],
+    ranks: [{ cost: 3000, effects: [{ type: 'charm_slots', amount: 1 }] }],
     track: 'fate',
   },
 ]

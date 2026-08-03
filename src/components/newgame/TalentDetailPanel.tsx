@@ -102,7 +102,7 @@ function getEffectLabel(effect: TalentEffect): string {
     case 'imprint_drop_multiplier':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Imprint Chance`
     case 'imprint_forge_bonus_chance':
-      return `${Math.round(effect.chance * 100)}% Imprint Forge +1`
+      return `${Math.round(effect.chance * 100)}% chance for +1 extra Imprint Refinement`
     case 'dungeon_loot_multiplier':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Deep Dungeon Loot`
   }

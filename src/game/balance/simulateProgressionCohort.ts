@@ -11,6 +11,9 @@ import type {
 
 export type ProgressionStrategyId =
   | 'balanced'
+  | 'fate-first'
+  | 'd1-grind-fourth'
+  | 'd1-grind-bloodwell'
   | 'arsenal-first'
   | 'workshop-first'
   | 'economy-first'
@@ -34,6 +37,8 @@ export interface MilestoneDistribution {
 export interface ProgressionCurvePoint {
   autoCombatRate: number
   bloodwellRate: number
+  charmRate: number
+  fatecraftRate: number
   averageFaceValue: number
   averageFloor: number
   averageSoulsAfterSpending: number
@@ -43,6 +48,8 @@ export interface ProgressionCurvePoint {
   dungeonTwoAverageFloor: number
   fourthSlotRate: number
   averageImprintCount: number
+  averageCharmCount: number
+  averageFateTokensAfterSpending: number
   medianFloor: number
   run: number
   secondDieRate: number
@@ -60,9 +67,70 @@ export interface ProgressionCohortResult {
 export const PROGRESSION_STRATEGY_PRESETS: readonly ProgressionStrategyPreset[] = [
   {
     id: 'balanced',
-    label: 'Balanced baseline',
-    description: 'Mixes early automation, economy, Workshop power and Arsenal growth.',
+    label: 'Soft-gate baseline',
+    description: 'Moves into the highest unlocked Dungeon and buys talents through connected paths and XP only.',
     strategy: DEFAULT_JOURNEY_STRATEGY,
+  },
+  {
+    id: 'd1-grind-fourth',
+    label: 'D1 grind · Fourth Grip',
+    description: 'Replays Dungeon 1 after its clear until the fourth slot is purchased.',
+    strategy: {
+      dungeonOneUntilTalentId: TALENT_IDS.fourthGrip,
+      loadoutPriority: DEFAULT_JOURNEY_STRATEGY.loadoutPriority,
+      talentPath: [
+        { id: TALENT_IDS.battleHardenedOne, targetRank: 1 },
+        { id: TALENT_IDS.autoCombat },
+        { id: TALENT_IDS.twinArsenal },
+        { id: TALENT_IDS.strikerPattern },
+        { id: TALENT_IDS.shieldcraft },
+        { id: TALENT_IDS.thirdGrip },
+        { id: TALENT_IDS.healingArts },
+        { id: TALENT_IDS.fourthGrip },
+      ],
+    },
+  },
+  {
+    id: 'fate-first',
+    label: 'Fate first',
+    description: 'Tests the strongest early Fatecraft detour with the same open, XP-gated tree.',
+    strategy: {
+      loadoutPriority: DEFAULT_JOURNEY_STRATEGY.loadoutPriority,
+      talentPath: [
+        { id: TALENT_IDS.battleHardenedOne, targetRank: 1 },
+        { id: TALENT_IDS.autoCombat },
+        { id: TALENT_IDS.fieldStudies },
+        { id: TALENT_IDS.fatecraft },
+        { id: TALENT_IDS.quickDraw },
+        { id: TALENT_IDS.twinArsenal },
+        { id: TALENT_IDS.strikerPattern },
+        { id: TALENT_IDS.volatileTemper, targetRank: 3 },
+        { id: TALENT_IDS.shieldcraft },
+        { id: TALENT_IDS.thirdGrip },
+        { id: TALENT_IDS.healingArts },
+        { id: TALENT_IDS.fourthGrip },
+        { id: TALENT_IDS.bloodwellDoctrine },
+      ],
+    },
+  },
+  {
+    id: 'd1-grind-bloodwell',
+    label: 'D1 grind · Bloodwell',
+    description: 'Replays Dungeon 1 after its clear until the Bloodwell Die is purchased.',
+    strategy: {
+      dungeonOneUntilTalentId: TALENT_IDS.bloodwellDoctrine,
+      loadoutPriority: DEFAULT_JOURNEY_STRATEGY.loadoutPriority,
+      talentPath: [
+        { id: TALENT_IDS.battleHardenedOne, targetRank: 1 },
+        { id: TALENT_IDS.autoCombat },
+        { id: TALENT_IDS.twinArsenal },
+        { id: TALENT_IDS.strikerPattern },
+        { id: TALENT_IDS.shieldcraft },
+        { id: TALENT_IDS.thirdGrip },
+        { id: TALENT_IDS.healingArts },
+        { id: TALENT_IDS.bloodwellDoctrine },
+      ],
+    },
   },
   {
     id: 'arsenal-first',
@@ -147,6 +215,8 @@ export const PROGRESSION_MILESTONE_KEYS: readonly (keyof ProgressionJourneyMiles
   'firstLoadoutChoiceRun',
   'firstJackpotForgeRun',
   'firstImprintRun',
+  'fatecraftRun',
+  'firstCharmRun',
   'dungeonOneClearRun',
   'dungeonTwoUnlockRun',
   'dungeonTwoFirstRun',
@@ -224,6 +294,12 @@ function createCurve(
       bloodwellRate: results.filter((result) => (
         hasReached(result, 'bloodwellDieRun', run)
       )).length / results.length,
+      charmRate: results.filter((result) => (
+        hasReached(result, 'firstCharmRun', run)
+      )).length / results.length,
+      fatecraftRate: results.filter((result) => (
+        hasReached(result, 'fatecraftRun', run)
+      )).length / results.length,
       averageFaceValue: average(records.map((record) => record.averageFaceValue)),
       averageFloor: average(floors),
       averageSoulsAfterSpending: average(records.map((record) => record.soulsAfterSpending)),
@@ -241,6 +317,8 @@ function createCurve(
         hasReached(result, 'fourthSlotRun', run)
       )).length / results.length,
       averageImprintCount: average(records.map((record) => record.imprintCount)),
+      averageCharmCount: average(records.map((record) => record.charmCount)),
+      averageFateTokensAfterSpending: average(records.map((record) => record.fateTokensAfterSpending)),
       medianFloor: percentile(floors, 0.5) ?? 0,
       run,
       secondDieRate: results.filter((result) => (

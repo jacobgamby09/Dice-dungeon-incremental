@@ -26,11 +26,13 @@ const DISPLAYED_MILESTONES: readonly {
   { key: 'firstLoadoutChoiceRun', label: 'First loadout choice' },
   { key: 'firstJackpotForgeRun', label: 'First +2/+3 Forge' },
   { key: 'firstImprintRun', label: 'First Imprint' },
+  { key: 'fatecraftRun', label: 'Fatecraft unlocked' },
+  { key: 'firstCharmRun', label: 'First Charm' },
   { key: 'dungeonOneClearRun', label: 'Dungeon 1 clear', target: 'Target · Run 35–50' },
   { key: 'dungeonTwoUnlockRun', label: 'Dungeon 2 unlock', target: 'Target · By run 60' },
   { key: 'dungeonTwoFirstRun', label: 'First Dungeon 2 run' },
-  { key: 'fourthSlotRun', label: 'Fourth dice slot', target: 'Target · At D1 clear' },
-  { key: 'bloodwellDieRun', label: 'Bloodwell Die', target: 'Target · At D1 clear' },
+  { key: 'fourthSlotRun', label: 'Fourth dice slot', target: 'Target · D1/D2 transition' },
+  { key: 'bloodwellDieRun', label: 'Bloodwell Die', target: 'Target · Early D2' },
   { key: 'relayImprintRun', label: 'Relay Strike found' },
   { key: 'crescendoImprintRun', label: 'Crescendo found' },
   { key: 'dungeonTwoClearRun', label: 'Dungeon 2 clear' },
@@ -47,7 +49,7 @@ function formatDecimal(value: number): string {
 }
 
 export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
-  const [attempts, setAttempts] = useState(100)
+  const [attempts, setAttempts] = useState(10)
   const [maxRuns, setMaxRuns] = useState(60)
   const [seed, setSeed] = useState(431)
   const [strategyId, setStrategyId] = useState<ProgressionStrategyId>('balanced')
@@ -119,6 +121,8 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
           <label>
             Journeys
             <select onChange={(event) => setAttempts(Number(event.target.value))} value={attempts}>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
               <option value={100}>100</option>
               <option value={250}>250</option>
               <option value={500}>500</option>
@@ -197,6 +201,9 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                   <th scope="col">4 slots</th>
                   <th scope="col">Bloodwell</th>
                   <th scope="col">Imprints</th>
+                  <th scope="col">Fatecraft</th>
+                  <th scope="col">Charms</th>
+                  <th scope="col">Tokens</th>
                   <th scope="col">XP</th>
                   <th scope="col">Souls</th>
                 </tr>
@@ -216,6 +223,9 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                     <td>{formatPercent(point.fourthSlotRate)}</td>
                     <td>{formatPercent(point.bloodwellRate)}</td>
                     <td>{formatDecimal(point.averageImprintCount)}</td>
+                    <td>{formatPercent(point.fatecraftRate)}</td>
+                    <td>{formatDecimal(point.averageCharmCount)}</td>
+                    <td>{formatDecimal(point.averageFateTokensAfterSpending)}</td>
                     <td>{formatDecimal(point.averageXpAfterSpending)}</td>
                     <td>{formatDecimal(point.averageSoulsAfterSpending)}</td>
                   </tr>

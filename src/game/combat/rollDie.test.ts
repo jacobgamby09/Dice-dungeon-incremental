@@ -135,9 +135,28 @@ describe('rollDie', () => {
     )
 
     expect(execute.signature?.id).toBe('execute')
-    expect(active.totals.attack).toBe(5)
-    expect(active.feedback.executeBonus).toBe(2)
+    expect(active.totals.attack).toBe(6)
+    expect(active.feedback.executeBonus).toBe(3)
     expect(inactive.totals.attack).toBe(3)
+  })
+
+  it('keeps Execute scalable when its permanent signature face is upgraded', () => {
+    const executioner = createDiceCatalog().find(
+      (die) => die.id === 'attack-die-executioner',
+    )!
+    executioner.faces[4].value = 7
+    const execute = rollDie(executioner, () => 0.75)
+    const active = addRollEffects(
+      { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      0,
+      execute,
+      true,
+      0,
+      { enemyHp: 5, enemyMaxHp: 10 },
+    )
+
+    expect(active.totals.attack).toBe(10)
+    expect(active.feedback.executeBonus).toBe(3)
   })
 
   it('arms Fortify for the next Shield face and falls back when rolled last', () => {

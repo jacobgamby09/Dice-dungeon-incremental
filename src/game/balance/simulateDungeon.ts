@@ -1,4 +1,11 @@
 import { addRollEffects, rollDie } from '../combat/rollDie'
+import {
+  applyKillCharms,
+  applyRollCharms,
+  beginCharmRound,
+  createCharmRunState,
+  getShieldCarryRate,
+} from '../combat/charms'
 import { applyImprintRoll } from '../combat/imprints'
 import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
@@ -10,18 +17,24 @@ import type { SoulDieState } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
 import type { TalentRanks } from '../types/progression'
 import type { ImprintInstance } from '../types/imprints'
+import type { CharmSnapshot } from '../types/charms'
 import { getEnemyRewardBreakdown } from '../progression/rewards'
+import { rollFateDrop } from '../progression/fate'
 import { applyImprintsToDice, grantImprint, rollImprintDrop } from '../progression/imprints'
 import { createSoulDieState, drawSoulDie } from '../progression/soulDie'
 import {
   getDungeonLootMultiplier,
+  getFateDropMultiplier,
   getImprintDropMultiplier,
   getSoulDieValues,
+  hasCharmsUnlocked,
 } from '../progression/talents'
 
 export interface SimulationBuild {
+  charms?: readonly CharmSnapshot[]
   dice: readonly DieInstance[]
   dungeonClearCount?: number
+  fatePity?: number
   imprints?: readonly ImprintInstance[]
   playerMaxHp: number
   soulDieState?: SoulDieState
@@ -34,6 +47,8 @@ export interface DungeonRunSimulation {
   averagePlayerShield: number
   completedDungeon: boolean
   defeatedAtFloor: number | null
+  fatePity: number
+  fateTokensCollected: number
   highestFloorCleared: number
   hpRemaining: number
   imprints: ImprintInstance[]
@@ -83,12 +98,23 @@ export function simulateDungeonRun(
   let xpEarned = 0
   let soulDieState = build.soulDieState ?? createSoulDieState()
   let imprints = [...(build.imprints ?? [])]
+  const charms = [...(build.charms ?? [])]
+  const hasEquippedCharms = charms.length > 0
+  let charmState = createCharmRunState()
+  let fatePity = build.fatePity ?? 0
+  let fateTokensCollected = 0
   const orderedDice = applyImprintsToDice(build.dice, imprints)
+  const attackOnlyLoadout = orderedDice.every((die) => die.family === 'attack')
+  const shieldCarryRate = hasEquippedCharms ? getShieldCarryRate(charms) : 0
 
   for (const floor of dungeon.floors) {
     let enemy = createEnemyState(floor.encounterId, random)
     let floorCleared = false
-    let carriedShield = 0
+    const encounterCharm = hasEquippedCharms
+      ? beginCharmRound(charms, charmState, true)
+      : { state: charmState, shield: 0, triggers: [] }
+    charmState = encounterCharm.state
+    let carriedShield = encounterCharm.shield
     let carriedHeal = 0
 
     for (let round = 0; round < 100; round += 1) {
@@ -102,10 +128,19 @@ export function simulateDungeonRun(
           index,
           pendingImprintRelay,
         )
+        const charmRoll = hasEquippedCharms
+          ? applyRollCharms(
+              imprintRoll.result,
+              charms,
+              charmState,
+              { attackOnlyLoadout, random },
+            )
+          : { result: imprintRoll.result, state: charmState, triggers: [] }
+        charmState = charmRoll.state
         const effects = addRollEffects(
           totals,
           pendingMomentum,
-          imprintRoll.result,
+          charmRoll.result,
           index === orderedDice.length - 1,
           pendingFortify,
           {
@@ -135,6 +170,7 @@ export function simulateDungeonRun(
         totals,
         carriedShield,
         carriedHeal,
+        shieldCarryRate,
       })
       carriedShield = resolution.nextRoundShield
       carriedHeal = resolution.nextRoundHeal
@@ -161,8 +197,25 @@ export function simulateDungeonRun(
           soulDraw.result,
           build.talentRanks ?? {},
         )
-        soulsCollected += reward.souls
+        const killCharm = hasEquippedCharms
+          ? applyKillCharms(charms, charmState)
+          : { heal: 0, soulBonus: 0, state: charmState, triggers: [] }
+        charmState = killCharm.state
+        playerHp = Math.min(build.playerMaxHp, playerHp + killCharm.heal)
+        soulsCollected += reward.souls + killCharm.soulBonus
         xpEarned += reward.xp
+        if (hasCharmsUnlocked(build.talentRanks ?? {})) {
+          const fateDrop = rollFateDrop(
+            enemy.rewardTier,
+            fatePity,
+            random,
+            getFateDropMultiplier(build.talentRanks ?? {})
+              * (dungeonId === 'iron-depths' ? 1.6 : 1)
+              * getDungeonLootMultiplier(build.talentRanks ?? {}),
+          )
+          fateTokensCollected += fateDrop.tokens
+          fatePity = fateDrop.nextPity
+        }
         const imprintDrop = rollImprintDrop({
           dungeonId,
           floor: floor.floor,
@@ -191,6 +244,8 @@ export function simulateDungeonRun(
           averagePlayerShield: totalPlayerShield / roundsPlayed,
           completedDungeon: false,
           defeatedAtFloor: floor.floor,
+          fatePity,
+          fateTokensCollected,
           highestFloorCleared,
           hpRemaining: 0,
           imprints,
@@ -203,6 +258,11 @@ export function simulateDungeonRun(
       }
 
       enemy = rollNextEnemyIntent(enemy, random)
+      if (hasEquippedCharms) {
+        const charmRound = beginCharmRound(charms, charmState)
+        charmState = charmRound.state
+        carriedShield += charmRound.shield
+      }
     }
 
     if (!floorCleared) {
@@ -212,6 +272,8 @@ export function simulateDungeonRun(
         averagePlayerShield: totalPlayerShield / roundsPlayed,
         completedDungeon: false,
         defeatedAtFloor: floor.floor,
+        fatePity,
+        fateTokensCollected,
         highestFloorCleared,
         hpRemaining: playerHp,
         imprints,
@@ -231,6 +293,8 @@ export function simulateDungeonRun(
     averagePlayerShield: totalPlayerShield / roundsPlayed,
     completedDungeon,
     defeatedAtFloor: null,
+    fatePity,
+    fateTokensCollected,
     highestFloorCleared,
     hpRemaining: playerHp,
     imprints,

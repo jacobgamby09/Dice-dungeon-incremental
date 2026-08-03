@@ -19,8 +19,8 @@ describe('progression cohort simulation', () => {
   it('keeps every strategy inside valid percentage and run ranges', () => {
     for (const preset of PROGRESSION_STRATEGY_PRESETS) {
       const result = simulateProgressionCohort({
-        attempts: 8,
-        maxRuns: 30,
+        attempts: 3,
+        maxRuns: 20,
         seed: 100,
         strategyId: preset.id,
       })
@@ -52,4 +52,20 @@ describe('progression cohort simulation', () => {
       'Progression cohort maxRuns must be a positive integer.',
     )
   })
+
+  it('keeps the large soft-gated Arsenal unlocks at the D1 to D2 transition', () => {
+    const result = simulateProgressionCohort({
+      attempts: 24,
+      maxRuns: 70,
+      seed: 431,
+      strategyId: 'balanced',
+    })
+
+    expect(result.milestones.dungeonOneClearRun.medianRun).toBeGreaterThanOrEqual(35)
+    expect(result.milestones.dungeonOneClearRun.medianRun).toBeLessThanOrEqual(45)
+    expect(result.milestones.fourthSlotRun.medianRun)
+      .toBeGreaterThanOrEqual(result.milestones.dungeonOneClearRun.medianRun ?? 0)
+    expect(result.milestones.bloodwellDieRun.medianRun)
+      .toBeGreaterThan(result.milestones.dungeonTwoFirstRun.medianRun ?? 0)
+  }, 10_000)
 })

@@ -1,7 +1,7 @@
 import { IMPRINT_DEFINITIONS, createImprintInstance } from '../content/imprints'
 import type { DieFaces, DieInstance } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
-import type { ImprintId, ImprintInstance } from '../types/imprints'
+import type { ImprintDropReceipt, ImprintId, ImprintInstance } from '../types/imprints'
 
 export function applyImprintsToDice(
   dice: readonly DieInstance[],
@@ -129,4 +129,34 @@ export function grantImprint(
 ): ImprintInstance[] {
   if (owned.some((instance) => instance.definitionId === definitionId)) return [...owned]
   return [...owned, createImprintInstance(definitionId, instanceId)]
+}
+
+export function grantImprintDrop(
+  owned: readonly ImprintInstance[],
+  definitionId: ImprintId,
+  instanceId: string,
+): {
+  imprints: ImprintInstance[]
+  receipt: ImprintDropReceipt | null
+} {
+  if (owned.some((instance) => instance.definitionId === definitionId || instance.id === instanceId)) {
+    return { imprints: [...owned], receipt: null }
+  }
+  const instance = createImprintInstance(definitionId, instanceId)
+  return {
+    imprints: [...owned, instance],
+    receipt: { definitionId, instanceId: instance.id },
+  }
+}
+
+export function getVerifiedImprintDropIds(
+  receipts: readonly ImprintDropReceipt[],
+  owned: readonly ImprintInstance[] = [],
+): ImprintId[] {
+  const ownedById = new Map(owned.map((instance) => [instance.id, instance.definitionId]))
+  return receipts.flatMap((receipt) => (
+    ownedById.get(receipt.instanceId) === receipt.definitionId
+      ? [receipt.definitionId]
+      : []
+  ))
 }

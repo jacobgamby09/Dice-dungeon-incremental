@@ -43,7 +43,7 @@ export function canForgeFace(
   face: FaceInstance,
 ): boolean {
   if (face.imprint) return true
-  if (face.signature || face.evolution || face.evolutionReady) return false
+  if (face.evolution || face.evolutionReady) return false
   return true
 }
 

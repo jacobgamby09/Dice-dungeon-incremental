@@ -141,9 +141,9 @@ export function addRollEffects(
   if (executeActive) {
     nextTotals = {
       ...nextTotals,
-      attack: nextTotals.attack + 2,
+      attack: nextTotals.attack + 3,
     }
-    feedback.executeBonus = 2
+    feedback.executeBonus = 3
   }
 
   if (result.evolution?.id === 'momentum') {

@@ -436,6 +436,37 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().completePendingWorkshopForge('imprint-forge')).toBeNull()
   })
 
+  it('upgrades a signature face through the normal Workshop without losing its mechanic', () => {
+    const state = useNewGameStore.getState()
+    const executioner = createDiceCatalog().find((die) => die.id === 'attack-die-executioner')!
+    const signatureFace = executioner.faces[4]
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 100,
+        diceCollection: [...state.profile.diceCollection, executioner],
+      },
+    })
+
+    const pending = useNewGameStore.getState().beginWorkshopForge(
+      executioner.id,
+      'signature-forge',
+      () => 0.75,
+    )
+    expect(pending?.targetFaceId).toBe(signatureFace.id)
+    expect(useNewGameStore.getState().completePendingWorkshopForge('signature-forge'))
+      .toMatchObject({ faceId: signatureFace.id, newValue: signatureFace.value + 1 })
+
+    const upgraded = useNewGameStore.getState().profile.diceCollection.find(
+      (die) => die.id === executioner.id,
+    )!.faces[4]
+    expect(upgraded).toMatchObject({
+      id: signatureFace.id,
+      value: signatureFace.value + 1,
+      signature: { id: 'execute' },
+    })
+  })
+
   it('keeps an attached Imprint out of the base die when another face is forged', () => {
     const state = useNewGameStore.getState()
     const baseDie = state.profile.diceCollection[0]
@@ -651,12 +682,69 @@ describe('Classic V2 store progression loop', () => {
     ])
     expect(useNewGameStore.getState().run.lastReward?.dungeonKey)
       .toBe('iron-descent-key')
-    expect(useNewGameStore.getState().run.lastReward?.imprintDrop).toBe('lead-edge')
+    expect(useNewGameStore.getState().run.lastReward?.imprintDrop?.definitionId).toBe('lead-edge')
     expect(useNewGameStore.getState().profile.imprints).toHaveLength(1)
     expect(useNewGameStore.getState().profile.imprints[0].definitionId).toBe('lead-edge')
     expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(103)
     expect(useNewGameStore.getState().profile.imprints).toHaveLength(1)
+  })
+
+  it('atomically grants and persists a later Legendary boss Imprint', async () => {
+    const initial = useNewGameStore.getState()
+    const leadEdge = createImprintInstance('lead-edge', 'existing-lead-edge')
+    useNewGameStore.setState({
+      profile: {
+        ...initial.profile,
+        imprints: [leadEdge],
+        dungeonProgress: {
+          ...initial.profile.dungeonProgress,
+          'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
+        },
+      },
+    })
+    useNewGameStore.getState().startRun('prototype-depths')
+    const running = useNewGameStore.getState()
+    useNewGameStore.setState({
+      run: {
+        ...running.run,
+        encounterIndex: 9,
+        enemy: createEnemyState('descent-1-demon'),
+      },
+    })
+    prepareResolvedRound({ attack: 999, shield: 0, heal: 0 })
+
+    expect(useNewGameStore.getState().beginRoundResolution(() => 0.06)?.outcome).toBe('victory')
+    const completed = useNewGameStore.getState()
+    const receipt = completed.run.lastReward?.imprintDrop
+    expect(receipt?.definitionId).toBe('crescendo')
+    expect(completed.profile.imprints).toContainEqual(expect.objectContaining({
+      id: receipt?.instanceId,
+      definitionId: 'crescendo',
+    }))
+
+    let saved: StorageValue<NewGameState> | null = {
+      state: completed,
+      version: 23,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => { saved = structuredClone(value) },
+      removeItem: () => { saved = null },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+    try {
+      await useNewGameStore.persist.rehydrate()
+      expect(useNewGameStore.getState().profile.imprints).toContainEqual(expect.objectContaining({
+        id: receipt?.instanceId,
+        definitionId: 'crescendo',
+      }))
+      expect(useNewGameStore.getState().run.lastReward?.imprintDrop).toEqual(receipt)
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
   })
 
   it('migrates the removed Second Descent talent into the key unlock and refunds its XP', async () => {

@@ -8,6 +8,7 @@ import { OutcomeRewards } from '../components/newgame/OutcomeRewards'
 import { AUTO_COMBAT_VICTORY_PAUSE_MS } from '../game/automation/autoCombat'
 import { DUNGEONS } from '../game/content/dungeons'
 import { getSoulDieValues } from '../game/progression/talents'
+import { getVerifiedImprintDropIds } from '../game/progression/imprints'
 import { useNewGameStore } from '../store/newGameStore'
 
 const HERO_INITIAL = { opacity: 0, scale: 0.84, y: -18 }
@@ -35,6 +36,7 @@ export function PostCombatScreen() {
     fateTokens: state.profile.fateTokens,
     autoCombat: state.profile.settings.autoCombat,
     talentRanks: state.profile.talentRanks,
+    imprints: state.profile.imprints,
     xp: state.profile.xp,
   })))
   const advanceToNextFloor = useNewGameStore((state) => state.advanceToNextFloor)
@@ -80,6 +82,12 @@ export function PostCombatScreen() {
     : run.lastReward.fateTokens ?? 0
   const nextFloorNumber = run.lastReward.floor + 1
   const soulDieValues = getSoulDieValues(profile.talentRanks)
+  const verifiedImprintDrops = getVerifiedImprintDropIds(
+    dungeonComplete
+      ? run.runStats.imprintsFound ?? []
+      : run.lastReward.imprintDrop ? [run.lastReward.imprintDrop] : [],
+    profile.imprints,
+  )
   const buttonTransition = prefersReducedMotion
     ? REDUCED_MOTION_TRANSITION
     : CTA_TRANSITION
@@ -132,8 +140,8 @@ export function PostCombatScreen() {
         charmBonusSouls={charmBonusSouls}
         fateTokensEarned={fateTokensEarned}
         dungeonKey={run.lastReward.dungeonKey}
-        imprintDrop={dungeonComplete ? undefined : run.lastReward.imprintDrop}
-        imprintDrops={dungeonComplete ? run.runStats.imprintsFound ?? [] : []}
+        imprintDrop={dungeonComplete ? undefined : verifiedImprintDrops[0]}
+        imprintDrops={dungeonComplete ? verifiedImprintDrops : []}
         heading={dungeonComplete ? 'This descent' : 'Battle rewards'}
         soulsEarned={rewardSouls}
         totalSouls={profile.bankedSouls}
