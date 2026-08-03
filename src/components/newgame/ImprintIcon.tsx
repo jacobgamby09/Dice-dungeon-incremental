@@ -25,4 +25,3 @@ export function ImprintIcon({ id, rarity = 'rare', size = 32 }: ImprintIconProps
     </svg>
   )
 }
-

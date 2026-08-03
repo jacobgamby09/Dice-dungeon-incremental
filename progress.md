@@ -294,7 +294,7 @@ Brug denne skabelon:
 - Berørte områder: Imprint content/progression/combat, Workshop base-face merge, Imprint UI, dungeon simulator, progression journey/cohort/Balance Lab, D2 encounter- og enemy-dice-data samt regressionstests.
 - Validering: `npx tsc --noEmit`, 44 testfiler/200 tests, `npm run lint`, `npm run build` og 1.000-seed balanced journey pass bestod. Endelig baseline: D1 P10/median/P90 34/40/46; første D2-floor 4/5/7; D2-clear-delta 7/10/16.
 - Kendte mangler: Simulatoren modellerer fortsat ikke Charms, spillerens frie strategivalg, animationstid eller subjektiv frustration. De højere Imprint-drop rates og Cultist II-spiket kræver fysisk playtest. Vite viser fortsat den kendte main-chunk warning over 500 kB.
-- Git: Ikke committed. Eksisterende lokale Talent Tree Editor- og Imprint-ændringer er bevaret i samme worktree.
+- Git: Implementering, simulator og balance committed som `516b9f6` på `codex/arcade-foundation-v1`; denne logrettelse følger i separat dokumentationscommit.
 
 ### 2026-08-02 — Dungeon Imprints test- og feedbackpass
 
@@ -306,7 +306,7 @@ Brug denne skabelon:
 - Berørte områder: `CombatScreen`, `RollDieTile`, `ScoreTransfer`, nyt `ImprintInspectOverlay`, Imprint arcade-styles, post-Dungeon-1 DEV-preset og store-regressioner.
 - Validering: `npx tsc --noEmit`, 44 testfiler/196 tests, `npm run lint`, `npm run build` og `git diff --check` bestod. Tests dækker garanteret/idempotent boss-drop, attach/detach med bevaret refinement, run-snapshot samt reload og enkelt completion af en persisteret Imprint-Forge.
 - Kendte mangler: Automatisk browserautomation er fortsat utilgængelig i miljøet. 384 px-animationstiming og touch-inspektion skal derfor godkendes fysisk. Vite viser fortsat den kendte main-chunk warning over 500 kB.
-- Git: Ikke committed. Eksisterende lokale Talent Tree Editor-ændringer er bevaret i samme worktree.
+- Git: Implementering og test-feedback committed som `516b9f6` på `codex/arcade-foundation-v1`; denne logrettelse følger i separat dokumentationscommit.
 
 ### 2026-08-02 — Dungeon Imprints vertical slice
 
@@ -318,7 +318,7 @@ Brug denne skabelon:
 - Berørte områder: Nye Imprint types/content/progression/combat/UI/styles; save-version 23; Workshop, reward transition, outcomes, Hub, Talent Tree, dev-profil, GDD og tests.
 - Validering: `npx tsc --noEmit`, 193 tests, lint, production-build og lokal HTTP 200 bestod. React-kvalitetspasset fandt ingen blocking hook- eller semantikfejl.
 - Kendte mangler: Automatisk visuelt browsercheck var utilgængeligt; balanceværdier og animationstiming kræver playtest. Der er endnu kun D1-Imprints.
-- Git: Ikke committed. Eksisterende lokale Talent Tree Editor-filer er fortsat bevaret separat i samme worktree.
+- Git: Vertical slice committed som del af `516b9f6` på `codex/arcade-foundation-v1`; denne logrettelse følger i separat dokumentationscommit.
 
 ### 2026-08-02 — Lokal Talent Tree Editor
 
@@ -330,7 +330,7 @@ Brug denne skabelon:
 - Berørte områder: Ny lokal `talent-editor.html`, `src/editor`, npm-script, README og tests. Gameplay-store, save-format og det canonical Talent Tree er uændret.
 - Validering: Editor-modeltests dækker isolation, unikke nodes, graph-fejl og ren outline-eksport. TypeScript, fuld testsuite, lint, production build samt browserpass dækker visuel lighed, node creation/linking, klik på eksisterende nodes og fravær af global overflow.
 - Kendte mangler: Første version har ikke multi-select eller direkte source-file write. Links eksporteres som et enkelt rettet outline; mechanics kræver fortsat manuel canonical implementering.
-- Git: Ikke committed endnu på `codex/arcade-foundation-v1`.
+- Git: Editor committed som del af `516b9f6` på `codex/arcade-foundation-v1`; denne logrettelse følger i separat dokumentationscommit.
 
 ### 2026-08-02 — Iron Descent Key og to-die Demon
 

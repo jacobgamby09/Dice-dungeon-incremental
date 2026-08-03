@@ -42,4 +42,3 @@ export interface ImprintSnapshot {
   effectKind: ImprintEffectKind
   refinement: number
 }
-
