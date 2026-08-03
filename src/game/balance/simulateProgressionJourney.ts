@@ -1,4 +1,5 @@
 import { createDieById, createStartingDice } from '../content/dice'
+import { IMPRINT_DEFINITIONS } from '../content/imprints'
 import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
 import {
   completeWorkshopForge,
@@ -14,8 +15,13 @@ import {
   getWorkshopDieFaces,
   getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
+  getImprintForgeBonusChance,
   hasAutoCombatUnlocked,
 } from '../progression/talents'
+import {
+  applyForgedFaceToBaseDie,
+  applyImprintsToDice,
+} from '../progression/imprints'
 import type { DieInstance } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
 import type { PlayerProfile } from '../types/progression'
@@ -42,7 +48,10 @@ export interface ProgressionJourneyMilestones {
   firstJackpotForgeRun: number | null
   firstFaceUpgradeRun: number | null
   firstLoadoutChoiceRun: number | null
+  firstImprintRun: number | null
   fourthSlotRun: number | null
+  relayImprintRun: number | null
+  crescendoImprintRun: number | null
   secondDieRun: number | null
 }
 
@@ -54,6 +63,7 @@ export interface ProgressionJourneyRecord {
   dungeonId: DungeonId
   equippedDieIds: string[]
   highestFloorCleared: number
+  imprintCount: number
   run: number
   soulsAfterSpending: number
   xpAfterSpending: number
@@ -98,7 +108,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 22,
+    saveVersion: 23,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
@@ -119,6 +129,7 @@ function createJourneyProfile(): PlayerProfile {
     pendingFateDraw: null,
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
+    imprints: [],
     settings: {
       autoCombat: false,
       rollSpeed: 1,
@@ -198,14 +209,19 @@ function spendSouls(
 
   for (let operation = 0; operation < 300; operation += 1) {
     const costMultiplier = getWorkshopCostMultiplier(nextProfile.talentRanks)
-    const target = getPriorityDice(nextProfile, strategy.loadoutPriority).find((die) => {
-      const cost = getChaosForgeCost(die, costMultiplier)
-      return cost !== null && cost <= nextProfile.bankedSouls
-    })
+    const target = getPriorityDice(nextProfile, strategy.loadoutPriority)
+      .map((baseDie) => ({
+        baseDie,
+        effectiveDie: applyImprintsToDice([baseDie], nextProfile.imprints)[0],
+      }))
+      .find(({ effectiveDie }) => {
+        const cost = getChaosForgeCost(effectiveDie, costMultiplier)
+        return cost !== null && cost <= nextProfile.bankedSouls
+      })
     if (!target) break
 
-    const pending = prepareWorkshopForge(
-      target,
+    const prepared = prepareWorkshopForge(
+      target.effectiveDie,
       `journey-forge-${operation}`,
       getWorkshopDieFaces(nextProfile.talentRanks),
       random,
@@ -214,16 +230,41 @@ function spendSouls(
         targetRerolls: getWorkshopTargetRerolls(nextProfile.talentRanks),
       },
     )
-    if (!pending) break
-    const forged = completeWorkshopForge(target, pending)
+    if (!prepared) break
+    const targetImprint = target.effectiveDie.faces.find(
+      (face) => face.id === prepared.targetFaceId,
+    )?.imprint
+    const imprintBonus = targetImprint
+      && random() < getImprintForgeBonusChance(nextProfile.talentRanks)
+      ? 1
+      : 0
+    const pending = imprintBonus > 0
+      ? { ...prepared, appliedAmount: prepared.appliedAmount + imprintBonus }
+      : prepared
+    const forged = completeWorkshopForge(target.effectiveDie, pending)
     if (!forged) break
 
     nextProfile = {
       ...nextProfile,
       bankedSouls: nextProfile.bankedSouls - forged.result.cost,
-      diceCollection: nextProfile.diceCollection.map((die) => (
-        die.id === forged.die.id ? forged.die : die
-      )),
+      diceCollection: targetImprint
+        ? nextProfile.diceCollection
+        : nextProfile.diceCollection.map((die) => (
+            die.id === forged.die.id
+              ? applyForgedFaceToBaseDie(
+                  target.baseDie,
+                  forged.die,
+                  pending.targetFaceId,
+                )
+              : die
+          )),
+      imprints: targetImprint
+        ? nextProfile.imprints.map((imprint) => (
+            imprint.id === targetImprint.instanceId
+              ? { ...imprint, refinement: imprint.refinement + forged.result.amount }
+              : imprint
+          ))
+        : nextProfile.imprints,
     }
     upgrades += 1
     jackpots += forged.result.isJackpot ? 1 : 0
@@ -240,7 +281,39 @@ function selectLoadout(
   const equippedDieIds = getPriorityDice(profile, priority)
     .slice(0, capacity)
     .map((die) => die.id)
-  return { ...profile, equippedDieIds }
+  return autoAttachImprints({ ...profile, equippedDieIds })
+}
+
+function autoAttachImprints(profile: PlayerProfile): PlayerProfile {
+  const equippedDice = profile.equippedDieIds
+    .map((dieId) => profile.diceCollection.find((die) => die.id === dieId))
+    .filter((die): die is DieInstance => Boolean(die))
+  const attachments = new Map<string, { dieId: string; faceId: string }>()
+  const usedDice = new Set<string>()
+
+  const attachToDie = (definitionId: keyof typeof IMPRINT_DEFINITIONS, die?: DieInstance) => {
+    const imprint = profile.imprints.find((candidate) => candidate.definitionId === definitionId)
+    if (!imprint || !die || usedDice.has(die.id)) return
+    const definition = IMPRINT_DEFINITIONS[definitionId]
+    const face = [...die.faces]
+      .filter((candidate) => !candidate.signature && candidate.type === definition.type)
+      .sort((left, right) => right.value - left.value)[0]
+    if (!face) return
+    usedDice.add(die.id)
+    attachments.set(imprint.id, { dieId: die.id, faceId: face.id })
+  }
+
+  attachToDie('lead-edge', equippedDice[0])
+  attachToDie('crescendo', [...equippedDice].reverse().find((die) => !usedDice.has(die.id)))
+  attachToDie('relay-strike', equippedDice.find((die) => !usedDice.has(die.id)))
+
+  return {
+    ...profile,
+    imprints: profile.imprints.map((imprint) => ({
+      ...imprint,
+      attachment: attachments.get(imprint.id),
+    })),
+  }
 }
 
 function createMilestones(): ProgressionJourneyMilestones {
@@ -254,7 +327,10 @@ function createMilestones(): ProgressionJourneyMilestones {
     firstJackpotForgeRun: null,
     firstFaceUpgradeRun: null,
     firstLoadoutChoiceRun: null,
+    firstImprintRun: null,
     fourthSlotRun: null,
+    relayImprintRun: null,
+    crescendoImprintRun: null,
     secondDieRun: null,
   }
 }
@@ -323,6 +399,8 @@ export function simulateProgressionJourney(
       playerMaxHp: getPlayerMaxHp(profile.talentRanks),
       talentRanks: profile.talentRanks,
       soulDieState: profile.soulDie,
+      imprints: profile.imprints,
+      dungeonClearCount: profile.dungeonProgress[dungeonId].clearCount,
     }, random)
 
     profile = {
@@ -330,6 +408,7 @@ export function simulateProgressionJourney(
       bankedSouls: profile.bankedSouls + result.soulsCollected,
       xp: profile.xp + result.xpEarned,
       soulDie: result.soulDieState,
+      imprints: result.imprints,
       unlockedDungeonIds: dungeonId === 'prototype-depths'
         && result.completedDungeon
         && !profile.unlockedDungeonIds.includes('iron-depths')
@@ -359,6 +438,19 @@ export function simulateProgressionJourney(
       'dungeonTwoClearRun',
       run,
       dungeonId === 'iron-depths' && result.completedDungeon,
+    )
+    setMilestone(milestones, 'firstImprintRun', run, profile.imprints.length > 0)
+    setMilestone(
+      milestones,
+      'relayImprintRun',
+      run,
+      profile.imprints.some((imprint) => imprint.definitionId === 'relay-strike'),
+    )
+    setMilestone(
+      milestones,
+      'crescendoImprintRun',
+      run,
+      profile.imprints.some((imprint) => imprint.definitionId === 'crescendo'),
     )
 
     profile = spendTalentPath(profile, strategy.talentPath)
@@ -406,6 +498,7 @@ export function simulateProgressionJourney(
       dungeonId,
       equippedDieIds: [...profile.equippedDieIds],
       highestFloorCleared: result.highestFloorCleared,
+      imprintCount: profile.imprints.length,
       run,
       soulsAfterSpending: profile.bankedSouls,
       xpAfterSpending: profile.xp,

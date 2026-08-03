@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "talent-editor": "vite --host --open /talent-editor.html",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "vitest run",

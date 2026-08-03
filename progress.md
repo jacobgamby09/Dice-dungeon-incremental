@@ -38,6 +38,10 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Imprint-balance og simulator-paritet er implementeret lokalt:** Imprints bevarer nu en stærkere host-face (`max(host, minimum) + refinement`), kan kun bindes til samme face-familie og skalerer med procentbaserede ordering-effekter. Balance Lab simulerer nu Imprint-drops, binding, loadout-order og Workshop-refinement. En 1.000-seed balanced baseline lander på D1-clear median run 40, første D2-run median floor 5 og D2-clear median 10 runs efter D1-clear.
+- **Dungeon Imprints er implementeret lokalt og har et komplet test-flow:** Første Dungeon 1-boss-clear giver garanteret Rare `Lead Edge` sammen med Dungeon 2-nøglen. `Relay Strike` og `Crescendo` kan findes på senere runs. Imprints er permanente, unikke, flytbare face-overlays med egen refinement, separat Hub-skærm, præcis 1/6 Workshop-targeting, run-snapshots, ordering-baserede combat-effekter, rarity-visuals og loot-præsentation. Landede Imprints kan inspiceres direkte i combat; overlayet pauser Auto Combat. Post-Dungeon-1 DEV-profilen indeholder alle tre D1-Imprints og 500 Souls til hurtig attach/Workshop/combat-test.
+
+- **En enkel lokal Talent Tree Outline Editor er implementeret:** `npm run talent-editor` åbner et visuelt board med spillets rigtige TalentNode-look. Man kan oprette, slette og flytte nodes, redigere titel/note, tilføje eller fjerne links, undo/redo, autosave og eksportere et rent outline. Priser, ranks, effects og balance er bevidst fjernet fra editorens UI.
 - **Dungeon 1 afsluttes nu med en synlig chapter transition:** Demon bruger en stabil Attack Die `7,7,7,8,8,8` og Shield Die `2,2,2,3,3,3` ved 45 HP. Første clear giver den unikke Iron Descent Key som milestone-loot og åbner Dungeon 2 atomisk; Dungeon 2 er synlig som låst fra fresh save, og `Second Descent` er fjernet fra Talent Tree med 75 XP-refund ved migration.
 - **Soul Die har nu samme Hub-hierarki som permanente dice:** System Die-kortet bruger en tydelig lilla die-header, større Soul-symbol og seks ensartede face-felter, hvor `×1/×2` er primær information. Det ændrer kun præsentationen; distribution, average og reward-flow er uændret.
 - **Dungeon-overgangen har nu sit første fulde progression-pass:** Dungeon 1 beholder sine første syv floors og får kun en mindre late-wall-reduktion på floor 8–10. Efter Demonens to-die-pass lander en 100-seed balanced baseline på D1-clear median run 44 (P10–P90 36–51), første D2-run median 45 og D2-clear median 55.
@@ -122,6 +126,11 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+- Fysisk playtest den nye D2-mid-wall ved Shieldbearer II og Cultist II. Simulatoren rammer målet matematisk, men især Cultists højere Attack + Heal skal føles som et tydeligt build-check og ikke som et tilfældigt spike.
+- Mål D1-Imprint-acquisition i rigtig spilletid. Den nye baseline finder første Imprint median run 14; Relay Strike findes i 85,1% og Crescendo i 37,6% af journeys før/ved D1-clear. Afgør efter playtest, om det giver tilstrækkelig grund til at farme D1 efter clear.
+- Playtest første boss-drop → Imprints → attach → Workshop → combat-sløjfen ved 384 px. Tun især hvor tydeligt det er, at det oprindelige face bevares, om Lead Edge føles som et reelt power spike, og om D1 Epic/Legendary-raterne giver en motiverende farm uden at blokere Dungeon 2.
+
+1. Brug den lokale Talent Tree Editor til næste visuelle node/link-outline og eksportér `talent-tree-outline.json`; implementér derefter mechanics, balance og eventuelle save-migrationer canonical i spillet.
 1. Fresh-save-playtest Demonens to stabile dice og afgør, om 45 HP giver den ønskede boss-tyngde uden at Shield føles som kunstig forlængelse.
 2. Verificér Iron Descent Key-revealet på fysisk iPhone/Safari og vurder, om det første garanterede milestone-loot føles stort nok før senere tilfældige loot-typer.
 3. Playtest overgangen direkte fra Boss Victory til den nu synlige, åbne Dungeon 2 og kontrollér, at spilleren forstår unlocket uden Talent Tree-instruktion.
@@ -164,6 +173,10 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Imprint-dropchancerne er nu Rare 1,6%, Epic 0,8% og Legendary 0,2% før floor/boss/talentmultipliers. 1.000-seed journey-data finder Relay Strike i 85,1% og Crescendo i 37,6% af profilerne inden D1-arcens afslutning; fysisk spilletid og oplevet lootværdi skal afgøre, om især Epic er for almindelig.
+- Den automatiske browser-screenshotkontrol kunne ikke køres, fordi `agent-browser` ikke findes i miljøets PATH. Lokal Vite svarede HTTP 200, og TypeScript/tests/lint/build bestod; visuel 384 px-godkendelse mangler stadig.
+
+- Talent Tree Editor skriver bevidst ikke direkte til source-filer og beskriver kun node/link-outline. Eksporten skal reviewes, og alle mechanics kræver rigtig engine-, type-, migration- og testimplementering før integration.
 - Demonens to-die-profil holder 100-seed medianen tæt på den tidligere D1-kurve, men simulatoren måler ikke den oplevede friktion ved at se 2–3 Shield gentaget over flere boss-rounds.
 - Bloodwell og slot 4 kan i den automatiske baseline begge købes samme run som D1-clear på grund af opsparet XP. Det giver den ønskede chapter-transition, men kan føles som to obligatoriske køb og skal testes med faktiske spillerpaths.
 - D2-clear ligger cirka ti runs efter D1-clear i balanced baseline. Simulatoren måler ikke animationstid eller frustration fra dobbelte høj-variance Attack-rolls, så den matematiske kurve kan opleves langsommere fysisk.
@@ -270,6 +283,54 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-02 — Imprint-balance og 1.000-seed simulator-pass
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Imprints skalerer nu uden at overskrive stærkere host-faces. Lead Edge giver +50% Attack som første roll, Relay Strike giver næste die +50% primært output, og Crescendo giver +25% Attack per tidligere die op til +100%; alle bonusser afrundes op. D1 base drop rates er fordoblet til 1,6/0,8/0,2% for Rare/Epic/Legendary.
+- Beslutninger: D1 blev ikke gjort lettere, fordi den korrigerede baseline allerede ramte median run 40. D2 fik en lokal level-2 wall gennem Shieldbearer II (60 HP og stærkere Shield Die) samt Cultist II (62 HP, stærkere Attack og Heal), så første D2-run nu stopper median floor 5 uden at ændre medianen på 10 runs fra D1-clear til D2-clear.
+- Berørte områder: Imprint content/progression/combat, Workshop base-face merge, Imprint UI, dungeon simulator, progression journey/cohort/Balance Lab, D2 encounter- og enemy-dice-data samt regressionstests.
+- Validering: `npx tsc --noEmit`, 44 testfiler/200 tests, `npm run lint`, `npm run build` og 1.000-seed balanced journey pass bestod. Endelig baseline: D1 P10/median/P90 34/40/46; første D2-floor 4/5/7; D2-clear-delta 7/10/16.
+- Kendte mangler: Simulatoren modellerer fortsat ikke Charms, spillerens frie strategivalg, animationstid eller subjektiv frustration. De højere Imprint-drop rates og Cultist II-spiket kræver fysisk playtest. Vite viser fortsat den kendte main-chunk warning over 500 kB.
+- Git: Ikke committed. Eksisterende lokale Talent Tree Editor- og Imprint-ændringer er bevaret i samme worktree.
+
+### 2026-08-02 — Dungeon Imprints test- og feedbackpass
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Imprint-slicen kan nu afprøves uden grind via post-Dungeon-1 DEV-profilen med alle tre Imprints og 500 Souls. Et landet Imprint kan åbnes fra draw order i combat, hvor et stort rarity-farvet overlay forklarer effekten og pauser Auto Combat. Lead Edge, Relay Strike og Crescendo har hver sin korte landingsidentitet, og score-transferen bærer Imprint-navn og bonus videre til rundens total.
+- Beslutninger: Combat-inspektion ændrer ikke run-state; den er kun et læselag. Auto Combat må ikke fortsætte bag et åbent Imprint-overlay. Den eksisterende pure combat-engine er fortsat fælles for manuel og automatisk combat.
+- Berørte områder: `CombatScreen`, `RollDieTile`, `ScoreTransfer`, nyt `ImprintInspectOverlay`, Imprint arcade-styles, post-Dungeon-1 DEV-preset og store-regressioner.
+- Validering: `npx tsc --noEmit`, 44 testfiler/196 tests, `npm run lint`, `npm run build` og `git diff --check` bestod. Tests dækker garanteret/idempotent boss-drop, attach/detach med bevaret refinement, run-snapshot samt reload og enkelt completion af en persisteret Imprint-Forge.
+- Kendte mangler: Automatisk browserautomation er fortsat utilgængelig i miljøet. 384 px-animationstiming og touch-inspektion skal derfor godkendes fysisk. Vite viser fortsat den kendte main-chunk warning over 500 kB.
+- Git: Ikke committed. Eksisterende lokale Talent Tree Editor-ændringer er bevaret i samme worktree.
+
+### 2026-08-02 — Dungeon Imprints vertical slice
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Dungeon 1 har nu tre permanente Imprints med garanteret første boss-drop, gentageligt unikt loot, separat Hub-arkiv, gratis attach/move/remove, Workshop-refinement og ordering-synergier i både manuel og automatisk combat.
+- Beslutninger: Imprints er egne instances og overlayer et fysisk face uden at mutere originalen. Ét monteret Imprint har præcis 1/6 Workshop-targetchance, refinement følger itemet, signature-faces kan ikke erstattes, og D1-content er Lead Edge/Relay Strike/Crescendo i Rare/Epic/Legendary.
+- Berørte områder: Nye Imprint types/content/progression/combat/UI/styles; save-version 23; Workshop, reward transition, outcomes, Hub, Talent Tree, dev-profil, GDD og tests.
+- Validering: `npx tsc --noEmit`, 193 tests, lint, production-build og lokal HTTP 200 bestod. React-kvalitetspasset fandt ingen blocking hook- eller semantikfejl.
+- Kendte mangler: Automatisk visuelt browsercheck var utilgængeligt; balanceværdier og animationstiming kræver playtest. Der er endnu kun D1-Imprints.
+- Git: Ikke committed. Eksisterende lokale Talent Tree Editor-filer er fortsat bevaret separat i samme worktree.
+
+### 2026-08-02 — Lokal Talent Tree Editor
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Projektet har nu et lokalt visuelt outline-board, hvor det canonical træ indlæses som et isoleret draft. Værktøjet genbruger de rigtige TalentNode-komponenter og Pixel Arcade-styles og understøtter nodeoprettelse/sletning, drag/grid, link/unlink, titel/note, undo/redo, autosave og ren outline-eksport. Klik og drag er adskilt, så en eksisterende node altid kan vælges uden at drag-systemet opsluger klikket.
+- Beslutninger: Editorens UI er bevidst reduceret til node- og linkstruktur. Production-data ændres aldrig direkte; priser, ranks, effects, ikoner, balance og mechanics implementeres først under den efterfølgende canonical integration.
+- Berørte områder: Ny lokal `talent-editor.html`, `src/editor`, npm-script, README og tests. Gameplay-store, save-format og det canonical Talent Tree er uændret.
+- Validering: Editor-modeltests dækker isolation, unikke nodes, graph-fejl og ren outline-eksport. TypeScript, fuld testsuite, lint, production build samt browserpass dækker visuel lighed, node creation/linking, klik på eksisterende nodes og fravær af global overflow.
+- Kendte mangler: Første version har ikke multi-select eller direkte source-file write. Links eksporteres som et enkelt rettet outline; mechanics kræver fortsat manuel canonical implementering.
+- Git: Ikke committed endnu på `codex/arcade-foundation-v1`.
 
 ### 2026-08-02 — Iron Descent Key og to-die Demon
 

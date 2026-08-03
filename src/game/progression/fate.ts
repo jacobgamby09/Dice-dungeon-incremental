@@ -53,13 +53,14 @@ export function rollFateDrop(
   tier: FateRewardTier,
   currentPity: number,
   random: () => number = Math.random,
+  chanceMultiplier = 1,
 ): FateDropResult {
   if (tier === 'boss') return { tokens: 3, nextPity: 0, pityTriggered: false }
   if (tier === 'elite') return { tokens: 1, nextPity: 0, pityTriggered: false }
 
   const nextMissCount = Math.max(0, currentPity) + 1
   const pityTriggered = nextMissCount >= FATE_PITY_THRESHOLD
-  const randomDrop = boundedRandom(random) < FATE_DROP_CHANCE
+  const randomDrop = boundedRandom(random) < Math.min(1, FATE_DROP_CHANCE * Math.max(0, chanceMultiplier))
   return pityTriggered || randomDrop
     ? { tokens: 1, nextPity: 0, pityTriggered }
     : { tokens: 0, nextPity: nextMissCount, pityTriggered: false }

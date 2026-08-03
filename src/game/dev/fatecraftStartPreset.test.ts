@@ -29,6 +29,7 @@ function createBaseProfile(): PlayerProfile {
     pendingFateDraw: null,
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
+    imprints: [],
     settings: {
       rollSpeed: 1,
       autoCombat: false,

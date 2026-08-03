@@ -1,0 +1,672 @@
+:root {
+  --editor-panel: #07070a;
+  --editor-panel-raised: #0d0d12;
+  --editor-line: #373742;
+  --editor-cyan: #22d3ee;
+  --editor-yellow: #ffe600;
+  --editor-red: #ff4f66;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  border-radius: 0;
+}
+
+.talent-editor-shell {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  display: grid;
+  grid-template-rows: 58px minmax(0, 1fr);
+  font-family: var(--arcade-font-ui, "Courier New", monospace);
+}
+
+.talent-editor-toolbar {
+  z-index: 20;
+  border-bottom: 3px solid #fff;
+  background: var(--editor-panel);
+  padding: 7px 12px;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.talent-editor-brand {
+  min-width: 220px;
+  border-right: 2px solid var(--editor-line);
+  padding-right: 12px;
+  display: grid;
+  align-content: center;
+  line-height: 1;
+}
+
+.talent-editor-brand span,
+.talent-editor-inspector > header span {
+  color: var(--editor-cyan);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.talent-editor-brand strong {
+  margin-top: 5px;
+  font-family: var(--arcade-font-display, "Courier New", monospace);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.talent-editor-toolbar__group {
+  border: 2px solid var(--editor-line);
+  display: flex;
+}
+
+.talent-editor-toolbar button,
+.talent-editor-left-panel button,
+.talent-editor-inspector button {
+  min-height: 38px;
+  border: 0;
+  border-right: 1px solid var(--editor-line);
+  background: #0b0b10;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #d9d9e2;
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.talent-editor-toolbar button:last-child,
+.talent-editor-left-panel button:last-child,
+.talent-editor-inspector button:last-child {
+  border-right: 0;
+}
+
+.talent-editor-toolbar button:hover,
+.talent-editor-left-panel button:hover,
+.talent-editor-inspector button:hover,
+.talent-editor-toolbar button.is-active {
+  background: #152c32;
+  color: #fff;
+}
+
+.talent-editor-toolbar button.is-active {
+  box-shadow: inset 0 -3px 0 var(--editor-cyan);
+}
+
+.talent-editor-toolbar button.is-danger,
+.talent-editor-inspector button.is-danger {
+  color: #ff8d9c;
+}
+
+.talent-editor-toolbar button:disabled {
+  color: #555560;
+  cursor: not-allowed;
+}
+
+.talent-editor-save-state {
+  margin-left: auto;
+  min-width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #65e989;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.talent-editor-workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(320px, 1fr) 340px;
+}
+
+.talent-editor-left-panel,
+.talent-editor-inspector {
+  z-index: 10;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--editor-panel);
+  scrollbar-color: var(--editor-line) #000;
+}
+
+.talent-editor-left-panel {
+  border-right: 3px solid #fff;
+  padding: 12px;
+}
+
+.talent-editor-left-panel > section {
+  border: 2px solid var(--editor-line);
+  margin-bottom: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 9px;
+}
+
+.talent-editor-left-panel h2,
+.talent-editor-inspector h3 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--arcade-font-display, "Courier New", monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.talent-editor-left-panel label,
+.talent-editor-inspector label {
+  display: grid;
+  gap: 5px;
+  color: #9d9daa;
+  font-size: 0.62rem;
+  font-weight: 850;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.talent-editor-left-panel input,
+.talent-editor-left-panel select,
+.talent-editor-inspector input,
+.talent-editor-inspector select,
+.talent-editor-inspector textarea {
+  width: 100%;
+  min-height: 38px;
+  border: 2px solid var(--editor-line);
+  background: #000;
+  padding: 7px 8px;
+  color: #fff;
+  font: 700 0.72rem/1.35 var(--arcade-font-ui, monospace);
+}
+
+.talent-editor-inspector textarea {
+  resize: vertical;
+  text-transform: none;
+}
+
+.talent-editor-left-panel input:focus,
+.talent-editor-left-panel select:focus,
+.talent-editor-inspector input:focus,
+.talent-editor-inspector select:focus,
+.talent-editor-inspector textarea:focus {
+  outline: 2px solid var(--editor-cyan);
+  outline-offset: 0;
+  border-color: var(--editor-cyan);
+}
+
+.talent-editor-check {
+  grid-template-columns: auto 1fr !important;
+  align-items: center;
+}
+
+.talent-editor-check input {
+  width: 20px;
+  min-height: 20px;
+  accent-color: var(--editor-cyan);
+}
+
+.talent-editor-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #111;
+  display: grid;
+  place-items: stretch center;
+}
+
+.talent-editor-device {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.talent-editor-device--320 { width: 320px; }
+.talent-editor-device--384 { width: 384px; }
+.talent-editor-device--430 { width: 430px; }
+
+.talent-editor-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.talent-editor-canvas .talent-canvas__world {
+  transition: none;
+}
+
+.talent-editor-canvas .talent-canvas__node-position {
+  touch-action: none;
+}
+
+.talent-editor-node-position--selected::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 2px dashed var(--editor-yellow);
+  pointer-events: none;
+}
+
+.talent-editor-connection-source {
+  fill: none;
+  stroke: var(--editor-yellow);
+  stroke-dasharray: 8 5;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  animation: talent-editor-dash 0.8s linear infinite;
+}
+
+.talent-editor-mode-note,
+.talent-editor-notice {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 30;
+  transform: translateX(-50%);
+  border: 2px solid var(--editor-yellow);
+  background: #000;
+  padding: 8px 12px;
+  color: var(--editor-yellow);
+  font-size: 0.68rem;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.talent-editor-notice {
+  top: auto;
+  bottom: 14px;
+  border-color: var(--editor-cyan);
+  color: var(--editor-cyan);
+}
+
+.talent-editor-inspector {
+  border-left: 3px solid #fff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.talent-editor-inspector > header,
+.talent-editor-ranks article > header,
+.talent-editor-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.talent-editor-inspector > header {
+  border-bottom: 2px solid var(--editor-line);
+  padding-bottom: 10px;
+}
+
+.talent-editor-inspector > header > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.talent-editor-inspector > header strong {
+  font-family: var(--arcade-font-display, monospace);
+  font-size: 1rem;
+}
+
+.talent-editor-inspector > header > div:last-child {
+  display: flex;
+  border: 2px solid var(--editor-line);
+}
+
+.talent-editor-inspector > header button {
+  min-width: 38px;
+  padding: 4px;
+}
+
+.talent-editor-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.talent-editor-prerequisites,
+.talent-editor-ranks {
+  border-top: 2px solid var(--editor-line);
+  padding-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.talent-editor-prerequisites > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.talent-editor-prerequisites > div button {
+  min-height: 28px;
+  border: 1px solid #65717c;
+  padding: 4px 6px;
+  text-transform: none;
+}
+
+.talent-editor-prerequisites > div span {
+  color: #777783;
+  font-size: 0.65rem;
+}
+
+.talent-editor-ranks article {
+  border: 2px solid var(--editor-line);
+  background: var(--editor-panel-raised);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.talent-editor-ranks article > header {
+  grid-column: 1 / -1;
+  border-bottom: 1px solid var(--editor-line);
+  padding-bottom: 5px;
+}
+
+.talent-editor-ranks article > header button {
+  min-height: 26px;
+  padding: 3px;
+}
+
+.talent-editor-ranks article label:last-child {
+  grid-column: 1 / -1;
+}
+
+.talent-editor-preview-purchase {
+  min-height: 46px !important;
+  border: 3px solid #fff !important;
+  background: #155c2a !important;
+  color: #fff !important;
+}
+
+.talent-editor-validation__summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.talent-editor-validation__summary span {
+  border: 1px solid currentColor;
+  padding: 6px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+[data-severity='error'] { color: #ff6579; }
+[data-severity='warning'] { color: #ffbf47; }
+
+.talent-editor-validation p.is-valid {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #63e884;
+  font-size: 0.68rem;
+}
+
+.talent-editor-issues {
+  max-height: 360px;
+  overflow-y: auto;
+  display: grid;
+  gap: 5px;
+}
+
+.talent-editor-issues button {
+  min-height: 0;
+  border: 1px solid currentColor;
+  padding: 6px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: 0.58rem;
+  line-height: 1.35;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+}
+
+.talent-editor-issues button svg {
+  flex: 0 0 auto;
+}
+
+.talent-editor-empty-inspector {
+  margin: auto 0;
+  border: 2px dashed var(--editor-line);
+  padding: 24px;
+  color: #777783;
+  text-align: center;
+}
+
+.talent-editor-empty-inspector h2 {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.talent-editor-empty-inspector p {
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+@keyframes talent-editor-dash {
+  to { stroke-dashoffset: -13; }
+}
+
+@media (max-width: 1050px) {
+  .talent-editor-workspace {
+    grid-template-columns: 210px minmax(320px, 1fr) 300px;
+  }
+
+  .talent-editor-brand { display: none; }
+}
+
+/* Simplified outline editor */
+.talent-outline-workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) 310px;
+}
+
+.talent-outline-editor .talent-editor-stage {
+  border-right: 3px solid #fff;
+}
+
+.talent-outline-editor .talent-canvas-node__cost,
+.talent-outline-editor .talent-canvas-node__ranks {
+  display: none;
+}
+
+.talent-editor-node-label {
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  width: 130px;
+  transform: translateX(-50%);
+  overflow: hidden;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 2px 2px 0 #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.talent-outline-help {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 30;
+  transform: translateX(-50%);
+  border: 2px solid #4b4b55;
+  background: #000;
+  padding: 7px 10px;
+  color: #a9a9b4;
+  font-size: 0.62rem;
+  font-weight: 800;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.talent-outline-inspector {
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--editor-panel);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.talent-outline-inspector > header {
+  border-bottom: 2px solid var(--editor-line);
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.talent-outline-inspector > header span {
+  color: var(--editor-cyan);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.talent-outline-inspector label {
+  display: grid;
+  gap: 6px;
+  color: #b6b6c0;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.talent-outline-inspector input,
+.talent-outline-inspector textarea {
+  width: 100%;
+  border: 2px solid var(--editor-line);
+  background: #000;
+  padding: 10px;
+  color: #fff;
+  font: 750 0.78rem/1.45 var(--arcade-font-ui, monospace);
+}
+
+.talent-outline-inspector textarea {
+  resize: vertical;
+  text-transform: none;
+}
+
+.talent-outline-inspector button {
+  min-height: 42px;
+  border: 2px solid var(--editor-line);
+  background: #0b0b10;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.talent-outline-inspector button.is-danger {
+  width: 42px;
+  color: #ff8d9c;
+}
+
+.talent-outline-inspector button.is-active {
+  border-color: var(--editor-yellow);
+  color: var(--editor-yellow);
+}
+
+.talent-outline-inspector .talent-outline-primary {
+  border-color: var(--editor-cyan);
+  background: #0c3037;
+}
+
+.talent-outline-links {
+  border-top: 2px solid var(--editor-line);
+  padding-top: 12px;
+  display: grid;
+  gap: 7px;
+}
+
+.talent-outline-links h2 {
+  margin: 0 0 3px;
+  font-family: var(--arcade-font-display, monospace);
+  font-size: 0.82rem;
+}
+
+.talent-outline-links p {
+  color: #777783;
+  font-size: 0.68rem;
+}
+
+.talent-outline-links > div {
+  border: 1px solid var(--editor-line);
+  padding-left: 8px;
+  display: grid;
+  grid-template-columns: 1fr 36px;
+  align-items: center;
+  gap: 5px;
+}
+
+.talent-outline-links > div span {
+  overflow: hidden;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.talent-outline-links small {
+  margin-right: 7px;
+  color: var(--editor-cyan);
+  font-size: 0.52rem;
+}
+
+.talent-outline-links > div button {
+  min-width: 36px;
+  min-height: 34px;
+  border: 0;
+  border-left: 1px solid var(--editor-line);
+  padding: 4px;
+  color: #ff8d9c;
+}
+
+@media (max-width: 820px) {
+  .talent-outline-workspace {
+    grid-template-columns: minmax(360px, 1fr) 270px;
+  }
+}

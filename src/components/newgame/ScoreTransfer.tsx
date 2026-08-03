@@ -2,9 +2,11 @@ import { memo } from 'react'
 import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 import type { FaceEvolution, FaceSignature, FaceType } from '../../game/types/dice'
+import type { ImprintSnapshot } from '../../game/types/imprints'
 import { EvolutionIcon } from './EvolutionIcon'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
+import { ImprintIcon } from './ImprintIcon'
 import { EVOLUTION_VISUALS } from './evolutionVisuals'
 import { SignatureIcon } from './SignatureIcon'
 import { SIGNATURE_VISUALS } from './signatureVisuals'
@@ -25,6 +27,8 @@ export interface ScoreTransferPath {
   value: number
   evolution?: FaceEvolution
   signature?: FaceSignature
+  imprint?: ImprintSnapshot
+  imprintBonus?: number
   wardValue?: number
   fromX: number
   fromY: number
@@ -53,10 +57,15 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
     path.overflowValue ? `Up to ${path.overflowValue} Overflow` : null,
     path.secondaryAttackValue ? `+${path.secondaryAttackValue} Attack` : null,
     path.drainAttackValue ? `Drain +${path.drainAttackValue} Attack` : null,
+    path.imprintBonus ? `${path.imprint?.name ?? 'Imprint'} +${path.imprintBonus}` : null,
   ].filter((label): label is string => label !== null)
   const scoreStyle = {
-    '--score-color': evolutionVisual?.accent ?? signatureVisual?.accent ?? FACE_META[path.type].color,
-    '--score-dark': evolutionVisual?.surface ?? signatureVisual?.surface ?? FACE_META[path.type].shadow,
+    '--score-color': path.imprint
+      ? path.imprint.rarity === 'legendary' ? '#f97316' : path.imprint.rarity === 'epic' ? '#e879f9' : '#22d3ee'
+      : evolutionVisual?.accent ?? signatureVisual?.accent ?? FACE_META[path.type].color,
+    '--score-dark': path.imprint
+      ? path.imprint.rarity === 'legendary' ? '#431407' : path.imprint.rarity === 'epic' ? '#3b0764' : '#083344'
+      : evolutionVisual?.surface ?? signatureVisual?.surface ?? FACE_META[path.type].shadow,
     '--score-highlight': evolutionVisual?.highlight ?? signatureVisual?.highlight ?? '#ffffff',
     left: path.fromX,
     top: path.fromY,
@@ -65,7 +74,7 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
   return (
     <div
       aria-hidden="true"
-      className={`score-transfer-origin score-transfer-origin--${path.type}${path.evolution ? ` score-transfer-origin--evolution score-transfer-origin--${path.evolution.id}` : ''}${path.signature ? ` score-transfer-origin--signature score-transfer-origin--${path.signature.id}` : ''}`}
+      className={`score-transfer-origin score-transfer-origin--${path.type}${path.evolution ? ` score-transfer-origin--evolution score-transfer-origin--${path.evolution.id}` : ''}${path.signature ? ` score-transfer-origin--signature score-transfer-origin--${path.signature.id}` : ''}${path.imprint ? ` score-transfer-origin--imprint score-transfer-origin--${path.imprint.definitionId}` : ''}`}
       style={scoreStyle}
     >
       <motion.span
@@ -100,14 +109,16 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
           y: { duration: path.duration, ease: 'easeInOut', times: [0, 0.3, 1] },
         }}
       >
-        {path.evolution
+        {path.imprint
+          ? <ImprintIcon id={path.imprint.definitionId} rarity={path.imprint.rarity} size={21} />
+          : path.evolution
           ? <EvolutionIcon evolutionId={path.evolution.id} size={21} />
           : path.signature
             ? <SignatureIcon signatureId={path.signature.id} size={21} />
           : <FaceIcon type={path.type} size={20} />}
         <strong>+{path.value}</strong>
-        {path.evolution || path.signature
-          ? <small>{path.evolution?.name ?? path.signature?.name}</small>
+        {path.imprint || path.evolution || path.signature
+          ? <small>{path.imprint?.name ?? path.evolution?.name ?? path.signature?.name}</small>
           : null}
         {effectLabels.length > 0 ? (
           <span className="score-transfer__effects">

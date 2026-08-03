@@ -36,6 +36,7 @@ export interface FaceInstance {
   evolutionReady?: boolean
   evolution?: FaceEvolution
   signature?: FaceSignature
+  imprint?: import('./imprints').ImprintSnapshot
 }
 
 export type DieFaces = [
@@ -108,6 +109,8 @@ export interface RollResult {
   charmTriggers?: import('./charms').CharmTrigger[]
   evolution?: FaceEvolution
   signature?: FaceSignature
+  imprint?: import('./imprints').ImprintSnapshot
+  imprintBonus?: number
 }
 
 export function cloneDie(die: DieInstance): DieInstance {
@@ -117,6 +120,7 @@ export function cloneDie(die: DieInstance): DieInstance {
       ...face,
       evolution: face.evolution ? { ...face.evolution } : undefined,
       signature: face.signature ? { ...face.signature } : undefined,
+      imprint: face.imprint ? { ...face.imprint } : undefined,
     })) as DieFaces,
   }
 }

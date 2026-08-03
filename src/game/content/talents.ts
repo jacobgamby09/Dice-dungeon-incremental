@@ -23,9 +23,24 @@ export const TALENT_IDS = {
   fatesFavor: 'fates-favor',
   wovenPair: 'woven-pair',
   trinityKnot: 'trinity-knot',
+  occultProspecting: 'occult-prospecting',
+  resonantEtching: 'resonant-etching',
+  deepDelver: 'deep-delver',
 } as const
 
 export const TALENTS: TalentDefinition[] = [
+  {
+    id: TALENT_IDS.resonantEtching,
+    name: 'Resonant Etching',
+    description: 'When Workshop power lands on an Imprint, gain a chance for +1 additional refinement.',
+    iconKey: 'resonant-etching',
+    prerequisiteIds: [TALENT_IDS.faceMastery],
+    ranks: [
+      { cost: 28, effects: [{ type: 'imprint_forge_bonus_chance', chance: 0.12 }] },
+      { cost: 52, effects: [{ type: 'imprint_forge_bonus_chance', chance: 0.12 }] },
+    ],
+    track: 'workshop',
+  },
   {
     id: TALENT_IDS.battleHardenedOne,
     name: 'Inner Spark',
@@ -183,6 +198,18 @@ export const TALENTS: TalentDefinition[] = [
     track: 'descent',
   },
   {
+    id: TALENT_IDS.deepDelver,
+    name: 'Deep Delver',
+    description: 'Increase the higher-dungeon bonus to Fate Token and Imprint drop chances.',
+    iconKey: 'deep-delver',
+    prerequisiteIds: [TALENT_IDS.battleHardenedTwo],
+    ranks: [
+      { cost: 34, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.15 }] },
+      { cost: 68, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.15 }] },
+    ],
+    track: 'descent',
+  },
+  {
     id: TALENT_IDS.quickDraw,
     name: 'Quick Draw',
     description: 'Dice roll and score animations play 15% faster per rank.',
@@ -265,6 +292,19 @@ export const TALENTS: TalentDefinition[] = [
       { cost: 18, effects: [{ type: 'charm_rarity_protection', epicThreshold: 8 }] },
       { cost: 36, effects: [{ type: 'charm_rarity_protection', epicThreshold: 6 }] },
       { cost: 64, effects: [{ type: 'charm_rarity_protection', epicThreshold: 6, legendaryThreshold: 15 }] },
+    ],
+    track: 'fate',
+  },
+  {
+    id: TALENT_IDS.occultProspecting,
+    name: 'Occult Prospecting',
+    description: 'Increase both Fate Token and Imprint drop chances by 15% per rank.',
+    iconKey: 'occult-prospecting',
+    prerequisiteIds: [TALENT_IDS.fatecraft],
+    ranks: [
+      { cost: 22, effects: [{ type: 'fate_drop_multiplier', multiplier: 1.15 }, { type: 'imprint_drop_multiplier', multiplier: 1.15 }] },
+      { cost: 44, effects: [{ type: 'fate_drop_multiplier', multiplier: 1.15 }, { type: 'imprint_drop_multiplier', multiplier: 1.15 }] },
+      { cost: 76, effects: [{ type: 'fate_drop_multiplier', multiplier: 1.15 }, { type: 'imprint_drop_multiplier', multiplier: 1.15 }] },
     ],
     track: 'fate',
   },

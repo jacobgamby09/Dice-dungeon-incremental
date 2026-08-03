@@ -1,4 +1,5 @@
 import { addRollEffects, rollDie } from '../combat/rollDie'
+import { applyImprintRoll } from '../combat/imprints'
 import { totalEnemyRolls } from '../combat/rollEnemyDie'
 import { resolveRound } from '../combat/resolveRound'
 import { DUNGEONS } from '../content/dungeons'
@@ -8,12 +9,20 @@ import type { DieInstance } from '../types/dice'
 import type { SoulDieState } from '../types/dice'
 import type { DungeonId } from '../types/dungeon'
 import type { TalentRanks } from '../types/progression'
+import type { ImprintInstance } from '../types/imprints'
 import { getEnemyRewardBreakdown } from '../progression/rewards'
+import { applyImprintsToDice, grantImprint, rollImprintDrop } from '../progression/imprints'
 import { createSoulDieState, drawSoulDie } from '../progression/soulDie'
-import { getSoulDieValues } from '../progression/talents'
+import {
+  getDungeonLootMultiplier,
+  getImprintDropMultiplier,
+  getSoulDieValues,
+} from '../progression/talents'
 
 export interface SimulationBuild {
   dice: readonly DieInstance[]
+  dungeonClearCount?: number
+  imprints?: readonly ImprintInstance[]
   playerMaxHp: number
   soulDieState?: SoulDieState
   talentRanks?: Readonly<TalentRanks>
@@ -27,6 +36,7 @@ export interface DungeonRunSimulation {
   defeatedAtFloor: number | null
   highestFloorCleared: number
   hpRemaining: number
+  imprints: ImprintInstance[]
   roundsByFloor: number[]
   roundsPlayed: number
   soulsCollected: number
@@ -72,6 +82,8 @@ export function simulateDungeonRun(
   let soulsCollected = 0
   let xpEarned = 0
   let soulDieState = build.soulDieState ?? createSoulDieState()
+  let imprints = [...(build.imprints ?? [])]
+  const orderedDice = applyImprintsToDice(build.dice, imprints)
 
   for (const floor of dungeon.floors) {
     let enemy = createEnemyState(floor.encounterId, random)
@@ -83,12 +95,17 @@ export function simulateDungeonRun(
       let totals = { ...EMPTY_TOTALS }
       let pendingMomentum = 0
       let pendingFortify = 0
-      const orderedDice = build.dice
+      let pendingImprintRelay = 0
       for (const [index, die] of orderedDice.entries()) {
+        const imprintRoll = applyImprintRoll(
+          rollDie(die, random),
+          index,
+          pendingImprintRelay,
+        )
         const effects = addRollEffects(
           totals,
           pendingMomentum,
-          rollDie(die, random),
+          imprintRoll.result,
           index === orderedDice.length - 1,
           pendingFortify,
           {
@@ -99,6 +116,7 @@ export function simulateDungeonRun(
         totals = effects.totals
         pendingMomentum = effects.pendingMomentum
         pendingFortify = effects.pendingFortify
+        pendingImprintRelay = imprintRoll.nextRelayBonus
       }
 
       roundsPlayed += 1
@@ -145,6 +163,24 @@ export function simulateDungeonRun(
         )
         soulsCollected += reward.souls
         xpEarned += reward.xp
+        const imprintDrop = rollImprintDrop({
+          dungeonId,
+          floor: floor.floor,
+          isBoss: floor.isBoss,
+          clearCount: build.dungeonClearCount ?? 0,
+          owned: imprints,
+          random,
+          dropMultiplier: getImprintDropMultiplier(build.talentRanks ?? {})
+            * (dungeonId === 'iron-depths' ? 1.6 : 1)
+            * getDungeonLootMultiplier(build.talentRanks ?? {}),
+        })
+        if (imprintDrop) {
+          imprints = grantImprint(
+            imprints,
+            imprintDrop,
+            `simulation-imprint-${imprintDrop}-${dungeonId}-${floor.floor}-${imprints.length}`,
+          )
+        }
         break
       }
 
@@ -157,6 +193,7 @@ export function simulateDungeonRun(
           defeatedAtFloor: floor.floor,
           highestFloorCleared,
           hpRemaining: 0,
+          imprints,
           roundsByFloor,
           roundsPlayed,
           soulsCollected,
@@ -177,6 +214,7 @@ export function simulateDungeonRun(
         defeatedAtFloor: floor.floor,
         highestFloorCleared,
         hpRemaining: playerHp,
+        imprints,
         roundsByFloor,
         roundsPlayed,
         soulsCollected,
@@ -195,6 +233,7 @@ export function simulateDungeonRun(
     defeatedAtFloor: null,
     highestFloorCleared,
     hpRemaining: playerHp,
+    imprints,
     roundsByFloor,
     roundsPlayed,
     soulsCollected,

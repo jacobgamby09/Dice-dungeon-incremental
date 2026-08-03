@@ -134,6 +134,35 @@ export function getWorkshopCostMultiplier(
   )
 }
 
+function getMultiplicativeTalentEffect(
+  talentRanks: Readonly<TalentRanks>,
+  type: 'fate_drop_multiplier' | 'imprint_drop_multiplier' | 'dungeon_loot_multiplier',
+): number {
+  return getPurchasedEffects(talentRanks).reduce(
+    (multiplier, effect) => multiplier * (effect.type === type ? effect.multiplier : 1),
+    1,
+  )
+}
+
+export function getFateDropMultiplier(talentRanks: Readonly<TalentRanks>): number {
+  return getMultiplicativeTalentEffect(talentRanks, 'fate_drop_multiplier')
+}
+
+export function getImprintDropMultiplier(talentRanks: Readonly<TalentRanks>): number {
+  return getMultiplicativeTalentEffect(talentRanks, 'imprint_drop_multiplier')
+}
+
+export function getDungeonLootMultiplier(talentRanks: Readonly<TalentRanks>): number {
+  return getMultiplicativeTalentEffect(talentRanks, 'dungeon_loot_multiplier')
+}
+
+export function getImprintForgeBonusChance(talentRanks: Readonly<TalentRanks>): number {
+  return Math.min(1, getPurchasedEffects(talentRanks).reduce(
+    (chance, effect) => chance + (effect.type === 'imprint_forge_bonus_chance' ? effect.chance : 0),
+    0,
+  ))
+}
+
 export function hasCharmsUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_charms')
 }

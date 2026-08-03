@@ -3,6 +3,7 @@ import type { SoulDieState, SoulDieValues } from './dice'
 import type { DungeonId, DungeonProgress } from './dungeon'
 import type { PendingWorkshopForge, WorkshopDieValues } from './workshop'
 import type { CharmId, CharmRanks, CharmRarityProgress, PendingFateDraw } from './charms'
+import type { ImprintInstance } from './imprints'
 
 export const TALENT_TRACKS = [
   'core',
@@ -36,6 +37,9 @@ export const TALENT_ICON_KEYS = [
   'charm-pair',
   'charm-trinity',
   'fate-favor',
+  'occult-prospecting',
+  'resonant-etching',
+  'deep-delver',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -53,6 +57,10 @@ export type TalentEffect =
   | { type: 'unlock_auto_combat' }
   | { type: 'unlock_charms' }
   | { type: 'charm_rarity_protection'; epicThreshold: number; legendaryThreshold?: number }
+  | { type: 'fate_drop_multiplier'; multiplier: number }
+  | { type: 'imprint_drop_multiplier'; multiplier: number }
+  | { type: 'imprint_forge_bonus_chance'; chance: number }
+  | { type: 'dungeon_loot_multiplier'; multiplier: number }
 
 export type TalentRequirement = {
   type: 'dungeon_clear'
@@ -104,5 +112,6 @@ export interface PlayerProfile {
   pendingFateDraw: PendingFateDraw | null
   recentFateOperationIds: string[]
   pendingWorkshopForge: PendingWorkshopForge | null
+  imprints: ImprintInstance[]
   settings: PlayerSettings
 }

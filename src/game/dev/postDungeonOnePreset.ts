@@ -2,6 +2,7 @@ import { createDieById } from '../content/dice'
 import { TALENT_IDS } from '../content/talents'
 import type { DieFaces } from '../types/dice'
 import type { PlayerProfile, TalentRanks } from '../types/progression'
+import { createImprintInstance } from '../content/imprints'
 
 export const POST_DUNGEON_ONE_DEV_PRESET = {
   collectionCount: 5,
@@ -12,6 +13,8 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   maxHp: 17,
   soulsSpent: 267,
   xpSpent: 450,
+  testSouls: 500,
+  imprintCount: 3,
 } as const
 
 const POST_DUNGEON_ONE_TALENT_RANKS: TalentRanks = {
@@ -60,7 +63,7 @@ export function createPostDungeonOneDevProfile(
   return {
     ...baseProfile,
     xp: 0,
-    bankedSouls: 0,
+    bankedSouls: POST_DUNGEON_ONE_DEV_PRESET.testSouls,
     talentRanks: { ...POST_DUNGEON_ONE_TALENT_RANKS },
     unlockedDungeonIds: ['prototype-depths', 'iron-depths'],
     dungeonProgress: {
@@ -75,6 +78,11 @@ export function createPostDungeonOneDevProfile(
     },
     diceCollection,
     equippedDieIds: [...POST_DUNGEON_ONE_EQUIPPED_DIE_IDS],
+    imprints: [
+      createImprintInstance('lead-edge', 'dev-lead-edge'),
+      createImprintInstance('relay-strike', 'dev-relay-strike'),
+      createImprintInstance('crescendo', 'dev-crescendo'),
+    ],
     settings: {
       rollSpeed: 1,
       autoCombat: false,

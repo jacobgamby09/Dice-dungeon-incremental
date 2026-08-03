@@ -7,6 +7,7 @@ import type {
   CharmTrigger,
   FateRewardTier,
 } from './charms'
+import type { ImprintId } from './imprints'
 
 export type EnemyId =
   | 'slime'
@@ -115,6 +116,7 @@ export interface EncounterReward {
   fatePity?: number
   fatePityTriggered?: boolean
   dungeonKey?: DungeonKeyId
+  imprintDrop?: ImprintId
   dungeonComplete: boolean
 }
 
@@ -131,6 +133,7 @@ export interface RunStats {
   bonusSoulsEarned?: number
   charmBonusSoulsEarned?: number
   fateTokensEarned?: number
+  imprintsFound?: ImprintId[]
 }
 
 export interface RunState {

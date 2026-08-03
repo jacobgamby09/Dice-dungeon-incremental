@@ -42,6 +42,7 @@ export const BASE_CHAOS_FORGE_COST = 1
 export function canForgeFace(
   face: FaceInstance,
 ): boolean {
+  if (face.imprint) return true
   if (face.signature || face.evolution || face.evolutionReady) return false
   return true
 }
@@ -142,6 +143,32 @@ function clampRandomRoll(random: () => number): number {
   return Math.min(0.999999999, Math.max(0, random()))
 }
 
+export function selectWorkshopTargetFace(
+  die: DieInstance,
+  roll: number,
+): FaceInstance | null {
+  const eligibleFaces = getChaosEligibleFaces(die)
+  if (eligibleFaces.length === 0) return null
+  const imprintFaces = eligibleFaces.filter((face) => face.imprint)
+  const regularFaces = eligibleFaces.filter((face) => !face.imprint)
+  const boundedRoll = Math.min(0.999999999, Math.max(0, roll))
+
+  // An attached Imprint owns its physical face slot: exactly one sixth per Imprint.
+  // Any probability belonging to dormant non-forgeable base faces is redistributed
+  // only among regular forgeable faces, never onto Imprints.
+  const imprintBand = Math.min(1, imprintFaces.length / 6)
+  if (imprintFaces.length > 0 && boundedRoll < imprintBand) {
+    return imprintFaces[Math.floor(boundedRoll * 6)] ?? imprintFaces[0]
+  }
+  if (regularFaces.length === 0) return imprintFaces[0] ?? null
+  const normalizedRegularRoll = imprintBand >= 1
+    ? 0
+    : (boundedRoll - imprintBand) / (1 - imprintBand)
+  return regularFaces[
+    Math.min(regularFaces.length - 1, Math.floor(normalizedRegularRoll * regularFaces.length))
+  ]
+}
+
 export function prepareWorkshopForge(
   die: DieInstance,
   operationId: string,
@@ -158,7 +185,8 @@ export function prepareWorkshopForge(
   if (eligibleFaces.length === 0 || cost === null) return null
 
   const faceRoll = clampRandomRoll(random)
-  const targetFace = eligibleFaces[Math.floor(faceRoll * eligibleFaces.length)]
+  const targetFace = selectWorkshopTargetFace(die, faceRoll)
+  if (!targetFace) return null
   const workshopRoll = clampRandomRoll(random)
   const workshopFace = workshopFaces[Math.floor(workshopRoll * workshopFaces.length)]
   const rolledAmount = Math.max(1, Math.floor(workshopFace.value))
@@ -200,7 +228,8 @@ export function rerollWorkshopTarget(
   ) return null
 
   const faceRoll = clampRandomRoll(random)
-  const targetFace = eligibleFaces[Math.floor(faceRoll * eligibleFaces.length)]
+  const targetFace = selectWorkshopTargetFace(die, faceRoll)
+  if (!targetFace) return null
   return {
     ...pending,
     targetFaceId: targetFace.id,

@@ -15,6 +15,7 @@ export function rollDie(die: DieInstance, rng: () => number = Math.random): Roll
     value: face.value,
     evolution: face.evolution ? { ...face.evolution } : undefined,
     signature: face.signature ? { ...face.signature } : undefined,
+    imprint: face.imprint ? { ...face.imprint } : undefined,
   }
 }
 

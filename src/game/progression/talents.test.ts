@@ -42,6 +42,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     pendingFateDraw: null,
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
+    imprints: [],
     settings: { rollSpeed: 1, autoCombat: false },
   }
 }

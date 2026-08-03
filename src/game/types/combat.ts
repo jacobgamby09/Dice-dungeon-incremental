@@ -55,6 +55,7 @@ export interface CombatState {
   totals: RoundTotals
   pendingMomentum: number
   pendingFortify: number
+  pendingImprintRelay: number
   lastCharmTriggers: CharmTrigger[]
   charmTriggerVersion: number
   carriedShield: number

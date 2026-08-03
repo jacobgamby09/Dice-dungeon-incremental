@@ -12,6 +12,9 @@ import {
   Hammer,
   Link2,
   Clover,
+  Search,
+  Badge,
+  Pickaxe,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
@@ -58,6 +61,10 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   workshop_cost_multiplier: Hammer,
   charm_slots: Link2,
   charm_rarity_protection: Clover,
+  fate_drop_multiplier: Search,
+  imprint_drop_multiplier: Search,
+  imprint_forge_bonus_chance: Badge,
+  dungeon_loot_multiplier: Pickaxe,
 }
 
 function getEffectLabel(effect: TalentEffect): string {
@@ -90,6 +97,14 @@ function getEffectLabel(effect: TalentEffect): string {
       return effect.legendaryThreshold
         ? `Epic+ within ${effect.epicThreshold} · Legendary within ${effect.legendaryThreshold}`
         : `Epic+ within ${effect.epicThreshold} Fate Draws`
+    case 'fate_drop_multiplier':
+      return `+${Math.round((effect.multiplier - 1) * 100)}% Fate Token Chance`
+    case 'imprint_drop_multiplier':
+      return `+${Math.round((effect.multiplier - 1) * 100)}% Imprint Chance`
+    case 'imprint_forge_bonus_chance':
+      return `${Math.round(effect.chance * 100)}% Imprint Forge +1`
+    case 'dungeon_loot_multiplier':
+      return `+${Math.round((effect.multiplier - 1) * 100)}% Deep Dungeon Loot`
   }
 }
 

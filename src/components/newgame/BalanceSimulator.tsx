@@ -25,11 +25,14 @@ const DISPLAYED_MILESTONES: readonly {
   { key: 'secondDieRun', label: 'Second die', target: 'Target · Run 6–15' },
   { key: 'firstLoadoutChoiceRun', label: 'First loadout choice' },
   { key: 'firstJackpotForgeRun', label: 'First +2/+3 Forge' },
+  { key: 'firstImprintRun', label: 'First Imprint' },
   { key: 'dungeonOneClearRun', label: 'Dungeon 1 clear', target: 'Target · Run 35–50' },
   { key: 'dungeonTwoUnlockRun', label: 'Dungeon 2 unlock', target: 'Target · By run 60' },
   { key: 'dungeonTwoFirstRun', label: 'First Dungeon 2 run' },
   { key: 'fourthSlotRun', label: 'Fourth dice slot', target: 'Target · At D1 clear' },
   { key: 'bloodwellDieRun', label: 'Bloodwell Die', target: 'Target · At D1 clear' },
+  { key: 'relayImprintRun', label: 'Relay Strike found' },
+  { key: 'crescendoImprintRun', label: 'Crescendo found' },
   { key: 'dungeonTwoClearRun', label: 'Dungeon 2 clear' },
 ]
 
@@ -193,6 +196,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                   <th scope="col">D2 floor</th>
                   <th scope="col">4 slots</th>
                   <th scope="col">Bloodwell</th>
+                  <th scope="col">Imprints</th>
                   <th scope="col">XP</th>
                   <th scope="col">Souls</th>
                 </tr>
@@ -211,6 +215,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                     <td>{formatDecimal(point.dungeonTwoAverageFloor)}</td>
                     <td>{formatPercent(point.fourthSlotRate)}</td>
                     <td>{formatPercent(point.bloodwellRate)}</td>
+                    <td>{formatDecimal(point.averageImprintCount)}</td>
                     <td>{formatDecimal(point.averageXpAfterSpending)}</td>
                     <td>{formatDecimal(point.averageSoulsAfterSpending)}</td>
                   </tr>

@@ -70,6 +70,7 @@ export function DefeatScreen() {
         charmBonusSouls={run.runStats.charmBonusSoulsEarned ?? 0}
         fateTokensEarned={run.runStats.fateTokensEarned ?? 0}
         heading="This descent"
+        imprintDrops={run.runStats.imprintsFound ?? []}
         showLootSection
         soulsEarned={run.runStats.soulsEarned}
         totalSouls={profile.souls}

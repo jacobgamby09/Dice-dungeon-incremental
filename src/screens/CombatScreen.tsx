@@ -16,6 +16,7 @@ import { CurrencyIcon } from '../components/newgame/CurrencyIcon'
 import type { EnemyDamageTransferPath } from '../components/newgame/EnemyDamageTransfer'
 import { EnemyIntentTray } from '../components/newgame/EnemyIntentTray'
 import { HpBar } from '../components/newgame/HpBar'
+import { ImprintInspectOverlay } from '../components/newgame/ImprintInspectOverlay'
 import { RollDieTile } from '../components/newgame/RollDieTile'
 import { RoundTotalsPanel } from '../components/newgame/RoundTotalsPanel'
 import { RunMenu } from '../components/newgame/RunMenu'
@@ -30,6 +31,7 @@ import { totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { getRollContributions } from '../game/combat/rollDie'
 import { getEnemyDie } from '../game/content/enemyDice'
 import { getRollSpeed, hasAutoCombatUnlocked } from '../game/progression/talents'
+import type { ImprintSnapshot } from '../game/types/imprints'
 import { useNewGameStore } from '../store/newGameStore'
 
 interface ActiveRoll {
@@ -97,6 +99,7 @@ export function CombatScreen() {
 
   const [activeRoll, setActiveRoll] = useState<ActiveRoll | null>(null)
   const [scoreTransfer, setScoreTransfer] = useState<ScoreTransferPath | null>(null)
+  const [inspectedImprint, setInspectedImprint] = useState<ImprintSnapshot | null>(null)
   const [enemyHitVersion, setEnemyHitVersion] = useState(0)
   const [enemyAttackVersion, setEnemyAttackVersion] = useState(0)
   const [enemyDamageTransfer, setEnemyDamageTransfer] = useState<EnemyDamageTransferPath | null>(null)
@@ -118,6 +121,10 @@ export function CombatScreen() {
 
   const completeEnemyDamageTransfer = useCallback(() => {
     setEnemyDamageTransfer(null)
+  }, [])
+
+  const closeImprintInspection = useCallback(() => {
+    setInspectedImprint(null)
   }, [])
 
   const rollSpeed = getRollSpeed(
@@ -371,6 +378,8 @@ export function CombatScreen() {
           value: resultContribution?.totalValue ?? result.value,
           evolution: result.evolution,
           signature: result.signature,
+          imprint: result.imprint,
+          imprintBonus: result.imprintBonus,
           wardValue: resultContribution?.wardValue,
           fromX,
           fromY,
@@ -379,7 +388,7 @@ export function CombatScreen() {
           duration: Math.max(0.3, 0.46 / rollSpeed),
         })
         setActiveRoll(null)
-      }, result.evolution || result.signature
+      }, result.evolution || result.signature || result.imprint
         ? scaledPresentationDelay(360, MIN_HERO_LANDING_PAUSE_MS, rollSpeed)
         : scaledPresentationDelay(260, MIN_STANDARD_LANDING_PAUSE_MS, rollSpeed))
 
@@ -399,7 +408,7 @@ export function CombatScreen() {
   ])
 
   useEffect(() => {
-    if (!profile.settings.autoCombat || profile.automationPaused) return
+    if (!profile.settings.autoCombat || profile.automationPaused || inspectedImprint) return
     if (combat.phase !== 'awaiting_roll' || diceLeft <= 0 || isScoreAnimating) return
     const timer = window.setTimeout(
       handleDraw,
@@ -410,6 +419,7 @@ export function CombatScreen() {
     combat.phase,
     diceLeft,
     handleDraw,
+    inspectedImprint,
     isScoreAnimating,
     profile.automationPaused,
     profile.settings.autoCombat,
@@ -417,7 +427,7 @@ export function CombatScreen() {
   ])
 
   useEffect(() => {
-    if (!profile.settings.autoCombat || profile.automationPaused) return
+    if (!profile.settings.autoCombat || profile.automationPaused || inspectedImprint) return
     if (combat.phase !== 'awaiting_resolve' || isScoreAnimating) return
     const timer = window.setTimeout(() => {
       beginRoundResolution()
@@ -427,6 +437,7 @@ export function CombatScreen() {
     beginRoundResolution,
     combat.phase,
     isScoreAnimating,
+    inspectedImprint,
     profile.automationPaused,
     profile.settings.autoCombat,
     rollSpeed,
@@ -612,6 +623,9 @@ export function CombatScreen() {
                   <RollDieTile
                     die={die}
                     key={result.faceId}
+                    onInspectImprint={result.imprint
+                      ? () => setInspectedImprint(result.imprint ?? null)
+                      : undefined}
                     result={result}
                     rollDuration={rollDurationSeconds}
                     stage="settled"
@@ -678,6 +692,12 @@ export function CombatScreen() {
         )}
       </footer>
       {scoreTransfer && <ScoreTransfer onComplete={completeScoreTransfer} path={scoreTransfer} />}
+      {inspectedImprint ? (
+        <ImprintInspectOverlay
+          imprint={inspectedImprint}
+          onClose={closeImprintInspection}
+        />
+      ) : null}
       {enemyDamageTransfer && (
         <EnemyDamageTransfer
           onComplete={completeEnemyDamageTransfer}

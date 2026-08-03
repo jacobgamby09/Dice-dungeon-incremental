@@ -15,6 +15,16 @@ npm run lint
 npm run build
 ```
 
+## Lokal Talent Tree Editor
+
+Talent Tree kan designes i et lokalt authoring-værktøj, som genbruger spillets rigtige `TalentNode`, ikoner, forbindelser og Pixel Arcade-styling:
+
+```bash
+npm run talent-editor
+```
+
+Editoren åbner `talent-editor.html` lokalt og indgår ikke i production-buildets entry. Den er bevidst et enkelt visuelt outline-board: opret/slet og flyt nodes, redigér titel/note, tilføj eller fjern links, undo/redo, lokal autosave og eksport af et rent `talent-tree-outline.json`. Priser, ranks, effects, ikoner og balance implementeres efterfølgende i den canonical spilkode.
+
 ## Ny produktionsarkitektur
 
 ```text
@@ -25,6 +35,7 @@ src/
     content/         # Dice, enemies, dungeons og upgrade-priser
     types/           # Permanent profile, run, combat og dice instances
   components/newgame # Delte UI-primitives og central face-visualisering
+  editor/             # Lokal Talent Tree Editor; ikke en production-screen
   screens/           # Hub, dungeonvalg, kamp, post-combat, defeat, Workshop
   store/newGameStore.ts
   App.tsx

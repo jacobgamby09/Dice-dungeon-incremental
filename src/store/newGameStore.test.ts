@@ -3,6 +3,7 @@ import type { PersistStorage, StorageValue } from 'zustand/middleware'
 import { createDiceCatalog } from '../game/content/dice'
 import { DUNGEONS } from '../game/content/dungeons'
 import { createEnemyState } from '../game/content/enemies'
+import { createImprintInstance } from '../game/content/imprints'
 import { TALENT_IDS } from '../game/content/talents'
 import {
   getDiceCapacity,
@@ -44,7 +45,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(22)
+    expect(profile.saveVersion).toBe(23)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -399,6 +400,159 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(99)
   })
 
+  it('refines an attached Imprint as its exact one-in-six Workshop target', () => {
+    const state = useNewGameStore.getState()
+    const originalFace = state.profile.diceCollection[0].faces[0]
+    const imprint = {
+      ...createImprintInstance('lead-edge', 'lead-edge-test'),
+      attachment: {
+        dieId: state.profile.diceCollection[0].id,
+        faceId: originalFace.id,
+      },
+    }
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 100,
+        imprints: [imprint],
+      },
+    })
+
+    const randomRolls = [0, 0]
+    const pending = useNewGameStore.getState().beginWorkshopForge(
+      'attack-die-1',
+      'imprint-forge',
+      () => randomRolls.shift() ?? 0.99,
+    )
+
+    expect(pending?.targetFaceId).toBe(originalFace.id)
+    expect(useNewGameStore.getState().profile.diceCollection[0].faces[0].value)
+      .toBe(originalFace.value)
+    expect(useNewGameStore.getState().completePendingWorkshopForge('imprint-forge'))
+      .toMatchObject({ faceId: originalFace.id, amount: 1 })
+    const completed = useNewGameStore.getState().profile
+    expect(completed.imprints[0]).toMatchObject({ id: imprint.id, refinement: 1 })
+    expect(completed.diceCollection[0].faces[0]).toEqual(originalFace)
+    expect(useNewGameStore.getState().completePendingWorkshopForge('imprint-forge')).toBeNull()
+  })
+
+  it('keeps an attached Imprint out of the base die when another face is forged', () => {
+    const state = useNewGameStore.getState()
+    const baseDie = state.profile.diceCollection[0]
+    const imprint = {
+      ...createImprintInstance('lead-edge', 'lead-edge-overlay-test'),
+      refinement: 2,
+      attachment: { dieId: baseDie.id, faceId: baseDie.faces[0].id },
+    }
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 100,
+        imprints: [imprint],
+      },
+    })
+
+    const randomRolls = [0.2, 0]
+    const pending = useNewGameStore.getState().beginWorkshopForge(
+      baseDie.id,
+      'regular-face-with-imprint',
+      () => randomRolls.shift() ?? 0.99,
+    )
+    expect(pending?.targetFaceId).toBe(baseDie.faces[1].id)
+    expect(useNewGameStore.getState().completePendingWorkshopForge('regular-face-with-imprint'))
+      .toMatchObject({ faceId: baseDie.faces[1].id, amount: 1 })
+
+    const completedDie = useNewGameStore.getState().profile.diceCollection[0]
+    expect(completedDie.faces[0]).toEqual(baseDie.faces[0])
+    expect(completedDie.faces[0].imprint).toBeUndefined()
+    expect(completedDie.faces[1].value).toBe(baseDie.faces[1].value + 1)
+  })
+
+  it('keeps Imprint identity and refinement through attach, run snapshot, and detach', () => {
+    const state = useNewGameStore.getState()
+    const baseDie = state.profile.diceCollection[0]
+    const baseFace = baseDie.faces[2]
+    const imprint = {
+      ...createImprintInstance('relay-strike', 'relay-test'),
+      refinement: 4,
+    }
+    useNewGameStore.setState({
+      profile: { ...state.profile, imprints: [imprint] },
+    })
+
+    expect(useNewGameStore.getState().attachImprint(imprint.id, baseDie.id, baseFace.id)).toBe(true)
+    useNewGameStore.getState().startRun('prototype-depths')
+    const snapshotFace = useNewGameStore.getState().run.equippedDiceSnapshot[0].faces[2]
+    expect(snapshotFace.imprint).toMatchObject({
+      instanceId: imprint.id,
+      definitionId: 'relay-strike',
+      refinement: 4,
+    })
+    expect(snapshotFace.value).toBe(6)
+
+    useNewGameStore.getState().leaveDungeonRun()
+    expect(useNewGameStore.getState().detachImprint(imprint.id)).toBe(true)
+    const profile = useNewGameStore.getState().profile
+    expect(profile.imprints[0]).toMatchObject({ refinement: 4 })
+    expect(profile.imprints[0].attachment).toBeUndefined()
+    expect(profile.diceCollection[0].faces[2]).toEqual(baseFace)
+  })
+
+  it('resumes a persisted Imprint Forge and completes the locked result once', async () => {
+    const initial = useNewGameStore.getState()
+    const die = initial.profile.diceCollection[0]
+    const imprint = {
+      ...createImprintInstance('lead-edge', 'persisted-lead-edge'),
+      attachment: { dieId: die.id, faceId: die.faces[0].id },
+    }
+    useNewGameStore.setState({
+      profile: {
+        ...initial.profile,
+        bankedSouls: 100,
+        imprints: [imprint],
+      },
+    })
+    const randomRolls = [0, 0]
+    const pending = useNewGameStore.getState().beginWorkshopForge(
+      die.id,
+      'persisted-imprint-forge',
+      () => randomRolls.shift() ?? 0.99,
+    )
+    expect(pending?.targetFaceId).toBe(die.faces[0].id)
+
+    const persisted = useNewGameStore.getState()
+    let saved: StorageValue<NewGameState> | null = {
+      state: {
+        screen: persisted.screen,
+        profile: structuredClone(persisted.profile),
+        run: structuredClone(persisted.run),
+        combat: structuredClone(persisted.combat),
+      } as NewGameState,
+      version: 23,
+    }
+    const storage: PersistStorage<NewGameState> = {
+      getItem: () => saved,
+      setItem: (_name, value) => { saved = structuredClone(value) },
+      removeItem: () => { saved = null },
+    }
+    const originalStorage = useNewGameStore.persist.getOptions().storage
+    useNewGameStore.getState().resetProgress()
+    useNewGameStore.persist.setOptions({ storage: storage as PersistStorage<unknown> })
+
+    try {
+      await useNewGameStore.persist.rehydrate()
+      expect(useNewGameStore.getState().profile.pendingWorkshopForge).toEqual(pending)
+      expect(useNewGameStore.getState().completePendingWorkshopForge('persisted-imprint-forge'))
+        .toMatchObject({ amount: 1, faceId: die.faces[0].id })
+      expect(useNewGameStore.getState().profile.imprints[0].refinement).toBe(1)
+      expect(useNewGameStore.getState().completePendingWorkshopForge('persisted-imprint-forge'))
+        .toBeNull()
+    } finally {
+      useNewGameStore.persist.setOptions({ storage: originalStorage })
+      useNewGameStore.getState().resetProgress()
+    }
+  })
+
   it('rejects Workshop mutations while a run is active', () => {
     const state = useNewGameStore.getState()
     useNewGameStore.setState({
@@ -497,8 +651,12 @@ describe('Classic V2 store progression loop', () => {
     ])
     expect(useNewGameStore.getState().run.lastReward?.dungeonKey)
       .toBe('iron-descent-key')
+    expect(useNewGameStore.getState().run.lastReward?.imprintDrop).toBe('lead-edge')
+    expect(useNewGameStore.getState().profile.imprints).toHaveLength(1)
+    expect(useNewGameStore.getState().profile.imprints[0].definitionId).toBe('lead-edge')
     expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(103)
+    expect(useNewGameStore.getState().profile.imprints).toHaveLength(1)
   })
 
   it('migrates the removed Second Descent talent into the key unlock and refunds its XP', async () => {
@@ -536,7 +694,7 @@ describe('Classic V2 store progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState().profile
 
-      expect(migrated.saveVersion).toBe(22)
+      expect(migrated.saveVersion).toBe(23)
       expect(migrated.xp).toBe(86)
       expect(migrated.talentRanks['second-descent']).toBeUndefined()
       expect(migrated.unlockedDungeonIds).toContain('iron-depths')
@@ -581,7 +739,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 22,
+        saveVersion: 23,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)
@@ -626,7 +784,7 @@ describe('Classic V2 store progression loop', () => {
       await useNewGameStore.persist.rehydrate()
       const migrated = useNewGameStore.getState()
       expect(migrated.screen).toBe('hub')
-      expect(migrated.profile.saveVersion).toBe(22)
+      expect(migrated.profile.saveVersion).toBe(23)
       expect(migrated.profile.soulDie).toEqual({ drawPileFaceIds: [] })
       expect(migrated.profile.fatePity).toBe(0)
     } finally {
@@ -673,7 +831,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       expect(useNewGameStore.getState().profile).toMatchObject({
-        saveVersion: 22,
+        saveVersion: 23,
         pendingFateDraw: {
           operationId: 'legacy-fate-draw',
           selectedCharmId: 'echo-knot',
@@ -717,7 +875,7 @@ describe('Classic V2 store progression loop', () => {
       expect(useNewGameStore.getState().profile).toMatchObject({
         bankedSouls: 41,
         pendingWorkshopForge: null,
-        saveVersion: 22,
+        saveVersion: 23,
         xp: 27,
       })
     } finally {
@@ -759,7 +917,7 @@ describe('Classic V2 store progression loop', () => {
     try {
       await useNewGameStore.persist.rehydrate()
       const profile = useNewGameStore.getState().profile
-      expect(profile.saveVersion).toBe(22)
+      expect(profile.saveVersion).toBe(23)
       expect(profile.talentRanks).toMatchObject({
         [TALENT_IDS.twinArsenal]: 1,
         [TALENT_IDS.strikerPattern]: 1,
@@ -809,7 +967,7 @@ describe('Classic V2 store progression loop', () => {
       const striker = useNewGameStore.getState().profile.diceCollection.find(
         (die) => die.id === 'attack-die-2',
       )!
-      expect(useNewGameStore.getState().profile.saveVersion).toBe(22)
+      expect(useNewGameStore.getState().profile.saveVersion).toBe(23)
       expect(striker.faces.map((face) => face.value)).toEqual([1, 1, 1, 7, 2, 3])
     } finally {
       useNewGameStore.persist.setOptions({ storage: originalStorage })

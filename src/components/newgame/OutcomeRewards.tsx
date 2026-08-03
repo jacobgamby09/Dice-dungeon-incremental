@@ -6,6 +6,9 @@ import { SoulDieReward } from './SoulDieReward'
 import type { SoulDieRollResult, SoulDieValues } from '../../game/types/dice'
 import type { DungeonKeyId } from '../../game/types/dungeon'
 import { DUNGEON_KEYS } from '../../game/content/dungeonKeys'
+import { IMPRINT_DEFINITIONS } from '../../game/content/imprints'
+import { ImprintIcon } from './ImprintIcon'
+import type { ImprintId } from '../../game/types/imprints'
 
 interface OutcomeRewardsProps {
   heading: string
@@ -22,6 +25,8 @@ interface OutcomeRewardsProps {
   soulRoll?: SoulDieRollResult
   dungeonKey?: DungeonKeyId
   showLootSection?: boolean
+  imprintDrop?: ImprintId
+  imprintDrops?: ImprintId[]
 }
 
 const REWARD_INITIAL = { opacity: 0, y: 14 }
@@ -44,6 +49,8 @@ export function OutcomeRewards({
   soulRoll,
   dungeonKey,
   showLootSection = false,
+  imprintDrop,
+  imprintDrops = [],
 }: OutcomeRewardsProps) {
   const prefersReducedMotion = useReducedMotion()
 
@@ -92,7 +99,7 @@ export function OutcomeRewards({
 
       </div>
 
-      {(showLootSection || dungeonKey || (totalFateTokens !== undefined && fateTokensEarned > 0)) ? (
+      {(showLootSection || dungeonKey || imprintDrop || imprintDrops.length > 0 || (totalFateTokens !== undefined && fateTokensEarned > 0)) ? (
         <section aria-label="Loot found" className="outcome-loot">
           <span className="eyebrow">Loot</span>
           {dungeonKey ? (
@@ -106,6 +113,28 @@ export function OutcomeRewards({
               <small>Dungeon 2 unlocked</small>
             </div>
           ) : null}
+          {imprintDrop ? (
+            <div className={`outcome-reward outcome-reward--imprint outcome-reward--imprint-${IMPRINT_DEFINITIONS[imprintDrop].rarity}`}>
+              <span aria-hidden="true" className="outcome-reward__icon">
+                <ImprintIcon id={imprintDrop} rarity={IMPRINT_DEFINITIONS[imprintDrop].rarity} size={34} />
+              </span>
+              <span>{IMPRINT_DEFINITIONS[imprintDrop].rarity} Imprint</span>
+              <strong>{IMPRINT_DEFINITIONS[imprintDrop].name}</strong>
+              <em>{IMPRINT_DEFINITIONS[imprintDrop].shortDescription}</em>
+              <small>Added to Imprints</small>
+            </div>
+          ) : null}
+          {imprintDrops.map((foundImprint) => (
+            <div className={`outcome-reward outcome-reward--imprint outcome-reward--imprint-${IMPRINT_DEFINITIONS[foundImprint].rarity}`} key={foundImprint}>
+              <span aria-hidden="true" className="outcome-reward__icon">
+                <ImprintIcon id={foundImprint} rarity={IMPRINT_DEFINITIONS[foundImprint].rarity} size={34} />
+              </span>
+              <span>{IMPRINT_DEFINITIONS[foundImprint].rarity} Imprint</span>
+              <strong>{IMPRINT_DEFINITIONS[foundImprint].name}</strong>
+              <em>{IMPRINT_DEFINITIONS[foundImprint].shortDescription}</em>
+              <small>Added to Imprints</small>
+            </div>
+          ))}
           {totalFateTokens !== undefined && fateTokensEarned > 0 ? (
             <div className="outcome-reward outcome-reward--fate">
               <span aria-hidden="true" className="outcome-reward__icon">
@@ -116,7 +145,7 @@ export function OutcomeRewards({
               <em>Fate Token{fateTokensEarned === 1 ? '' : 's'}</em>
               <small>{totalFateTokens} total</small>
             </div>
-          ) : !dungeonKey ? (
+          ) : !dungeonKey && !imprintDrop && imprintDrops.length === 0 ? (
             <p>No special loot this descent.</p>
           ) : null}
         </section>

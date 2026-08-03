@@ -9,6 +9,7 @@ import { getEvolutionVisualStyle } from './evolutionVisuals'
 import { SignatureIcon } from './SignatureIcon'
 import { getSignatureVisualStyle } from './signatureVisuals'
 import { PhysicalDieCube } from './PhysicalDieCube'
+import { ImprintIcon } from './ImprintIcon'
 
 interface RollDieTileProps {
   die: DieInstance
@@ -16,11 +17,13 @@ interface RollDieTileProps {
   stage: 'rolling' | 'landed' | 'settled'
   rollDuration: number
   activeElementRef?: Ref<HTMLDivElement>
+  onInspectImprint?: () => void
 }
 
 export const RollDieTile = memo(function RollDieTile({
   activeElementRef,
   die,
+  onInspectImprint,
   result,
   rollDuration,
   stage,
@@ -37,11 +40,23 @@ export const RollDieTile = memo(function RollDieTile({
   const signatureClassName = landedSignature
     ? ` roll-die--signature roll-die--signature-${landedSignature.id}`
     : ''
+  const imprintClassName = result.imprint
+    ? ` roll-die--imprint roll-die--imprint-${result.imprint.definitionId}`
+    : ''
 
   return (
     <article
-      className={`roll-die roll-die--${result.type} roll-die--${stage}${evolutionClassName}${signatureClassName}${echoTrigger ? ' roll-die--echo' : ''}`}
+      className={`roll-die roll-die--${result.type} roll-die--${stage}${evolutionClassName}${signatureClassName}${imprintClassName}${echoTrigger ? ' roll-die--echo' : ''}${onInspectImprint ? ' roll-die--inspectable' : ''}`}
       data-stage={stage}
+      onClick={onInspectImprint}
+      onKeyDown={onInspectImprint ? (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onInspectImprint()
+        }
+      } : undefined}
+      role={onInspectImprint ? 'button' : undefined}
+      tabIndex={onInspectImprint ? 0 : undefined}
       style={
         landedEvolution
           ? getEvolutionVisualStyle(landedEvolution.id)
@@ -51,7 +66,7 @@ export const RollDieTile = memo(function RollDieTile({
       }
       aria-label={isRolling
         ? `${die.name} rolling`
-        : `${die.name} rolled ${result.value} ${meta.label}${result.evolution ? `, ${result.evolution.name} evolution` : ''}${result.signature ? `, ${result.signature.name} signature` : ''}`}
+        : `${die.name} rolled ${result.value} ${meta.label}${result.evolution ? `, ${result.evolution.name} evolution` : ''}${result.signature ? `, ${result.signature.name} signature` : ''}${result.imprint ? `, ${result.imprint.name} Imprint. Open details` : ''}`}
     >
       {isActive ? (
         <PhysicalDieCube
@@ -61,12 +76,18 @@ export const RollDieTile = memo(function RollDieTile({
             const faceMeta = FACE_META[face.type]
             const evolutionStyle = face.evolution ? getEvolutionVisualStyle(face.evolution.id) : {}
             const signatureStyle = face.signature ? getSignatureVisualStyle(face.signature.id) : {}
+            const imprintStyle = face.imprint ? {
+              '--side-color': face.imprint.rarity === 'legendary' ? '#f97316' : face.imprint.rarity === 'epic' ? '#c026d3' : '#22d3ee',
+              '--side-surface': face.imprint.rarity === 'legendary' ? '#7c2d12' : face.imprint.rarity === 'epic' ? '#581c87' : '#164e63',
+            } : {}
             return {
-              className: `${face.evolution ? `evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`,
+              className: `${face.evolution ? `evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}${face.imprint ? ` imprint-face-surface imprint-face-surface--${face.imprint.rarity}` : ''}`,
               content: (
                 <>
                   <strong>{face.value}</strong>
-                  {face.evolution
+                  {face.imprint
+                    ? <ImprintIcon id={face.imprint.definitionId} rarity={face.imprint.rarity} size={24} />
+                    : face.evolution
                     ? (
                       <>
                         <EvolutionIcon evolutionId={face.evolution.id} size={24} />
@@ -84,6 +105,7 @@ export const RollDieTile = memo(function RollDieTile({
                   '--side-surface': faceMeta.shadow,
                   ...evolutionStyle,
                   ...signatureStyle,
+                  ...imprintStyle,
                 } as CSSProperties,
             }
           })}
@@ -91,10 +113,12 @@ export const RollDieTile = memo(function RollDieTile({
           stage={isRolling ? 'rolling' : 'landed'}
         />
       ) : (
-        <div className={`roll-die__body${result.evolution ? ` evolution-face-surface evolution-face-surface--${result.evolution.id}` : ''}${result.signature ? ` signature-face-surface signature-face-surface--${result.signature.id}` : ''}`}>
+        <div className={`roll-die__body${result.evolution ? ` evolution-face-surface evolution-face-surface--${result.evolution.id}` : ''}${result.signature ? ` signature-face-surface signature-face-surface--${result.signature.id}` : ''}${result.imprint ? ` imprint-face-surface imprint-face-surface--${result.imprint.rarity}` : ''}`}>
           <span className="roll-die__result">
             {result.value}
-            {result.evolution
+            {result.imprint
+              ? <ImprintIcon id={result.imprint.definitionId} rarity={result.imprint.rarity} size={22} />
+              : result.evolution
               ? <EvolutionIcon evolutionId={result.evolution.id} size={22} />
               : result.signature
                 ? <SignatureIcon signatureId={result.signature.id} size={22} />
@@ -109,6 +133,7 @@ export const RollDieTile = memo(function RollDieTile({
           {result.signature ? (
             <small className="roll-die__evolution">{result.signature.name}</small>
           ) : null}
+          {result.imprint ? <small className="roll-die__evolution">{result.imprint.name}</small> : null}
         </div>
       )}
       {stage === 'landed' ? (
@@ -139,6 +164,19 @@ export const RollDieTile = memo(function RollDieTile({
         >
           <SignatureIcon signatureId={result.signature.id} size={17} />
           <strong>{result.signature.name}</strong>
+        </motion.div>
+      ) : null}
+      {stage === 'landed' && result.imprint ? (
+        <motion.div
+          animate={{ opacity: [0, 1, 1, 0], scale: [0.7, 1.12, 1, 1.16], y: [8, -7, -8, -12] }}
+          aria-hidden="true"
+          className={`imprint-impact imprint-impact--${result.imprint.rarity} imprint-impact--${result.imprint.definitionId}`}
+          initial={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut', times: [0, 0.2, 0.76, 1] }}
+        >
+          <ImprintIcon id={result.imprint.definitionId} rarity={result.imprint.rarity} size={18} />
+          <strong>{result.imprint.name}</strong>
+          {result.imprintBonus ? <span>+{result.imprintBonus}</span> : null}
         </motion.div>
       ) : null}
       {stage === 'landed' && echoTrigger ? (

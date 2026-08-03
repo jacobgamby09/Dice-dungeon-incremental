@@ -86,13 +86,13 @@ export const ENEMY_DICE: Record<EnemyDieId, EnemyDieDefinition> = {
     'shieldbearer-l2-attack', 'Shieldbearer II Attack Die', 'attack', [6, 7, 7, 7, 8, 9],
   ),
   'shieldbearer-l2-shield': createEnemyDie(
-    'shieldbearer-l2-shield', 'Shieldbearer II Shield Die', 'shield', [1, 2, 2, 2, 3, 3],
+    'shieldbearer-l2-shield', 'Shieldbearer II Shield Die', 'shield', [2, 3, 3, 4, 4, 5],
   ),
   'cultist-l2-attack': createEnemyDie(
-    'cultist-l2-attack', 'Cultist II Attack Die', 'attack', [5, 5, 6, 6, 6, 7],
+    'cultist-l2-attack', 'Cultist II Attack Die', 'attack', [7, 7, 8, 8, 9, 10],
   ),
   'cultist-l2-heal': createEnemyDie(
-    'cultist-l2-heal', 'Cultist II Heal Die', 'heal', [1, 1, 2, 2, 3, 4],
+    'cultist-l2-heal', 'Cultist II Heal Die', 'heal', [2, 2, 3, 3, 4, 5],
   ),
   'orc-l2-attack': createEnemyDie(
     'orc-l2-attack', 'Orc II Attack Die', 'attack', [3, 3, 4, 4, 5, 5],

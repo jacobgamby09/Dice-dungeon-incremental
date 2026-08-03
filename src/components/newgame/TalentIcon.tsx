@@ -21,6 +21,9 @@ import {
   Network,
   Clover,
   Droplets,
+  Search,
+  Badge,
+  Pickaxe,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -48,6 +51,9 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'charm-pair': Link2,
   'charm-trinity': Network,
   'fate-favor': Clover,
+  'occult-prospecting': Search,
+  'resonant-etching': Badge,
+  'deep-delver': Pickaxe,
 }
 
 interface TalentIconProps {

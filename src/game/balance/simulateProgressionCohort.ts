@@ -42,6 +42,7 @@ export interface ProgressionCurvePoint {
   dungeonTwoUnlockRate: number
   dungeonTwoAverageFloor: number
   fourthSlotRate: number
+  averageImprintCount: number
   medianFloor: number
   run: number
   secondDieRate: number
@@ -145,11 +146,14 @@ export const PROGRESSION_MILESTONE_KEYS: readonly (keyof ProgressionJourneyMiles
   'secondDieRun',
   'firstLoadoutChoiceRun',
   'firstJackpotForgeRun',
+  'firstImprintRun',
   'dungeonOneClearRun',
   'dungeonTwoUnlockRun',
   'dungeonTwoFirstRun',
   'fourthSlotRun',
   'bloodwellDieRun',
+  'relayImprintRun',
+  'crescendoImprintRun',
   'dungeonTwoClearRun',
 ]
 
@@ -236,6 +240,7 @@ function createCurve(
       fourthSlotRate: results.filter((result) => (
         hasReached(result, 'fourthSlotRun', run)
       )).length / results.length,
+      averageImprintCount: average(records.map((record) => record.imprintCount)),
       medianFloor: percentile(floors, 0.5) ?? 0,
       run,
       secondDieRate: results.filter((result) => (

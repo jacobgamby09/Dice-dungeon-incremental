@@ -33,6 +33,7 @@ function createBaseProfile(): PlayerProfile {
     pendingFateDraw: null,
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
+    imprints: [],
     settings: {
       rollSpeed: 1,
       autoCombat: false,
@@ -45,7 +46,12 @@ describe('post-Dungeon-1 developer preset', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
 
     expect(profile.xp).toBe(0)
-    expect(profile.bankedSouls).toBe(0)
+    expect(profile.bankedSouls).toBe(POST_DUNGEON_ONE_DEV_PRESET.testSouls)
+    expect(profile.imprints.map((imprint) => imprint.definitionId)).toEqual([
+      'lead-edge',
+      'relay-strike',
+      'crescendo',
+    ])
     expect(profile.unlockedDungeonIds).toEqual(['prototype-depths', 'iron-depths'])
     expect(profile.dungeonProgress).toEqual({
       'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },

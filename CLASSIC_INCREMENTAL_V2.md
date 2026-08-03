@@ -709,15 +709,15 @@ tre-die-sprog.
 | 2 | Cultist | 1 | 26 | `4–4–5–5–5–6` | — | `0–1–1–2–2–3` | 52 | 5 |
 | 3 | Orc | 1 | 30 | `2–2–2–3–3–4` + `3–3–4–4–4–5` | — | — | 58 | 5 |
 | 4 | Blood Orc | 1 | 34 | `2–2–3–3–4–6` + `2–3–3–4–5–7` | — | — | 64 | 5 |
-| 5 | Shieldbearer | 2 | 39 | `6–7–7–7–8–9` | `1–2–2–2–3–3` | — | 72 | 6 |
-| 6 | Cultist | 2 | 44 | `5–5–6–6–6–7` | — | `1–1–2–2–3–4` | 80 | 6 |
+| 5 | Shieldbearer | 2 | 60 | `6–7–7–7–8–9` | `2–3–3–4–4–5` | — | 72 | 6 |
+| 6 | Cultist | 2 | 62 | `7–7–8–8–9–10` | — | `2–2–3–3–4–5` | 80 | 6 |
 | 7 | Orc | 2 | 50 | `3–3–4–4–5–5` + `4–4–5–5–6–6` | — | — | 90 | 6 |
 | 8 | Blood Orc | 2 | 57 | `3–3–4–4–6–8` + `3–4–4–5–7–9` | — | — | 102 | 6 |
 | 9 | Blood Orc Elite | 3 | 65 | `4–4–5–5–7–9` + `4–5–5–6–8–10` | — | — | 118 | 8 |
 | 10 | Spiked Behemoth | Boss | 80 | `8–9–9–9–10–11` | `3–3–4–4–5–6` | `0–0–1–1–2–3` | 160 | 12 |
 
-Dungeon 2’s tal er implementerede, men endnu ikke endeligt balanceret til V2’s
-langsommere progression.
+Dungeon 2’s første simulator-pass sigter efter, at en ny D1-vinder når floor 4–5,
+mens en balanced profil klarer D2 cirka 8–12 runs efter første D1-clear.
 
 ---
 

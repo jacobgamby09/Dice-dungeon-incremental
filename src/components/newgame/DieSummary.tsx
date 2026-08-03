@@ -7,6 +7,7 @@ import { EvolutionIcon } from './EvolutionIcon'
 import { getEvolutionVisualStyle } from './evolutionVisuals'
 import { SignatureIcon } from './SignatureIcon'
 import { getSignatureVisualStyle } from './signatureVisuals'
+import { ImprintIcon } from './ImprintIcon'
 
 interface DieSummaryProps {
   die: DieInstance
@@ -27,7 +28,7 @@ export const DieSummary = memo(function DieSummary({ die, compact = false }: Die
         {die.faces.map((face) => (
           <span
             aria-label={`${face.value} ${FACE_META[face.type].label}${face.evolution ? `, ${face.evolution.name} evolution` : ''}${face.signature ? `, ${face.signature.name} signature` : ''}`}
-            className={`face-cell${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}`}
+            className={`face-cell${face.evolution ? ` evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}${face.imprint ? ` imprint-face-surface imprint-face-surface--${face.imprint.rarity}` : ''}`}
             key={face.id}
             style={{
               '--face-color': FACE_META[face.type].color,
@@ -37,7 +38,9 @@ export const DieSummary = memo(function DieSummary({ die, compact = false }: Die
             } as CSSProperties}
           >
             <strong>{face.value}</strong>
-            {face.evolution
+            {face.imprint
+              ? <ImprintIcon id={face.imprint.definitionId} rarity={face.imprint.rarity} size={compact ? 11 : 14} />
+              : face.evolution
               ? <EvolutionIcon evolutionId={face.evolution.id} size={compact ? 10 : 12} />
               : face.signature
                 ? <SignatureIcon signatureId={face.signature.id} size={compact ? 10 : 12} />

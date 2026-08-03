@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { FaceIcon } from '../components/newgame/FaceIcon'
 import { FACE_META } from '../components/newgame/faceVisuals'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
+import { ImprintIcon } from '../components/newgame/ImprintIcon'
 import { WorkshopDie } from '../components/newgame/WorkshopDie'
 import {
   getWorkshopResultPresentation,
@@ -28,6 +29,7 @@ import {
   getWorkshopDieFaces,
 } from '../game/progression/talents'
 import type { FaceType } from '../game/types/dice'
+import { applyImprintsToDice } from '../game/progression/imprints'
 import { useNewGameStore } from '../store/newGameStore'
 
 interface ForgeImpact {
@@ -75,6 +77,7 @@ export function WorkshopScreen() {
   const bankedSouls = useNewGameStore((state) => state.profile.bankedSouls)
   const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const pendingForge = useNewGameStore((state) => state.profile.pendingWorkshopForge)
+  const imprints = useNewGameStore((state) => state.profile.imprints)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const beginWorkshopForge = useNewGameStore((state) => state.beginWorkshopForge)
   const rerollPendingWorkshopTarget = useNewGameStore(
@@ -95,9 +98,13 @@ export function WorkshopScreen() {
   const [forgeImpact, setForgeImpact] = useState<ForgeImpact | null>(null)
   const forgeLock = useRef(false)
 
-  const selectedDie = diceCollection.find((die) => (
+  const effectiveDice = useMemo(
+    () => applyImprintsToDice(diceCollection, imprints),
+    [diceCollection, imprints],
+  )
+  const selectedDie = effectiveDice.find((die) => (
     die.id === (pendingForge?.dieId ?? selectedDieId)
-  )) ?? diceCollection[0]
+  )) ?? effectiveDice[0]
   const workshopFaces = useMemo(
     () => getWorkshopDieFaces(talentRanks),
     [talentRanks],
@@ -190,7 +197,7 @@ export function WorkshopScreen() {
 
   function chooseDie(dieId: string) {
     if (pendingForge || isAnimating) return
-    if (!diceCollection.some((die) => die.id === dieId)) return
+    if (!effectiveDice.some((die) => die.id === dieId)) return
     setSelectedDieId(dieId)
     setForgeImpact(null)
     setHighlightedFaceId(null)
@@ -276,7 +283,7 @@ export function WorkshopScreen() {
           <strong id="workshop-rack-title">{diceCollection.length} owned</strong>
         </header>
         <div className="workshop-ritual__tabs" aria-label="Choose a die">
-          {diceCollection.map((die) => (
+          {effectiveDice.map((die) => (
             <button
               aria-pressed={die.id === selectedDie?.id}
               className={`workshop-ritual__tab workshop-ritual__tab--${die.family}`}
@@ -348,7 +355,10 @@ export function WorkshopScreen() {
                   >
                     <small>{faceIndex + 1}</small>
                     <strong>{face.value}</strong>
-                    <FaceIcon type={face.type} size={17} />
+                    {face.imprint ? (
+                      <ImprintIcon id={face.imprint.definitionId} rarity={face.imprint.rarity} size={18} />
+                    ) : <FaceIcon type={face.type} size={17} />}
+                    {face.imprint ? <span className={`workshop-target__imprint-rarity workshop-target__imprint-rarity--${face.imprint.rarity}`}>{face.imprint.name}</span> : null}
                     {isLockedTarget ? <em>Target</em> : null}
                   </motion.div>
                 )

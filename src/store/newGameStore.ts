@@ -11,6 +11,7 @@ import {
   normalizeCharmRunState,
 } from '../game/combat/charms'
 import { addRollEffects, rollDie } from '../game/combat/rollDie'
+import { applyImprintRoll } from '../game/combat/imprints'
 import { findEnemyRollByValue, totalEnemyRolls } from '../game/combat/rollEnemyDie'
 import { resolveRound } from '../game/combat/resolveRound'
 import { createDieById, createStartingDice } from '../game/content/dice'
@@ -45,11 +46,22 @@ import {
   getWorkshopDieFaces,
   getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
+  getFateDropMultiplier,
+  getImprintDropMultiplier,
+  getDungeonLootMultiplier,
+  getImprintForgeBonusChance,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
   normalizeTalentRanks,
 } from '../game/progression/talents'
 import { getEnemyRewardBreakdown } from '../game/progression/rewards'
+import {
+  applyImprintsToDice,
+  applyForgedFaceToBaseDie,
+  canAttachImprint,
+  grantImprint,
+  rollImprintDrop,
+} from '../game/progression/imprints'
 import {
   createSoulDieState,
   drawSoulDie,
@@ -85,6 +97,7 @@ export type AppScreen =
   | 'post_combat'
   | 'workshop'
   | 'fate_sanctum'
+  | 'imprints'
   | 'talent_tree'
   | 'loadout'
   | 'defeat'
@@ -98,6 +111,7 @@ export interface NewGameState {
   openDungeonSelect: () => void
   openWorkshop: () => void
   openFateSanctum: () => void
+  openImprints: () => void
   openTalentTree: () => void
   openLoadout: () => void
   goToHub: () => void
@@ -135,13 +149,15 @@ export interface NewGameState {
   claimFateCharm: () => boolean
   equipCharm: (charmId: CharmId) => boolean
   unequipCharm: (charmId: CharmId) => boolean
+  attachImprint: (imprintId: string, dieId: string, faceId: string) => boolean
+  detachImprint: (imprintId: string) => boolean
   loadEarlyQolDevPreset: () => void
   loadFatecraftStartDevPreset: () => void
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 22
+const SAVE_VERSION = 23
 const LEGACY_FATECRAFT_REFUND = 75
 const LEGACY_SECOND_DESCENT_ID = 'second-descent'
 const LEGACY_SECOND_DESCENT_REFUND = 75
@@ -173,6 +189,7 @@ function createInitialProfile(): PlayerProfile {
     pendingFateDraw: null,
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
+    imprints: [],
     settings: {
       rollSpeed: 1,
       autoCombat: false,
@@ -204,6 +221,7 @@ function createEmptyRunStats(): RunStats {
     bonusXpEarned: 0,
     charmBonusSoulsEarned: 0,
     fateTokensEarned: 0,
+    imprintsFound: [],
   }
 }
 
@@ -422,6 +440,29 @@ function migratePendingFateDraw(
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  if (version === 22) {
+    const persisted = persistedState as NewGameState
+    return {
+      ...persisted,
+      screen: persisted.screen === 'imprints' ? 'hub' : persisted.screen,
+      profile: {
+        ...persisted.profile,
+        saveVersion: SAVE_VERSION,
+        imprints: [],
+      },
+      run: {
+        ...persisted.run,
+        runStats: {
+          ...persisted.run.runStats,
+          imprintsFound: [],
+        },
+      },
+      combat: {
+        ...persisted.combat,
+        pendingImprintRelay: 0,
+      },
+    }
+  }
   if (version === 21) {
     const persisted = persistedState as NewGameState
     const legacySecondDescentRank = Number(
@@ -839,10 +880,11 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
 }
 
 function getEquippedDice(profile: PlayerProfile): DieInstance[] {
-  return profile.equippedDieIds
+  const dice = profile.equippedDieIds
     .map((dieId) => profile.diceCollection.find((die) => die.id === dieId))
     .filter((die): die is DieInstance => die !== undefined)
     .map(cloneDie)
+  return applyImprintsToDice(dice, profile.imprints)
 }
 
 function getEquippedCharms(profile: PlayerProfile): CharmSnapshot[] {
@@ -882,6 +924,13 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive') return
         if (!hasCharmsUnlocked(state.profile.talentRanks)) return
         set({ screen: 'fate_sanctum' })
+      },
+
+      openImprints: () => {
+        const state = get()
+        if (state.run.status !== 'inactive') return
+        if (state.profile.imprints.length === 0) return
+        set({ screen: 'imprints' })
       },
 
       openTalentTree: () => {
@@ -961,8 +1010,13 @@ export const useNewGameStore = create<NewGameState>()(
         if (!die) return null
 
         const rolledResult = rollDie(die)
-        const charmRoll = applyRollCharms(
+        const imprintRoll = applyImprintRoll(
           rolledResult,
+          state.combat.results.length,
+          state.combat.pendingImprintRelay,
+        )
+        const charmRoll = applyRollCharms(
+          imprintRoll.result,
           state.run.equippedCharmSnapshot,
           state.run.charmState,
           {
@@ -998,6 +1052,7 @@ export const useNewGameStore = create<NewGameState>()(
             totals: rollEffects.totals,
             pendingMomentum: rollEffects.pendingMomentum,
             pendingFortify: rollEffects.pendingFortify,
+            pendingImprintRelay: imprintRoll.nextRelayBonus,
             lastCharmTriggers: charmRoll.triggers,
             charmTriggerVersion: state.combat.charmTriggerVersion
               + (charmRoll.triggers.length > 0 ? 1 : 0),
@@ -1055,7 +1110,14 @@ export const useNewGameStore = create<NewGameState>()(
               )
           const fateDrop = !rewardAlreadyClaimed
             && hasCharmsUnlocked(state.profile.talentRanks)
-            ? rollFateDrop(enemy.rewardTier, state.profile.fatePity, random)
+            ? rollFateDrop(
+                enemy.rewardTier,
+                state.profile.fatePity,
+                random,
+                getFateDropMultiplier(state.profile.talentRanks)
+                  * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
+                  * getDungeonLootMultiplier(state.profile.talentRanks),
+              )
             : {
                 tokens: 0,
                 nextPity: state.profile.fatePity,
@@ -1074,10 +1136,30 @@ export const useNewGameStore = create<NewGameState>()(
             && !rewardAlreadyClaimed
             ? 'iron-descent-key' as const
             : undefined
+          const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
+          const imprintDrop = rewardAlreadyClaimed
+            ? null
+            : rollImprintDrop({
+                dungeonId: state.run.dungeonId!,
+                floor: floorDefinition.floor,
+                isBoss: floorDefinition.isBoss,
+                clearCount: previousProgress.clearCount,
+                owned: state.profile.imprints,
+                random,
+                dropMultiplier: getImprintDropMultiplier(state.profile.talentRanks)
+                  * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
+                  * getDungeonLootMultiplier(state.profile.talentRanks),
+              })
+          const imprints = imprintDrop
+            ? grantImprint(
+                state.profile.imprints,
+                imprintDrop,
+                `imprint-${imprintDrop}-${state.run.dungeonId}-${floorDefinition.floor}-${previousProgress.clearCount}`,
+              )
+            : state.profile.imprints
           const unlockedDungeonIds = dungeonKey
             ? [...state.profile.unlockedDungeonIds, 'iron-depths' as const]
             : state.profile.unlockedDungeonIds
-          const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
           const dungeonProgress = {
             ...state.profile.dungeonProgress,
             [state.run.dungeonId!]: {
@@ -1099,6 +1181,7 @@ export const useNewGameStore = create<NewGameState>()(
               soulDie: soulDraw.nextState,
               dungeonProgress,
               unlockedDungeonIds,
+              imprints,
             },
             run: {
               ...state.run,
@@ -1121,6 +1204,9 @@ export const useNewGameStore = create<NewGameState>()(
                       + charmKill.soulBonus,
                     fateTokensEarned: (state.run.runStats.fateTokensEarned ?? 0)
                       + fateDrop.tokens,
+                    imprintsFound: imprintDrop
+                      ? [...(state.run.runStats.imprintsFound ?? []), imprintDrop]
+                      : state.run.runStats.imprintsFound ?? [],
                   },
               enemy: {
                 ...enemy,
@@ -1147,6 +1233,7 @@ export const useNewGameStore = create<NewGameState>()(
                 fatePity: fateDrop.nextPity,
                 fatePityTriggered: fateDrop.pityTriggered,
                 dungeonKey,
+                imprintDrop: imprintDrop ?? undefined,
                 dungeonComplete,
               },
             },
@@ -1491,8 +1578,9 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive') return null
         if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
         if (state.profile.pendingWorkshopForge) return null
-        const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
-        if (!die) return null
+        const baseDie = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
+        if (!baseDie) return null
+        const die = applyImprintsToDice([baseDie], state.profile.imprints)[0]
         const pendingForge = prepareWorkshopForge(
           die,
           operationId,
@@ -1504,14 +1592,24 @@ export const useNewGameStore = create<NewGameState>()(
           },
         )
         if (!pendingForge || state.profile.bankedSouls < pendingForge.cost) return null
+        const targetIsImprint = Boolean(
+          die.faces.find((face) => face.id === pendingForge.targetFaceId)?.imprint,
+        )
+        const forgeBonus = targetIsImprint
+          && random() < getImprintForgeBonusChance(state.profile.talentRanks)
+          ? 1
+          : 0
+        const persistedForge = forgeBonus > 0
+          ? { ...pendingForge, appliedAmount: pendingForge.appliedAmount + forgeBonus }
+          : pendingForge
         set({
           profile: {
             ...state.profile,
             bankedSouls: state.profile.bankedSouls - pendingForge.cost,
-            pendingWorkshopForge: pendingForge,
+            pendingWorkshopForge: persistedForge,
           },
         })
-        return pendingForge
+        return persistedForge
       },
 
       rerollPendingWorkshopTarget: (
@@ -1523,10 +1621,11 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive') return null
         const pendingForge = state.profile.pendingWorkshopForge
         if (!pendingForge || pendingForge.operationId !== operationId) return null
-        const die = state.profile.diceCollection.find(
+        const baseDie = state.profile.diceCollection.find(
           (candidate) => candidate.id === pendingForge.dieId,
         )
-        if (!die) return null
+        if (!baseDie) return null
+        const die = applyImprintsToDice([baseDie], state.profile.imprints)[0]
         const rerolled = rerollWorkshopTarget(
           die,
           pendingForge,
@@ -1534,13 +1633,24 @@ export const useNewGameStore = create<NewGameState>()(
           random,
         )
         if (!rerolled) return null
+        const rerolledTargetIsImprint = Boolean(
+          die.faces.find((face) => face.id === rerolled.targetFaceId)?.imprint,
+        )
+        const rerollBonus = rerolledTargetIsImprint
+          && random() < getImprintForgeBonusChance(state.profile.talentRanks)
+          ? 1
+          : 0
+        const persistedReroll = {
+          ...rerolled,
+          appliedAmount: rerolled.rolledAmount + rerollBonus,
+        }
         set({
           profile: {
             ...state.profile,
-            pendingWorkshopForge: rerolled,
+            pendingWorkshopForge: persistedReroll,
           },
         })
-        return rerolled
+        return persistedReroll
       },
 
       completePendingWorkshopForge: (operationId) => {
@@ -1552,18 +1662,33 @@ export const useNewGameStore = create<NewGameState>()(
           || pendingForge.operationId !== operationId
           || state.profile.recentForgeOperationIds.includes(operationId)
         ) return null
-        const die = state.profile.diceCollection.find(
+        const baseDie = state.profile.diceCollection.find(
           (candidate) => candidate.id === pendingForge.dieId,
         )
-        if (!die) return null
+        if (!baseDie) return null
+        const die = applyImprintsToDice([baseDie], state.profile.imprints)[0]
         const forged = completeWorkshopForge(die, pendingForge)
         if (!forged) return null
+        const targetImprint = die.faces.find(
+          (face) => face.id === pendingForge.targetFaceId,
+        )?.imprint
         set({
           profile: {
             ...state.profile,
-            diceCollection: state.profile.diceCollection.map((candidate) => (
-              candidate.id === die.id ? forged.die : candidate
-            )),
+            diceCollection: targetImprint
+              ? state.profile.diceCollection
+              : state.profile.diceCollection.map((candidate) => (
+                  candidate.id === die.id
+                    ? applyForgedFaceToBaseDie(baseDie, forged.die, pendingForge.targetFaceId)
+                    : candidate
+                )),
+            imprints: targetImprint
+              ? state.profile.imprints.map((imprint) => (
+                  imprint.id === targetImprint.instanceId
+                    ? { ...imprint, refinement: imprint.refinement + forged.result.amount }
+                    : imprint
+                ))
+              : state.profile.imprints,
             pendingWorkshopForge: null,
             recentForgeOperationIds: [
               ...state.profile.recentForgeOperationIds,
@@ -1579,21 +1704,34 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.run.status !== 'inactive') return null
         if (state.profile.pendingWorkshopForge) return null
         if (!operationId || state.profile.recentForgeOperationIds.includes(operationId)) return null
-        const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
-        if (!die) return null
+        const baseDie = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
+        if (!baseDie) return null
+        const die = applyImprintsToDice([baseDie], state.profile.imprints)[0]
         const forged = precisionForge(
           die,
           faceId,
           getWorkshopCostMultiplier(state.profile.talentRanks),
         )
         if (!forged || state.profile.bankedSouls < forged.result.cost) return null
+        const targetImprint = die.faces.find((face) => face.id === faceId)?.imprint
         set({
           profile: {
             ...state.profile,
             bankedSouls: state.profile.bankedSouls - forged.result.cost,
-            diceCollection: state.profile.diceCollection.map((candidate) => (
-              candidate.id === dieId ? forged.die : candidate
-            )),
+            diceCollection: targetImprint
+              ? state.profile.diceCollection
+              : state.profile.diceCollection.map((candidate) => (
+                  candidate.id === dieId
+                    ? applyForgedFaceToBaseDie(baseDie, forged.die, faceId)
+                    : candidate
+                )),
+            imprints: targetImprint
+              ? state.profile.imprints.map((imprint) => (
+                  imprint.id === targetImprint.instanceId
+                    ? { ...imprint, refinement: imprint.refinement + forged.result.amount }
+                    : imprint
+                ))
+              : state.profile.imprints,
             recentForgeOperationIds: [
               ...state.profile.recentForgeOperationIds,
               operationId,
@@ -1724,6 +1862,47 @@ export const useNewGameStore = create<NewGameState>()(
         return true
       },
 
+      attachImprint: (imprintId, dieId, faceId) => {
+        const state = get()
+        if (state.run.status !== 'inactive' || state.profile.pendingWorkshopForge) return false
+        if (!canAttachImprint(
+          state.profile.diceCollection,
+          state.profile.imprints,
+          imprintId,
+          dieId,
+          faceId,
+        )) return false
+        set({
+          profile: {
+            ...state.profile,
+            imprints: state.profile.imprints.map((imprint) => (
+              imprint.id === imprintId
+                ? { ...imprint, attachment: { dieId, faceId } }
+                : imprint
+            )),
+          },
+        })
+        return true
+      },
+
+      detachImprint: (imprintId) => {
+        const state = get()
+        if (state.run.status !== 'inactive' || state.profile.pendingWorkshopForge) return false
+        const imprint = state.profile.imprints.find((candidate) => candidate.id === imprintId)
+        if (!imprint?.attachment) return false
+        set({
+          profile: {
+            ...state.profile,
+            imprints: state.profile.imprints.map((candidate) => (
+              candidate.id === imprintId
+                ? { ...candidate, attachment: undefined }
+                : candidate
+            )),
+          },
+        })
+        return true
+      },
+
       loadEarlyQolDevPreset: () => {
         const state = get()
         set({
@@ -1774,6 +1953,32 @@ export const useNewGameStore = create<NewGameState>()(
         typeof localStorage === 'undefined' ? NON_BROWSER_STORAGE : localStorage
       )),
       migrate: migrateNewGameState,
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<NewGameState>
+        return {
+          ...currentState,
+          ...persisted,
+          profile: {
+            ...currentState.profile,
+            ...persisted.profile,
+            imprints: persisted.profile?.imprints ?? [],
+          },
+          run: {
+            ...currentState.run,
+            ...persisted.run,
+            runStats: {
+              ...currentState.run.runStats,
+              ...persisted.run?.runStats,
+              imprintsFound: persisted.run?.runStats?.imprintsFound ?? [],
+            },
+          },
+          combat: {
+            ...currentState.combat,
+            ...persisted.combat,
+            pendingImprintRelay: persisted.combat?.pendingImprintRelay ?? 0,
+          },
+        }
+      },
       partialize: (state) => ({
         screen: state.screen,
         profile: state.profile,

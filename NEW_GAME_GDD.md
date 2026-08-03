@@ -236,19 +236,19 @@ Dungeon 1 er den basale læsedungeon. Alle enemies har præcis én Attack Die; i
 
 ### Dungeon 2 — The Iron Descent
 
-Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har én Attack Die og én Shield Die. Spiked Behemoth tilføjer som boss en Heal Die, så spilleren møder den samme Heal-mechanic, som allerede kan være lært gennem Healing Arts.
+Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har præcis to dice, men med forskellige profiler: Shieldbearer bruger Attack + Shield, Cultist bruger Attack + Heal, og Orc/Blood Orc bruger to Attack Dice. Spiked Behemoth bruger Attack + Shield + Heal som første tre-die boss.
 
 | Floor | Enemy | Level | HP | Dice | XP | Soul Value |
 |---:|---|---:|---:|---|---:|---:|
 | 1 | Shieldbearer | 1 | 22 | Attack + Shield | 48 | 5 |
-| 2 | Cultist | 1 | 26 | Attack + Shield | 52 | 5 |
-| 3 | Orc | 1 | 30 | Attack + Shield | 58 | 5 |
-| 4 | Blood Orc | 1 | 34 | Attack + Shield | 64 | 5 |
-| 5 | Shieldbearer | 2 | 39 | Attack + Shield | 72 | 6 |
-| 6 | Cultist | 2 | 44 | Attack + Shield | 80 | 6 |
-| 7 | Orc | 2 | 50 | Attack + Shield | 90 | 6 |
-| 8 | Blood Orc | 2 | 57 | Attack + Shield | 102 | 6 |
-| 9 | Blood Orc Elite | 3 | 65 | Attack + Shield | 118 | 8 |
+| 2 | Cultist | 1 | 26 | Attack + Heal | 52 | 5 |
+| 3 | Orc | 1 | 30 | Attack + Attack | 58 | 5 |
+| 4 | Blood Orc | 1 | 34 | Attack + Attack | 64 | 5 |
+| 5 | Shieldbearer | 2 | 60 | Attack + Shield | 72 | 6 |
+| 6 | Cultist | 2 | 62 | Attack + Heal | 80 | 6 |
+| 7 | Orc | 2 | 50 | Attack + Attack | 90 | 6 |
+| 8 | Blood Orc | 2 | 57 | Attack + Attack | 102 | 6 |
+| 9 | Blood Orc Elite | 3 | 65 | Attack + Attack | 118 | 8 |
 | 10 | Spiked Behemoth — Boss | Boss | 80 | Attack + Shield + Heal | 160 | 12 |
 
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
@@ -307,6 +307,24 @@ Farven må ikke stå alene. Hver evolution beholder sin egen silhuet og sit møn
 
 Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face lander, skal score-transferen navngive den modtagne Momentum-bonus, også når den løfter Shield eller Heal. Rend viser både `+2 Bleed` i sin score-transfer og den aktive, pulserende Bleed-stack ved enemy HP; et tick skal være synligt i player-resolutionen. Power forbliver den rene, direkte impact-reference.
 
+## Dungeon Imprints
+
+Imprints er permanente, flytbare face-relics fra dungeon-loot. Et monteret Imprint overlayer visuelt og mekanisk ét fysisk face, men det oprindelige face opbevares uændret og vender tilbage ved afmontering. Effektiv face-værdi er `max(host face, Imprint minimum) + refinement`, så et Imprint aldrig nedgraderer en stærkere host. Refinement følger selve Imprintet mellem dice.
+
+Dungeon 1 introducerer tre ordering-baserede Imprints:
+
+- Rare `Lead Edge`: minimum 3 Attack; som rundens første roll får den +50% Attack, afrundet op.
+- Epic `Relay Strike`: minimum 2 Attack; næste die får +50% til sit primære output, afrundet op.
+- Legendary `Crescendo`: minimum 3 Attack; +25% Attack per tidligere roll op til +100%, afrundet op.
+
+Alle Dungeon 1-enemies kan droppe et endnu ukendt Imprint med floor- og bossvægtning. Basechancerne før multipliers er 1,6% Rare, 0,8% Epic og 0,2% Legendary. Første Dungeon 1-boss-clear garanterer Lead Edge sammen med Iron Descent Key, hvis det ikke allerede er fundet. Duplicates findes ikke i første version.
+
+Imprints monteres, flyttes og fjernes gratis i en separat Hub-sektion, kun uden for aktive runs. Et Imprint kan kun bindes til samme face-familie som sit output. Ét Imprint kan sidde på hver die; faste signature-faces kan ikke erstattes. Ét Legendary Imprint må være aktivt i loadout ad gangen.
+
+Workshoppen er den eneste upgrade-pipeline. Et monteret Imprint optager én af seks fysiske positioner og har derfor præcis 1/6 target-chance. Workshop Die-resultatet øger Imprintets permanente refinement; det underliggende face ændres ikke. Pending target, power og eventuel talentbonus persisteres før animation.
+
+Run-start snapshots fryser både attachment og refinement. Manual og Auto Combat bruger samme ordering-resolution: lokal Imprint-effekt, indgående Relay-bonus, ny Relay-charge, Charm-effekter og til sidst round totals.
+
 ## Persistence
 
 - Save-formatet er versionsstyret.
@@ -319,6 +337,7 @@ Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face l
 - Save version 11 tilføjer controlled Forge-operationer, idempotente operation-ID'er, Attack-evolutioner, Momentum-state og enemy Bleed. Eksisterende Attack-faces over 3 migreres til Power uden at miste investeret styrke.
 - Save version 12 tilføjer family-evolutioner til Shield/Heal, Execute/Fortify-signatures, Fortify-charge samt én-rundes Ward/Regrowth. Version-11 Executioner/Tower normaliseres til deres canonical fire normale og to signature-faces, mens kompatible normale face-investeringer bevares.
 - Save version 17 tilføjer den permanente Soul Die, dens persisterede draw-pile og det låste Soul-roll på encounter rewards. Version-16 XP, Souls, dice, talents, Fate Tokens og Charms bevares.
+- Save version 23 tilføjer permanente Imprint-instances, attachments, refinement, loot-rewards og frossen Imprint-state på aktive dice snapshots. Version-22 saves migreres med en tom samling uden at ændre anden progression.
 - Reload må ikke rulle en face igen eller give rewards igen.
 
 ## Visuel retning

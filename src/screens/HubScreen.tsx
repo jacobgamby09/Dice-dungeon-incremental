@@ -7,12 +7,13 @@ import {
   FastForward,
   Hammer,
   Gem,
+  Badge,
   RotateCcw,
   Rocket,
   Sparkles,
   TriangleAlert,
 } from 'lucide-react'
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
@@ -26,6 +27,7 @@ import { POST_DUNGEON_ONE_DEV_PRESET } from '../game/dev/postDungeonOnePreset'
 import { EARLY_QOL_TEST_XP } from '../game/dev/earlyQolPreset'
 import { FATECRAFT_START_DEV_PRESET } from '../game/dev/fatecraftStartPreset'
 import { getDiceCapacity, getSoulDieValues } from '../game/progression/talents'
+import { applyImprintsToDice } from '../game/progression/imprints'
 import { hasCharmsUnlocked } from '../game/progression/talents'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -51,10 +53,12 @@ export function HubScreen() {
     equippedDieIds: state.profile.equippedDieIds,
     talentRanks: state.profile.talentRanks,
     xp: state.profile.xp,
+    imprints: state.profile.imprints,
   })))
   const openDungeonSelect = useNewGameStore((state) => state.openDungeonSelect)
   const openWorkshop = useNewGameStore((state) => state.openWorkshop)
   const openFateSanctum = useNewGameStore((state) => state.openFateSanctum)
+  const openImprints = useNewGameStore((state) => state.openImprints)
   const openTalentTree = useNewGameStore((state) => state.openTalentTree)
   const openLoadout = useNewGameStore((state) => state.openLoadout)
   const loadPostDungeonOneDevPreset = useNewGameStore(
@@ -68,6 +72,10 @@ export function HubScreen() {
   const diceCapacity = getDiceCapacity(profile.talentRanks)
   const charmsUnlocked = hasCharmsUnlocked(profile.talentRanks)
   const soulDieValues = getSoulDieValues(profile.talentRanks)
+  const effectiveDice = useMemo(
+    () => applyImprintsToDice(profile.diceCollection, profile.imprints),
+    [profile.diceCollection, profile.imprints],
+  )
 
   useEffect(() => {
     window.scrollTo({ left: 0, top: 0 })
@@ -200,7 +208,7 @@ export function HubScreen() {
           tabIndex={0}
         >
           {profile.equippedDieIds.map((dieId) => {
-            const die = profile.diceCollection.find((candidate) => candidate.id === dieId)
+            const die = effectiveDice.find((candidate) => candidate.id === dieId)
             return die ? <DieSummary die={die} key={die.id} /> : null
           })}
         </div>
@@ -230,6 +238,12 @@ export function HubScreen() {
           <button className="hub-action hub-action--fate" onClick={openFateSanctum} type="button">
             <span className="hub-action__icon"><Gem aria-hidden="true" size={22} /></span>
             <span><small>Bind strange rules</small><strong>Fate Sanctum</strong></span>
+          </button>
+        ) : null}
+        {profile.imprints.length > 0 ? (
+          <button className="hub-action hub-action--imprints" onClick={openImprints} type="button">
+            <span className="hub-action__icon"><Badge aria-hidden="true" size={22} /></span>
+            <span><small>Bind dungeon faces</small><strong>Imprints</strong></span>
           </button>
         ) : null}
       </footer>
@@ -309,7 +323,8 @@ export function HubScreen() {
               <strong>Load post-Dungeon-1 profile?</strong>
               <p>
                 Replaces the current save with a realistic boss-clear build and leaves
-                The Iron Descent ready to enter.
+                The Iron Descent ready to enter, with every Dungeon 1 Imprint available
+                for binding and Workshop tests.
               </p>
             </div>
             <dl className="dev-preset__summary">
@@ -329,6 +344,8 @@ export function HubScreen() {
                 </dd>
               </div>
               <div><dt>Dungeon 1</dt><dd>Cleared</dd></div>
+              <div><dt>Imprints</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.imprintCount} owned</dd></div>
+              <div><dt>Test Souls</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.testSouls}</dd></div>
               <div><dt>XP spent</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.xpSpent}</dd></div>
               <div><dt>Souls spent</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.soulsSpent}</dd></div>
             </dl>

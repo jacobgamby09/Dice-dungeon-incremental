@@ -132,6 +132,8 @@ export function PostCombatScreen() {
         charmBonusSouls={charmBonusSouls}
         fateTokensEarned={fateTokensEarned}
         dungeonKey={run.lastReward.dungeonKey}
+        imprintDrop={dungeonComplete ? undefined : run.lastReward.imprintDrop}
+        imprintDrops={dungeonComplete ? run.runStats.imprintsFound ?? [] : []}
         heading={dungeonComplete ? 'This descent' : 'Battle rewards'}
         soulsEarned={rewardSouls}
         totalSouls={profile.bankedSouls}
