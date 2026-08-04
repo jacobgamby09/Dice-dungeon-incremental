@@ -54,6 +54,7 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'occult-prospecting': Search,
   'resonant-etching': Badge,
   'deep-delver': Pickaxe,
+  'forge-overcharge': Zap,
 }
 
 interface TalentIconProps {

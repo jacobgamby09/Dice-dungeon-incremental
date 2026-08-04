@@ -41,7 +41,7 @@ export function ImprintInspectOverlay({
         <strong>Minimum {definition.baseValue + imprint.refinement} {definition.type}</strong>
         <p>{imprint.description}</p>
         <dl>
-          <div><dt>Refinement</dt><dd>+{imprint.refinement}</dd></div>
+          <div><dt>Imprint Power</dt><dd>+{imprint.refinement}</dd></div>
           <div><dt>Host face</dt><dd>Higher value is preserved</dd></div>
           <div><dt>Face position</dt><dd>1 of 6</dd></div>
           <div><dt>Upgrade source</dt><dd>Workshop</dd></div>

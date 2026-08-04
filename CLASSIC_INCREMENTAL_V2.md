@@ -284,14 +284,14 @@ Det første Charm-katalog:
 
 | Charm | Rank 1 | Rank 2 | Rank 3 |
 | --- | --- | --- | --- |
-| Ward Clock · Common | Start hver encounter med 2 Shield | 3 Shield | 4 Shield |
+| Ward Clock · Common | Start hver encounter med 3 Shield | 5 Shield | 7 Shield |
 | Soul Prism · Common | +1 Soul per kill | +2 | +3 |
-| Blade Rhythm · Rare | Hvert 3. Attack-roll får +3 Attack | +5 | +7 |
-| Bloodroot · Rare | Heal 1 HP efter hvert 2. kill | Heal 1 efter hvert kill | Heal 2 efter hvert kill |
-| Echo Knot · Epic | 15% chance for at gentage et rolls raw output | 20% | 25% |
-| Loaded Star · Epic | Hver 5. die gentager sit raw output | Hver 4. | Hver 3. |
-| Crimson Oath · Legendary | Med kun Attack Dice får hvert Attack-roll +1 | +2 | +3 |
-| Unbroken Wall · Legendary | Behold 25% ubrugt Shield til næste round | 40% | 60% |
+| Blade Rhythm · Rare | Hvert 3. Attack-roll får +4 Attack | +6 | +8 |
+| Bloodroot · Rare | Heal 1 HP efter hvert kill | Heal 2 | Heal 3 |
+| Echo Knot · Epic | 18% chance for at gentage et rolls raw output | 24% | 30% |
+| Loaded Star · Epic | Hver 4. die gentager sit raw output | Hver 3. | Hver 2. |
+| Crimson Oath · Legendary | Med kun Attack Dice får hvert Attack-roll +2 | +3 | +4 |
+| Unbroken Wall · Legendary | Behold 40% ubrugt Shield til næste round | 60% | 80% |
 
 Raw roll betyder værdien før Charm-bonusser. Native output følger face-familien:
 Attack, Shield eller Heal.
@@ -359,7 +359,7 @@ family-evolutions.
 - giver 1 Heal;
 - tilføjer samtidig 2 Attack til rundens player-total.
 
-Signature-faces kan ikke vælges af den nuværende Workshop.
+Signature-faces indgår i Workshop-target-puljen og beholder deres mechanic, når deres numeriske power stiger.
 
 ---
 
@@ -383,11 +383,9 @@ Workshoppen er V2’s vigtigste gentagne incremental-upgrade.
 
 ### 8.2 Eligible faces
 
-Et face kan rammes, hvis det:
-
-- ikke er et signature-face;
-- ikke allerede er evolved;
-- ikke venter på en evolution.
+Alle seks fysiske faces er normale Workshop-targets. Det gælder også signature-
+og Imprint-faces; deres stabile ID og mechanic bevares, mens deres numeriske power
+stiger.
 
 Target vælges uniformt blandt alle eligible faces uanset nuværende værdi.
 
@@ -422,16 +420,16 @@ samme face igen. Ubrugte rerolls overføres ikke til næste Forge.
 Prisen beregnes ud fra terningens samlede permanente face-vækst over startværdien 1:
 
 ```text
-Cost = 1 + floor(total applied face upgrades / 3)
+Cost = 1 + floor(max(0, total applied face upgrades - 1) / 3)
 ```
 
 | Samlet growth før køb | Pris |
 | ---: | ---: |
-| 0–2 | 1 Soul |
-| 3–5 | 2 Souls |
-| 6–8 | 3 Souls |
-| 9–11 | 4 Souls |
-| 12–14 | 5 Souls |
+| 0–3 | 1 Soul |
+| 4–6 | 2 Souls |
+| 7–9 | 3 Souls |
+| 10–12 | 4 Souls |
+| 13–15 | 5 Souls |
 
 Et `+2`-resultat øger den samlede growth med 2 og kan derfor krydse et pristrin
 hurtigere.
@@ -479,21 +477,16 @@ V2’s nuværende Workshop-loop:
 
 ## 9. Talent Tree
 
-Talent Tree bruger kun XP og er bygget radialt omkring `Inner Spark`.
+Talent Tree bruger kun XP og er bygget som ét sammenhængende milestone-net omkring
+`Inner Spark`. Arsenal, Workshop, Sustain og Fate findes stadig som farvekategorier,
+men ikke som fire isolerede kompasgrene.
 
-### 9.1 Retninger
+### 9.1 Struktur
 
-| Retning | Identitet | Primær progression |
-| --- | --- | --- |
-| Centrum | Core | Tidlig HP og adgang til alle retninger |
-| Nord | Arsenal | Slots og nye permanente dice |
-| Vest | Workshop | Workshop Die, Soul-effektivitet og target-kontrol |
-| Syd | Descent | Auto Combat, hastighed, HP og dungeons |
-| Øst | Fate & Fortune | XP/Soul-effektivitet, Fate Tokens og Charms |
-
-Rank 1 af `Inner Spark` åbner alle fire retninger samtidigt. Retningerne udelukker
-ikke hinanden. Flere junctions kræver kun ét af to eller to af tre forbundne
-talenter, så centrale mål kan nås ad flere veje.
+Rank 1 af `Inner Spark` åbner fire samtidige første-ring-valg. Senere forbindelser
+fletter kategorierne sammen, og junctions kan kræve alle forbundne talenter eller
+et angivet antal. Der findes ingen Dungeon-clear-gates i træet; store power spikes
+soft-gates med XP, som optjenes langt hurtigere i den næste Dungeon.
 
 ### 9.2 Komplet aktuelt talent-katalog
 
@@ -501,26 +494,27 @@ talenter, så centrale mål kan nås ad flere veje.
 | --- | --- | --- | --- |
 | Inner Spark | 4 / 7 / 11 / 16 / 24 XP | Ingen | +1 Max HP per rank; rank 1 åbner alle retninger |
 | Second Grip | 16 XP | Inner Spark rank 1 | +1 slot |
-| Striker Pattern | 16 XP | Inner Spark rank 1 | Striker Die |
-| Shieldcraft | 42 XP | Second Grip **eller** Striker Pattern | Iron Guard Die |
-| Third Grip | 58 XP | Shieldcraft | +1 slot |
+| Striker Pattern | 16 XP | Second Grip **eller** Loaded Alloy | Striker Die |
+| Shieldcraft | 42 XP | Second Grip + Striker Pattern | Iron Guard Die |
+| Third Grip | 58 XP | Shieldcraft + Deep Reserves | +1 slot |
 | Healing Arts | 78 XP | Third Grip | Vitality Die |
-| Fourth Grip | 36 XP | Healing Arts + Dungeon 1 clear | +1 slot |
-| Bloodwell Doctrine | 36 XP | Healing Arts + Dungeon 1 clear | Bloodwell Die |
+| Fourth Grip | 2.500 XP | 2 af Healing Arts / Executioner Doctrine / Bloodwell Doctrine | +1 slot |
+| Bloodwell Doctrine | 1.250 XP | Healing Arts | Bloodwell Die |
 | Executioner Doctrine | 135 XP | Third Grip | Executioner Die |
 | Tower Discipline | 110 XP | Third Grip | Tower Die |
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
-| Efficient Tools | 10 / 22 / 40 XP | Inner Spark rank 1 | 20% lavere Workshop-pris per rank, multiplicativt |
+| Efficient Tools | 10 / 22 / 40 XP | Inner Spark rank 1 | 10% lavere Workshop-pris per rank, multiplicativt |
 | Face Mastery | 14 / 30 / 55 XP | Loaded Alloy **eller** Efficient Tools | +1 valgfri target-reroll per Forge per rank |
+| Forge Overcharge | 20 / 42 / 78 XP | Face Mastery | +8% / +8% / +9% chance for +1 ekstra normal Forge Power |
 | Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
 | Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
-| Deep Reserves | 18 / 28 / 42 XP | Auto Combat | +2 Max HP per rank |
+| Deep Reserves | 18 / 28 / 42 XP | Field Studies | +2 Max HP per rank |
 | Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
-| Soul Die Mastery | 5 / 14 / 30 XP | Inner Spark rank 1 | Soul Die: `1,1,2,2,2,2` → `1,1,2,2,2,3` → `1,2,2,2,2,3` |
-| Fatecraft | 30 XP | Field Studies **eller** Soul Die Mastery + Dungeon 1 clear | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
+| Soul Die Mastery | 5 / 14 / 30 XP | Field Studies | Soul Die: `1,1,2,2,2,2` → `1,1,2,2,2,3` → `1,2,2,2,2,3` |
+| Fatecraft | 30 XP | Field Studies **eller** Soul Die Mastery | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
 | Fate's Favor | 18 / 36 / 64 XP | Fatecraft | Epic+ inden 8 draws → inden 6 draws → Legendary inden 15 draws |
 | Woven Pair | 45 XP | Fatecraft | Charm-slot 2 |
-| Trinity Knot | 90 XP | Woven Pair + Dungeon 2 clear | Charm-slot 3 |
+| Trinity Knot | 1.400 XP | Woven Pair | Charm-slot 3 |
 
 Kun første rank af en multi-rank prerequisite er nødvendig, medmindre andet står
 eksplicit.
@@ -774,7 +768,7 @@ Den deterministiske journey-simulator bruger en canonical prioritet:
 10. Third Grip.
 11. Healing Arts.
 12. Deep Reserves.
-13. Fourth Grip og Bloodwell Doctrine efter første Dungeon 1-clear.
+13. Fourth Grip som tidligt Dungeon 2-mål, derefter Bloodwell Doctrine.
 
 Aktuelle regression-rails:
 
@@ -783,7 +777,10 @@ Aktuelle regression-rails:
 | Første permanent face-upgrade | Run 1 |
 | Auto Combat | Run 2–3 |
 | Anden permanent die | Run 6–15 |
-| Første Dungeon 1-clear | Run 12–55 |
+| Første Dungeon 1-clear | Median run 31 (mål: 27–34) |
+| Første Dungeon 2-forsøg | Median run 32 |
+| Fourth Grip | Median run 35 (2–4 D2-forsøg) |
+| Bloodwell Doctrine | Median run 37 |
 
 Disse er balancegrænser, ikke endelige release-løfter. Simulatoren måler runs og
 matematik, men ikke realtid, animationstempo, ventetid eller spillerens subjektive

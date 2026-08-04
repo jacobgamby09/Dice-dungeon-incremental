@@ -23,7 +23,7 @@ describe('Charm combat engine', () => {
       state = applied.state
       result = applied.result
     }
-    expect(result.charmBonus).toBe(3)
+    expect(result.charmBonus).toBe(4)
   })
 
   it('lets Echo Knot repeat raw output without recursion', () => {
@@ -42,7 +42,7 @@ describe('Charm combat engine', () => {
     const charms: CharmSnapshot[] = [{ id: 'low-omen', rank: 1 }]
     let state = createCharmRunState()
     let result = attackRoll(2)
-    for (let index = 0; index < 5; index += 1) {
+    for (let index = 0; index < 4; index += 1) {
       const applied = applyRollCharms(attackRoll(2), charms, state)
       state = applied.state
       result = applied.result
@@ -54,24 +54,24 @@ describe('Charm combat engine', () => {
     const charms: CharmSnapshot[] = [{ id: 'ward-clock', rank: 3 }]
     const encounter = beginCharmRound(charms, createCharmRunState(), true)
     const nextRound = beginCharmRound(charms, encounter.state)
-    expect(encounter.shield).toBe(4)
+    expect(encounter.shield).toBe(7)
     expect(nextRound.shield).toBe(0)
   })
 
   it('applies direct Bloodroot and Soul Prism rewards', () => {
     const charms: CharmSnapshot[] = [{ id: 'bloodroot', rank: 2 }, { id: 'soul-prism', rank: 3 }]
     const result = applyKillCharms(charms, createCharmRunState())
-    expect(result.heal).toBe(1)
+    expect(result.heal).toBe(2)
     expect(result.soulBonus).toBe(3)
   })
 
   it('activates Crimson Oath only for an Attack-only loadout', () => {
     const charms: CharmSnapshot[] = [{ id: 'crimson-oath', rank: 2 }]
-    expect(applyRollCharms(attackRoll(2), charms, createCharmRunState(), { attackOnlyLoadout: true }).result.charmBonus).toBe(2)
+    expect(applyRollCharms(attackRoll(2), charms, createCharmRunState(), { attackOnlyLoadout: true }).result.charmBonus).toBe(3)
     expect(applyRollCharms(attackRoll(2), charms, createCharmRunState(), { attackOnlyLoadout: false }).result.charmBonus).toBe(0)
   })
 
   it('returns the strongest equipped Shield carry rate', () => {
-    expect(getShieldCarryRate([{ id: 'unbroken-wall', rank: 2 }])).toBe(0.4)
+    expect(getShieldCarryRate([{ id: 'unbroken-wall', rank: 2 }])).toBe(0.6)
   })
 })

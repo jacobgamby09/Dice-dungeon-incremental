@@ -163,6 +163,13 @@ export function getImprintForgeBonusChance(talentRanks: Readonly<TalentRanks>): 
   ))
 }
 
+export function getWorkshopForgeBonusChance(talentRanks: Readonly<TalentRanks>): number {
+  return Math.min(1, getPurchasedEffects(talentRanks).reduce(
+    (chance, effect) => chance + (effect.type === 'workshop_forge_bonus_chance' ? effect.chance : 0),
+    0,
+  ))
+}
+
 export function hasCharmsUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_charms')
 }

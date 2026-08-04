@@ -34,8 +34,8 @@ describe('Talent Tree canvas layout', () => {
       { height: 800, width: 384 },
     )
 
-    expect(offset.x).toBeCloseTo(-197.84)
-    expect(offset.y).toBe(-1030)
+    expect(offset.x).toBeCloseTo(-187.84)
+    expect(offset.y).toBe(-790)
   })
 
   it('keeps connected nodes in a compact radial cluster', () => {
@@ -43,7 +43,7 @@ describe('Talent Tree canvas layout', () => {
       const target = getTalentTreePoint(talent.id)
       for (const prerequisiteId of talent.prerequisiteIds) {
         const source = getTalentTreePoint(prerequisiteId)
-        expect(Math.hypot(target.x - source.x, target.y - source.y)).toBeLessThanOrEqual(185)
+        expect(Math.hypot(target.x - source.x, target.y - source.y)).toBeLessThanOrEqual(350)
       }
     }
   })
@@ -80,7 +80,12 @@ describe('Talent Tree canvas layout', () => {
           first.sourceId,
           first.targetId,
         ].some((id) => id === second.sourceId || id === second.targetId)
-        if (!sharesNode) expect(cross(first, second)).toBe(false)
+        if (!sharesNode) {
+          expect(
+            cross(first, second),
+            `${first.sourceId} → ${first.targetId} crosses ${second.sourceId} → ${second.targetId}`,
+          ).toBe(false)
+        }
       }
     }
   })
@@ -109,7 +114,7 @@ describe('Talent Tree canvas layout', () => {
     expect(getTalentTreeFrontierPoint({})).toEqual({ x: 900, y: 900 })
   })
 
-  it('returns to the radial center when rank one reveals all four directions', () => {
+  it('returns to the center when rank one reveals the connected first ring', () => {
     expect(getTalentTreeFrontierPoint({ 'battle-hardened-1': 1 })).toEqual({
       x: 900,
       y: 900,

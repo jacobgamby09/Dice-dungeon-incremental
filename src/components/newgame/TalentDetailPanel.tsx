@@ -64,6 +64,7 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   fate_drop_multiplier: Search,
   imprint_drop_multiplier: Search,
   imprint_forge_bonus_chance: Badge,
+  workshop_forge_bonus_chance: Zap,
   dungeon_loot_multiplier: Pickaxe,
 }
 
@@ -102,7 +103,9 @@ function getEffectLabel(effect: TalentEffect): string {
     case 'imprint_drop_multiplier':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Imprint Chance`
     case 'imprint_forge_bonus_chance':
-      return `${Math.round(effect.chance * 100)}% chance for +1 extra Imprint Refinement`
+      return `${Math.round(effect.chance * 100)}% chance for +1 extra Imprint Power`
+    case 'workshop_forge_bonus_chance':
+      return `${Math.round(effect.chance * 100)}% chance for +1 extra Forge Power`
     case 'dungeon_loot_multiplier':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Deep Dungeon Loot`
   }

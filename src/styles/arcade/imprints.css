@@ -29,7 +29,9 @@
 .imprint-card[aria-pressed='true'] { border-color: var(--imprint-color); box-shadow: 0 0 14px color-mix(in srgb, var(--imprint-color) 55%, transparent); }
 .imprint-card span { font: 700 13px/1.2 var(--font-display); }
 .imprint-card small { color: #9ca3af; }
+.imprint-card p { margin: 4px 0 18px; color: #d1d5db; font-size: 12px; line-height: 1.4; }
 .imprint-card em { position: absolute; right: 5px; top: 5px; background: var(--imprint-color); color: #000; padding: 3px 5px; font: 700 8px/1 var(--font-pixel); text-transform: uppercase; }
+.imprint-card em.is-unbound { top: auto; right: 8px; bottom: 7px; background: transparent; color: var(--imprint-color); }
 .imprint-card--unknown { color: #374151; font: 700 42px/1 var(--font-display); }
 
 .imprint-binding { --imprint-color: #22d3ee; margin: 18px 16px; border: 3px solid var(--imprint-color); padding: 14px; }
@@ -57,11 +59,28 @@
 .imprint-dice-list section { border-top: 2px solid #374151; padding-top: 10px; margin-top: 12px; }
 .imprint-dice-list section > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
 .imprint-dice-list h3 { margin: 0; font-size: 14px; }
+.imprint-dice-list h4 { margin: 0; font: 700 14px/1.2 var(--font-display); }
 .imprint-dice-list section.is-equipped { border-top-color: var(--arcade-cyan); }
 .imprint-dice-list section > div { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
 .imprint-dice-list button { min-width: 0; height: 58px; border: 2px solid #4b5563; background: #0b0b12; color: #fff; display: grid; place-items: center; padding: 3px; }
 .imprint-dice-list button:disabled { opacity: .25; }
 .imprint-dice-list button span { font-size: 8px; color: #9ca3af; }
+
+.imprint-collection { margin: 16px; border-top: 3px solid #fff; padding-top: 12px; }
+.imprint-collection > header span,
+.imprint-power > header span,
+.imprint-bind-section > header span { color: #fb7185; font: 800 8px/1 var(--font-pixel); letter-spacing: .1em; text-transform: uppercase; }
+.imprint-collection > header h2,
+.imprint-power > header h3,
+.imprint-bind-section > header h3 { margin: 4px 0 12px; color: #fff; font: 700 18px/1.15 var(--font-display); }
+.imprint-collection .imprint-rarity { margin: 10px 0; }
+.imprint-detail-backdrop { position: fixed; z-index: 150; inset: 0; overflow-y: auto; background: rgb(0 0 0 / 88%); padding: 20px 12px; }
+.imprint-detail-backdrop .imprint-binding { position: relative; width: min(100%, 430px); margin: 0 auto; background: #000; box-shadow: 8px 8px 0 rgb(0 0 0 / 75%), 0 0 28px color-mix(in srgb, var(--imprint-color) 36%, transparent); }
+.imprint-binding__close { position: absolute; z-index: 2; top: 9px; right: 9px; width: 42px; height: 42px; border: 2px solid #fff; background: #000; color: #fff; display: grid; place-items: center; }
+.imprint-detail-backdrop .imprint-binding > header { padding-right: 46px; }
+.imprint-power,
+.imprint-bind-section { margin-top: 16px; border-top: 2px solid var(--imprint-color); padding-top: 12px; }
+.imprint-power > p { margin: 8px 0 0; color: #d1d5db; font-size: 13px; line-height: 1.5; }
 
 .imprint-icon { fill: currentColor; shape-rendering: crispEdges; }
 .imprint-icon--rare { color: #22d3ee; filter: drop-shadow(0 0 4px #0891b2); }

@@ -28,9 +28,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#ff4d67',
     rarity: 'rare',
     ranks: [
-      { description: 'Every 3rd Attack roll gains +3 Attack.', effect: { type: 'attack_rhythm', threshold: 3, bonus: 3 } },
-      { description: 'Every 3rd Attack roll gains +5 Attack.', effect: { type: 'attack_rhythm', threshold: 3, bonus: 5 } },
-      { description: 'Every 3rd Attack roll gains +7 Attack.', effect: { type: 'attack_rhythm', threshold: 3, bonus: 7 } },
+      { description: 'Every 3rd Attack roll gains +4 Attack.', effect: { type: 'attack_rhythm', threshold: 3, bonus: 4 } },
+      { description: 'Every 3rd Attack roll gains +6 Attack.', effect: { type: 'attack_rhythm', threshold: 3, bonus: 6 } },
+      { description: 'Every 3rd Attack roll gains +8 Attack.', effect: { type: 'attack_rhythm', threshold: 3, bonus: 8 } },
     ],
   },
   'echo-knot': {
@@ -41,9 +41,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#18d9ff',
     rarity: 'epic',
     ranks: [
-      { description: 'Each die has a 15% chance to Echo its raw output.', effect: { type: 'echo_chance', chance: 0.15 } },
-      { description: 'Each die has a 20% chance to Echo its raw output.', effect: { type: 'echo_chance', chance: 0.2 } },
-      { description: 'Each die has a 25% chance to Echo its raw output.', effect: { type: 'echo_chance', chance: 0.25 } },
+      { description: 'Each die has an 18% chance to Echo its raw output.', effect: { type: 'echo_chance', chance: 0.18 } },
+      { description: 'Each die has a 24% chance to Echo its raw output.', effect: { type: 'echo_chance', chance: 0.24 } },
+      { description: 'Each die has a 30% chance to Echo its raw output.', effect: { type: 'echo_chance', chance: 0.3 } },
     ],
   },
   'low-omen': {
@@ -54,9 +54,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#b06cff',
     rarity: 'epic',
     ranks: [
-      { description: 'Every 5th die Echoes its raw output.', effect: { type: 'roll_echo', threshold: 5 } },
       { description: 'Every 4th die Echoes its raw output.', effect: { type: 'roll_echo', threshold: 4 } },
       { description: 'Every 3rd die Echoes its raw output.', effect: { type: 'roll_echo', threshold: 3 } },
+      { description: 'Every 2nd die Echoes its raw output.', effect: { type: 'roll_echo', threshold: 2 } },
     ],
   },
   'ward-clock': {
@@ -67,9 +67,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#4c8dff',
     rarity: 'common',
     ranks: [
-      { description: 'Start every encounter with 2 Shield.', effect: { type: 'encounter_shield', amount: 2 } },
       { description: 'Start every encounter with 3 Shield.', effect: { type: 'encounter_shield', amount: 3 } },
-      { description: 'Start every encounter with 4 Shield.', effect: { type: 'encounter_shield', amount: 4 } },
+      { description: 'Start every encounter with 5 Shield.', effect: { type: 'encounter_shield', amount: 5 } },
+      { description: 'Start every encounter with 7 Shield.', effect: { type: 'encounter_shield', amount: 7 } },
     ],
   },
   bloodroot: {
@@ -80,9 +80,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#37e875',
     rarity: 'rare',
     ranks: [
-      { description: 'Heal 1 HP after every 2nd defeated enemy.', effect: { type: 'kill_heal', threshold: 2, amount: 1 } },
       { description: 'Heal 1 HP after every defeated enemy.', effect: { type: 'kill_heal', threshold: 1, amount: 1 } },
       { description: 'Heal 2 HP after every defeated enemy.', effect: { type: 'kill_heal', threshold: 1, amount: 2 } },
+      { description: 'Heal 3 HP after every defeated enemy.', effect: { type: 'kill_heal', threshold: 1, amount: 3 } },
     ],
   },
   'soul-prism': {
@@ -106,9 +106,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#ff8a2a',
     rarity: 'legendary',
     ranks: [
-      { description: 'With only Attack Dice equipped, every Attack gains +1.', effect: { type: 'attack_oath', bonus: 1 } },
       { description: 'With only Attack Dice equipped, every Attack gains +2.', effect: { type: 'attack_oath', bonus: 2 } },
       { description: 'With only Attack Dice equipped, every Attack gains +3.', effect: { type: 'attack_oath', bonus: 3 } },
+      { description: 'With only Attack Dice equipped, every Attack gains +4.', effect: { type: 'attack_oath', bonus: 4 } },
     ],
   },
   'unbroken-wall': {
@@ -119,9 +119,9 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
     accent: '#ff8a2a',
     rarity: 'legendary',
     ranks: [
-      { description: 'Carry 25% of unused Shield into the next round.', effect: { type: 'shield_carry', rate: 0.25 } },
       { description: 'Carry 40% of unused Shield into the next round.', effect: { type: 'shield_carry', rate: 0.4 } },
       { description: 'Carry 60% of unused Shield into the next round.', effect: { type: 'shield_carry', rate: 0.6 } },
+      { description: 'Carry 80% of unused Shield into the next round.', effect: { type: 'shield_carry', rate: 0.8 } },
     ],
   },
 }

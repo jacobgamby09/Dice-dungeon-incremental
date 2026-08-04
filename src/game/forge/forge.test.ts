@@ -13,12 +13,12 @@ import {
 } from './forge'
 
 describe('Classic V2 Workshop Forge', () => {
-  it('starts with a one-Soul upgrade and scales every three applied points', () => {
+  it('starts with four one-Soul upgrades before the long-term three-point scaling', () => {
     const die = createStartingDice()[0]
     expect(getChaosForgeCost(die)).toBe(1)
 
     let forged = die
-    for (let index = 0; index < 3; index += 1) {
+    for (let index = 0; index < 4; index += 1) {
       const pending = prepareWorkshopForge(
         forged,
         `operation-${index}`,
@@ -28,7 +28,7 @@ describe('Classic V2 Workshop Forge', () => {
       forged = completeWorkshopForge(forged, pending)!.die
     }
 
-    expect(getDieUpgradeCount(forged)).toBe(3)
+    expect(getDieUpgradeCount(forged)).toBe(4)
     expect(getChaosForgeCost(forged)).toBe(2)
   })
 
@@ -108,7 +108,7 @@ describe('Classic V2 Workshop Forge', () => {
     })
 
     expect(getChaosEligibleFaces(die)).toHaveLength(6)
-    expect(getChaosForgeCost(die)).toBe(9)
+    expect(getChaosForgeCost(die)).toBe(8)
   })
 
   it('rerolls the target without changing cost or the locked Workshop result', () => {

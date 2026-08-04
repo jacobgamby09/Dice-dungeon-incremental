@@ -28,10 +28,10 @@ const DISPLAYED_MILESTONES: readonly {
   { key: 'firstImprintRun', label: 'First Imprint' },
   { key: 'fatecraftRun', label: 'Fatecraft unlocked' },
   { key: 'firstCharmRun', label: 'First Charm' },
-  { key: 'dungeonOneClearRun', label: 'Dungeon 1 clear', target: 'Target · Run 35–50' },
+  { key: 'dungeonOneClearRun', label: 'Dungeon 1 clear', target: 'Target · Run 27–34' },
   { key: 'dungeonTwoUnlockRun', label: 'Dungeon 2 unlock', target: 'Target · By run 60' },
   { key: 'dungeonTwoFirstRun', label: 'First Dungeon 2 run' },
-  { key: 'fourthSlotRun', label: 'Fourth dice slot', target: 'Target · D1/D2 transition' },
+  { key: 'fourthSlotRun', label: 'Fourth dice slot', target: 'Target · 2–4 D2 attempts' },
   { key: 'bloodwellDieRun', label: 'Bloodwell Die', target: 'Target · Early D2' },
   { key: 'relayImprintRun', label: 'Relay Strike found' },
   { key: 'crescendoImprintRun', label: 'Crescendo found' },
@@ -193,6 +193,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                   <th scope="col">Avg floor</th>
                   <th scope="col">Median</th>
                   <th scope="col">Avg face</th>
+                  <th scope="col">Forges</th>
                   <th scope="col">Auto</th>
                   <th scope="col">2nd die</th>
                   <th scope="col">D1 clear</th>
@@ -203,6 +204,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                   <th scope="col">Imprints</th>
                   <th scope="col">Fatecraft</th>
                   <th scope="col">Charms</th>
+                  <th scope="col">Charm procs</th>
                   <th scope="col">Tokens</th>
                   <th scope="col">XP</th>
                   <th scope="col">Souls</th>
@@ -215,6 +217,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                     <td>{formatDecimal(point.averageFloor)}</td>
                     <td>{point.medianFloor}</td>
                     <td>{formatDecimal(point.averageFaceValue)}</td>
+                    <td>{formatDecimal(point.averageForgeUpgrades)}</td>
                     <td>{formatPercent(point.autoCombatRate)}</td>
                     <td>{formatPercent(point.secondDieRate)}</td>
                     <td>{formatPercent(point.dungeonOneClearRate)}</td>
@@ -225,6 +228,7 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
                     <td>{formatDecimal(point.averageImprintCount)}</td>
                     <td>{formatPercent(point.fatecraftRate)}</td>
                     <td>{formatDecimal(point.averageCharmCount)}</td>
+                    <td>{formatDecimal(point.averageCharmTriggers)}</td>
                     <td>{formatDecimal(point.averageFateTokensAfterSpending)}</td>
                     <td>{formatDecimal(point.averageXpAfterSpending)}</td>
                     <td>{formatDecimal(point.averageSoulsAfterSpending)}</td>

@@ -50,6 +50,7 @@ import {
   getImprintDropMultiplier,
   getDungeonLootMultiplier,
   getImprintForgeBonusChance,
+  getWorkshopForgeBonusChance,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
   normalizeTalentRanks,
@@ -1603,10 +1604,10 @@ export const useNewGameStore = create<NewGameState>()(
         const targetIsImprint = Boolean(
           die.faces.find((face) => face.id === pendingForge.targetFaceId)?.imprint,
         )
-        const forgeBonus = targetIsImprint
-          && random() < getImprintForgeBonusChance(state.profile.talentRanks)
-          ? 1
-          : 0
+        const bonusChance = targetIsImprint
+          ? getImprintForgeBonusChance(state.profile.talentRanks)
+          : getWorkshopForgeBonusChance(state.profile.talentRanks)
+        const forgeBonus = bonusChance > 0 && random() < bonusChance ? 1 : 0
         const persistedForge = forgeBonus > 0
           ? { ...pendingForge, appliedAmount: pendingForge.appliedAmount + forgeBonus }
           : pendingForge
@@ -1644,10 +1645,10 @@ export const useNewGameStore = create<NewGameState>()(
         const rerolledTargetIsImprint = Boolean(
           die.faces.find((face) => face.id === rerolled.targetFaceId)?.imprint,
         )
-        const rerollBonus = rerolledTargetIsImprint
-          && random() < getImprintForgeBonusChance(state.profile.talentRanks)
-          ? 1
-          : 0
+        const rerollBonusChance = rerolledTargetIsImprint
+          ? getImprintForgeBonusChance(state.profile.talentRanks)
+          : getWorkshopForgeBonusChance(state.profile.talentRanks)
+        const rerollBonus = rerollBonusChance > 0 && random() < rerollBonusChance ? 1 : 0
         const persistedReroll = {
           ...rerolled,
           appliedAmount: rerolled.rolledAmount + rerollBonus,

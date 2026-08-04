@@ -148,11 +148,11 @@ Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete t
 
 ## MVP Talent Tree
 
-Talent Tree bruger kun XP. Alle specialiseringsgrene bliver tilgængelige efter `Shieldcraft` og udelukker ikke hinanden. Spilleren vælger købsrækkefølge, ikke en permanent låst klasse.
+Talent Tree bruger kun XP og er ét sammenhængende milestone-net. Systemfarver viser stadig Arsenal, Workshop, Sustain og Fate, men de er ikke længere fire isolerede kompasgrene. Spilleren vælger købsrækkefølge og alternative junctions, ikke en permanent låst klasse.
 
-Talent Tree har ingen Dungeon-clear-krav. Alle nodes kan principielt nås fra fresh save gennem deres forbundne prerequisites, mens store chapter-power-spikes bruger høje XP-priser som soft gates. Fourth Grip koster 2.600 XP, Bloodwell Doctrine 2.200 XP og Trinity Knot 3.000 XP. Spilleren kan derfor grinde dem i en tidligere Dungeon, men højere Dungeons er den klart mere effektive vej.
+Talent Tree har ingen Dungeon-clear-krav. Alle nodes kan principielt nås fra fresh save gennem deres forbundne prerequisites, mens store chapter-power-spikes bruger høje XP-priser som soft gates. Fourth Grip koster 2.500 XP, Bloodwell Doctrine 1.250 XP og Trinity Knot 1.400 XP. Spilleren kan derfor grinde dem i en tidligere Dungeon, men højere Dungeons er den klart mere effektive vej.
 
-Dungeon 2 udgør det næste XP-band: de første fire encounters giver samlet 333 XP mod 190 XP for et komplet Dungeon 1-clear. En 100-seed soft-gate-simulation gav D1-clear median run 39, første D2-run run 40, Fourth Grip run 40 og Bloodwell run 44. En målrettet D1-grind efter Bloodwell nåede den først omkring run 46, så friheden bevares uden at D1 bliver den optimale progression.
+Dungeon 2 udgør det næste XP-band: de første fire encounters giver samlet 333 XP mod 190 XP for et komplet Dungeon 1-clear. Den aktuelle balance-rail sigter efter D1-clear omkring run 27–34 og Fourth Grip efter 2–4 Dungeon 2-forsøg. Simulatoren måler nu også Workshop-køb per run og Charm-procs, så progressionen vurderes på mere end floor-reach alene.
 
 Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, så noden samlet kan give +6 Max HP. Rank 1 åbner vejen til `Twin Arsenal`; rank 2 og 3 er valgfrie og blokerer ikke videre progression.
 
@@ -167,8 +167,8 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 | Third Grip | 40 XP | Shieldcraft | +1 dice slot |
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
 | Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
-| Fourth Grip | 2.600 XP | Healing Arts | +1 dice slot |
-| Bloodwell Doctrine | 2.200 XP | Healing Arts | Én Bloodwell Signature Die |
+| Fourth Grip | 2.500 XP | 2 af Healing Arts / Executioner Doctrine / Bloodwell Doctrine | +1 dice slot |
+| Bloodwell Doctrine | 1.250 XP | Healing Arts | Én Bloodwell Signature Die |
 | Executioner Doctrine | 45 XP | Second Descent | Én Executioner Die |
 | Tower Discipline | 45 XP | Second Descent | Én Tower Die |
 
@@ -315,7 +315,7 @@ Momentum viser en cyan `Next die +2`-charge mellem rolls. Når den næste face l
 
 ## Dungeon Imprints
 
-Imprints er permanente, flytbare face-relics fra dungeon-loot. Et monteret Imprint overlayer visuelt og mekanisk ét fysisk face, men det oprindelige face opbevares uændret og vender tilbage ved afmontering. Effektiv face-værdi er `max(host face, Imprint base) + refinement`, så et Imprint aldrig nedgraderer en stærkere host. Refinement følger selve Imprintet mellem dice.
+Imprints er permanente, flytbare face-relics fra dungeon-loot. Et monteret Imprint overlayer visuelt og mekanisk ét fysisk face, men det oprindelige face opbevares uændret og vender tilbage ved afmontering. Effektiv face-værdi er `max(host face, Imprint base) + Imprint Power`, så et Imprint aldrig nedgraderer en stærkere host. Det interne save-felt hedder fortsat `refinement`, men al player-facing tekst bruger `Imprint Power` eller `Forged Power`, som følger selve Imprintet mellem dice.
 
 Dungeon 1 introducerer tre ordering-baserede Imprints:
 
@@ -327,9 +327,9 @@ Alle Dungeon 1-enemies kan droppe et endnu ukendt Imprint med floor- og bossvæg
 
 Imprints monteres, flyttes og fjernes gratis i en separat Hub-sektion, kun uden for aktive runs. Et Imprint kan kun bindes til samme face-familie som sit output. Ét Imprint kan sidde på hver die; faste signature-faces kan ikke erstattes. Ét Legendary Imprint må være aktivt i loadout ad gangen.
 
-Workshoppen er den eneste upgrade-pipeline. Et monteret Imprint optager én af seks fysiske positioner og har derfor præcis 1/6 target-chance. Workshop Die-resultatet øger Imprintets permanente refinement; det underliggende face ændres ikke. Pending target, power og eventuel talentbonus persisteres før animation.
+Workshoppen er den eneste upgrade-pipeline. Et monteret Imprint optager én af seks fysiske positioner og har derfor præcis 1/6 target-chance. Workshop Die-resultatet øger Imprintets permanente Imprint Power; det underliggende face ændres ikke. Pending target, power og eventuel talentbonus persisteres før animation.
 
-Run-start snapshots fryser både attachment og refinement. Manual og Auto Combat bruger samme ordering-resolution: lokal Imprint-effekt, indgående Relay-bonus, ny Relay-charge, Charm-effekter og til sidst round totals.
+Run-start snapshots fryser både attachment og Imprint Power. Manual og Auto Combat bruger samme ordering-resolution: lokal Imprint-effekt, indgående Relay-bonus, ny Relay-charge, Charm-effekter og til sidst round totals.
 
 ## Persistence
 
@@ -380,7 +380,7 @@ Dungeon 1 bevarer den godkendte MVP-cadence: startbuildet stopper omkring floor 
 
 Dungeon 2 starter en ny incremental kurve. Den samme fire-dice build lander i seedede regressioner omkring floor 4, et mellemtrin når cirka floor 5, og et sent build når bossen. Tre konkrete Shield-faces fra 4 → 5 løfter eksempelvis boss-clear-rate fra cirka 4% til cirka 70%; individuelle face-køb er dermed synligt meningsfulde frem for kun at virke ved fuld cap.
 
-En separat progression journey-simulator modellerer nu XP-køb, Soul-forges, loadout, gentagne runs og dungeon-clears samlet. Den bindende første regression er: første face-køb inden run 2, Twin Arsenal og Auto Combat omkring run 2–5, første evolution omkring run 2–5, første Dungeon 1-clear omkring run 7–12 og en senere Dungeon 2-clear senest omkring run 18 med et balanceret build. Tallene er balance-guards, ikke player-facing løfter.
+En separat progression journey-simulator modellerer XP-køb, Soul-forges, loadout, Charms, gentagne runs og dungeon-clears samlet. Den aktuelle 100-seed balanced baseline giver Dungeon 1-clear på median run 31, første Dungeon 2-forsøg på run 32, Fourth Grip på run 35, Bloodwell Doctrine på run 37 og Dungeon 2-clear på run 43. Den måler også antal Forge-opgraderinger og faktiske Charm-procs. Tallene er balance-guards, ikke player-facing løfter.
 
 Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 

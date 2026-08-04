@@ -1,5 +1,5 @@
-import { ArrowRight, ChevronLeft, Link, Sparkles, Unlink } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ChevronLeft, Link, Sparkles, Unlink, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { ImprintIcon } from '../components/newgame/ImprintIcon'
 import { DieLoadoutStatus } from '../components/newgame/DieLoadoutStatus'
 import { getDieLoadoutSlotIndex } from '../components/newgame/dieLoadout'
@@ -15,8 +15,8 @@ export function ImprintsScreen() {
   const goToHub = useNewGameStore((state) => state.goToHub)
   const attach = useNewGameStore((state) => state.attachImprint)
   const detach = useNewGameStore((state) => state.detachImprint)
-  const [selectedId, setSelectedId] = useState(imprints[0]?.id ?? '')
-  const selected = imprints.find((imprint) => imprint.id === selectedId) ?? imprints[0]
+  const [selectedId, setSelectedId] = useState('')
+  const selected = imprints.find((imprint) => imprint.id === selectedId)
   const selectedDefinition = selected ? IMPRINT_DEFINITIONS[selected.definitionId] : null
   const attachedDie = selected?.attachment
     ? dice.find((die) => die.id === selected.attachment?.dieId)
@@ -28,11 +28,25 @@ export function ImprintsScreen() {
     ? Math.max(attachedFace?.value ?? selectedDefinition.baseValue, selectedDefinition.baseValue)
       + selected.refinement
     : 0
+  const compatibleDice = selectedDefinition
+    ? dice.filter((die) => die.faces.some((face) => (
+        !face.signature && face.type === selectedDefinition.type
+      )))
+    : []
   const grouped = useMemo(() => ({
     rare: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'rare'),
     epic: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'epic'),
     legendary: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'legendary'),
   }), [imprints])
+
+  useEffect(() => {
+    if (!selected) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedId('')
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [selected])
 
   return (
     <main className="game-shell imprints-screen">
@@ -45,138 +59,117 @@ export function ImprintsScreen() {
       <section className="imprints-guide" aria-labelledby="imprints-guide-title">
         <header>
           <Sparkles aria-hidden="true" size={18} />
-          <div><span>Permanent face crafting</span><h2 id="imprints-guide-title">How Imprints Work</h2></div>
+          <div><span>Find · Bind · Forge</span><h2 id="imprints-guide-title">Build a Signature Face</h2></div>
         </header>
-        <ol>
-          <li><strong>1 · Find</strong><span>Discover Imprints in Dungeon loot.</span></li>
-          <li><strong>2 · Bind</strong><span>Attach one to a matching permanent face.</span></li>
-          <li><strong>3 · Refine</strong><span>Workshop hits raise its permanent Refinement.</span></li>
-        </ol>
-        <p>Removing or moving an Imprint restores the original face. Its Refinement always travels with it.</p>
+        <p>Bind an Imprint to a matching face. When Workshop selects it, its permanent <strong>Imprint Power</strong> can grow. Moving it never resets that power.</p>
       </section>
 
-      {(['rare', 'epic', 'legendary'] as const).map((rarity) => (
-        <section className={`imprint-rarity imprint-rarity--${rarity}`} key={rarity}>
-          <header><h2>{rarity}</h2><span>{grouped[rarity].length}/1</span></header>
-          <div className="imprint-rarity__grid">
-            {grouped[rarity].length > 0 ? grouped[rarity].map((imprint) => (
-              <ImprintCard
-                imprint={imprint}
-                key={imprint.id}
-                onSelect={() => setSelectedId(imprint.id)}
-                selected={imprint.id === selected?.id}
-              />
-            )) : <div className="imprint-card imprint-card--unknown">?</div>}
-          </div>
-        </section>
-      ))}
+      <section className="imprint-collection" aria-labelledby="imprint-collection-title">
+        <header><span>Collection</span><h2 id="imprint-collection-title">Discovered Imprints</h2></header>
+        {(['rare', 'epic', 'legendary'] as const).map((rarity) => (
+          <section className={`imprint-rarity imprint-rarity--${rarity}`} key={rarity}>
+            <header><h3>{rarity}</h3><span>{grouped[rarity].length}/1</span></header>
+            <div className="imprint-rarity__grid">
+              {grouped[rarity].length > 0 ? grouped[rarity].map((imprint) => (
+                <ImprintCard
+                  imprint={imprint}
+                  key={imprint.id}
+                  onSelect={() => setSelectedId(imprint.id)}
+                />
+              )) : <div className="imprint-card imprint-card--unknown">?</div>}
+            </div>
+          </section>
+        ))}
+      </section>
 
       {selected && selectedDefinition ? (
-        <section className={`imprint-binding imprint-binding--${selectedDefinition.rarity}`}>
-          <header>
-            <ImprintIcon id={selected.definitionId} rarity={selectedDefinition.rarity} size={42} />
-            <div>
-              <span>{selectedDefinition.rarity} imprint</span>
-              <h2>{selectedDefinition.name}</h2>
-            </div>
-            <strong>{effectiveValue}</strong>
-          </header>
-          <p>{selectedDefinition.description}</p>
+        <div
+          className="imprint-detail-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSelectedId('')
+          }}
+        >
+          <section
+            aria-labelledby="imprint-detail-title"
+            aria-modal="true"
+            className={`imprint-binding imprint-binding--${selectedDefinition.rarity}`}
+            role="dialog"
+          >
+            <button className="imprint-binding__close" aria-label="Close Imprint details" onClick={() => setSelectedId('')} type="button"><X /></button>
+            <header>
+              <ImprintIcon id={selected.definitionId} rarity={selectedDefinition.rarity} size={50} />
+              <div>
+                <span>{selectedDefinition.rarity} imprint</span>
+                <h2 id="imprint-detail-title">{selectedDefinition.name}</h2>
+              </div>
+              <strong>{effectiveValue}</strong>
+            </header>
+            <p>{selectedDefinition.description}</p>
 
-          <dl className="imprint-stats">
-            <div><dt>Dungeon source</dt><dd>{DUNGEONS[selectedDefinition.dungeonId].name}</dd></div>
-            <div><dt>Host face</dt><dd>{attachedFace ? attachedFace.value : 'Not bound'}</dd></div>
-            <div><dt>Imprint base</dt><dd>{selectedDefinition.baseValue}</dd></div>
-            <div><dt>Refinement</dt><dd>+{selected.refinement}</dd></div>
-            <div className="imprint-stats__result"><dt>Effective face</dt><dd>{effectiveValue}</dd></div>
-          </dl>
+            <section className="imprint-power" aria-labelledby="imprint-power-title">
+              <header><span>Permanent scaling</span><h3 id="imprint-power-title">Imprint Power</h3></header>
+              <dl className="imprint-stats">
+                <div><dt>Dungeon source</dt><dd>{DUNGEONS[selectedDefinition.dungeonId].name}</dd></div>
+                <div><dt>Host face</dt><dd>{attachedFace?.value ?? 'Not bound'}</dd></div>
+                <div><dt>Imprint base</dt><dd>{selectedDefinition.baseValue}</dd></div>
+                <div><dt>Forged Power</dt><dd>+{selected.refinement}</dd></div>
+                <div className="imprint-stats__result"><dt>Current face value</dt><dd>{effectiveValue}</dd></div>
+              </dl>
+              <p>The face uses the higher of its host value or Imprint base, then adds Forged Power. Workshop treats this as a normal 1-in-6 target.</p>
+            </section>
 
-          <div className="imprint-formula" aria-label="Effective Imprint value formula">
-            <span>Higher of host {attachedFace?.value ?? '—'} or base {selectedDefinition.baseValue}</span>
-            <ArrowRight aria-hidden="true" size={16} />
-            <span>+{selected.refinement} Refinement</span>
-            <ArrowRight aria-hidden="true" size={16} />
-            <strong>{effectiveValue}</strong>
-          </div>
-          <p className="imprint-refinement-note">
-            Refinement is permanent power stored on the Imprint. It is earned when Workshop selects this face and remains when the Imprint moves.
-          </p>
+            {selected.attachment ? (
+              <div className="imprint-current-binding">
+                <span>Currently bound</span>
+                <strong>{attachedDie?.name ?? 'Unknown die'} · Face {(attachedDie?.faces.findIndex((face) => face.id === attachedFace?.id) ?? -1) + 1}</strong>
+                <button onClick={() => detach(selected.id)} type="button"><Unlink size={17} /> Remove</button>
+              </div>
+            ) : null}
 
-          {selected.attachment ? (
-            <div className="imprint-current-binding">
-              <span>Bound to</span>
-              <strong>{attachedDie?.name ?? 'Unknown die'} · Face {(attachedDie?.faces.findIndex((face) => face.id === attachedFace?.id) ?? -1) + 1}</strong>
-              <button onClick={() => detach(selected.id)} type="button"><Unlink size={17} /> Remove</button>
-            </div>
-          ) : null}
-
-          <div className="imprint-dice-list">
-            {dice.map((die) => {
-              const equippedSlotIndex = getDieLoadoutSlotIndex(equippedDieIds, die.id)
-              return (
-                <section
-                  className={equippedSlotIndex !== null ? 'is-equipped' : undefined}
-                  key={die.id}
-                >
-                  <header>
-                    <h3>{die.name}</h3>
-                    <DieLoadoutStatus slotIndex={equippedSlotIndex} />
-                  </header>
-                  <div>
-                    {die.faces.map((face, index) => {
-                      const occupied = imprints.some((candidate) => (
-                        candidate.id !== selected.id
-                        && candidate.attachment?.dieId === die.id
-                        && candidate.attachment.faceId === face.id
-                      ))
-                      return (
-                        <button
-                          disabled={
-                            Boolean(face.signature)
-                            || occupied
-                            || face.type !== selectedDefinition.type
-                          }
-                          key={face.id}
-                          onClick={() => attach(selected.id, die.id, face.id)}
-                          type="button"
-                        >
-                          <span>{index + 1}</span><strong>{face.value}</strong>
-                          <Link size={13} />
-                        </button>
-                      )
-                    })}
-                  </div>
-                </section>
-              )
-            })}
-          </div>
-        </section>
+            <section className="imprint-bind-section" aria-labelledby="imprint-bind-title">
+              <header><span>Choose a host</span><h3 id="imprint-bind-title">Bind to a Matching Face</h3></header>
+              <div className="imprint-dice-list">
+                {compatibleDice.map((die) => {
+                  const equippedSlotIndex = getDieLoadoutSlotIndex(equippedDieIds, die.id)
+                  return (
+                    <section className={equippedSlotIndex !== null ? 'is-equipped' : undefined} key={die.id}>
+                      <header><h4>{die.name}</h4><DieLoadoutStatus slotIndex={equippedSlotIndex} /></header>
+                      <div>
+                        {die.faces.map((face, index) => {
+                          const occupied = imprints.some((candidate) => (
+                            candidate.id !== selected.id
+                            && candidate.attachment?.dieId === die.id
+                            && candidate.attachment.faceId === face.id
+                          ))
+                          const compatible = !face.signature && face.type === selectedDefinition.type
+                          return (
+                            <button disabled={!compatible || occupied} key={face.id} onClick={() => attach(selected.id, die.id, face.id)} type="button">
+                              <span>{index + 1}</span><strong>{face.value}</strong><Link size={13} />
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </section>
+                  )
+                })}
+              </div>
+            </section>
+          </section>
+        </div>
       ) : null}
     </main>
   )
 }
 
-function ImprintCard({
-  imprint,
-  onSelect,
-  selected,
-}: {
-  imprint: ImprintInstance
-  onSelect: () => void
-  selected: boolean
-}) {
+function ImprintCard({ imprint, onSelect }: { imprint: ImprintInstance; onSelect: () => void }) {
   const definition = IMPRINT_DEFINITIONS[imprint.definitionId]
   return (
-    <button
-      aria-pressed={selected}
-      className="imprint-card"
-      onClick={onSelect}
-      type="button"
-    >
-      <ImprintIcon id={definition.id} rarity={definition.rarity} size={44} />
+    <button className="imprint-card" onClick={onSelect} type="button">
+      <ImprintIcon id={definition.id} rarity={definition.rarity} size={48} />
       <span>{definition.name}</span>
-      <small>Refinement +{imprint.refinement}</small>
-      {imprint.attachment ? <em>Bound</em> : null}
+      <small>Power +{imprint.refinement}</small>
+      <p>{definition.description}</p>
+      {imprint.attachment ? <em>Bound</em> : <em className="is-unbound">Ready to bind</em>}
     </button>
   )
 }

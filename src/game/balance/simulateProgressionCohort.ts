@@ -50,6 +50,8 @@ export interface ProgressionCurvePoint {
   averageImprintCount: number
   averageCharmCount: number
   averageFateTokensAfterSpending: number
+  averageForgeUpgrades: number
+  averageCharmTriggers: number
   medianFloor: number
   run: number
   secondDieRate: number
@@ -319,6 +321,8 @@ function createCurve(
       averageImprintCount: average(records.map((record) => record.imprintCount)),
       averageCharmCount: average(records.map((record) => record.charmCount)),
       averageFateTokensAfterSpending: average(records.map((record) => record.fateTokensAfterSpending)),
+      averageForgeUpgrades: average(records.map((record) => record.forgeUpgrades)),
+      averageCharmTriggers: average(records.map((record) => record.charmTriggers)),
       medianFloor: percentile(floors, 0.5) ?? 0,
       run,
       secondDieRate: results.filter((result) => (

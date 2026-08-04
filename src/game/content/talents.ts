@@ -26,13 +26,14 @@ export const TALENT_IDS = {
   occultProspecting: 'occult-prospecting',
   resonantEtching: 'resonant-etching',
   deepDelver: 'deep-delver',
+  forgeOvercharge: 'forge-overcharge',
 } as const
 
 export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.resonantEtching,
     name: 'Resonant Etching',
-    description: 'Each rank adds a 12% chance for a Workshop hit on an Imprint to gain +1 extra Refinement.',
+    description: 'Each rank adds a 12% chance for a Workshop hit on an Imprint to gain +1 extra Imprint Power.',
     iconKey: 'resonant-etching',
     prerequisiteIds: [TALENT_IDS.faceMastery],
     ranks: [
@@ -44,7 +45,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.battleHardenedOne,
     name: 'Inner Spark',
-    description: 'Increase Max HP by 1 per rank. The first rank reveals all four paths.',
+    description: 'Increase Max HP by 1 per rank. The first rank opens the connected progression web.',
     iconKey: 'battle-heart',
     prerequisiteIds: [],
     ranks: [
@@ -70,7 +71,8 @@ export const TALENTS: TalentDefinition[] = [
     name: 'Striker Pattern',
     description: 'Receive the permanent Striker Die without automatically equipping it.',
     iconKey: 'striker-pattern',
-    prerequisiteIds: [TALENT_IDS.battleHardenedOne],
+    prerequisiteIds: [TALENT_IDS.twinArsenal, TALENT_IDS.volatileTemper],
+    prerequisiteCount: 1,
     ranks: [{ cost: 16, effects: [{ type: 'grant_die', dieId: 'attack-die-2' }] }],
     track: 'arsenal',
   },
@@ -80,16 +82,15 @@ export const TALENTS: TalentDefinition[] = [
     description: 'Receive the permanent Iron Guard Die.',
     iconKey: 'shieldcraft',
     prerequisiteIds: [TALENT_IDS.twinArsenal, TALENT_IDS.strikerPattern],
-    prerequisiteCount: 1,
     ranks: [{ cost: 42, effects: [{ type: 'grant_die', dieId: 'shield-die-1' }] }],
     track: 'arsenal',
   },
   {
     id: TALENT_IDS.thirdGrip,
     name: 'Third Grip',
-    description: 'Gain a third dice slot after learning Shieldcraft.',
+    description: 'Gain a third dice slot after combining defense with deeper reserves.',
     iconKey: 'twin-dice',
-    prerequisiteIds: [TALENT_IDS.shieldcraft],
+    prerequisiteIds: [TALENT_IDS.shieldcraft, TALENT_IDS.battleHardenedTwo],
     ranks: [{ cost: 58, effects: [{ type: 'dice_slots', amount: 1 }] }],
     track: 'arsenal',
   },
@@ -105,10 +106,11 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.fourthGrip,
     name: 'Fourth Grip',
-    description: 'Gain a fourth dice slot. Its high XP cost makes deeper Dungeons the fastest path.',
+    description: 'Gain a fourth dice slot. Its XP cost is tuned as an early Dungeon 2 power spike.',
     iconKey: 'twin-dice',
-    prerequisiteIds: [TALENT_IDS.healingArts],
-    ranks: [{ cost: 2600, effects: [{ type: 'dice_slots', amount: 1 }] }],
+    prerequisiteIds: [TALENT_IDS.healingArts, TALENT_IDS.executionerDoctrine, TALENT_IDS.bloodwellDoctrine],
+    prerequisiteCount: 2,
+    ranks: [{ cost: 2500, effects: [{ type: 'dice_slots', amount: 1 }] }],
     track: 'arsenal',
   },
   {
@@ -117,7 +119,7 @@ export const TALENTS: TalentDefinition[] = [
     description: 'Receive a Heal Signature Die with two Drain faces. Deeper Dungeons fund it faster.',
     iconKey: 'bloodwell-die',
     prerequisiteIds: [TALENT_IDS.healingArts],
-    ranks: [{ cost: 2200, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
+    ranks: [{ cost: 1250, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
     track: 'arsenal',
   },
   {
@@ -134,7 +136,7 @@ export const TALENTS: TalentDefinition[] = [
     name: 'Tower Discipline',
     description: 'Receive a Shield Signature Die with two Fortify faces.',
     iconKey: 'tower-die',
-    prerequisiteIds: [TALENT_IDS.thirdGrip],
+    prerequisiteIds: [TALENT_IDS.thirdGrip, TALENT_IDS.battleHardenedTwo],
     ranks: [{ cost: 110, effects: [{ type: 'grant_die', dieId: 'shield-die-tower' }] }],
     track: 'arsenal',
   },
@@ -154,13 +156,13 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.efficientTools,
     name: 'Efficient Tools',
-    description: 'Reduce every Workshop Soul cost by 20% per rank.',
+    description: 'Reduce every Workshop Soul cost by 10% per rank.',
     iconKey: 'workshop-efficiency',
     prerequisiteIds: [TALENT_IDS.battleHardenedOne],
     ranks: [
-      { cost: 10, effects: [{ type: 'workshop_cost_multiplier', multiplier: 0.8 }] },
-      { cost: 22, effects: [{ type: 'workshop_cost_multiplier', multiplier: 0.8 }] },
-      { cost: 40, effects: [{ type: 'workshop_cost_multiplier', multiplier: 0.8 }] },
+      { cost: 10, effects: [{ type: 'workshop_cost_multiplier', multiplier: 0.9 }] },
+      { cost: 22, effects: [{ type: 'workshop_cost_multiplier', multiplier: 0.9 }] },
+      { cost: 40, effects: [{ type: 'workshop_cost_multiplier', multiplier: 0.9 }] },
     ],
     track: 'workshop',
   },
@@ -188,11 +190,24 @@ export const TALENTS: TalentDefinition[] = [
     track: 'descent',
   },
   {
+    id: TALENT_IDS.forgeOvercharge,
+    name: 'Forge Overcharge',
+    description: 'Each rank adds a chance for a normal Workshop hit to gain +1 extra power.',
+    iconKey: 'forge-overcharge',
+    prerequisiteIds: [TALENT_IDS.faceMastery],
+    ranks: [
+      { cost: 20, effects: [{ type: 'workshop_forge_bonus_chance', chance: 0.08 }] },
+      { cost: 42, effects: [{ type: 'workshop_forge_bonus_chance', chance: 0.08 }] },
+      { cost: 78, effects: [{ type: 'workshop_forge_bonus_chance', chance: 0.09 }] },
+    ],
+    track: 'workshop',
+  },
+  {
     id: TALENT_IDS.deepDelver,
     name: 'Deep Delver',
     description: 'Increase the higher-dungeon bonus to Fate Token and Imprint drop chances.',
     iconKey: 'deep-delver',
-    prerequisiteIds: [TALENT_IDS.battleHardenedTwo],
+    prerequisiteIds: [TALENT_IDS.fatecraft],
     ranks: [
       { cost: 34, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.15 }] },
       { cost: 68, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.15 }] },
@@ -217,7 +232,7 @@ export const TALENTS: TalentDefinition[] = [
     name: 'Deep Reserves',
     description: 'Increase Max HP by 2 per rank for longer descents.',
     iconKey: 'battle-heart-advanced',
-    prerequisiteIds: [TALENT_IDS.autoCombat],
+    prerequisiteIds: [TALENT_IDS.fieldStudies],
     ranks: [
       { cost: 18, effects: [{ type: 'max_hp', amount: 2 }] },
       { cost: 28, effects: [{ type: 'max_hp', amount: 2 }] },
@@ -243,7 +258,7 @@ export const TALENTS: TalentDefinition[] = [
     name: 'Soul Die Mastery',
     description: 'Improve one permanent face on the Soul Die per rank.',
     iconKey: 'soul-efficiency',
-    prerequisiteIds: [TALENT_IDS.battleHardenedOne],
+    prerequisiteIds: [TALENT_IDS.fieldStudies],
     ranks: [
       { cost: 5, effects: [{ type: 'soul_die_faces', values: [1, 1, 2, 2, 2, 2] }] },
       { cost: 14, effects: [{ type: 'soul_die_faces', values: [1, 1, 2, 2, 2, 3] }] },
@@ -308,7 +323,7 @@ export const TALENTS: TalentDefinition[] = [
     description: 'Open a third and final Charm slot.',
     iconKey: 'charm-trinity',
     prerequisiteIds: [TALENT_IDS.wovenPair],
-    ranks: [{ cost: 3000, effects: [{ type: 'charm_slots', amount: 1 }] }],
+    ranks: [{ cost: 1400, effects: [{ type: 'charm_slots', amount: 1 }] }],
     track: 'fate',
   },
 ]

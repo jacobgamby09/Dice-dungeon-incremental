@@ -415,31 +415,6 @@ export function TalentTreeCanvas({
           y: offsetY,
         }}
       >
-        <div
-          aria-hidden="true"
-          className="talent-canvas-sector talent-canvas-sector--north"
-        >
-          Arsenal
-        </div>
-        <div
-          aria-hidden="true"
-          className="talent-canvas-sector talent-canvas-sector--west"
-        >
-          Workshop
-        </div>
-        <div
-          aria-hidden="true"
-          className="talent-canvas-sector talent-canvas-sector--south"
-        >
-          Descent
-        </div>
-        <div
-          aria-hidden="true"
-          className="talent-canvas-sector talent-canvas-sector--east"
-        >
-          Fate
-        </div>
-
         <svg
           aria-hidden="true"
           className="talent-canvas__connections"

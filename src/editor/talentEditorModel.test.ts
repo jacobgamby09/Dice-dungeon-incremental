@@ -21,9 +21,9 @@ describe('Talent Tree Editor model', () => {
     const fourthGrip = first.nodes.find((node) => node.id === 'fourth-grip')!
     const bloodwell = first.nodes.find((node) => node.id === 'bloodwell-doctrine')!
     const trinityKnot = first.nodes.find((node) => node.id === 'trinity-knot')!
-    expect(fourthGrip.ranks[0].cost).toBe(2600)
-    expect(bloodwell.ranks[0].cost).toBe(2200)
-    expect(trinityKnot.ranks[0].cost).toBe(3000)
+    expect(fourthGrip.ranks[0].cost).toBe(2500)
+    expect(bloodwell.ranks[0].cost).toBe(1250)
+    expect(trinityKnot.ranks[0].cost).toBe(1400)
     expect(first.nodes.every((node) => node.requirements === undefined)).toBe(true)
 
     first.nodes[0].name = 'Changed only in draft'

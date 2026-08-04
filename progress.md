@@ -38,8 +38,10 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Talent Tree er nu ét sammenhængende progression-net:** De fire isolerede kardinalgrene og deres canvas-labels er fjernet. Spilleren åbner flere krydsende valg fra Inner Spark, mens Arsenal-, Workshop-, economy-, automation-, Fate- og survivability-nodes stadig har tydelige identiteter. Nye `Forge Overcharge` giver tre små Workshop-ranks med samlet 25% chance for +1 ekstra Forge Power.
+- **D1/D2-pacingen er komprimeret uden at give slot 4 i Dungeon 1:** De første fire face-growth-points på en die koster 1 Soul, derefter stiger prisen per tre growth-points. En 100-seed balanced baseline giver D1-clear på median run 31, første D2-forsøg på run 32, Fourth Grip på run 35, Bloodwell på run 37 og D2-clear på run 43. Fourth Grip koster 2.500 XP og fungerer dermed som et power spike efter cirka 2–4 D2-forsøg.
+- **Charms og Imprints har fået et power/readability-pass:** Alle direkte combat-Charms er buffet, og simulatoren tæller nu faktiske Charm-procs. Imprints-skærmen er samlet som Collection → detail-overlay → compatible binding, mens den tidligere player-facing `Refinement` nu hedder `Imprint Power` og forklares som Base + Host + Forged.
 - **Equipped-status er nu synlig på alle permanente dice-valg:** Workshop og Imprint-binding viser samme kompakte status på hver ejet terning. Aktive terninger markeres cyan som `Equipped · Roll N`, så loadoutets faktiske combat-rækkefølge kan aflæses; ikke-udstyrede terninger står neutralt som `Reserve`.
-- **Talent Tree bruger nu rene XP-soft-gates:** Ingen talent-node kræver længere et Dungeon-clear. Fourth Grip koster 2.600 XP, Bloodwell Doctrine 2.200 XP og Trinity Knot 3.000 XP, mens Dungeon 2's XP-rewards er løftet 50%. De første fire D2-floors giver nu 333 XP mod 190 XP for et fuldt D1-clear. En 100-seed balanced simulation lander på D1-clear median run 39, første D2-run run 40, Fourth Grip run 40, Bloodwell run 44 og D2-clear run 51.
 - **Imprint reliability, signature-scaling og loot-discovery-passet er implementeret lokalt:** Et Imprint-drop vises nu kun, hvis samme stabile instance-ID blev oprettet atomisk i inventory; dette dækker også Rare-ejet → Legendary boss-drop og reload. Execute/Fortify/Drain-faces er almindelige 1/6 Workshop-targets, beholder mechanic/ID og skalerer deres face-output. Imprint-tabben forklarer Find → Bind → Refine, formel og source; Dungeon 1 viser discovered/undiscovered loot efter første Imprint; Workshop viser Imprint-rarity, effective value, Refinement og en ryddelig reroll-handling. Den tidligere Fourth Grip/Bloodwell boss-gate er erstattet af det nyere XP-soft-gate-pass ovenfor.
 - **Imprint-balance og simulator-paritet er implementeret lokalt:** Imprints bevarer nu en stærkere host-face (`max(host, Imprint base) + refinement`), kan kun bindes til samme face-familie og skalerer med procentbaserede ordering-effekter. Balance Lab simulerer nu Imprint-drops, binding, loadout-order, Workshop-refinement, Fate Tokens og live Charm-procs. En 1.000-seed balanced baseline lander på D1-clear median run 40, første D2-run median floor 5 og D2-clear median 10 runs efter D1-clear.
 - **Dungeon Imprints er implementeret lokalt og har et komplet test-flow:** Første Dungeon 1-boss-clear giver garanteret Rare `Lead Edge` sammen med Dungeon 2-nøglen. `Relay Strike` og `Crescendo` kan findes på senere runs. Imprints er permanente, unikke, flytbare face-overlays med egen refinement, separat Hub-skærm, præcis 1/6 Workshop-targeting, run-snapshots, ordering-baserede combat-effekter, rarity-visuals og loot-præsentation. Landede Imprints kan inspiceres direkte i combat; overlayet pauser Auto Combat. Post-Dungeon-1 DEV-profilen indeholder alle tre D1-Imprints og 500 Souls til hurtig attach/Workshop/combat-test.
@@ -129,7 +131,10 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
-- Fresh-save-playtest den nye XP-band-overgang: kontrollér om Fourth Grips 2.600 XP og Bloodwells 2.200 XP opleves som spændende langsigtede valg, og om D2's 50% højere XP tydeligt kommunikerer, at et risikabelt D2-push er mere effektivt end sikker D1-farm.
+- Fresh-save-playtest den nye samlede Talent Tree-rute og registrér hvilke af de samtidige valg der faktisk bliver valgt før første D1-clear; layoutet skal give agency uden at skabe én skjult optimal path.
+- Spil mindst 5–10 D2-forsøg fra et normalt save og vurder om Fourth Grip omkring tredje forsøg føles som den rigtige ventetid, samt om Bloodwell kort efter føles som et separat valg frem for en automatisk pakke.
+- Test Common, Rare, Epic og Legendary Charms i både manuel og Auto Combat. Simulatoren måler proc-frekvens, men den nye power skal godkendes visuelt og følelsesmæssigt før flere Charms tilføjes.
+- Gennemgå Imprint Collection → detail → bind → Workshop på fysisk mobil og afgør om `Imprint Power` nu er selvforklarende uden den tidligere Refinement-terminologi.
 - Kør et fysisk boss-drop → reload → Imprint-tab-pass på iPhone, og bekræft at Rare-ejet → Epic/Legendary altid ses både i loot og inventory. Test samtidig Workshop på opgraderede Execute/Fortify/Drain-faces.
 - Fysisk playtest den nye D2-mid-wall ved Shieldbearer II og Cultist II. Simulatoren rammer målet matematisk, men især Cultists højere Attack + Heal skal føles som et tydeligt build-check og ikke som et tilfældigt spike.
 - Mål D1-Imprint-acquisition i rigtig spilletid. Den nye baseline finder første Imprint median run 14; Relay Strike findes i 85,1% og Crescendo i 37,6% af journeys før/ved D1-clear. Afgør efter playtest, om det giver tilstrækkelig grund til at farme D1 efter clear.
@@ -178,8 +183,9 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
-- Alle D1-gates blev eksplicit afvist af simulatoren: median første clear faldt fra run 40 til 24. Kun Fatecraft er derfor åbnet; Fourth Grip/Bloodwell-gaten skal først genovervejes, hvis den faktiske D1-pacing ændres.
-- Simulatoren modellerer nu live Charm-procs og Fate Token-flow, men den balancerede standardstrategi prioriterer ikke Fatecraft. Balance Lab har derfor separate `Only Fatecraft open` og `All open · Fate first`-strategier; spillerens reelle købsadfærd skal stadig måles.
+- Den sammenhængende Talent Tree-struktur er simulator-valid, men fri spilleradfærd kan stadig finde en stærkere eller mere frustrerende path end de canonical strategier. De nye prerequisites og priser skal derfor vurderes gennem flere menneskelige fresh-save-runs.
+- Den balancerede baseline rammer de ønskede rails matematisk, men de billigere tidlige Forges kan enten føles som bedre momentum eller som for mange gentagne Hub-besøg. Simulatoren måler ikke menu- og animationstid.
+- De buffede Charm-ranks og Forge Overcharge er første power-pass. Charm-proc-frekvens måles nu, men læsbarhed, proc-støj og oplevet power er fortsat åbne playtestspørgsmål.
 - Imprint-dropchancerne er nu Rare 1,6%, Epic 0,8% og Legendary 0,2% før floor/boss/talentmultipliers. 1.000-seed journey-data finder Relay Strike i 85,1% og Crescendo i 37,6% af profilerne inden D1-arcens afslutning; fysisk spilletid og oplevet lootværdi skal afgøre, om især Epic er for almindelig.
 - Det lokale 384×844 browserpass dækker nu Imprint-guide/formel, Dungeon-loottable og et faktisk Imprint-target med reroll i Workshop uden overflow, overlap eller console errors. Fysisk Safari-touch og font rendering er stadig ikke dækket.
 
@@ -290,6 +296,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-04 — Samlet progression-net og D1/D2 momentum-pass
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Talent Tree er samlet til ét forbundet net med flere samtidige valg og en ny tre-rank `Forge Overcharge`. Tidlige Workshop-køb kommer hyppigere, slot 4 lander som et tidligt Dungeon 2-power spike, combat-Charms er mærkbart stærkere, og Imprints har fået en ren Collection/detail/binding-præsentation med player-facing `Imprint Power`.
+- Beslutninger: Alle talenter forbliver tilgængelige gennem XP-soft-gates uden Dungeon-clear-krav. Fourth Grip koster 2.500 XP og sigter efter 2–4 D2-forsøg; Bloodwell følger som separat unlock. Første fire face-growth-points koster 1 Soul, hvorefter prisen stiger per tre points. Intern save-kompatibel `refinement` bevares, men spilleren ser kun `Imprint Power`.
+- Berørte områder: Talent-content, prerequisites, layout/editor-model, Workshop/store, Charms, Imprints UI/CSS, progression- og combat-simulator, Balance Lab, tests, GDD og V2-specifikation.
+- Validering: 100-seed balanced baseline: D1-clear median run 31, D2-start 32, Fourth Grip 35, Bloodwell 37 og D2-clear 43. `npx tsc --noEmit`, 46 testfiler/213 tests, ESLint, production build og `git diff --check` består. Talent-detail og Imprint Collection/detail/binding er runtime-verificeret ved 384×844 uden horisontal overflow eller console warnings/errors.
+- Kendte mangler: Den nye Tree-agency, hyppigere Hub/Workshop-rytme og Charm-power kræver fysisk mobil-playtest; simulatoren måler ikke animationstid eller subjektiv tilfredsstillelse. Vites kendte main-chunk warning over 500 kB er uændret.
+- Git: Inkluderet i denne commit på `codex/arcade-foundation-v1`.
 
 ### 2026-08-04 — Fælles equipped-status for permanente dice
 

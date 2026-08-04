@@ -383,7 +383,7 @@ export function WorkshopScreen() {
                 <div>
                   <span>{highlightedFace.imprint.rarity} Imprint · Effective {highlightedFace.value}</span>
                   <strong>{highlightedFace.imprint.name}</strong>
-                  <small>Refinement +{highlightedFace.imprint.refinement} · Workshop upgrades Refinement when this face is selected.</small>
+                  <small>Imprint Power +{highlightedFace.imprint.refinement} · Workshop upgrades this permanent power when the face is selected.</small>
                 </div>
               </div>
             ) : null}

@@ -13,12 +13,14 @@ import {
   getCharmRarityProtection,
   getDiceCapacity,
   getNextTalentRank,
+  getTalentPurchaseReason,
   getPlayerMaxHp,
   getTalentRank,
   getWorkshopDieFaces,
   getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
   getImprintForgeBonusChance,
+  getWorkshopForgeBonusChance,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
 } from '../progression/talents'
@@ -75,6 +77,8 @@ export interface ProgressionJourneyRecord {
   imprintCount: number
   charmCount: number
   fateTokensAfterSpending: number
+  forgeUpgrades: number
+  charmTriggers: number
   run: number
   soulsAfterSpending: number
   xpAfterSpending: number
@@ -97,10 +101,16 @@ export const DEFAULT_JOURNEY_TALENT_PATH: readonly JourneyTalentStep[] = [
   { id: TALENT_IDS.battleHardenedOne, targetRank: 3 },
   { id: TALENT_IDS.quickDraw, targetRank: 3 },
   { id: TALENT_IDS.volatileTemper, targetRank: 3 },
+  { id: TALENT_IDS.efficientTools },
+  { id: TALENT_IDS.faceMastery },
+  { id: TALENT_IDS.forgeOvercharge },
+  { id: TALENT_IDS.soulHarvest },
+  { id: TALENT_IDS.fatecraft },
+  { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
   { id: TALENT_IDS.shieldcraft },
   { id: TALENT_IDS.thirdGrip },
   { id: TALENT_IDS.healingArts },
-  { id: TALENT_IDS.battleHardenedTwo, targetRank: 2 },
+  { id: TALENT_IDS.executionerDoctrine },
   { id: TALENT_IDS.fourthGrip },
   { id: TALENT_IDS.bloodwellDoctrine },
 ]
@@ -190,7 +200,10 @@ function spendTalentPath(
 
     while (getTalentRank(nextProfile.talentRanks, step.id) < targetRank) {
       const purchased = purchaseTalent(nextProfile, step.id)
-      if (!purchased) return nextProfile
+      if (!purchased) {
+        if (getTalentPurchaseReason(nextProfile, talent) === 'xp') return nextProfile
+        break
+      }
       nextProfile = purchased
     }
   }
@@ -283,10 +296,10 @@ function spendSouls(
     const targetImprint = target.effectiveDie.faces.find(
       (face) => face.id === prepared.targetFaceId,
     )?.imprint
-    const imprintBonus = targetImprint
-      && random() < getImprintForgeBonusChance(nextProfile.talentRanks)
-      ? 1
-      : 0
+    const bonusChance = targetImprint
+      ? getImprintForgeBonusChance(nextProfile.talentRanks)
+      : getWorkshopForgeBonusChance(nextProfile.talentRanks)
+    const imprintBonus = bonusChance > 0 && random() < bonusChance ? 1 : 0
     const pending = imprintBonus > 0
       ? { ...prepared, appliedAmount: prepared.appliedAmount + imprintBonus }
       : prepared
@@ -566,6 +579,8 @@ export function simulateProgressionJourney(
       highestFloorCleared: result.highestFloorCleared,
       imprintCount: profile.imprints.length,
       fateTokensAfterSpending: profile.fateTokens,
+      forgeUpgrades: preRunForge.upgrades + postRunForge.upgrades,
+      charmTriggers: result.charmTriggers,
       run,
       soulsAfterSpending: profile.bankedSouls,
       xpAfterSpending: profile.xp,

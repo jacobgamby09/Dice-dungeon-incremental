@@ -46,6 +46,7 @@ export interface DungeonRunSimulation {
   averagePlayerHeal: number
   averagePlayerShield: number
   completedDungeon: boolean
+  charmTriggers: number
   defeatedAtFloor: number | null
   fatePity: number
   fateTokensCollected: number
@@ -103,6 +104,7 @@ export function simulateDungeonRun(
   let charmState = createCharmRunState()
   let fatePity = build.fatePity ?? 0
   let fateTokensCollected = 0
+  let charmTriggers = 0
   const orderedDice = applyImprintsToDice(build.dice, imprints)
   const attackOnlyLoadout = orderedDice.every((die) => die.family === 'attack')
   const shieldCarryRate = hasEquippedCharms ? getShieldCarryRate(charms) : 0
@@ -114,6 +116,7 @@ export function simulateDungeonRun(
       ? beginCharmRound(charms, charmState, true)
       : { state: charmState, shield: 0, triggers: [] }
     charmState = encounterCharm.state
+    charmTriggers += encounterCharm.triggers.length
     let carriedShield = encounterCharm.shield
     let carriedHeal = 0
 
@@ -137,6 +140,7 @@ export function simulateDungeonRun(
             )
           : { result: imprintRoll.result, state: charmState, triggers: [] }
         charmState = charmRoll.state
+        charmTriggers += charmRoll.triggers.length
         const effects = addRollEffects(
           totals,
           pendingMomentum,
@@ -201,6 +205,7 @@ export function simulateDungeonRun(
           ? applyKillCharms(charms, charmState)
           : { heal: 0, soulBonus: 0, state: charmState, triggers: [] }
         charmState = killCharm.state
+        charmTriggers += killCharm.triggers.length
         playerHp = Math.min(build.playerMaxHp, playerHp + killCharm.heal)
         soulsCollected += reward.souls + killCharm.soulBonus
         xpEarned += reward.xp
@@ -243,6 +248,7 @@ export function simulateDungeonRun(
           averagePlayerHeal: totalPlayerHeal / roundsPlayed,
           averagePlayerShield: totalPlayerShield / roundsPlayed,
           completedDungeon: false,
+          charmTriggers,
           defeatedAtFloor: floor.floor,
           fatePity,
           fateTokensCollected,
@@ -261,6 +267,7 @@ export function simulateDungeonRun(
       if (hasEquippedCharms) {
         const charmRound = beginCharmRound(charms, charmState)
         charmState = charmRound.state
+        charmTriggers += charmRound.triggers.length
         carriedShield += charmRound.shield
       }
     }
@@ -271,6 +278,7 @@ export function simulateDungeonRun(
         averagePlayerHeal: totalPlayerHeal / roundsPlayed,
         averagePlayerShield: totalPlayerShield / roundsPlayed,
         completedDungeon: false,
+        charmTriggers,
         defeatedAtFloor: floor.floor,
         fatePity,
         fateTokensCollected,
@@ -292,6 +300,7 @@ export function simulateDungeonRun(
     averagePlayerHeal: totalPlayerHeal / roundsPlayed,
     averagePlayerShield: totalPlayerShield / roundsPlayed,
     completedDungeon,
+    charmTriggers,
     defeatedAtFloor: null,
     fatePity,
     fateTokensCollected,

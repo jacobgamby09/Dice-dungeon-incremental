@@ -40,6 +40,7 @@ export const TALENT_ICON_KEYS = [
   'occult-prospecting',
   'resonant-etching',
   'deep-delver',
+  'forge-overcharge',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -60,6 +61,7 @@ export type TalentEffect =
   | { type: 'fate_drop_multiplier'; multiplier: number }
   | { type: 'imprint_drop_multiplier'; multiplier: number }
   | { type: 'imprint_forge_bonus_chance'; chance: number }
+  | { type: 'workshop_forge_bonus_chance'; chance: number }
   | { type: 'dungeon_loot_multiplier'; multiplier: number }
 
 export type TalentRequirement = {

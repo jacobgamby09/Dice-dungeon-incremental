@@ -61,11 +61,13 @@ describe('progression cohort simulation', () => {
       strategyId: 'balanced',
     })
 
-    expect(result.milestones.dungeonOneClearRun.medianRun).toBeGreaterThanOrEqual(35)
-    expect(result.milestones.dungeonOneClearRun.medianRun).toBeLessThanOrEqual(45)
+    expect(result.milestones.dungeonOneClearRun.medianRun).toBeGreaterThanOrEqual(27)
+    expect(result.milestones.dungeonOneClearRun.medianRun).toBeLessThanOrEqual(34)
     expect(result.milestones.fourthSlotRun.medianRun)
-      .toBeGreaterThanOrEqual(result.milestones.dungeonOneClearRun.medianRun ?? 0)
-    expect(result.milestones.bloodwellDieRun.medianRun)
       .toBeGreaterThan(result.milestones.dungeonTwoFirstRun.medianRun ?? 0)
+    expect(result.milestones.fourthSlotRun.medianRun)
+      .toBeLessThanOrEqual((result.milestones.dungeonTwoFirstRun.medianRun ?? 0) + 4)
+    expect(result.milestones.bloodwellDieRun.medianRun)
+      .toBeGreaterThan(result.milestones.fourthSlotRun.medianRun ?? 0)
   }, 10_000)
 })

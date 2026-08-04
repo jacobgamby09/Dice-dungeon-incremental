@@ -23,7 +23,7 @@ describe('FateDrawOverlay', () => {
     expect(markup).toContain('Epic')
     expect(markup).toContain('New Charm')
     expect(markup).toContain('Claim Charm')
-    expect(markup).toContain('Every 5th die Echoes')
+    expect(markup).toContain('Every 4th die Echoes')
     expect(markup).not.toContain('fate-reel__scanline')
   })
 })

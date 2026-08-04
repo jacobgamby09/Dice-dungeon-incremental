@@ -13,6 +13,7 @@ import {
   getWorkshopDieFaces,
   getWorkshopTargetRerolls,
   getWorkshopCostMultiplier,
+  getWorkshopForgeBonusChance,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
   normalizeTalentRanks,
@@ -47,7 +48,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
   }
 }
 
-describe('Classic V2 directional talent progression', () => {
+describe('Classic V2 connected talent progression', () => {
   it('stacks five optional Inner Spark ranks for +5 Max HP', () => {
     expect(getPlayerMaxHp({})).toBe(10)
     expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 1 })).toBe(11)
@@ -55,14 +56,13 @@ describe('Classic V2 directional talent progression', () => {
     expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 5 })).toBe(15)
   })
 
-  it('opens all four directions after only the first central rank', () => {
+  it('opens four distinct first-ring choices after the central rank', () => {
     const ranks = { [TALENT_IDS.battleHardenedOne]: 1 }
     for (const talentId of [
       TALENT_IDS.twinArsenal,
       TALENT_IDS.volatileTemper,
       TALENT_IDS.autoCombat,
       TALENT_IDS.fieldStudies,
-      TALENT_IDS.soulHarvest,
     ]) {
       expect(getTalentVisibility(ranks, TALENTS_BY_ID[talentId])).toBe('revealed')
     }
@@ -109,20 +109,21 @@ describe('Classic V2 directional talent progression', () => {
       [TALENT_IDS.shieldcraft]: 1,
       [TALENT_IDS.thirdGrip]: 1,
       [TALENT_IDS.healingArts]: 1,
+      [TALENT_IDS.executionerDoctrine]: 1,
     }
-    const almostAffordable = createProfile(ranks, 2599)
-    const affordable = createProfile(ranks, 2600)
+    const almostAffordable = createProfile(ranks, 1899)
+    const affordable = createProfile(ranks, 2500)
 
     expect(getTalentPurchaseReason(
       almostAffordable,
       TALENTS_BY_ID[TALENT_IDS.fourthGrip],
     )).toBe('xp')
     expect(getTalentPurchaseReason(
-      createProfile(ranks, 2199),
+      createProfile(ranks, 1249),
       TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine],
     )).toBe('xp')
     expect(canPurchaseTalent(affordable, TALENT_IDS.fourthGrip)).toBe(true)
-    expect(canPurchaseTalent(createProfile(ranks, 2200), TALENT_IDS.bloodwellDoctrine)).toBe(true)
+    expect(canPurchaseTalent(createProfile(ranks, 1250), TALENT_IDS.bloodwellDoctrine)).toBe(true)
     expect(TALENTS_BY_ID[TALENT_IDS.fourthGrip].requirements).toBeUndefined()
     expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].requirements).toBeUndefined()
     expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].ranks[0].effects).toEqual([
@@ -137,7 +138,7 @@ describe('Classic V2 directional talent progression', () => {
       [TALENT_IDS.fatecraft]: 1,
       [TALENT_IDS.wovenPair]: 1,
     }
-    const profile = createProfile(ranks, 3000)
+    const profile = createProfile(ranks, 1400)
 
     expect(canPurchaseTalent(profile, TALENT_IDS.trinityKnot)).toBe(true)
     expect(TALENTS_BY_ID[TALENT_IDS.trinityKnot].requirements).toBeUndefined()
@@ -177,23 +178,33 @@ describe('Classic V2 directional talent progression', () => {
 
     expect(getTalentPurchaseReason(createProfile({
       [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
       [TALENT_IDS.strikerPattern]: 1,
     }, 999), shieldcraft)).toBeNull()
     expect(getTalentPurchaseReason(createProfile({
       [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
       [TALENT_IDS.strikerPattern]: 1,
     }, 999), thirdGrip)).toBe('prerequisite')
     expect(getTalentPurchaseReason(createProfile({
       [TALENT_IDS.battleHardenedOne]: 1,
+      [TALENT_IDS.twinArsenal]: 1,
       [TALENT_IDS.strikerPattern]: 1,
       [TALENT_IDS.shieldcraft]: 1,
+      [TALENT_IDS.battleHardenedTwo]: 1,
     }, 999), thirdGrip)).toBeNull()
   })
 
   it('stacks Workshop cost reductions multiplicatively', () => {
     expect(getWorkshopCostMultiplier({})).toBe(1)
-    expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 1 })).toBeCloseTo(0.8)
-    expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 3 })).toBeCloseTo(0.512)
+    expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 1 })).toBeCloseTo(0.9)
+    expect(getWorkshopCostMultiplier({ [TALENT_IDS.efficientTools]: 3 })).toBeCloseTo(0.729)
+  })
+
+  it('stacks Forge Overcharge into a capped normal-face bonus chance', () => {
+    expect(getWorkshopForgeBonusChance({})).toBe(0)
+    expect(getWorkshopForgeBonusChance({ [TALENT_IDS.forgeOvercharge]: 1 })).toBeCloseTo(0.08)
+    expect(getWorkshopForgeBonusChance({ [TALENT_IDS.forgeOvercharge]: 3 })).toBeCloseTo(0.25)
   })
 
   it('opens Fatecraft before Dungeon 1 clear through either efficiency branch', () => {
@@ -252,7 +263,6 @@ describe('radial fog and silhouette visibility', () => {
       TALENT_IDS.volatileTemper,
       TALENT_IDS.autoCombat,
       TALENT_IDS.fieldStudies,
-      TALENT_IDS.soulHarvest,
     ]) {
       expect(getTalentVisibility({}, TALENTS_BY_ID[talentId])).toBe('silhouette')
     }

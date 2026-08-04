@@ -270,10 +270,11 @@ describe('Classic V2 store progression loop', () => {
 
   it('auto-equips an owned spare die when a new slot is purchased', () => {
     const state = useNewGameStore.getState()
-    useNewGameStore.setState({ profile: { ...state.profile, xp: 36 } })
+    useNewGameStore.setState({ profile: { ...state.profile, xp: 44 } })
 
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.battleHardenedOne))
       .toBe(true)
+    expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.volatileTemper)).toBe(true)
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.strikerPattern)).toBe(true)
     expect(useNewGameStore.getState().profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(useNewGameStore.getState().purchaseTalent(TALENT_IDS.twinArsenal)).toBe(true)
@@ -398,6 +399,27 @@ describe('Classic V2 store progression loop', () => {
     expect(useNewGameStore.getState().completePendingWorkshopForge('same-op')?.amount).toBe(1)
     expect(useNewGameStore.getState().completePendingWorkshopForge('same-op')).toBeNull()
     expect(useNewGameStore.getState().profile.bankedSouls).toBe(99)
+  })
+
+  it('locks Forge Overcharge into the pending operation before animation', () => {
+    const state = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...state.profile,
+        bankedSouls: 10,
+        talentRanks: { [TALENT_IDS.forgeOvercharge]: 1 },
+      },
+    })
+    const rolls = [0, 0, 0]
+    const pending = useNewGameStore.getState().beginWorkshopForge(
+      'attack-die-1',
+      'overcharge-op',
+      () => rolls.shift() ?? 0.99,
+    )
+
+    expect(pending).toMatchObject({ rolledAmount: 1, appliedAmount: 2 })
+    expect(useNewGameStore.getState().completePendingWorkshopForge('overcharge-op'))
+      .toMatchObject({ rolledAmount: 1, amount: 2 })
   })
 
   it('refines an attached Imprint as its exact one-in-six Workshop target', () => {

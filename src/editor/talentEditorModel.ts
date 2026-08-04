@@ -121,6 +121,7 @@ export function getDefaultEffect(type: TalentEffect['type']): TalentEffect {
     case 'fate_drop_multiplier': return { type, multiplier: 1.15 }
     case 'imprint_drop_multiplier': return { type, multiplier: 1.15 }
     case 'imprint_forge_bonus_chance': return { type, chance: 0.12 }
+    case 'workshop_forge_bonus_chance': return { type, chance: 0.08 }
     case 'dungeon_loot_multiplier': return { type, multiplier: 1.15 }
   }
 }
@@ -314,6 +315,7 @@ export const EDITOR_EFFECT_TYPES: TalentEffect['type'][] = [
   'fate_drop_multiplier',
   'imprint_drop_multiplier',
   'imprint_forge_bonus_chance',
+  'workshop_forge_bonus_chance',
   'dungeon_loot_multiplier',
 ]
 
