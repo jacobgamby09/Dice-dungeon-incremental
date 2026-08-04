@@ -52,6 +52,30 @@
   text-transform: uppercase;
 }
 
+.die-loadout-status {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+  border: var(--arcade-frame-subtle) solid #4b5563;
+  padding: 3px 5px;
+  color: #9ca3af;
+  background: var(--arcade-black);
+  font-family: var(--arcade-font-ui);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.die-loadout-status--equipped {
+  border-color: var(--arcade-cyan);
+  color: var(--arcade-cyan);
+  background: color-mix(in srgb, var(--arcade-cyan) 12%, var(--arcade-black));
+}
+
 .game-shell p,
 .game-shell small {
   font-family: var(--arcade-font-ui);

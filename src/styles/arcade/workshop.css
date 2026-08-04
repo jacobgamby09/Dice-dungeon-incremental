@@ -72,6 +72,11 @@
   font-weight: 750;
 }
 
+.workshop-ritual__tab .die-loadout-status {
+  margin-top: 2px;
+  font-size: 8px;
+}
+
 .workshop-ritual__die-heading {
   min-height: 62px;
   border: 0;

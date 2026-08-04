@@ -1,6 +1,8 @@
 import { ArrowRight, ChevronLeft, Link, Sparkles, Unlink } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { ImprintIcon } from '../components/newgame/ImprintIcon'
+import { DieLoadoutStatus } from '../components/newgame/DieLoadoutStatus'
+import { getDieLoadoutSlotIndex } from '../components/newgame/dieLoadout'
 import { DUNGEONS } from '../game/content/dungeons'
 import { IMPRINT_DEFINITIONS } from '../game/content/imprints'
 import type { ImprintInstance } from '../game/types/imprints'
@@ -9,6 +11,7 @@ import { useNewGameStore } from '../store/newGameStore'
 export function ImprintsScreen() {
   const imprints = useNewGameStore((state) => state.profile.imprints)
   const dice = useNewGameStore((state) => state.profile.diceCollection)
+  const equippedDieIds = useNewGameStore((state) => state.profile.equippedDieIds)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const attach = useNewGameStore((state) => state.attachImprint)
   const detach = useNewGameStore((state) => state.detachImprint)
@@ -108,35 +111,44 @@ export function ImprintsScreen() {
           ) : null}
 
           <div className="imprint-dice-list">
-            {dice.map((die) => (
-              <section key={die.id}>
-                <h3>{die.name}</h3>
-                <div>
-                  {die.faces.map((face, index) => {
-                    const occupied = imprints.some((candidate) => (
-                      candidate.id !== selected.id
-                      && candidate.attachment?.dieId === die.id
-                      && candidate.attachment.faceId === face.id
-                    ))
-                    return (
-                      <button
-                        disabled={
-                          Boolean(face.signature)
-                          || occupied
-                          || face.type !== selectedDefinition.type
-                        }
-                        key={face.id}
-                        onClick={() => attach(selected.id, die.id, face.id)}
-                        type="button"
-                      >
-                        <span>{index + 1}</span><strong>{face.value}</strong>
-                        <Link size={13} />
-                      </button>
-                    )
-                  })}
-                </div>
-              </section>
-            ))}
+            {dice.map((die) => {
+              const equippedSlotIndex = getDieLoadoutSlotIndex(equippedDieIds, die.id)
+              return (
+                <section
+                  className={equippedSlotIndex !== null ? 'is-equipped' : undefined}
+                  key={die.id}
+                >
+                  <header>
+                    <h3>{die.name}</h3>
+                    <DieLoadoutStatus slotIndex={equippedSlotIndex} />
+                  </header>
+                  <div>
+                    {die.faces.map((face, index) => {
+                      const occupied = imprints.some((candidate) => (
+                        candidate.id !== selected.id
+                        && candidate.attachment?.dieId === die.id
+                        && candidate.attachment.faceId === face.id
+                      ))
+                      return (
+                        <button
+                          disabled={
+                            Boolean(face.signature)
+                            || occupied
+                            || face.type !== selectedDefinition.type
+                          }
+                          key={face.id}
+                          onClick={() => attach(selected.id, die.id, face.id)}
+                          type="button"
+                        >
+                          <span>{index + 1}</span><strong>{face.value}</strong>
+                          <Link size={13} />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </section>
+              )
+            })}
           </div>
         </section>
       ) : null}

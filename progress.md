@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-08-03.
+Senest opdateret: 2026-08-04.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Equipped-status er nu synlig på alle permanente dice-valg:** Workshop og Imprint-binding viser samme kompakte status på hver ejet terning. Aktive terninger markeres cyan som `Equipped · Roll N`, så loadoutets faktiske combat-rækkefølge kan aflæses; ikke-udstyrede terninger står neutralt som `Reserve`.
 - **Talent Tree bruger nu rene XP-soft-gates:** Ingen talent-node kræver længere et Dungeon-clear. Fourth Grip koster 2.600 XP, Bloodwell Doctrine 2.200 XP og Trinity Knot 3.000 XP, mens Dungeon 2's XP-rewards er løftet 50%. De første fire D2-floors giver nu 333 XP mod 190 XP for et fuldt D1-clear. En 100-seed balanced simulation lander på D1-clear median run 39, første D2-run run 40, Fourth Grip run 40, Bloodwell run 44 og D2-clear run 51.
 - **Imprint reliability, signature-scaling og loot-discovery-passet er implementeret lokalt:** Et Imprint-drop vises nu kun, hvis samme stabile instance-ID blev oprettet atomisk i inventory; dette dækker også Rare-ejet → Legendary boss-drop og reload. Execute/Fortify/Drain-faces er almindelige 1/6 Workshop-targets, beholder mechanic/ID og skalerer deres face-output. Imprint-tabben forklarer Find → Bind → Refine, formel og source; Dungeon 1 viser discovered/undiscovered loot efter første Imprint; Workshop viser Imprint-rarity, effective value, Refinement og en ryddelig reroll-handling. Den tidligere Fourth Grip/Bloodwell boss-gate er erstattet af det nyere XP-soft-gate-pass ovenfor.
 - **Imprint-balance og simulator-paritet er implementeret lokalt:** Imprints bevarer nu en stærkere host-face (`max(host, Imprint base) + refinement`), kan kun bindes til samme face-familie og skalerer med procentbaserede ordering-effekter. Balance Lab simulerer nu Imprint-drops, binding, loadout-order, Workshop-refinement, Fate Tokens og live Charm-procs. En 1.000-seed balanced baseline lander på D1-clear median run 40, første D2-run median floor 5 og D2-clear median 10 runs efter D1-clear.
@@ -289,6 +290,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-04 — Fælles equipped-status for permanente dice
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Workshop og Imprint-skærmens die-lister viser nu tydeligt, om hver terning er equipped eller reserve. Equipped-markeringen inkluderer roll slot 1–N og afspejler dermed den rigtige loadout-rækkefølge.
+- Beslutninger: Status er et fælles UI-mønster med cyan aktiv-state og neutral reserve-state; skærmene udleder status fra profilens canonical `equippedDieIds` uden lokal gameplay-state.
+- Berørte områder: `DieLoadoutStatus`, fælles slot-helper, Workshop, Imprints samt Arcade shared/Workshop/Imprint styling.
+- Validering: `npx tsc --noEmit`, 46 testfiler/211 tests, ESLint og production build bestået. Begge skærme er visuelt verificeret ved 384 px med fire equipped dice og én reserve; ingen horisontal page-overflow, Vite-overlay eller browserfejl.
+- Kendte mangler: Vites eksisterende bundle-size warning over 500 kB er uændret og uden relation til ændringen.
+- Git: Committet og pushet som del af dette changeset på `codex/arcade-foundation-v1`.
 
 ### 2026-08-03 — Åbent Talent Tree med XP-soft-gates
 

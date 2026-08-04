@@ -10,6 +10,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FaceIcon } from '../components/newgame/FaceIcon'
 import { FACE_META } from '../components/newgame/faceVisuals'
+import { DieLoadoutStatus } from '../components/newgame/DieLoadoutStatus'
+import { getDieLoadoutSlotIndex } from '../components/newgame/dieLoadout'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { ImprintIcon } from '../components/newgame/ImprintIcon'
 import { WorkshopDie } from '../components/newgame/WorkshopDie'
@@ -74,6 +76,7 @@ function getPhaseCopy(phase: WorkshopPresentationPhase): string {
 
 export function WorkshopScreen() {
   const diceCollection = useNewGameStore((state) => state.profile.diceCollection)
+  const equippedDieIds = useNewGameStore((state) => state.profile.equippedDieIds)
   const bankedSouls = useNewGameStore((state) => state.profile.bankedSouls)
   const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const pendingForge = useNewGameStore((state) => state.profile.pendingWorkshopForge)
@@ -284,22 +287,26 @@ export function WorkshopScreen() {
           <strong id="workshop-rack-title">{diceCollection.length} owned</strong>
         </header>
         <div className="workshop-ritual__tabs" aria-label="Choose a die">
-          {effectiveDice.map((die) => (
-            <button
-              aria-pressed={die.id === selectedDie?.id}
-              className={`workshop-ritual__tab workshop-ritual__tab--${die.family}`}
-              disabled={Boolean(pendingForge) || isAnimating}
-              key={die.id}
-              onClick={() => chooseDie(die.id)}
-              type="button"
-            >
-              <FaceIcon type={die.family} size={18} />
-              <span>
-                <strong>{die.name}</strong>
-                <small>Average {getAverage(die.faces.map((face) => face.value))}</small>
-              </span>
-            </button>
-          ))}
+          {effectiveDice.map((die) => {
+            const equippedSlotIndex = getDieLoadoutSlotIndex(equippedDieIds, die.id)
+            return (
+              <button
+                aria-pressed={die.id === selectedDie?.id}
+                className={`workshop-ritual__tab workshop-ritual__tab--${die.family}`}
+                disabled={Boolean(pendingForge) || isAnimating}
+                key={die.id}
+                onClick={() => chooseDie(die.id)}
+                type="button"
+              >
+                <FaceIcon type={die.family} size={18} />
+                <span>
+                  <strong>{die.name}</strong>
+                  <small>Average {getAverage(die.faces.map((face) => face.value))}</small>
+                  <DieLoadoutStatus slotIndex={equippedSlotIndex} />
+                </span>
+              </button>
+            )
+          })}
         </div>
       </section>
 
