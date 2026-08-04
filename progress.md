@@ -39,7 +39,7 @@ Brug denne skabelon:
 ## Aktuel status
 
 - **Talent Tree er nu ét sammenhængende progression-net:** De fire isolerede kardinalgrene og deres canvas-labels er fjernet. Spilleren åbner flere krydsende valg fra Inner Spark, mens Arsenal-, Workshop-, economy-, automation-, Fate- og survivability-nodes stadig har tydelige identiteter. Nye `Forge Overcharge` giver tre små Workshop-ranks med samlet 25% chance for +1 ekstra Forge Power.
-- **D1/D2-pacingen er komprimeret uden at give slot 4 i Dungeon 1:** De første fire face-growth-points på en die koster 1 Soul, derefter stiger prisen per tre growth-points. En 100-seed balanced baseline giver D1-clear på median run 31, første D2-forsøg på run 32, Fourth Grip på run 35, Bloodwell på run 37 og D2-clear på run 43. Fourth Grip koster 2.500 XP og fungerer dermed som et power spike efter cirka 2–4 D2-forsøg.
+- **Dungeon 2 er nu en fuld 18–24-run progression-arc:** Floor 1–4 bevarer den hurtige entry og median floor 4, Fourth Grip lander efter cirka 2–4 D2-forsøg, og Bloodwell efter cirka 7. Floor 5–7 er en tydelig mid-wall, mens Blood Orc II, eliten og Spiked Behemoth danner en skarpere late-game trappe. Balanced median ligger omkring D1-clear 30–32, D2-start 31–33, slot 4 34–35, Bloodwell 38 og D2-clear 52–54.
 - **Charms og Imprints har fået et power/readability-pass:** Alle direkte combat-Charms er buffet, og simulatoren tæller nu faktiske Charm-procs. Imprints-skærmen er samlet som Collection → detail-overlay → compatible binding, mens den tidligere player-facing `Refinement` nu hedder `Imprint Power` og forklares som Base + Host + Forged.
 - **Equipped-status er nu synlig på alle permanente dice-valg:** Workshop og Imprint-binding viser samme kompakte status på hver ejet terning. Aktive terninger markeres cyan som `Equipped · Roll N`, så loadoutets faktiske combat-rækkefølge kan aflæses; ikke-udstyrede terninger står neutralt som `Reserve`.
 - **Imprint reliability, signature-scaling og loot-discovery-passet er implementeret lokalt:** Et Imprint-drop vises nu kun, hvis samme stabile instance-ID blev oprettet atomisk i inventory; dette dækker også Rare-ejet → Legendary boss-drop og reload. Execute/Fortify/Drain-faces er almindelige 1/6 Workshop-targets, beholder mechanic/ID og skalerer deres face-output. Imprint-tabben forklarer Find → Bind → Refine, formel og source; Dungeon 1 viser discovered/undiscovered loot efter første Imprint; Workshop viser Imprint-rarity, effective value, Refinement og en ryddelig reroll-handling. Den tidligere Fourth Grip/Bloodwell boss-gate er erstattet af det nyere XP-soft-gate-pass ovenfor.
@@ -131,6 +131,8 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+- Playtest mindst én komplet D2-arc på fysisk mobil. Bekræft især at floor 5–7 føles som successive mål frem for samme væg, og at floor 8–10 er udfordrende uden at blive rene HP-svampe.
+- Sammenlign tre loadouts ved den nye late-wall: Attack/Attack/Shield/Heal, en Bloodwell-variant og et mere offensivt Signature/Imprint-build. Simulatorens 18–24-run guard må ikke skjule ét obligatorisk loadout.
 - Fresh-save-playtest den nye samlede Talent Tree-rute og registrér hvilke af de samtidige valg der faktisk bliver valgt før første D1-clear; layoutet skal give agency uden at skabe én skjult optimal path.
 - Spil mindst 5–10 D2-forsøg fra et normalt save og vurder om Fourth Grip omkring tredje forsøg føles som den rigtige ventetid, samt om Bloodwell kort efter føles som et separat valg frem for en automatisk pakke.
 - Test Common, Rare, Epic og Legendary Charms i både manuel og Auto Combat. Simulatoren måler proc-frekvens, men den nye power skal godkendes visuelt og følelsesmæssigt før flere Charms tilføjes.
@@ -183,6 +185,7 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- D2-længden er nu ensartet på balanced, Arsenal-, Workshop- og economy-paths i simulatoren, men den øgede late-floor HP og Attack kan fysisk opleves mere brutalt end den statistiske floor-kurve viser. Spiked Behemoths tre dice kræver særligt timing- og læsbarhedstjek.
 - Den sammenhængende Talent Tree-struktur er simulator-valid, men fri spilleradfærd kan stadig finde en stærkere eller mere frustrerende path end de canonical strategier. De nye prerequisites og priser skal derfor vurderes gennem flere menneskelige fresh-save-runs.
 - Den balancerede baseline rammer de ønskede rails matematisk, men de billigere tidlige Forges kan enten føles som bedre momentum eller som for mange gentagne Hub-besøg. Simulatoren måler ikke menu- og animationstid.
 - De buffede Charm-ranks og Forge Overcharge er første power-pass. Charm-proc-frekvens måles nu, men læsbarhed, proc-støj og oplevet power er fortsat åbne playtestspørgsmål.
@@ -296,6 +299,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-04 — Dungeon 2 full-arc balancepass
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Dungeon 2-clear er flyttet fra cirka 11 til 18–24 D2-forsøg uden at ændre Dungeon 1 eller den første D2-entry. Floor 1–4 er bevaret; floor 5–7 danner en mid-wall, og floor 8–10 er en stærkere elite/boss-trappe. Bloodwell er flyttet længere væk fra Fourth Grip.
+- Beslutninger: Fourth Grip forbliver det tidlige D2-power spike til 2.500 XP. Bloodwell koster nu 2.400 XP. D2's Soul-tempo reduceres ikke, fordi hyppige Workshop-rul er en central del af det tilfredsstillende incremental-flow. Sværhedsforøgelsen ligger derfor lokalt i level-2 enemies og bossen.
+- Berørte områder: D2 encounter-HP, Blood Orc/elite/Spiked Behemoth-dice, Bloodwell-pris, simulator-regressions, content-tests, DEV-preset, GDD, V2-specifikation og progress-log.
+- Validering: 500-seed balanced baseline giver D1-clear median 30, D2-start 31, Fourth Grip 35, Bloodwell 38 og D2-clear 53 (P10–P90 46–59). 100-seed cross-strategy pass giver 19–22 D2-runs for balanced, Arsenal-, Workshop- og economy-paths. `npx tsc --noEmit`, 46 testfiler/213 tests, ESLint, production build og `git diff --check` består.
+- Kendte mangler: Fysisk playtest skal afgøre, om den længere arc opleves som meningsfulde walls eller for meget gentagelse, og om Spiked Behemoth er læsbar og fair med de højere værdier.
+- Git: Ikke committed.
 
 ### 2026-08-04 — Samlet progression-net og D1/D2 momentum-pass
 

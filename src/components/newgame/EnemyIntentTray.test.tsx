@@ -35,7 +35,7 @@ describe('EnemyIntentTray', () => {
     const results = dice.map((die) => rollEnemyDie(die, () => 0.999))
     const markup = renderToStaticMarkup(
       <EnemyIntentTray
-        activeShield={6}
+        activeShield={7}
         dice={dice}
         results={results}
         rollDuration={0.48}
@@ -46,9 +46,9 @@ describe('EnemyIntentTray', () => {
     )
 
     expect(markup).toContain('3 enemy dice')
-    expect(markup).toContain('Spiked Behemoth Attack Die rolled 11 Attack')
-    expect(markup).toContain('Spiked Behemoth Shield Die rolled 6 Shield')
-    expect(markup).toContain('Spiked Behemoth Heal Die rolled 3 Heal')
+    expect(markup).toContain('Spiked Behemoth Attack Die rolled 13 Attack')
+    expect(markup).toContain('Spiked Behemoth Shield Die rolled 7 Shield')
+    expect(markup).toContain('Spiked Behemoth Heal Die rolled 4 Heal')
     expect(markup).toContain('data-enemy-intent-type="attack"')
     expect(markup).toContain('data-enemy-intent-type="shield"')
     expect(markup).toContain('data-enemy-intent-type="heal"')

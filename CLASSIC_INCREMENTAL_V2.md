@@ -499,7 +499,7 @@ soft-gates med XP, som optjenes langt hurtigere i den næste Dungeon.
 | Third Grip | 58 XP | Shieldcraft + Deep Reserves | +1 slot |
 | Healing Arts | 78 XP | Third Grip | Vitality Die |
 | Fourth Grip | 2.500 XP | 2 af Healing Arts / Executioner Doctrine / Bloodwell Doctrine | +1 slot |
-| Bloodwell Doctrine | 1.250 XP | Healing Arts | Bloodwell Die |
+| Bloodwell Doctrine | 2.400 XP | Healing Arts | Bloodwell Die |
 | Executioner Doctrine | 135 XP | Third Grip | Executioner Die |
 | Tower Discipline | 110 XP | Third Grip | Tower Die |
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
@@ -699,19 +699,20 @@ tre-die-sprog.
 
 | Floor | Enemy | Level | HP | Attack | Shield | Heal | XP | Soul Value |
 | ---: | --- | ---: | ---: | --- | --- | --- | ---: | ---: |
-| 1 | Shieldbearer | 1 | 22 | `5–5–6–6–7–7` | `0–1–1–1–2–2` | — | 48 | 5 |
-| 2 | Cultist | 1 | 26 | `4–4–5–5–5–6` | — | `0–1–1–2–2–3` | 52 | 5 |
-| 3 | Orc | 1 | 30 | `2–2–2–3–3–4` + `3–3–4–4–4–5` | — | — | 58 | 5 |
-| 4 | Blood Orc | 1 | 34 | `2–2–3–3–4–6` + `2–3–3–4–5–7` | — | — | 64 | 5 |
-| 5 | Shieldbearer | 2 | 60 | `6–7–7–7–8–9` | `2–3–3–4–4–5` | — | 72 | 6 |
-| 6 | Cultist | 2 | 62 | `7–7–8–8–9–10` | — | `2–2–3–3–4–5` | 80 | 6 |
-| 7 | Orc | 2 | 50 | `3–3–4–4–5–5` + `4–4–5–5–6–6` | — | — | 90 | 6 |
-| 8 | Blood Orc | 2 | 57 | `3–3–4–4–6–8` + `3–4–4–5–7–9` | — | — | 102 | 6 |
-| 9 | Blood Orc Elite | 3 | 65 | `4–4–5–5–7–9` + `4–5–5–6–8–10` | — | — | 118 | 8 |
-| 10 | Spiked Behemoth | Boss | 80 | `8–9–9–9–10–11` | `3–3–4–4–5–6` | `0–0–1–1–2–3` | 160 | 12 |
+| 1 | Shieldbearer | 1 | 22 | `5–5–6–6–7–7` | `0–1–1–1–2–2` | — | 72 | 5 |
+| 2 | Cultist | 1 | 26 | `4–4–5–5–5–6` | — | `0–1–1–2–2–3` | 78 | 5 |
+| 3 | Orc | 1 | 30 | `2–2–2–3–3–4` + `3–3–4–4–4–5` | — | — | 87 | 5 |
+| 4 | Blood Orc | 1 | 34 | `2–2–3–3–4–6` + `2–3–3–4–5–7` | — | — | 96 | 5 |
+| 5 | Shieldbearer | 2 | 68 | `6–7–7–7–8–9` | `2–3–3–4–4–5` | — | 108 | 6 |
+| 6 | Cultist | 2 | 74 | `7–7–8–8–9–10` | — | `2–2–3–3–4–5` | 120 | 6 |
+| 7 | Orc | 2 | 66 | `3–3–4–4–5–5` + `4–4–5–5–6–6` | — | — | 135 | 6 |
+| 8 | Blood Orc | 2 | 78 | `4–4–5–5–7–9` + `4–5–5–6–8–10` | — | — | 153 | 6 |
+| 9 | Blood Orc Elite | 3 | 92 | `5–5–6–6–8–10` + `5–6–6–7–9–11` | — | — | 177 | 8 |
+| 10 | Spiked Behemoth | Boss | 125 | `10–11–11–12–12–13` | `4–4–5–5–6–7` | `1–1–2–2–3–4` | 240 | 12 |
 
-Dungeon 2’s første simulator-pass sigter efter, at en ny D1-vinder når floor 4–5,
-mens en balanced profil klarer D2 cirka 8–12 runs efter første D1-clear.
+Dungeon 2 sigter efter, at en ny D1-vinder når floor 4–5. Slot 4 lander efter
+2–4 D2-forsøg, Bloodwell efter cirka 7–10, og en balanced profil klarer D2 efter
+cirka 18–24 D2-forsøg. Floor 5–7 er mid-wall; floor 8–10 er elite/boss-trappen.
 
 ---
 
@@ -780,7 +781,8 @@ Aktuelle regression-rails:
 | Første Dungeon 1-clear | Median run 31 (mål: 27–34) |
 | Første Dungeon 2-forsøg | Median run 32 |
 | Fourth Grip | Median run 35 (2–4 D2-forsøg) |
-| Bloodwell Doctrine | Median run 37 |
+| Bloodwell Doctrine | Median run 38 |
+| Dungeon 2-clear | Median run 52–54 |
 
 Disse er balancegrænser, ikke endelige release-løfter. Simulatoren måler runs og
 matematik, men ikke realtid, animationstempo, ventetid eller spillerens subjektive

@@ -150,7 +150,7 @@ Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete t
 
 Talent Tree bruger kun XP og er ét sammenhængende milestone-net. Systemfarver viser stadig Arsenal, Workshop, Sustain og Fate, men de er ikke længere fire isolerede kompasgrene. Spilleren vælger købsrækkefølge og alternative junctions, ikke en permanent låst klasse.
 
-Talent Tree har ingen Dungeon-clear-krav. Alle nodes kan principielt nås fra fresh save gennem deres forbundne prerequisites, mens store chapter-power-spikes bruger høje XP-priser som soft gates. Fourth Grip koster 2.500 XP, Bloodwell Doctrine 1.250 XP og Trinity Knot 1.400 XP. Spilleren kan derfor grinde dem i en tidligere Dungeon, men højere Dungeons er den klart mere effektive vej.
+Talent Tree har ingen Dungeon-clear-krav. Alle nodes kan principielt nås fra fresh save gennem deres forbundne prerequisites, mens store chapter-power-spikes bruger høje XP-priser som soft gates. Fourth Grip koster 2.500 XP, Bloodwell Doctrine 2.400 XP og Trinity Knot 1.400 XP. Spilleren kan derfor grinde dem i en tidligere Dungeon, men højere Dungeons er den klart mere effektive vej.
 
 Dungeon 2 udgør det næste XP-band: de første fire encounters giver samlet 333 XP mod 190 XP for et komplet Dungeon 1-clear. Den aktuelle balance-rail sigter efter D1-clear omkring run 27–34 og Fourth Grip efter 2–4 Dungeon 2-forsøg. Simulatoren måler nu også Workshop-køb per run og Charm-procs, så progressionen vurderes på mere end floor-reach alene.
 
@@ -168,7 +168,7 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
 | Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
 | Fourth Grip | 2.500 XP | 2 af Healing Arts / Executioner Doctrine / Bloodwell Doctrine | +1 dice slot |
-| Bloodwell Doctrine | 1.250 XP | Healing Arts | Én Bloodwell Signature Die |
+| Bloodwell Doctrine | 2.400 XP | Healing Arts | Én Bloodwell Signature Die |
 | Executioner Doctrine | 45 XP | Second Descent | Én Executioner Die |
 | Tower Discipline | 45 XP | Second Descent | Én Tower Die |
 
@@ -246,16 +246,18 @@ Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har præcis to d
 
 | Floor | Enemy | Level | HP | Dice | XP | Soul Value |
 |---:|---|---:|---:|---|---:|---:|
-| 1 | Shieldbearer | 1 | 22 | Attack + Shield | 48 | 5 |
-| 2 | Cultist | 1 | 26 | Attack + Heal | 52 | 5 |
-| 3 | Orc | 1 | 30 | Attack + Attack | 58 | 5 |
-| 4 | Blood Orc | 1 | 34 | Attack + Attack | 64 | 5 |
-| 5 | Shieldbearer | 2 | 60 | Attack + Shield | 72 | 6 |
-| 6 | Cultist | 2 | 62 | Attack + Heal | 80 | 6 |
-| 7 | Orc | 2 | 50 | Attack + Attack | 90 | 6 |
-| 8 | Blood Orc | 2 | 57 | Attack + Attack | 102 | 6 |
-| 9 | Blood Orc Elite | 3 | 65 | Attack + Attack | 118 | 8 |
-| 10 | Spiked Behemoth — Boss | Boss | 80 | Attack + Shield + Heal | 160 | 12 |
+| 1 | Shieldbearer | 1 | 22 | Attack + Shield | 72 | 5 |
+| 2 | Cultist | 1 | 26 | Attack + Heal | 78 | 5 |
+| 3 | Orc | 1 | 30 | Attack + Attack | 87 | 5 |
+| 4 | Blood Orc | 1 | 34 | Attack + Attack | 96 | 5 |
+| 5 | Shieldbearer | 2 | 68 | Attack + Shield | 108 | 6 |
+| 6 | Cultist | 2 | 74 | Attack + Heal | 120 | 6 |
+| 7 | Orc | 2 | 66 | Attack + Attack | 135 | 6 |
+| 8 | Blood Orc | 2 | 78 | Attack + Attack | 153 | 6 |
+| 9 | Blood Orc Elite | 3 | 92 | Attack + Attack | 177 | 8 |
+| 10 | Spiked Behemoth — Boss | Boss | 125 | Attack + Shield + Heal | 240 | 12 |
+
+Floor 1–4 bevarer den hurtige D2-entry og lader en ny D1-vinder se de nye intent-profiler. Floor 5–7 er den egentlige mid-wall, hvor slot 4 og fortsatte Forge-køb skal kunne mærkes. Floor 8–10 skalerer skarpere og kræver, at spilleren udvikler sin fire-dice engine, Bloodwell, Charms og/eller Imprints frem mod bossen.
 
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
@@ -380,7 +382,7 @@ Dungeon 1 bevarer den godkendte MVP-cadence: startbuildet stopper omkring floor 
 
 Dungeon 2 starter en ny incremental kurve. Den samme fire-dice build lander i seedede regressioner omkring floor 4, et mellemtrin når cirka floor 5, og et sent build når bossen. Tre konkrete Shield-faces fra 4 → 5 løfter eksempelvis boss-clear-rate fra cirka 4% til cirka 70%; individuelle face-køb er dermed synligt meningsfulde frem for kun at virke ved fuld cap.
 
-En separat progression journey-simulator modellerer XP-køb, Soul-forges, loadout, Charms, gentagne runs og dungeon-clears samlet. Den aktuelle 100-seed balanced baseline giver Dungeon 1-clear på median run 31, første Dungeon 2-forsøg på run 32, Fourth Grip på run 35, Bloodwell Doctrine på run 37 og Dungeon 2-clear på run 43. Den måler også antal Forge-opgraderinger og faktiske Charm-procs. Tallene er balance-guards, ikke player-facing løfter.
+En separat progression journey-simulator modellerer XP-køb, Soul-forges, loadout, Charms, gentagne runs og dungeon-clears samlet. Den aktuelle balanced baseline giver Dungeon 1-clear omkring median run 30–32, første Dungeon 2-forsøg run 31–33, Fourth Grip run 34–35, Bloodwell Doctrine run 38 og Dungeon 2-clear run 52–54. Det svarer til cirka 18–24 D2-forsøg. Den måler også antal Forge-opgraderinger og faktiske Charm-procs. Tallene er balance-guards, ikke player-facing løfter.
 
 Før flere dice families, dungeons eller avancerede automationstrin bygges, skal følgende playtestes:
 

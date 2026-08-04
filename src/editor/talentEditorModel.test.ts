@@ -22,7 +22,7 @@ describe('Talent Tree Editor model', () => {
     const bloodwell = first.nodes.find((node) => node.id === 'bloodwell-doctrine')!
     const trinityKnot = first.nodes.find((node) => node.id === 'trinity-knot')!
     expect(fourthGrip.ranks[0].cost).toBe(2500)
-    expect(bloodwell.ranks[0].cost).toBe(1250)
+    expect(bloodwell.ranks[0].cost).toBe(2400)
     expect(trinityKnot.ranks[0].cost).toBe(1400)
     expect(first.nodes.every((node) => node.requirements === undefined)).toBe(true)
 

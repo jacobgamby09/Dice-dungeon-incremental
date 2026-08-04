@@ -123,7 +123,7 @@ describe('Classic V2 connected talent progression', () => {
       TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine],
     )).toBe('xp')
     expect(canPurchaseTalent(affordable, TALENT_IDS.fourthGrip)).toBe(true)
-    expect(canPurchaseTalent(createProfile(ranks, 1250), TALENT_IDS.bloodwellDoctrine)).toBe(true)
+    expect(canPurchaseTalent(createProfile(ranks, 2400), TALENT_IDS.bloodwellDoctrine)).toBe(true)
     expect(TALENTS_BY_ID[TALENT_IDS.fourthGrip].requirements).toBeUndefined()
     expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].requirements).toBeUndefined()
     expect(TALENTS_BY_ID[TALENT_IDS.bloodwellDoctrine].ranks[0].effects).toEqual([

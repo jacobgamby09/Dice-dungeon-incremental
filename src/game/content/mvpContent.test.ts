@@ -86,6 +86,12 @@ describe('MVP content integrity', () => {
       'shield',
       'heal',
     ])
+    expect(ironDescent.slice(0, 4).map((encounter) => encounter.maxHp))
+      .toEqual([22, 26, 30, 34])
+    expect(ironDescent.slice(4).map((encounter) => encounter.maxHp))
+      .toEqual([68, 74, 66, 78, 92, 125])
+    expect(ENEMY_DICE['spiked-behemoth-attack'].faces.map((face) => face.value))
+      .toEqual([10, 11, 11, 12, 12, 13])
   })
 
   it('makes the first kill buy Inner Spark while keeping die two a longer goal', () => {

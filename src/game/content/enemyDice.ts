@@ -101,25 +101,25 @@ export const ENEMY_DICE: Record<EnemyDieId, EnemyDieDefinition> = {
     'orc-l2-attack-heavy', 'Orc II Heavy Attack Die', 'attack', [4, 4, 5, 5, 6, 6],
   ),
   'blood-orc-l2-attack': createEnemyDie(
-    'blood-orc-l2-attack', 'Blood Orc II Attack Die', 'attack', [3, 3, 4, 4, 6, 8],
+    'blood-orc-l2-attack', 'Blood Orc II Attack Die', 'attack', [4, 4, 5, 5, 7, 9],
   ),
   'blood-orc-l2-attack-heavy': createEnemyDie(
-    'blood-orc-l2-attack-heavy', 'Blood Orc II Frenzy Die', 'attack', [3, 4, 4, 5, 7, 9],
+    'blood-orc-l2-attack-heavy', 'Blood Orc II Frenzy Die', 'attack', [4, 5, 5, 6, 8, 10],
   ),
   'blood-orc-elite-attack': createEnemyDie(
-    'blood-orc-elite-attack', 'Blood Orc Elite Attack Die', 'attack', [4, 4, 5, 5, 7, 9],
+    'blood-orc-elite-attack', 'Blood Orc Elite Attack Die', 'attack', [5, 5, 6, 6, 8, 10],
   ),
   'blood-orc-elite-attack-heavy': createEnemyDie(
-    'blood-orc-elite-attack-heavy', 'Blood Orc Elite Frenzy Die', 'attack', [4, 5, 5, 6, 8, 10],
+    'blood-orc-elite-attack-heavy', 'Blood Orc Elite Frenzy Die', 'attack', [5, 6, 6, 7, 9, 11],
   ),
   'spiked-behemoth-attack': createEnemyDie(
-    'spiked-behemoth-attack', 'Spiked Behemoth Attack Die', 'attack', [8, 9, 9, 9, 10, 11],
+    'spiked-behemoth-attack', 'Spiked Behemoth Attack Die', 'attack', [10, 11, 11, 12, 12, 13],
   ),
   'spiked-behemoth-shield': createEnemyDie(
-    'spiked-behemoth-shield', 'Spiked Behemoth Shield Die', 'shield', [3, 3, 4, 4, 5, 6],
+    'spiked-behemoth-shield', 'Spiked Behemoth Shield Die', 'shield', [4, 4, 5, 5, 6, 7],
   ),
   'spiked-behemoth-heal': createEnemyDie(
-    'spiked-behemoth-heal', 'Spiked Behemoth Heal Die', 'heal', [0, 0, 1, 1, 2, 3],
+    'spiked-behemoth-heal', 'Spiked Behemoth Heal Die', 'heal', [1, 1, 2, 2, 3, 4],
   ),
 }
 

@@ -119,7 +119,7 @@ export const TALENTS: TalentDefinition[] = [
     description: 'Receive a Heal Signature Die with two Drain faces. Deeper Dungeons fund it faster.',
     iconKey: 'bloodwell-die',
     prerequisiteIds: [TALENT_IDS.healingArts],
-    ranks: [{ cost: 1250, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
+    ranks: [{ cost: 2400, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
     track: 'arsenal',
   },
   {
