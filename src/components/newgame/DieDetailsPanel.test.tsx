@@ -4,43 +4,19 @@ import { createDieById } from '../../game/content/dice'
 import { DieDetailsPanel } from './DieDetailsPanel'
 
 describe('die details panel', () => {
-  it('explains Executioner signatures and every Attack family evolution', () => {
-    const die = createDieById('attack-die-executioner')!
+  it.each([
+    ['attack-die-executioner', 'Executioner Die', 'Execute', '50% HP or less'],
+    ['shield-die-tower', 'Tower Die', 'Fortify', 'next Shield face'],
+    ['heal-die-bloodwell', 'Bloodwell Die', 'Drain', 'add 2 Attack'],
+  ])('explains the signature identity of %s without retired evolutions', (id, name, signature, effect) => {
     const markup = renderToStaticMarkup(
-      <DieDetailsPanel die={die} onClose={() => undefined} />,
+      <DieDetailsPanel die={createDieById(id)!} onClose={() => undefined} />,
     )
-
-    expect(markup).toContain('Executioner Die')
-    expect(markup).toContain('Execute · 2/6')
-    expect(markup).toContain('50% HP or less')
-    expect(markup).toContain('Power')
-    expect(markup).toContain('Momentum')
-    expect(markup).toContain('Rend')
-  })
-
-  it('explains Tower signatures and every Shield family evolution', () => {
-    const die = createDieById('shield-die-tower')!
-    const markup = renderToStaticMarkup(
-      <DieDetailsPanel die={die} onClose={() => undefined} />,
-    )
-
-    expect(markup).toContain('Tower Die')
-    expect(markup).toContain('Fortify · 2/6')
-    expect(markup).toContain('next Shield face')
-    expect(markup).toContain('Bastion')
-    expect(markup).toContain('Reserve')
-    expect(markup).toContain('Spikes')
-  })
-
-  it('explains Bloodwell Drain and its Heal-family evolution options', () => {
-    const die = createDieById('heal-die-bloodwell')!
-    const markup = renderToStaticMarkup(
-      <DieDetailsPanel die={die} onClose={() => undefined} />,
-    )
-
-    expect(markup).toContain('Bloodwell Die')
-    expect(markup).toContain('Drain · 2/6')
-    expect(markup).toContain('add 2 Attack')
-    expect(markup).toContain('Restoration')
+    expect(markup).toContain(name)
+    expect(markup).toContain(signature)
+    expect(markup).toContain(effect)
+    expect(markup).not.toContain('Family Evolutions')
+    expect(markup).not.toContain('Momentum')
+    expect(markup).not.toContain('Rend')
   })
 })

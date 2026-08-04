@@ -3383,7 +3383,7 @@
 
 .evolution-confirm button:last-child { background: #7e22ce; color: #fff; }
 
-.roll-die__evolution {
+.roll-die__special-name {
   position: absolute;
   right: 4px;
   bottom: 3px;

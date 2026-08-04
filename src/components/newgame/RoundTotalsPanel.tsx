@@ -5,7 +5,6 @@ import { Droplets, HeartPulse, ShieldPlus, Sparkles } from 'lucide-react'
 import { normalizeRoundTotals } from '../../game/types/combat'
 import type { RoundTotalsInput } from '../../game/types/combat'
 import type { FaceType, RollResult } from '../../game/types/dice'
-import { EvolutionIcon } from './EvolutionIcon'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 
@@ -13,7 +12,6 @@ interface RoundTotalsPanelProps {
   carriedHeal?: number
   carriedShield?: number
   pendingFortify?: number
-  pendingMomentum?: number
   results: readonly RollResult[]
   totals: RoundTotalsInput
 }
@@ -22,7 +20,6 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
   carriedHeal = 0,
   carriedShield = 0,
   pendingFortify = 0,
-  pendingMomentum = 0,
   results,
   totals,
 }: RoundTotalsPanelProps) {
@@ -51,7 +48,6 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
     || normalizedTotals.ward > 0
     || normalizedTotals.regrowth > 0
     || normalizedTotals.overflow > 0
-    || pendingMomentum > 0
     || pendingFortify > 0
   if (revealedTypes.length === 0 && !hasEffects) return null
 
@@ -148,20 +144,6 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
           <Sparkles aria-hidden="true" size={20} />
           <strong>{normalizedTotals.overflow}</strong>
           <span className="round-total__label">Overflow</span>
-        </motion.div>
-      ) : null}
-      {pendingMomentum > 0 ? (
-        <motion.div
-          aria-label={`Momentum charged. Next die gains ${pendingMomentum}.`}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          className="round-total round-total--momentum"
-          initial={{ opacity: 0, scale: 0.72, x: -8 }}
-          key={`momentum-${pendingMomentum}`}
-          role="status"
-        >
-          <EvolutionIcon evolutionId="momentum" size={20} />
-          <strong>+{pendingMomentum}</strong>
-          <span className="round-total__label">Next die</span>
         </motion.div>
       ) : null}
       {pendingFortify > 0 ? (

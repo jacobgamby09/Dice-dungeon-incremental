@@ -38,6 +38,9 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Signature Faces er nu tydelige i Workshop:** Execute, Fortify og Drain viser egne ikoner, farvede face-overflader og navne direkte på deres fysiske 1/6-positioner. Når et Signature Face låses som target, viser Workshop et effektpanel med aktuel baseværdi, præcis mechanic og forklaring af den permanente opgradering.
+- **Evolutions er nu helt pensioneret som gameplay-system:** Workshop forbedrer almindelige faces og Signature Faces numerisk uden `Evolution Ready`, valgkammer eller hard cap. Power/Momentum/Rend/Bastion/Reserve/Spikes/Restoration/Regrowth/Overflow er fjernet fra types, Forge, combat, dice-inspektion og tests. De aktive speciallag er nu medfødte Signature Faces og flytbare Imprints.
+- **Workshop-, Talent- og Imprint-readability er poleret lokalt:** Equipped dice bruger nu et kompakt `Roll N`-mærke i Workshop og `Reserve` uden et stort badge. Workshop-forbindelserne omkring Loaded Alloy/Efficient Tools/Face Mastery er spredt ud, og en layout-regression forhindrer connector-linjer i at gå gennem andre nodes. Talent-info viser nu `choose N of M` som alternative paths frem for falske manglende krav. Imprint Collection bruger brede mobilkort med en reserveret statuskolonne og kompakte undiscovered-rækker.
 - **Talent Tree er nu ét sammenhængende progression-net:** De fire isolerede kardinalgrene og deres canvas-labels er fjernet. Spilleren åbner flere krydsende valg fra Inner Spark, mens Arsenal-, Workshop-, economy-, automation-, Fate- og survivability-nodes stadig har tydelige identiteter. Nye `Forge Overcharge` giver tre små Workshop-ranks med samlet 25% chance for +1 ekstra Forge Power.
 - **Dungeon 2 er nu en fuld 18–24-run progression-arc:** Floor 1–4 bevarer den hurtige entry og median floor 4, Fourth Grip lander efter cirka 2–4 D2-forsøg, og Bloodwell efter cirka 7. Floor 5–7 er en tydelig mid-wall, mens Blood Orc II, eliten og Spiked Behemoth danner en skarpere late-game trappe. Balanced median ligger omkring D1-clear 30–32, D2-start 31–33, slot 4 34–35, Bloodwell 38 og D2-clear 52–54.
 - **Charms og Imprints har fået et power/readability-pass:** Alle direkte combat-Charms er buffet, og simulatoren tæller nu faktiske Charm-procs. Imprints-skærmen er samlet som Collection → detail-overlay → compatible binding, mens den tidligere player-facing `Refinement` nu hedder `Imprint Power` og forklares som Base + Host + Forged.
@@ -131,6 +134,8 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+- Åbn Executioner, Tower og Bloodwell i Loadout på fysisk mobil og bekræft, at overlayet kun viser faces, Signature-forklaring og Imprints — aldrig den pensionerede Evolution-liste.
+- Bekræft Workshop-rack, Face Mastery-krav og alle tre Imprint-rarities på fysisk iPhone; browserpasset ved 384 px viser ingen horisontal overflow eller tekst/status-overlap.
 - Playtest mindst én komplet D2-arc på fysisk mobil. Bekræft især at floor 5–7 føles som successive mål frem for samme væg, og at floor 8–10 er udfordrende uden at blive rene HP-svampe.
 - Sammenlign tre loadouts ved den nye late-wall: Attack/Attack/Shield/Heal, en Bloodwell-variant og et mere offensivt Signature/Imprint-build. Simulatorens 18–24-run guard må ikke skjule ét obligatorisk loadout.
 - Fresh-save-playtest den nye samlede Talent Tree-rute og registrér hvilke af de samtidige valg der faktisk bliver valgt før første D1-clear; layoutet skal give agency uden at skabe én skjult optimal path.
@@ -185,6 +190,7 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- Evolutions er fjernet fra den aktive model, men gamle historikposter og enkelte døde legacy-CSS-selectors kan fortsat nævne systemet som historisk reference. De påvirker ikke save, Workshop eller combat og bør kun fjernes ved en senere ren stylesheet-opdeling.
 - D2-længden er nu ensartet på balanced, Arsenal-, Workshop- og economy-paths i simulatoren, men den øgede late-floor HP og Attack kan fysisk opleves mere brutalt end den statistiske floor-kurve viser. Spiked Behemoths tre dice kræver særligt timing- og læsbarhedstjek.
 - Den sammenhængende Talent Tree-struktur er simulator-valid, men fri spilleradfærd kan stadig finde en stærkere eller mere frustrerende path end de canonical strategier. De nye prerequisites og priser skal derfor vurderes gennem flere menneskelige fresh-save-runs.
 - Den balancerede baseline rammer de ønskede rails matematisk, men de billigere tidlige Forges kan enten føles som bedre momentum eller som for mange gentagne Hub-besøg. Simulatoren måler ikke menu- og animationstid.
@@ -299,6 +305,42 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-04 — Signature Faces synlige i Workshop
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Executioner, Tower og Bloodwell viser nu deres to specialfaces direkte i Workshop i stedet for seks generiske family-faces. Et valgt Signature Face får samme informationsniveau som et valgt Imprint.
+- Beslutninger: Signature-identitet skal være synlig før target-roll, efter landing og i den permanente settled state; den må ikke være gemt i dice-inspektionen.
+- Berørte områder: `WorkshopScreen`, Workshop-styling og en ny regressionstest for Execute/Fortify/Drain.
+- Validering: TypeScript, tre målrettede Signature-Workshop-cases, fuld test-suite, ESLint og production build består.
+- Kendte mangler: Ingen kendte funktionelle mangler; fysisk Safari kan fortsat have små fontforskelle.
+- Git: Inkluderet i denne commit på `codex/arcade-foundation-v1`.
+
+### 2026-08-04 — Evolutions pensioneret
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Dice-inspektion viser ikke længere familie-Evolutions, og Workshop/combat kan ikke skabe eller afvikle de tidligere Power-, Momentum-, Rend-, Shield- eller Heal-Evolutions. Almindelige faces og Signature Faces fortsætter i samme tilfældige 1/6 Workshop-pulje og skalerer direkte.
+- Beslutninger: Evolutions findes ikke længere som aktivt system. Dice-identitet kommer fra medfødte Signature Faces; flytbar specialisering kommer fra Imprints.
+- Berørte områder: Dice/combat-types, Forge/store, simulator, roll-feedback, dice summaries/detail-overlay, DEV-preset, tests samt `NEW_GAME_GDD.md`, `CLASSIC_INCREMENTAL_V2.md`, `DESIGN.md` og content-idébanken.
+- Validering: `npx tsc --noEmit`, 45 testfiler/201 tests, ESLint, production build og `git diff --check` består. Build har fortsat kun den kendte chunk-size warning.
+- Kendte mangler: Fysisk mobilkontrol af de tre Signature Dice-overlays er stadig anbefalet. Historiske progress-poster bevares uændret.
+- Git: Inkluderet i denne commit på `codex/arcade-foundation-v1`.
+
+### 2026-08-04 — Workshop-, Talent- og Imprint-readability
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Workshop viser `Roll N`/`Reserve` som små, faste statusmærker uden at skubbe dice-navne. Talent Tree-linjerne omkring den tidlige Workshop-path er adskilt, alternative prerequisites forklares sandt, og Imprint Collection har brede cards med læsbar effekttekst og separat status.
+- Beslutninger: `prerequisiteCount` præsenteres som et reelt `choose N of M`-valg; en ikke-købt alternativ path markeres ikke som et uopfyldt krav, når junctionen allerede er åbnet. Imprint-status må aldrig ligge oven på beskrivelsen.
+- Berørte områder: `DieLoadoutStatus`, Workshop CSS, `TalentDetailPanel`, Talent Tree-layout/regressionstest, `ImprintsScreen` og Imprint CSS.
+- Validering: `npx tsc --noEmit`, 214 tests, lint og production build er grønne. Lokal browsertest ved 384×844 bekræftede Workshop- og Imprint-layout uden global horisontal overflow; browserkonsollen havde ingen warnings/errors.
+- Kendte mangler: Det nye layout og de længere Imprint-effekter bør stadig bekræftes på fysisk iPhone.
+- Git: Inkluderet i denne commit på `codex/arcade-foundation-v1`.
 
 ### 2026-08-04 — Dungeon 2 full-arc balancepass
 

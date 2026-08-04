@@ -8,7 +8,6 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   collectionCount: 5,
   diceSlots: 4,
   equippedCount: 4,
-  evolutionCount: 0,
   faceMinimum: 4,
   maxHp: 17,
   soulsSpent: 267,

@@ -35,9 +35,9 @@ Mulige families:
 
 En mulig content-rytme er at introducere cirka én ny family per dungeon. Hver dungeon åbner dermed både nyt enemy-content og et nyt build space.
 
-## 2. Familie-specifikke evolutions
+## 2. Familie-specifikke Signature Dice og Imprints
 
-Hver dice family bør have sit eget sæt evolutions, så evolutionerne understøtter terningens identitet.
+Hver dice family bør have egne Signature Dice og Imprints, så specialeffekterne understøtter terningens identitet uden et separat Evolution-system.
 
 Eksempel for en Bleed Die:
 
@@ -51,7 +51,7 @@ Eksempel for en Barrier Die:
 - Barrier omdannes delvist til Attack.
 - Barrier eksploderer, når den brydes.
 
-Målet er, at spilleren udvikler sin egen version af en family frem for blot at maksimere seks ens værdier.
+Målet er, at spilleren udvikler sin egen version af en family gennem dice-valg, Workshop-vækst og flytbare Imprints frem for blot at maksimere seks ens værdier.
 
 ## 3. Større enemy- og dungeon-identitet
 
@@ -183,7 +183,7 @@ Permanente dice kan registrere særlige bedrifter:
 - Besejr en boss med denne die.
 - Blokér 500 samlet damage.
 - Overlev en round med 1 HP.
-- Udløs et evolution-face 50 gange.
+- Udløs et Signature Face eller Imprint 50 gange.
 
 Milestones kan give titler, kosmetiske ændringer eller meget små permanente bonusser.
 
@@ -216,7 +216,7 @@ Belønninger bør primært være nye muligheder frem for endnu en generisk valut
 - En ny Charm til Fate-puljen.
 - En ny dice family.
 - Et Boss Imprint.
-- En evolution.
+- Et nyt Imprint eller en Signature Die.
 - Kosmetik eller lore.
 
 Systemet må ikke blive offline-produktion eller daglige chores. Det skal være permanente mastery-mål, der naturligt udføres gennem spillet.
@@ -226,7 +226,7 @@ Systemet må ikke blive offline-produktion eller daglige chores. Det skal være 
 1. Afslut UI/UX-polish og første større balancepass.
 2. Færdiggør Dungeon 2 og dens Shield-identitet.
 3. Tilføj én eller to nye dice families.
-4. Giv de nye families egne evolution-retninger.
+4. Giv de nye families egne Signature Dice og Imprints.
 5. Udvid Charm-puljen med direkte hooks til de nye dice.
 6. Byg Dungeon 3 omkring én ny hovedmekanik.
 7. Prototype Boss Imprints.
@@ -237,7 +237,7 @@ Systemet må ikke blive offline-produktion eller daglige chores. Det skal være 
 
 Den mest lovende samlede retning er:
 
-1. Familie-specifikke dice og evolutions skaber build-identitet.
+1. Familie-specifikke dice, Signatures og Imprints skaber build-identitet.
 2. Boss Imprints forbinder dungeon-clears med permanente, personlige dice.
 3. Dungeon Mastery skaber langsigtet incremental progression og genbruger eksisterende content på en meningsfuld måde.
 
@@ -246,7 +246,7 @@ Kombinationen bygger direkte videre på spillets nuværende styrker: permanente 
 ## Åbne designspørgsmål
 
 - Hvor mange dice families kan spilleren overskue, før loadoutet bliver utydeligt?
-- Skal evolutions være permanente valg, reversible mod en pris eller kunne eksistere på forskellige eksemplarer af samme family?
+- Hvor mange Signature-varianter og Imprints bør hver family have, før valgene bliver uoverskuelige?
 - Hvor meget må Dungeon Mastery påvirke rewards uden at blive den eneste rationelle progression?
 - Skal Boss Imprints være unikke per die, eller må samme Imprint bruges på flere permanente dice?
 - Hvordan vises Resonance og Forecasts uden at overfylde Combat UI?

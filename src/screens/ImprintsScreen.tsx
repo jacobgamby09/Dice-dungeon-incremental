@@ -76,7 +76,12 @@ export function ImprintsScreen() {
                   key={imprint.id}
                   onSelect={() => setSelectedId(imprint.id)}
                 />
-              )) : <div className="imprint-card imprint-card--unknown">?</div>}
+              )) : (
+                <div className="imprint-card imprint-card--unknown">
+                  <strong>?</strong>
+                  <span>Undiscovered Imprint</span>
+                </div>
+              )}
             </div>
           </section>
         ))}
@@ -165,11 +170,17 @@ function ImprintCard({ imprint, onSelect }: { imprint: ImprintInstance; onSelect
   const definition = IMPRINT_DEFINITIONS[imprint.definitionId]
   return (
     <button className="imprint-card" onClick={onSelect} type="button">
-      <ImprintIcon id={definition.id} rarity={definition.rarity} size={48} />
-      <span>{definition.name}</span>
-      <small>Power +{imprint.refinement}</small>
-      <p>{definition.description}</p>
-      {imprint.attachment ? <em>Bound</em> : <em className="is-unbound">Ready to bind</em>}
+      <span className="imprint-card__icon">
+        <ImprintIcon id={definition.id} rarity={definition.rarity} size={46} />
+      </span>
+      <span className="imprint-card__body">
+        <strong>{definition.name}</strong>
+        <small>Power +{imprint.refinement}</small>
+        <span>{definition.description}</span>
+      </span>
+      <em className={imprint.attachment ? undefined : 'is-unbound'}>
+        {imprint.attachment ? 'Bound' : 'Ready'}
+      </em>
     </button>
   )
 }

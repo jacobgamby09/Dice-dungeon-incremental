@@ -48,7 +48,6 @@ export function applyForgedFaceToBaseDie(
         ? {
             ...face,
             value: forgedFace.value,
-            evolutionReady: forgedFace.evolutionReady,
           }
         : face
     )) as DieFaces,

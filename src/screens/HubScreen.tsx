@@ -339,8 +339,7 @@ export function HubScreen() {
               <div>
                 <dt>Faces</dt>
                 <dd>
-                  Min {POST_DUNGEON_ONE_DEV_PRESET.faceMinimum} ·{' '}
-                  {POST_DUNGEON_ONE_DEV_PRESET.evolutionCount} evolutions
+                  Min {POST_DUNGEON_ONE_DEV_PRESET.faceMinimum} value
                 </dd>
               </div>
               <div><dt>Dungeon 1</dt><dd>Cleared</dd></div>

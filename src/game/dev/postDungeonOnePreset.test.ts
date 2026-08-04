@@ -95,8 +95,6 @@ describe('post-Dungeon-1 developer preset', () => {
           : face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
       )).toBe(true)
     }
-    expect(profile.diceCollection.flatMap((die) => die.faces)
-      .filter((face) => face.evolution)).toHaveLength(0)
   })
 
   it('keeps the displayed XP and Soul spend derived from actual content costs', () => {

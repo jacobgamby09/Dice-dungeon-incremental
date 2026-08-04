@@ -166,6 +166,7 @@ export function TalentDetailPanel({
     (id) => getTalentRank(talentRanks, id) > 0,
   ).length ?? 0
   const prerequisitesMet = purchasedPrerequisiteCount >= prerequisiteCount
+  const hasAlternativePrerequisites = prerequisiteCount < prerequisiteNames.length
   const requirementChecks = talent?.requirements?.map((requirement) => {
     const current = dungeonProgress[requirement.dungeonId]?.clearCount ?? 0
     return {
@@ -261,15 +262,22 @@ export function TalentDetailPanel({
                   <>
                     <span data-met={prerequisitesMet}>
                       {prerequisitesMet ? '✓' : '○'}{' '}
-                      {prerequisiteCount < prerequisiteNames.length
-                        ? `Any ${prerequisiteCount} connected talent`
+                      {hasAlternativePrerequisites
+                        ? `${purchasedPrerequisiteCount}/${prerequisiteCount} paths complete · choose ${prerequisiteCount} of ${prerequisiteNames.length}`
                         : 'All connected talents'}
                     </span>
                     {talent.prerequisiteIds.map((id) => {
                       const prerequisiteMet = getTalentRank(talentRanks, id) > 0
+                      const isOptionalAlternative = hasAlternativePrerequisites && prerequisitesMet && !prerequisiteMet
                       return (
-                        <span data-met={prerequisiteMet} key={id}>
-                          {prerequisiteMet ? '✓' : '○'} {TALENTS_BY_ID[id]?.name ?? id}
+                        <span
+                          data-met={prerequisiteMet}
+                          data-requirement-state={isOptionalAlternative ? 'alternative' : undefined}
+                          key={id}
+                        >
+                          {prerequisiteMet ? '✓' : isOptionalAlternative ? '↳' : '○'}{' '}
+                          {TALENTS_BY_ID[id]?.name ?? id}
+                          {isOptionalAlternative ? ' · alternate path' : ''}
                         </span>
                       )
                     })}

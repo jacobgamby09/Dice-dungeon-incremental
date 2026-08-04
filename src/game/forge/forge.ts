@@ -1,83 +1,56 @@
-import {
-  ATTACK_EVOLUTIONS,
-  EVOLUTION_DEFINITIONS,
-  EVOLUTIONS_BY_FAMILY,
-  HEAL_EVOLUTIONS,
-  SHIELD_EVOLUTIONS,
-} from '../content/faceEffects'
-import type {
-  DieFaces,
-  DieInstance,
-  FaceEvolutionId,
-  FaceInstance,
-} from '../types/dice'
-import type {
-  PendingWorkshopForge,
-  WorkshopDieFace,
-} from '../types/workshop'
-
-export {
-  ATTACK_EVOLUTIONS,
-  EVOLUTION_DEFINITIONS,
-  EVOLUTIONS_BY_FAMILY,
-  HEAL_EVOLUTIONS,
-  SHIELD_EVOLUTIONS,
-}
+import type { DieFaces, DieInstance, FaceInstance } from "../types/dice";
+import type { PendingWorkshopForge, WorkshopDieFace } from "../types/workshop";
 
 export interface ForgeResult {
-  amount: number
-  rolledAmount: number
-  dieId: string
-  faceId: string
-  workshopFaceId: string | null
-  cost: number
-  newValue: number
-  previousValue: number
-  isJackpot: boolean
-  becameEvolutionReady: boolean
+  amount: number;
+  rolledAmount: number;
+  dieId: string;
+  faceId: string;
+  workshopFaceId: string | null;
+  cost: number;
+  newValue: number;
+  previousValue: number;
+  isJackpot: boolean;
 }
+export const BASE_CHAOS_FORGE_COST = 1;
 
-export const BASE_CHAOS_FORGE_COST = 1
-
-export function canForgeFace(
-  face: FaceInstance,
-): boolean {
-  if (face.imprint) return true
-  if (face.evolution || face.evolutionReady) return false
-  return true
+export function canForgeFace(face: FaceInstance): boolean {
+  if (face.imprint) return true;
+  return true;
 }
 
 export function getDieUpgradeCount(die: DieInstance): number {
   return die.faces.reduce(
     (total, face) => total + Math.max(0, face.value - 1),
     0,
-  )
+  );
 }
 
 export function getPrecisionForgeCost(
   face: FaceInstance,
   costMultiplier = 1,
 ): number | null {
-  if (!canForgeFace(face)) return null
-  return Math.max(1, Math.ceil(BASE_CHAOS_FORGE_COST * 2 * Math.max(0, costMultiplier)))
+  if (!canForgeFace(face)) return null;
+  return Math.max(
+    1,
+    Math.ceil(BASE_CHAOS_FORGE_COST * 2 * Math.max(0, costMultiplier)),
+  );
 }
 
-export function getChaosEligibleFaces(
-  die: DieInstance,
-): FaceInstance[] {
-  return die.faces.filter((face) => canForgeFace(face))
+export function getChaosEligibleFaces(die: DieInstance): FaceInstance[] {
+  return die.faces.filter((face) => canForgeFace(face));
 }
 
 export function getChaosForgeCost(
   die: DieInstance,
   costMultiplier = 1,
 ): number | null {
-  const eligibleFaces = getChaosEligibleFaces(die)
-  if (eligibleFaces.length === 0) return null
+  const eligibleFaces = getChaosEligibleFaces(die);
+  if (eligibleFaces.length === 0) return null;
 
-  const upgradeTier = Math.floor(Math.max(0, getDieUpgradeCount(die) - 1) / 3)
-  const baseCost = BASE_CHAOS_FORGE_COST + upgradeTier
-  return Math.max(1, Math.ceil(baseCost * Math.max(0, costMultiplier)))
+  const upgradeTier = Math.floor(Math.max(0, getDieUpgradeCount(die) - 1) / 3);
+  const baseCost = BASE_CHAOS_FORGE_COST + upgradeTier;
+  return Math.max(1, Math.ceil(baseCost * Math.max(0, costMultiplier)));
 }
 
 export function forgeFaceOnDie(
@@ -85,31 +58,30 @@ export function forgeFaceOnDie(
   faceId: string,
   amount = 1,
 ): {
-  die: DieInstance
-  newValue: number
-  previousValue: number
+  die: DieInstance;
+  newValue: number;
+  previousValue: number;
 } | null {
-  const face = die.faces.find((candidate) => candidate.id === faceId)
-  if (!face || !canForgeFace(face)) return null
-  const previousValue = face.value
-  const newValue = face.value + Math.max(1, Math.floor(amount))
+  const face = die.faces.find((candidate) => candidate.id === faceId);
+  if (!face || !canForgeFace(face)) return null;
+  const previousValue = face.value;
+  const newValue = face.value + Math.max(1, Math.floor(amount));
 
   return {
     newValue,
     previousValue,
     die: {
       ...die,
-      faces: die.faces.map((candidate) => (
+      faces: die.faces.map((candidate) =>
         candidate.id === faceId
           ? {
               ...candidate,
               value: newValue,
-              evolutionReady: undefined,
             }
-          : candidate
-      )) as DieFaces,
+          : candidate,
+      ) as DieFaces,
     },
-  }
+  };
 }
 
 export function precisionForge(
@@ -117,11 +89,11 @@ export function precisionForge(
   faceId: string,
   costMultiplier = 1,
 ): { die: DieInstance; result: ForgeResult } | null {
-  const face = die.faces.find((candidate) => candidate.id === faceId)
-  if (!face) return null
-  const cost = getPrecisionForgeCost(face, costMultiplier)
-  const forged = forgeFaceOnDie(die, faceId, 1)
-  if (cost === null || !forged) return null
+  const face = die.faces.find((candidate) => candidate.id === faceId);
+  if (!face) return null;
+  const cost = getPrecisionForgeCost(face, costMultiplier);
+  const forged = forgeFaceOnDie(die, faceId, 1);
+  if (cost === null || !forged) return null;
   return {
     die: forged.die,
     result: {
@@ -134,39 +106,39 @@ export function precisionForge(
       newValue: forged.newValue,
       previousValue: forged.previousValue,
       isJackpot: false,
-      becameEvolutionReady: false,
     },
-  }
+  };
 }
-
 function clampRandomRoll(random: () => number): number {
-  return Math.min(0.999999999, Math.max(0, random()))
+  return Math.min(0.999999999, Math.max(0, random()));
 }
 
 export function selectWorkshopTargetFace(
   die: DieInstance,
   roll: number,
 ): FaceInstance | null {
-  const eligibleFaces = getChaosEligibleFaces(die)
-  if (eligibleFaces.length === 0) return null
-  const imprintFaces = eligibleFaces.filter((face) => face.imprint)
-  const regularFaces = eligibleFaces.filter((face) => !face.imprint)
-  const boundedRoll = Math.min(0.999999999, Math.max(0, roll))
+  const eligibleFaces = getChaosEligibleFaces(die);
+  if (eligibleFaces.length === 0) return null;
+  const imprintFaces = eligibleFaces.filter((face) => face.imprint);
+  const regularFaces = eligibleFaces.filter((face) => !face.imprint);
+  const boundedRoll = Math.min(0.999999999, Math.max(0, roll));
 
   // An attached Imprint owns its physical face slot: exactly one sixth per Imprint.
   // Any probability belonging to dormant non-forgeable base faces is redistributed
   // only among regular forgeable faces, never onto Imprints.
-  const imprintBand = Math.min(1, imprintFaces.length / 6)
+  const imprintBand = Math.min(1, imprintFaces.length / 6);
   if (imprintFaces.length > 0 && boundedRoll < imprintBand) {
-    return imprintFaces[Math.floor(boundedRoll * 6)] ?? imprintFaces[0]
+    return imprintFaces[Math.floor(boundedRoll * 6)] ?? imprintFaces[0];
   }
-  if (regularFaces.length === 0) return imprintFaces[0] ?? null
-  const normalizedRegularRoll = imprintBand >= 1
-    ? 0
-    : (boundedRoll - imprintBand) / (1 - imprintBand)
+  if (regularFaces.length === 0) return imprintFaces[0] ?? null;
+  const normalizedRegularRoll =
+    imprintBand >= 1 ? 0 : (boundedRoll - imprintBand) / (1 - imprintBand);
   return regularFaces[
-    Math.min(regularFaces.length - 1, Math.floor(normalizedRegularRoll * regularFaces.length))
-  ]
+    Math.min(
+      regularFaces.length - 1,
+      Math.floor(normalizedRegularRoll * regularFaces.length),
+    )
+  ];
 }
 
 export function prepareWorkshopForge(
@@ -175,21 +147,22 @@ export function prepareWorkshopForge(
   workshopFaces: readonly WorkshopDieFace[],
   random: () => number = Math.random,
   options: {
-    costMultiplier?: number
-    targetRerolls?: number
+    costMultiplier?: number;
+    targetRerolls?: number;
   } = {},
 ): PendingWorkshopForge | null {
-  if (!operationId || workshopFaces.length === 0) return null
-  const eligibleFaces = getChaosEligibleFaces(die)
-  const cost = getChaosForgeCost(die, options.costMultiplier)
-  if (eligibleFaces.length === 0 || cost === null) return null
+  if (!operationId || workshopFaces.length === 0) return null;
+  const eligibleFaces = getChaosEligibleFaces(die);
+  const cost = getChaosForgeCost(die, options.costMultiplier);
+  if (eligibleFaces.length === 0 || cost === null) return null;
 
-  const faceRoll = clampRandomRoll(random)
-  const targetFace = selectWorkshopTargetFace(die, faceRoll)
-  if (!targetFace) return null
-  const workshopRoll = clampRandomRoll(random)
-  const workshopFace = workshopFaces[Math.floor(workshopRoll * workshopFaces.length)]
-  const rolledAmount = Math.max(1, Math.floor(workshopFace.value))
+  const faceRoll = clampRandomRoll(random);
+  const targetFace = selectWorkshopTargetFace(die, faceRoll);
+  if (!targetFace) return null;
+  const workshopRoll = clampRandomRoll(random);
+  const workshopFace =
+    workshopFaces[Math.floor(workshopRoll * workshopFaces.length)];
+  const rolledAmount = Math.max(1, Math.floor(workshopFace.value));
 
   return {
     operationId,
@@ -203,7 +176,7 @@ export function prepareWorkshopForge(
     appliedAmount: rolledAmount,
     previousValue: targetFace.value,
     cost,
-  }
+  };
 }
 
 export function rerollWorkshopTarget(
@@ -213,23 +186,27 @@ export function rerollWorkshopTarget(
   random: () => number = Math.random,
 ): PendingWorkshopForge | null {
   if (
-    pending.dieId !== die.id
-    || !rerollOperationId
-    || pending.rerollsRemaining <= 0
-    || pending.targetRerollOperationIds.includes(rerollOperationId)
-  ) return null
+    pending.dieId !== die.id ||
+    !rerollOperationId ||
+    pending.rerollsRemaining <= 0 ||
+    pending.targetRerollOperationIds.includes(rerollOperationId)
+  )
+    return null;
 
-  const currentTarget = die.faces.find((face) => face.id === pending.targetFaceId)
-  const eligibleFaces = getChaosEligibleFaces(die)
+  const currentTarget = die.faces.find(
+    (face) => face.id === pending.targetFaceId,
+  );
+  const eligibleFaces = getChaosEligibleFaces(die);
   if (
-    !currentTarget
-    || currentTarget.value !== pending.previousValue
-    || eligibleFaces.length === 0
-  ) return null
+    !currentTarget ||
+    currentTarget.value !== pending.previousValue ||
+    eligibleFaces.length === 0
+  )
+    return null;
 
-  const faceRoll = clampRandomRoll(random)
-  const targetFace = selectWorkshopTargetFace(die, faceRoll)
-  if (!targetFace) return null
+  const faceRoll = clampRandomRoll(random);
+  const targetFace = selectWorkshopTargetFace(die, faceRoll);
+  if (!targetFace) return null;
   return {
     ...pending,
     targetFaceId: targetFace.id,
@@ -240,24 +217,25 @@ export function rerollWorkshopTarget(
     ],
     rerollsRemaining: pending.rerollsRemaining - 1,
     previousValue: targetFace.value,
-  }
+  };
 }
 
 export function completeWorkshopForge(
   die: DieInstance,
   pending: PendingWorkshopForge,
 ): { die: DieInstance; result: ForgeResult } | null {
-  if (pending.dieId !== die.id) return null
-  const targetFace = die.faces.find((face) => face.id === pending.targetFaceId)
+  if (pending.dieId !== die.id) return null;
+  const targetFace = die.faces.find((face) => face.id === pending.targetFaceId);
   if (
-    !targetFace
-    || targetFace.value !== pending.previousValue
-    || !canForgeFace(targetFace)
-  ) return null
+    !targetFace ||
+    targetFace.value !== pending.previousValue ||
+    !canForgeFace(targetFace)
+  )
+    return null;
 
-  const appliedAmount = Math.max(1, Math.floor(pending.appliedAmount))
-  const forged = forgeFaceOnDie(die, targetFace.id, appliedAmount)
-  if (!forged) return null
+  const appliedAmount = Math.max(1, Math.floor(pending.appliedAmount));
+  const forged = forgeFaceOnDie(die, targetFace.id, appliedAmount);
+  if (!forged) return null;
 
   return {
     die: forged.die,
@@ -270,57 +248,8 @@ export function completeWorkshopForge(
       cost: pending.cost,
       newValue: forged.newValue,
       previousValue: forged.previousValue,
-      isJackpot: pending.rolledAmount > 1 && forged.newValue - forged.previousValue > 1,
-      becameEvolutionReady: false,
+      isJackpot:
+        pending.rolledAmount > 1 && forged.newValue - forged.previousValue > 1,
     },
-  }
+  };
 }
-
-export function evolveFaceOnDie(
-  die: DieInstance,
-  faceId: string,
-  evolutionId: FaceEvolutionId,
-): DieInstance | null {
-  const face = die.faces.find((candidate) => candidate.id === faceId)
-  const evolution = EVOLUTION_DEFINITIONS[evolutionId]
-  if (
-    !face
-    || face.signature
-    || !face.evolutionReady
-    || face.evolution
-    || evolution.family !== face.type
-  ) return null
-  return {
-    ...die,
-    faces: die.faces.map((candidate) => (
-      candidate.id === faceId
-        ? {
-            ...candidate,
-            value: evolution.resultValue,
-            evolutionReady: undefined,
-            evolution: {
-              id: evolution.id,
-              name: evolution.name,
-            },
-          }
-        : candidate
-    )) as DieFaces,
-  }
-}
-
-export function migrateLegacyFaceEvolution(face: FaceInstance): FaceInstance {
-  if (face.signature || face.evolution || face.value <= 3) return face
-  const evolution = EVOLUTIONS_BY_FAMILY[face.type][0]
-  return {
-    ...face,
-    value: evolution.resultValue,
-    evolutionReady: undefined,
-    evolution: {
-      id: evolution.id,
-      name: evolution.name,
-    },
-  }
-}
-
-export const evolveAttackFace = evolveFaceOnDie
-export const migrateLegacyAttackEvolution = migrateLegacyFaceEvolution

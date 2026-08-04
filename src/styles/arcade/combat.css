@@ -274,9 +274,8 @@
   animation: arcade-die-land var(--arcade-motion-settle) steps(4, end) both;
 }
 
-.roll-die__landing-ring--evolution,
 .roll-die__landing-ring--signature {
-  border-color: var(--evolution-highlight, var(--signature-highlight, var(--die-color)));
+  border-color: var(--signature-highlight, var(--die-color));
   box-shadow: 0 0 0 3px var(--arcade-black);
 }
 

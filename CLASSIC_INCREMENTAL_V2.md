@@ -310,7 +310,7 @@ Hver permanent terning har:
 - præcis seks faces;
 - et stabilt `face.id` per face;
 - en permanent individuel face-værdi;
-- senere eventuel evolution eller signature.
+- eventuel medfødt Signature eller monteret Imprint.
 
 Faces med samme værdi er fortsat separate objekter.
 
@@ -338,8 +338,8 @@ Faces med samme værdi er fortsat separate objekter.
 | `heal-die-bloodwell` | Bloodwell Die | Heal | `2–2–2–2 + 2 Drain` | Bloodwell Doctrine efter Dungeon 1-clear |
 
 Worn Blade og Striker starter mekanisk ens i V2. Deres langsigtede forskel opstår
-gennem uafhængig random growth, forskellige Workshop-forløb og senere
-family-evolutions.
+gennem uafhængig random growth, forskellige Workshop-forløb, Signature Faces
+og flytbare Imprints.
 
 ### 7.4 Signature-faces
 
@@ -408,7 +408,7 @@ Et resultat over 1 er et jackpot-resultat. Workshop Die har ingen 0-side.
 
 ### 8.4 Fri face-skalering og Face Mastery
 
-Normale, ikke-evolved faces har ingen hard numeric cap. Et `+2/+3`-resultat
+Normale faces og Signature Faces har ingen hard numeric cap. Et `+2/+3`-resultat
 anvendes altid fuldt. Den stigende Soul-pris er systemets soft cap.
 
 `Face Mastery` giver 1, 2 og 3 valgfrie target-rerolls per Forge. Rerolls sker
@@ -470,8 +470,8 @@ V2’s nuværende Workshop-loop:
 
 - Precision Forge;
 - manuelt face-valg;
-- family-evolution-selection;
-- signatur-upgrades.
+- manuelt valg af specialeffekt;
+- separate Signature-upgrades uden for den normale target-roll.
 
 ---
 
@@ -911,7 +911,6 @@ og falske valg, men de erstatter ikke fri spilleradfærd eller fysisk playtest.
 - Auto Retry.
 - Precision Forge i player-facing V2.
 - Manuelt face-valg.
-- Family-evolution-selection i V2 Workshop.
 - Signature-face Mastery.
 - Dungeon 3+.
 - Production merge.
@@ -926,11 +925,10 @@ og falske valg, men de erstatter ikke fri spilleradfærd eller fysisk playtest.
 4. Er de separate 16-XP-køb Second Grip og Striker Pattern reelle valg, eller købes de altid sammen?
 5. Opleves Dungeon 1-clear omkring run 12–45 som progression eller grind?
 6. Skal Worn Blade og Striker have forskellige medfødte identiteter senere?
-7. Hvornår skal family-evolutions vende tilbage i V2?
-8. Føles 20% dropchance plus pity spændende uden at skabe for meget reward-støj?
-9. Føles ét random resultat med early no-duplicate protection spændende eller for lidt player agency?
-10. Er første Charm-slot efter Dungeon 1 det rigtige tidspunkt, eller bør Fatecraft komme lidt tidligere?
-11. Er de otte første Charm-effekter og deres rarities lige læsbare under hurtig Auto Combat?
+7. Føles 20% dropchance plus pity spændende uden at skabe for meget reward-støj?
+8. Føles ét random resultat med early no-duplicate protection spændende eller for lidt player agency?
+9. Er første Charm-slot efter Dungeon 1 det rigtige tidspunkt, eller bør Fatecraft komme lidt tidligere?
+10. Er de otte første Charm-effekter og deres rarities lige læsbare under hurtig Auto Combat?
 
 ---
 

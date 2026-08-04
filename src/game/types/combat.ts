@@ -53,7 +53,6 @@ export interface CombatState {
   drawPileDieIds: string[]
   results: RollResult[]
   totals: RoundTotals
-  pendingMomentum: number
   pendingFortify: number
   pendingImprintRelay: number
   lastCharmTriggers: CharmTrigger[]

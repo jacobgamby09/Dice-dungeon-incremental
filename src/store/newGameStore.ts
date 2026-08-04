@@ -22,9 +22,6 @@ import { createEnemyState, ENCOUNTERS, rollNextEnemyIntent } from '../game/conte
 import { TALENT_IDS, TALENTS_BY_ID } from '../game/content/talents'
 import {
   completeWorkshopForge,
-  EVOLUTION_DEFINITIONS,
-  evolveFaceOnDie,
-  migrateLegacyFaceEvolution,
   prepareWorkshopForge,
   precisionForge,
   rerollWorkshopTarget,
@@ -77,7 +74,7 @@ import {
   rollFateDrop,
 } from '../game/progression/fate'
 import type { CombatState, RoundResolution } from '../game/types/combat'
-import type { DieFaces, DieInstance, FaceEvolutionId, RollResult } from '../game/types/dice'
+import type { DieFaces, DieInstance, RollResult } from '../game/types/dice'
 import { cloneDie } from '../game/types/dice'
 import type {
   DungeonId,
@@ -145,7 +142,6 @@ export interface NewGameState {
   ) => PendingWorkshopForge | null
   completePendingWorkshopForge: (operationId: string) => ForgeResult | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
-  evolveFace: (dieId: string, faceId: string, evolutionId: FaceEvolutionId) => boolean
   beginFateDraw: (operationId: string, random?: () => number) => PendingFateDraw | null
   claimFateCharm: () => boolean
   equipCharm: (charmId: CharmId) => boolean
@@ -349,7 +345,6 @@ function reconstructRunStats(
 
 function migrateDieInstance(
   existingDie: DieInstance,
-  migrateLegacyEvolution = true,
 ): DieInstance | null {
   const canonicalDie = createDieById(existingDie.id)
   if (!canonicalDie) return null
@@ -367,26 +362,10 @@ function migrateDieInstance(
           : canonicalFace
       }
 
-      const storedEvolution = existingFace.evolution
-      const validEvolution = storedEvolution
-        && EVOLUTION_DEFINITIONS[storedEvolution.id]?.family === canonicalFace.type
-        ? {
-            id: storedEvolution.id,
-            name: EVOLUTION_DEFINITIONS[storedEvolution.id].name,
-          }
-        : undefined
-
-      const migratedFace = {
+      return {
         ...canonicalFace,
         value: Math.max(canonicalFace.value, existingFace.value),
-        evolutionReady: validEvolution
-          ? undefined
-          : existingFace.evolutionReady ?? undefined,
-        evolution: validEvolution,
       }
-      return migrateLegacyEvolution
-        ? migrateLegacyFaceEvolution(migratedFace)
-        : migratedFace
     }) as DieFaces,
   }
 }
@@ -509,13 +488,13 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
         ...persisted.profile,
         saveVersion: SAVE_VERSION,
         diceCollection: persisted.profile.diceCollection
-          .map((die) => migrateDieInstance(die, false))
+          .map((die) => migrateDieInstance(die))
           .filter((die): die is DieInstance => die !== null),
       },
       run: {
         ...persisted.run,
         equippedDiceSnapshot: persisted.run.equippedDiceSnapshot
-          .map((die) => migrateDieInstance(die, false))
+          .map((die) => migrateDieInstance(die))
           .filter((die): die is DieInstance => die !== null),
       },
     }
@@ -868,7 +847,6 @@ function migrateNewGameState(persistedState: unknown, version: number): NewGameS
           resolutionStep: (existingCombat.resolutionStep as string | null | undefined) === 'enemy'
             ? 'enemy_attack'
             : existingCombat.resolutionStep ?? null,
-          pendingMomentum: Math.max(0, existingCombat.pendingMomentum ?? 0),
           pendingFortify: Math.max(0, existingCombat.pendingFortify ?? 0),
           lastCharmTriggers: [],
           charmTriggerVersion: 0,
@@ -1036,7 +1014,6 @@ export const useNewGameStore = create<NewGameState>()(
         const allDiceDrawn = remainingDieIds.length === 0
         const rollEffects = addRollEffects(
           state.combat.totals,
-          state.combat.pendingMomentum,
           result,
           allDiceDrawn,
           state.combat.pendingFortify,
@@ -1057,7 +1034,6 @@ export const useNewGameStore = create<NewGameState>()(
             drawPileDieIds: remainingDieIds,
             results: [...state.combat.results, result],
             totals: rollEffects.totals,
-            pendingMomentum: rollEffects.pendingMomentum,
             pendingFortify: rollEffects.pendingFortify,
             pendingImprintRelay: imprintRoll.nextRelayBonus,
             lastCharmTriggers: charmRoll.triggers,
@@ -1748,24 +1724,6 @@ export const useNewGameStore = create<NewGameState>()(
           },
         })
         return forged.result
-      },
-
-      evolveFace: (dieId, faceId, evolutionId) => {
-        const state = get()
-        if (state.run.status !== 'inactive') return false
-        const die = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
-        if (!die) return false
-        const evolvedDie = evolveFaceOnDie(die, faceId, evolutionId)
-        if (!evolvedDie) return false
-        set({
-          profile: {
-            ...state.profile,
-            diceCollection: state.profile.diceCollection.map((candidate) => (
-              candidate.id === dieId ? evolvedDie : candidate
-            )),
-          },
-        })
-        return true
       },
 
       moveEquippedDie: (dieId, direction) => {

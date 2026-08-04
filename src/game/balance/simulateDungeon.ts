@@ -122,7 +122,6 @@ export function simulateDungeonRun(
 
     for (let round = 0; round < 100; round += 1) {
       let totals = { ...EMPTY_TOTALS }
-      let pendingMomentum = 0
       let pendingFortify = 0
       let pendingImprintRelay = 0
       for (const [index, die] of orderedDice.entries()) {
@@ -143,7 +142,6 @@ export function simulateDungeonRun(
         charmTriggers += charmRoll.triggers.length
         const effects = addRollEffects(
           totals,
-          pendingMomentum,
           charmRoll.result,
           index === orderedDice.length - 1,
           pendingFortify,
@@ -153,7 +151,6 @@ export function simulateDungeonRun(
           },
         )
         totals = effects.totals
-        pendingMomentum = effects.pendingMomentum
         pendingFortify = effects.pendingFortify
         pendingImprintRelay = imprintRoll.nextRelayBonus
       }

@@ -9,7 +9,8 @@ describe('DieLoadoutStatus', () => {
   it('shows the equipped roll position', () => {
     const markup = renderToStaticMarkup(<DieLoadoutStatus slotIndex={1} />)
 
-    expect(markup).toContain('Equipped · Roll 2')
+    expect(markup).toContain('Roll 2')
+    expect(markup).not.toContain('Equipped · Roll 2')
     expect(markup).toContain('Equipped in roll slot 2')
   })
 

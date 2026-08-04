@@ -34,7 +34,7 @@ describe('Talent Tree canvas layout', () => {
       { height: 800, width: 384 },
     )
 
-    expect(offset.x).toBeCloseTo(-187.84)
+    expect(offset.x).toBeCloseTo(-97.84)
     expect(offset.y).toBe(-790)
   })
 
@@ -85,6 +85,42 @@ describe('Talent Tree canvas layout', () => {
             cross(first, second),
             `${first.sourceId} → ${first.targetId} crosses ${second.sourceId} → ${second.targetId}`,
           ).toBe(false)
+        }
+      }
+    }
+  })
+
+  it('keeps connector lines clear of unrelated nodes', () => {
+    const distanceToSegment = (
+      point: { x: number; y: number },
+      start: { x: number; y: number },
+      end: { x: number; y: number },
+    ) => {
+      const deltaX = end.x - start.x
+      const deltaY = end.y - start.y
+      const lengthSquared = deltaX * deltaX + deltaY * deltaY
+      const progress = lengthSquared === 0
+        ? 0
+        : Math.max(0, Math.min(1, (
+            (point.x - start.x) * deltaX + (point.y - start.y) * deltaY
+          ) / lengthSquared))
+      const nearest = {
+        x: start.x + progress * deltaX,
+        y: start.y + progress * deltaY,
+      }
+      return Math.hypot(point.x - nearest.x, point.y - nearest.y)
+    }
+
+    for (const talent of TALENTS) {
+      const target = getTalentTreePoint(talent.id)
+      for (const prerequisiteId of talent.prerequisiteIds) {
+        const source = getTalentTreePoint(prerequisiteId)
+        for (const unrelatedTalent of TALENTS) {
+          if (unrelatedTalent.id === talent.id || unrelatedTalent.id === prerequisiteId) continue
+          expect(
+            distanceToSegment(getTalentTreePoint(unrelatedTalent.id), source, target),
+            `${prerequisiteId} → ${talent.id} passes through ${unrelatedTalent.id}`,
+          ).toBeGreaterThanOrEqual(54)
         }
       }
     }

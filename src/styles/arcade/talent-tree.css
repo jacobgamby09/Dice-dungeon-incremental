@@ -183,7 +183,6 @@
   box-shadow: none;
 }
 
-.roll-die--landed.roll-die--evolution .roll-die__cube,
 .roll-die--landed.roll-die--signature .roll-die__cube {
   animation: none;
 }
@@ -275,6 +274,10 @@
 
 .talent-canvas-inspector__requirements span[data-met='false'] {
   color: #ffb1bd;
+}
+
+.talent-canvas-inspector__requirements span[data-requirement-state='alternative'] {
+  color: color-mix(in srgb, var(--talent-accent) 48%, var(--arcade-muted));
 }
 
 .talent-canvas-inspector__future {

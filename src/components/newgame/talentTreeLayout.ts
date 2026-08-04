@@ -36,10 +36,10 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.fourthGrip]: { x: 1030, y: 290 },
   [TALENT_IDS.bloodwellDoctrine]: { x: 1290, y: 380 },
 
-  [TALENT_IDS.volatileTemper]: { x: 780, y: 860 },
-  [TALENT_IDS.efficientTools]: { x: 650, y: 850 },
-  [TALENT_IDS.faceMastery]: { x: 660, y: 710 },
-  [TALENT_IDS.forgeOvercharge]: { x: 530, y: 650 },
+  [TALENT_IDS.volatileTemper]: { x: 770, y: 790 },
+  [TALENT_IDS.efficientTools]: { x: 650, y: 930 },
+  [TALENT_IDS.faceMastery]: { x: 620, y: 760 },
+  [TALENT_IDS.forgeOvercharge]: { x: 440, y: 650 },
   [TALENT_IDS.resonantEtching]: { x: 530, y: 510 },
 
   [TALENT_IDS.autoCombat]: { x: 900, y: 1020 },

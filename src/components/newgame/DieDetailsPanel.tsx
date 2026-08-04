@@ -1,11 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
-import { EVOLUTIONS_BY_FAMILY, SIGNATURE_DEFINITIONS } from '../../game/content/faceEffects'
+import { SIGNATURE_DEFINITIONS } from '../../game/content/faceEffects'
 import { getDieProfile } from '../../game/content/diceProfiles'
 import type { DieInstance } from '../../game/types/dice'
 import { DieSummary } from './DieSummary'
-import { EvolutionIcon } from './EvolutionIcon'
 import { SignatureIcon } from './SignatureIcon'
 
 interface DieDetailsPanelProps {
@@ -90,19 +89,6 @@ export function DieDetailsPanel({ die, onClose }: DieDetailsPanelProps) {
                 })}
               </section>
             ) : null}
-
-            <section aria-labelledby="die-evolutions-title">
-              <h3 id="die-evolutions-title">{die.family} family evolutions</h3>
-              {EVOLUTIONS_BY_FAMILY[die.family].map((evolution) => (
-                <article key={evolution.id}>
-                  <EvolutionIcon evolutionId={evolution.id} size={24} />
-                  <div>
-                    <strong>{evolution.name}</strong>
-                    <span>{evolution.description}</span>
-                  </div>
-                </article>
-              ))}
-            </section>
           </motion.aside>
         </motion.div>
       ) : null}

@@ -118,7 +118,7 @@ Det flade UI må aldrig gøre dem til almindelige kort eller ikoner.
 - Rolling må vise fysisk dybde.
 - Landed-state står præcist frontvendt.
 - Resultatet forbliver synligt efter animationen.
-- Evolution- og signature-faces skal kunne identificeres uden tekst.
+- Signature Faces og Imprints skal kunne identificeres uden tekst.
 - Glow, jackpot og impacts ligger i separate dekorationslag.
 - Anvend aldrig `filter`, `opacity` eller en ny ancestor-`transform` på 3D-cuben.
 
@@ -139,7 +139,7 @@ Det flade UI må aldrig gøre dem til almindelige kort eller ikoner.
 - UI-copy skal være konkret: `Roll`, `Resolve`, `Buy`, `Enter`, `Leave`.
 - Lucide er tilladt som midlertidigt ikonbibliotek.
 - Funktionelle Lucide-ikoner normaliseres gennem deres afgrænsede UI-container,
-  så stroke-vægt og størrelse er ens. Face-, evolution- og signature-ikoner
+  så stroke-vægt og størrelse er ens. Face-, Signature- og Imprint-ikoner
   forbliver data-drevne gennem den centrale face registry.
 - Permanente gameplayikoner skal følge samme pixel-grid og outline-vægt.
 
@@ -171,7 +171,7 @@ skal stadig vise samme sluttilstand og rækkefølge.
 - Roll-feltets baggrund forbliver ren sort i alle states. Motion og state-feedback
   må kun ligge omkring den aktive terning, dens score-transfer og destinationen;
   der bruges ingen helflade-striber eller gradients i det tomme roll-felt.
-- Landingen får en kort familie-farvet impact. Evolution- og signature-faces
+- Landingen får en kort familie-farvet impact. Signature Faces og Imprints
   må få en stærkere separat effekt, men den frontvendte face skal forblive klar.
 - Score-feedback skal vise source, bevægelse og arrival: effekten forlader
   terningen, rejser mod den relevante total og udløser en kort reaktion dér.

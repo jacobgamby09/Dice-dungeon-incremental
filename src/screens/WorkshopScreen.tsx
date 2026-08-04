@@ -14,6 +14,8 @@ import { DieLoadoutStatus } from '../components/newgame/DieLoadoutStatus'
 import { getDieLoadoutSlotIndex } from '../components/newgame/dieLoadout'
 import { PermanentResourceHud } from '../components/newgame/PermanentResourceHud'
 import { ImprintIcon } from '../components/newgame/ImprintIcon'
+import { SignatureIcon } from '../components/newgame/SignatureIcon'
+import { getSignatureVisualStyle } from '../components/newgame/signatureVisuals'
 import { WorkshopDie } from '../components/newgame/WorkshopDie'
 import {
   getWorkshopResultPresentation,
@@ -30,6 +32,7 @@ import {
 import {
   getWorkshopDieFaces,
 } from '../game/progression/talents'
+import { SIGNATURE_DEFINITIONS } from '../game/content/faceEffects'
 import type { FaceType } from '../game/types/dice'
 import { applyImprintsToDice } from '../game/progression/imprints'
 import { useNewGameStore } from '../store/newGameStore'
@@ -347,6 +350,9 @@ export function WorkshopScreen() {
             >
               {selectedDie.faces.map((face, faceIndex) => {
                 const isHighlighted = highlightedFaceId === face.id
+                const signatureStyle = face.signature
+                  ? getSignatureVisualStyle(face.signature.id)
+                  : undefined
                 const isLockedTarget = (
                   isHighlighted
                   && ['target_locked', 'rolling_power', 'result'].includes(phase)
@@ -356,17 +362,21 @@ export function WorkshopScreen() {
                     animate={isHighlighted
                       ? { scale: [1, 1.12, 1.05], y: [0, -5, -3] }
                       : { scale: 1, y: 0 }}
-                    aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}`}
-                    className={`workshop-target__face workshop-target__face--${face.type}${face.imprint ? ` workshop-target__face--imprint workshop-target__face--imprint-${face.imprint.rarity}` : ''}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}`}
+                    aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}${face.signature ? `, ${face.signature.name} Signature` : ''}${face.imprint ? `, ${face.imprint.name} Imprint` : ''}`}
+                    className={`workshop-target__face workshop-target__face--${face.type}${face.signature ? ` workshop-target__face--signature workshop-target__face--signature-${face.signature.id}` : ''}${face.imprint ? ` workshop-target__face--imprint workshop-target__face--imprint-${face.imprint.rarity}` : ''}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}`}
                     key={face.id}
+                    style={signatureStyle}
                     transition={{ duration: 0.14 }}
                   >
                     <small>{faceIndex + 1}</small>
                     <strong>{face.value}</strong>
                     {face.imprint ? (
                       <ImprintIcon id={face.imprint.definitionId} rarity={face.imprint.rarity} size={18} />
+                    ) : face.signature ? (
+                      <SignatureIcon signatureId={face.signature.id} size={18} />
                     ) : <FaceIcon type={face.type} size={17} />}
                     {face.imprint ? <span className="workshop-target__imprint-badge">Imprint</span> : null}
+                    {face.signature ? <span className="workshop-target__signature-badge">{face.signature.name}</span> : null}
                     {isLockedTarget ? <em>Target</em> : null}
                   </motion.div>
                 )
@@ -384,6 +394,20 @@ export function WorkshopScreen() {
                   <span>{highlightedFace.imprint.rarity} Imprint · Effective {highlightedFace.value}</span>
                   <strong>{highlightedFace.imprint.name}</strong>
                   <small>Imprint Power +{highlightedFace.imprint.refinement} · Workshop upgrades this permanent power when the face is selected.</small>
+                </div>
+              </div>
+            ) : null}
+
+            {phase !== 'selecting_target' && highlightedFace?.signature ? (
+              <div
+                className={`workshop-target__signature-detail workshop-target__signature-detail--${highlightedFace.signature.id}`}
+                style={getSignatureVisualStyle(highlightedFace.signature.id)}
+              >
+                <SignatureIcon signatureId={highlightedFace.signature.id} size={30} />
+                <div>
+                  <span>Signature Face · Current {highlightedFace.value} {FACE_META[highlightedFace.type].label}</span>
+                  <strong>{highlightedFace.signature.name}</strong>
+                  <small>{SIGNATURE_DEFINITIONS[highlightedFace.signature.id].description} Workshop permanently upgrades this face's base value.</small>
                 </div>
               </div>
             ) : null}

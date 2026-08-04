@@ -55,6 +55,7 @@
 }
 
 .workshop-ritual__tab {
+  position: relative;
   border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);
   box-shadow: none;
@@ -73,8 +74,14 @@
 }
 
 .workshop-ritual__tab .die-loadout-status {
-  margin-top: 2px;
-  font-size: 8px;
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  font-size: 7px;
+}
+
+.workshop-ritual__tab > span {
+  padding-top: 9px;
 }
 
 .workshop-ritual__die-heading {
@@ -150,6 +157,22 @@
   color: var(--imprint-workshop-color);
 }
 
+.workshop-target__face--signature {
+  border-color: var(--signature-accent);
+  background: color-mix(in srgb, var(--signature-surface) 72%, var(--arcade-black));
+  color: var(--signature-highlight);
+  box-shadow: inset 0 0 0 2px var(--signature-shadow);
+}
+
+.workshop-target__face--signature.workshop-target__face--highlighted {
+  border-color: var(--arcade-white);
+  background: var(--signature-surface);
+  box-shadow:
+    inset 0 0 0 2px var(--signature-shadow),
+    0 0 0 2px var(--signature-accent),
+    0 0 14px color-mix(in srgb, var(--signature-accent) 58%, transparent);
+}
+
 .workshop-target__imprint-badge {
   position: absolute;
   right: 2px;
@@ -158,6 +181,19 @@
   overflow: hidden;
   color: var(--imprint-workshop-color);
   font: 800 0.34rem/1 var(--arcade-font-ui);
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.workshop-target__signature-badge {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  color: var(--signature-highlight);
+  font: 900 0.34rem/1 var(--arcade-font-ui);
   letter-spacing: 0.02em;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -182,6 +218,24 @@
 .workshop-target__imprint-detail span { color: var(--imprint-workshop-color); font: 800 0.48rem/1.2 var(--arcade-font-ui); text-transform: uppercase; }
 .workshop-target__imprint-detail strong { color: #fff; font: 800 0.68rem/1.2 var(--arcade-font-display); }
 .workshop-target__imprint-detail small { color: var(--arcade-muted); font-size: 0.58rem; line-height: 1.35; }
+
+.workshop-target__signature-detail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  margin: 12px 8px 4px;
+  border: 2px solid var(--signature-accent);
+  border-left-width: 5px;
+  padding: 9px;
+  background: color-mix(in srgb, var(--signature-surface) 54%, #000);
+  color: var(--signature-highlight);
+}
+
+.workshop-target__signature-detail > div { display: grid; gap: 3px; min-width: 0; }
+.workshop-target__signature-detail span { color: var(--signature-accent); font: 800 0.48rem/1.2 var(--arcade-font-ui); text-transform: uppercase; }
+.workshop-target__signature-detail strong { color: #fff; font: 800 0.68rem/1.2 var(--arcade-font-display); }
+.workshop-target__signature-detail small { color: #d7d3df; font-size: 0.58rem; line-height: 1.35; }
 
 .workshop-ritual__conduit {
   color: var(--arcade-yellow);

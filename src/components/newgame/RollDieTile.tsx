@@ -4,8 +4,6 @@ import { motion } from 'framer-motion'
 import type { DieInstance, RollResult } from '../../game/types/dice'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
-import { EvolutionIcon } from './EvolutionIcon'
-import { getEvolutionVisualStyle } from './evolutionVisuals'
 import { SignatureIcon } from './SignatureIcon'
 import { getSignatureVisualStyle } from './signatureVisuals'
 import { PhysicalDieCube } from './PhysicalDieCube'
@@ -31,12 +29,8 @@ export const RollDieTile = memo(function RollDieTile({
   const meta = FACE_META[result.type]
   const isRolling = stage === 'rolling'
   const isActive = stage !== 'settled'
-  const landedEvolution = !isRolling ? result.evolution : undefined
   const landedSignature = !isRolling ? result.signature : undefined
   const echoTrigger = result.charmTriggers?.find((trigger) => trigger.kind === 'echo')
-  const evolutionClassName = landedEvolution
-    ? ` roll-die--evolution roll-die--evolution-${landedEvolution.id}`
-    : ''
   const signatureClassName = landedSignature
     ? ` roll-die--signature roll-die--signature-${landedSignature.id}`
     : ''
@@ -46,7 +40,7 @@ export const RollDieTile = memo(function RollDieTile({
 
   return (
     <article
-      className={`roll-die roll-die--${result.type} roll-die--${stage}${evolutionClassName}${signatureClassName}${imprintClassName}${echoTrigger ? ' roll-die--echo' : ''}${onInspectImprint ? ' roll-die--inspectable' : ''}`}
+      className={`roll-die roll-die--${result.type} roll-die--${stage}${signatureClassName}${imprintClassName}${echoTrigger ? ' roll-die--echo' : ''}${onInspectImprint ? ' roll-die--inspectable' : ''}`}
       data-stage={stage}
       onClick={onInspectImprint}
       onKeyDown={onInspectImprint ? (event) => {
@@ -57,16 +51,10 @@ export const RollDieTile = memo(function RollDieTile({
       } : undefined}
       role={onInspectImprint ? 'button' : undefined}
       tabIndex={onInspectImprint ? 0 : undefined}
-      style={
-        landedEvolution
-          ? getEvolutionVisualStyle(landedEvolution.id)
-          : landedSignature
-            ? getSignatureVisualStyle(landedSignature.id)
-            : undefined
-      }
+      style={landedSignature ? getSignatureVisualStyle(landedSignature.id) : undefined}
       aria-label={isRolling
         ? `${die.name} rolling`
-        : `${die.name} rolled ${result.value} ${meta.label}${result.evolution ? `, ${result.evolution.name} evolution` : ''}${result.signature ? `, ${result.signature.name} signature` : ''}${result.imprint ? `, ${result.imprint.name} Imprint. Open details` : ''}`}
+        : `${die.name} rolled ${result.value} ${meta.label}${result.signature ? `, ${result.signature.name} signature` : ''}${result.imprint ? `, ${result.imprint.name} Imprint. Open details` : ''}`}
     >
       {isActive ? (
         <PhysicalDieCube
@@ -74,26 +62,18 @@ export const RollDieTile = memo(function RollDieTile({
           faceIndex={result.faceIndex}
           faces={die.faces.map((face) => {
             const faceMeta = FACE_META[face.type]
-            const evolutionStyle = face.evolution ? getEvolutionVisualStyle(face.evolution.id) : {}
             const signatureStyle = face.signature ? getSignatureVisualStyle(face.signature.id) : {}
             const imprintStyle = face.imprint ? {
               '--side-color': face.imprint.rarity === 'legendary' ? '#f97316' : face.imprint.rarity === 'epic' ? '#c026d3' : '#22d3ee',
               '--side-surface': face.imprint.rarity === 'legendary' ? '#7c2d12' : face.imprint.rarity === 'epic' ? '#581c87' : '#164e63',
             } : {}
             return {
-              className: `${face.evolution ? `evolution-face-surface evolution-face-surface--${face.evolution.id}` : ''}${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}${face.imprint ? ` imprint-face-surface imprint-face-surface--${face.imprint.rarity}` : ''}`,
+              className: `${face.signature ? ` signature-face-surface signature-face-surface--${face.signature.id}` : ''}${face.imprint ? ` imprint-face-surface imprint-face-surface--${face.imprint.rarity}` : ''}`,
               content: (
                 <>
                   <strong>{face.value}</strong>
                   {face.imprint
                     ? <ImprintIcon id={face.imprint.definitionId} rarity={face.imprint.rarity} size={24} />
-                    : face.evolution
-                    ? (
-                      <>
-                        <EvolutionIcon evolutionId={face.evolution.id} size={24} />
-                        <span className="evolution-face__attack-mark"><FaceIcon type="attack" size={10} /></span>
-                      </>
-                    )
                     : face.signature
                       ? <SignatureIcon signatureId={face.signature.id} size={24} />
                     : <FaceIcon type={face.type} size={20} />}
@@ -103,7 +83,6 @@ export const RollDieTile = memo(function RollDieTile({
               style: {
                   '--side-color': faceMeta.color,
                   '--side-surface': faceMeta.shadow,
-                  ...evolutionStyle,
                   ...signatureStyle,
                   ...imprintStyle,
                 } as CSSProperties,
@@ -113,46 +92,26 @@ export const RollDieTile = memo(function RollDieTile({
           stage={isRolling ? 'rolling' : 'landed'}
         />
       ) : (
-        <div className={`roll-die__body${result.evolution ? ` evolution-face-surface evolution-face-surface--${result.evolution.id}` : ''}${result.signature ? ` signature-face-surface signature-face-surface--${result.signature.id}` : ''}${result.imprint ? ` imprint-face-surface imprint-face-surface--${result.imprint.rarity}` : ''}`}>
+        <div className={`roll-die__body${result.signature ? ` signature-face-surface signature-face-surface--${result.signature.id}` : ''}${result.imprint ? ` imprint-face-surface imprint-face-surface--${result.imprint.rarity}` : ''}`}>
           <span className="roll-die__result">
             {result.value}
             {result.imprint
               ? <ImprintIcon id={result.imprint.definitionId} rarity={result.imprint.rarity} size={22} />
-              : result.evolution
-              ? <EvolutionIcon evolutionId={result.evolution.id} size={22} />
               : result.signature
                 ? <SignatureIcon signatureId={result.signature.id} size={22} />
               : <FaceIcon type={result.type} size={22} />}
           </span>
-          {result.evolution ? (
-            <>
-              <span className="evolution-face__attack-mark"><FaceIcon type="attack" size={9} /></span>
-              <small className="roll-die__evolution">{result.evolution.name}</small>
-            </>
-          ) : null}
           {result.signature ? (
-            <small className="roll-die__evolution">{result.signature.name}</small>
+            <small className="roll-die__special-name">{result.signature.name}</small>
           ) : null}
-          {result.imprint ? <small className="roll-die__evolution">{result.imprint.name}</small> : null}
+          {result.imprint ? <small className="roll-die__special-name">{result.imprint.name}</small> : null}
         </div>
       )}
       {stage === 'landed' ? (
         <span
           aria-hidden="true"
-          className={`roll-die__landing-ring${result.evolution ? ' roll-die__landing-ring--evolution' : ''}${result.signature ? ' roll-die__landing-ring--signature' : ''}`}
+          className={`roll-die__landing-ring${result.signature ? ' roll-die__landing-ring--signature' : ''}`}
         />
-      ) : null}
-      {stage === 'landed' && result.evolution ? (
-        <motion.div
-          animate={{ opacity: [0, 1, 1, 0], scale: [0.72, 1.08, 1, 1.12], y: [8, -6, -7, -10] }}
-          aria-hidden="true"
-          className={`evolution-impact evolution-impact--${result.evolution.id}`}
-          initial={{ opacity: 0 }}
-          transition={{ duration: 0.34, ease: 'easeOut', times: [0, 0.18, 0.76, 1] }}
-        >
-          <EvolutionIcon evolutionId={result.evolution.id} size={17} />
-          <strong>{result.evolution.name}</strong>
-        </motion.div>
       ) : null}
       {stage === 'landed' && result.signature ? (
         <motion.div

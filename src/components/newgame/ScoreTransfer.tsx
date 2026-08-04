@@ -1,35 +1,25 @@
 import { memo } from 'react'
 import type { CSSProperties } from 'react'
 import { motion } from 'framer-motion'
-import type { FaceEvolution, FaceSignature, FaceType } from '../../game/types/dice'
+import type { FaceSignature, FaceType } from '../../game/types/dice'
 import type { ImprintSnapshot } from '../../game/types/imprints'
-import { EvolutionIcon } from './EvolutionIcon'
 import { FaceIcon } from './FaceIcon'
 import { FACE_META } from './faceVisuals'
 import { ImprintIcon } from './ImprintIcon'
-import { EVOLUTION_VISUALS } from './evolutionVisuals'
 import { SignatureIcon } from './SignatureIcon'
 import { SIGNATURE_VISUALS } from './signatureVisuals'
 
 export interface ScoreTransferPath {
-  bleedValue?: number
   drainAttackValue?: number
   executeBonus?: number
   faceId: string
   fortifyArmed?: number
   fortifyBonus?: number
-  momentumArmed?: number
-  momentumBonus?: number
-  overflowValue?: number
-  regrowthValue?: number
-  secondaryAttackValue?: number
   type: FaceType
   value: number
-  evolution?: FaceEvolution
   signature?: FaceSignature
   imprint?: ImprintSnapshot
   imprintBonus?: number
-  wardValue?: number
   fromX: number
   fromY: number
   toX: number
@@ -43,30 +33,22 @@ interface ScoreTransferProps {
 }
 
 export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: ScoreTransferProps) {
-  const evolutionVisual = path.evolution ? EVOLUTION_VISUALS[path.evolution.id] : null
   const signatureVisual = path.signature ? SIGNATURE_VISUALS[path.signature.id] : null
   const effectLabels = [
-    path.momentumBonus ? `Momentum +${path.momentumBonus}` : null,
-    path.bleedValue ? `+${path.bleedValue} Bleed` : null,
-    path.momentumArmed ? `Next +${path.momentumArmed}` : null,
     path.executeBonus ? `Execute +${path.executeBonus}` : null,
     path.fortifyBonus ? `Fortify +${path.fortifyBonus}` : null,
     path.fortifyArmed ? `Next Shield +${path.fortifyArmed}` : null,
-    path.wardValue ? `+${path.wardValue} Ward` : null,
-    path.regrowthValue ? `+${path.regrowthValue} Regrowth` : null,
-    path.overflowValue ? `Up to ${path.overflowValue} Overflow` : null,
-    path.secondaryAttackValue ? `+${path.secondaryAttackValue} Attack` : null,
     path.drainAttackValue ? `Drain +${path.drainAttackValue} Attack` : null,
     path.imprintBonus ? `${path.imprint?.name ?? 'Imprint'} +${path.imprintBonus}` : null,
   ].filter((label): label is string => label !== null)
   const scoreStyle = {
     '--score-color': path.imprint
       ? path.imprint.rarity === 'legendary' ? '#f97316' : path.imprint.rarity === 'epic' ? '#e879f9' : '#22d3ee'
-      : evolutionVisual?.accent ?? signatureVisual?.accent ?? FACE_META[path.type].color,
+      : signatureVisual?.accent ?? FACE_META[path.type].color,
     '--score-dark': path.imprint
       ? path.imprint.rarity === 'legendary' ? '#431407' : path.imprint.rarity === 'epic' ? '#3b0764' : '#083344'
-      : evolutionVisual?.surface ?? signatureVisual?.surface ?? FACE_META[path.type].shadow,
-    '--score-highlight': evolutionVisual?.highlight ?? signatureVisual?.highlight ?? '#ffffff',
+      : signatureVisual?.surface ?? FACE_META[path.type].shadow,
+    '--score-highlight': signatureVisual?.highlight ?? '#ffffff',
     left: path.fromX,
     top: path.fromY,
   } as CSSProperties
@@ -74,7 +56,7 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
   return (
     <div
       aria-hidden="true"
-      className={`score-transfer-origin score-transfer-origin--${path.type}${path.evolution ? ` score-transfer-origin--evolution score-transfer-origin--${path.evolution.id}` : ''}${path.signature ? ` score-transfer-origin--signature score-transfer-origin--${path.signature.id}` : ''}${path.imprint ? ` score-transfer-origin--imprint score-transfer-origin--${path.imprint.definitionId}` : ''}`}
+      className={`score-transfer-origin score-transfer-origin--${path.type}${path.signature ? ` score-transfer-origin--signature score-transfer-origin--${path.signature.id}` : ''}${path.imprint ? ` score-transfer-origin--imprint score-transfer-origin--${path.imprint.definitionId}` : ''}`}
       style={scoreStyle}
     >
       <motion.span
@@ -111,14 +93,12 @@ export const ScoreTransfer = memo(function ScoreTransfer({ path, onComplete }: S
       >
         {path.imprint
           ? <ImprintIcon id={path.imprint.definitionId} rarity={path.imprint.rarity} size={21} />
-          : path.evolution
-          ? <EvolutionIcon evolutionId={path.evolution.id} size={21} />
           : path.signature
             ? <SignatureIcon signatureId={path.signature.id} size={21} />
           : <FaceIcon type={path.type} size={20} />}
         <strong>+{path.value}</strong>
-        {path.imprint || path.evolution || path.signature
-          ? <small>{path.imprint?.name ?? path.evolution?.name ?? path.signature?.name}</small>
+        {path.imprint || path.signature
+          ? <small>{path.imprint?.name ?? path.signature?.name}</small>
           : null}
         {effectLabels.length > 0 ? (
           <span className="score-transfer__effects">

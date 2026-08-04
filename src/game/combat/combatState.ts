@@ -18,7 +18,6 @@ export function createCombatState(
     ),
     results: [],
     totals: { ...EMPTY_TOTALS },
-    pendingMomentum: 0,
     pendingFortify: 0,
     pendingImprintRelay: 0,
     lastCharmTriggers: [],
