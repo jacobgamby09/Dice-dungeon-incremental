@@ -41,6 +41,9 @@ export const TALENT_ICON_KEYS = [
   'resonant-etching',
   'deep-delver',
   'forge-overcharge',
+  'reforging',
+  'careful-salvage',
+  'auto-forge',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -63,6 +66,15 @@ export type TalentEffect =
   | { type: 'imprint_forge_bonus_chance'; chance: number }
   | { type: 'workshop_forge_bonus_chance'; chance: number }
   | { type: 'dungeon_loot_multiplier'; multiplier: number }
+  | { type: 'unlock_reforge' }
+  | { type: 'reforge_refund_rate'; amount: number }
+  | { type: 'unlock_auto_forge' }
+
+export interface DieForgeRecord {
+  dieId: string
+  soulsSpent: number
+  forgePowerAdded: number
+}
 
 export type TalentRequirement = {
   type: 'dungeon_clear'
@@ -109,6 +121,8 @@ export interface PlayerProfile {
   diceCollection: DieInstance[]
   equippedDieIds: string[]
   recentForgeOperationIds: string[]
+  recentReforgeOperationIds: string[]
+  dieForgeRecords: Record<string, DieForgeRecord>
   charmRanks: CharmRanks
   equippedCharmIds: CharmId[]
   pendingFateDraw: PendingFateDraw | null

@@ -123,6 +123,9 @@ export function getDefaultEffect(type: TalentEffect['type']): TalentEffect {
     case 'imprint_forge_bonus_chance': return { type, chance: 0.12 }
     case 'workshop_forge_bonus_chance': return { type, chance: 0.08 }
     case 'dungeon_loot_multiplier': return { type, multiplier: 1.15 }
+    case 'unlock_reforge': return { type }
+    case 'reforge_refund_rate': return { type, amount: 0.1 }
+    case 'unlock_auto_forge': return { type }
   }
 }
 

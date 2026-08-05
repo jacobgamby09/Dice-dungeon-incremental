@@ -16,6 +16,9 @@ import {
   getWorkshopForgeBonusChance,
   hasAutoCombatUnlocked,
   hasCharmsUnlocked,
+  hasAutoForgeUnlocked,
+  hasReforgeUnlocked,
+  getReforgeRefundRate,
   normalizeTalentRanks,
 } from './talents'
 import { createSoulDieState } from './soulDie'
@@ -38,6 +41,8 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     diceCollection: [],
     equippedDieIds: [],
     recentForgeOperationIds: [],
+    recentReforgeOperationIds: [],
+    dieForgeRecords: {},
     charmRanks: {},
     equippedCharmIds: [],
     pendingFateDraw: null,
@@ -49,6 +54,21 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
 }
 
 describe('Classic V2 connected talent progression', () => {
+  it('unlocks Reforge at 60%, caps salvage at 90%, and gates Auto Forge separately', () => {
+    expect(hasReforgeUnlocked({})).toBe(false)
+    expect(hasAutoForgeUnlocked({})).toBe(false)
+    expect(getReforgeRefundRate({})).toBe(0.6)
+
+    const ranks = {
+      [TALENT_IDS.reforging]: 1,
+      [TALENT_IDS.carefulSalvage]: 3,
+      [TALENT_IDS.autoForge]: 1,
+    }
+    expect(hasReforgeUnlocked(ranks)).toBe(true)
+    expect(hasAutoForgeUnlocked(ranks)).toBe(true)
+    expect(getReforgeRefundRate(ranks)).toBeCloseTo(0.9)
+  })
+
   it('stacks five optional Inner Spark ranks for +5 Max HP', () => {
     expect(getPlayerMaxHp({})).toBe(10)
     expect(getPlayerMaxHp({ [TALENT_IDS.battleHardenedOne]: 1 })).toBe(11)

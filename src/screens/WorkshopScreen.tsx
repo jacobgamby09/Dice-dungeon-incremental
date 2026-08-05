@@ -5,6 +5,7 @@ import {
   Dices,
   Hammer,
   RotateCw,
+  RotateCcw,
   Sparkles,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -31,7 +32,15 @@ import {
 } from '../game/forge/forge'
 import {
   getWorkshopDieFaces,
+  getWorkshopCostMultiplier,
+  getReforgeRefundRate,
+  hasAutoForgeUnlocked,
+  hasReforgeUnlocked,
 } from '../game/progression/talents'
+import {
+  getDieForgeRecord,
+  getReforgeRefund,
+} from '../game/forge/reforge'
 import { SIGNATURE_DEFINITIONS } from '../game/content/faceEffects'
 import type { FaceType } from '../game/types/dice'
 import { applyImprintsToDice } from '../game/progression/imprints'
@@ -84,6 +93,7 @@ export function WorkshopScreen() {
   const talentRanks = useNewGameStore((state) => state.profile.talentRanks)
   const pendingForge = useNewGameStore((state) => state.profile.pendingWorkshopForge)
   const imprints = useNewGameStore((state) => state.profile.imprints)
+  const dieForgeRecords = useNewGameStore((state) => state.profile.dieForgeRecords)
   const goToHub = useNewGameStore((state) => state.goToHub)
   const beginWorkshopForge = useNewGameStore((state) => state.beginWorkshopForge)
   const rerollPendingWorkshopTarget = useNewGameStore(
@@ -92,6 +102,7 @@ export function WorkshopScreen() {
   const completePendingWorkshopForge = useNewGameStore(
     (state) => state.completePendingWorkshopForge,
   )
+  const reforgeDie = useNewGameStore((state) => state.reforgeDie)
   const reduceMotion = useReducedMotion()
   const initialDieId = pendingForge?.dieId ?? diceCollection[0]?.id ?? ''
   const [selectedDieId, setSelectedDieId] = useState(initialDieId)
@@ -102,6 +113,8 @@ export function WorkshopScreen() {
     pendingForge?.targetFaceId ?? null,
   )
   const [forgeImpact, setForgeImpact] = useState<ForgeImpact | null>(null)
+  const [reforgeOpen, setReforgeOpen] = useState(false)
+  const [autoForgeRemaining, setAutoForgeRemaining] = useState(0)
   const forgeLock = useRef(false)
 
   const effectiveDice = useMemo(
@@ -116,7 +129,22 @@ export function WorkshopScreen() {
     () => getWorkshopDieFaces(talentRanks),
     [talentRanks],
   )
-  const forgeCost = selectedDie ? getChaosForgeCost(selectedDie) : null
+  const forgeRecord = selectedDie
+    ? getDieForgeRecord(dieForgeRecords, selectedDie.id)
+    : null
+  const forgeCost = selectedDie
+    ? getChaosForgeCost(
+        selectedDie,
+        getWorkshopCostMultiplier(talentRanks),
+        forgeRecord?.forgePowerAdded ?? 0,
+      )
+    : null
+  const reforgeRefundRate = getReforgeRefundRate(talentRanks)
+  const reforgeRefund = forgeRecord
+    ? getReforgeRefund(forgeRecord, reforgeRefundRate)
+    : 0
+  const reforgeUnlocked = hasReforgeUnlocked(talentRanks)
+  const autoForgeUnlocked = hasAutoForgeUnlocked(talentRanks)
   const eligibleFaces = selectedDie ? getChaosEligibleFaces(selectedDie) : []
   const displayedWorkshopFaces = workshopFaces
   const revealedWorkshopResult = getWorkshopResultPresentation(phase, forgeImpact)
@@ -191,6 +219,7 @@ export function WorkshopScreen() {
       }))
       setHighlightedFaceId(result.faceId)
       setPhase('result')
+      setAutoForgeRemaining((remaining) => Math.max(0, remaining - 1))
     }, reduceMotion ? 20 : POWER_ROLL_DURATION_MS)
 
     return () => window.clearTimeout(timer)
@@ -202,6 +231,32 @@ export function WorkshopScreen() {
     selectedDie,
   ])
 
+  useEffect(() => {
+    if (autoForgeRemaining <= 0 || !autoForgeUnlocked) return
+    if (phase === 'target_locked' && pendingForge) {
+      const timer = window.setTimeout(() => rollWorkshopPower(), reduceMotion ? 20 : 220)
+      return () => window.clearTimeout(timer)
+    }
+    if ((phase === 'idle' || phase === 'result') && !pendingForge) {
+      if (!canBeginForge) {
+        const timer = window.setTimeout(() => setAutoForgeRemaining(0), 0)
+        return () => window.clearTimeout(timer)
+      }
+      const timer = window.setTimeout(() => beginForge(), reduceMotion ? 20 : 320)
+      return () => window.clearTimeout(timer)
+    }
+  // beginForge and rollWorkshopPower are event helpers whose current render state is
+  // intentionally captured by this short-lived orchestration timer.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    autoForgeRemaining,
+    autoForgeUnlocked,
+    canBeginForge,
+    pendingForge,
+    phase,
+    reduceMotion,
+  ])
+
   function chooseDie(dieId: string) {
     if (pendingForge || isAnimating) return
     if (!effectiveDice.some((die) => die.id === dieId)) return
@@ -209,6 +264,7 @@ export function WorkshopScreen() {
     setForgeImpact(null)
     setHighlightedFaceId(null)
     setPhase('idle')
+    setAutoForgeRemaining(0)
   }
 
   function beginForge() {
@@ -248,6 +304,17 @@ export function WorkshopScreen() {
     if (!rerolled) return
     setHighlightedFaceId(null)
     setPhase('selecting_target')
+  }
+
+  function confirmReforge() {
+    if (!selectedDie || !reforgeUnlocked) return
+    const refund = reforgeDie(selectedDie.id, createOperationId())
+    if (refund === null) return
+    setReforgeOpen(false)
+    setAutoForgeRemaining(0)
+    setForgeImpact(null)
+    setHighlightedFaceId(null)
+    setPhase('idle')
   }
 
   const primaryAction = phase === 'target_locked'
@@ -327,13 +394,22 @@ export function WorkshopScreen() {
             <div>
               <small>Forge ranks</small>
               <strong>
-                {selectedDie.faces.reduce(
-                  (total, face) => total + Math.max(0, face.value - 1),
-                  0,
-                )}
+                {forgeRecord?.forgePowerAdded ?? 0}
               </strong>
             </div>
           </header>
+
+          {reforgeUnlocked ? (
+            <button
+              className="workshop-reforge__open"
+              disabled={Boolean(pendingForge) || isAnimating}
+              onClick={() => setReforgeOpen(true)}
+              type="button"
+            >
+              <RotateCcw aria-hidden="true" size={18} />
+              <span><strong>Reforge Die</strong><small>Recover {Math.round(reforgeRefundRate * 100)}% · {reforgeRefund} Souls</small></span>
+            </button>
+          ) : null}
 
           <section className="workshop-target" aria-labelledby="workshop-target-title">
             <header>
@@ -508,11 +584,71 @@ export function WorkshopScreen() {
             {primaryLabel}
           </button>
 
+          {autoForgeUnlocked ? (
+            <section className="workshop-auto" aria-label="Auto Forge queue">
+              <div>
+                <strong>Auto Forge</strong>
+                <small>{autoForgeRemaining > 0 ? `${autoForgeRemaining} forges remaining` : 'Accepts the first rolled target'}</small>
+              </div>
+              <div>
+                {[1, 5, 10].map((count) => (
+                  <button
+                    disabled={isAnimating || Boolean(pendingForge) || !canBeginForge}
+                    key={count}
+                    onClick={() => setAutoForgeRemaining(count)}
+                    type="button"
+                  >
+                    {count}×
+                  </button>
+                ))}
+                {autoForgeRemaining > 0 ? (
+                  <button onClick={() => setAutoForgeRemaining(0)} type="button">Stop</button>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
+
           <small className="workshop-ritual__odds">
             {eligibleFaces.length}/6 target faces · Workshop Die {displayedWorkshopFaces.map((face) => face.value).join('–')}
           </small>
         </section>
       ) : null}
+
+      <AnimatePresence>
+        {reforgeOpen && selectedDie && forgeRecord ? (
+          <motion.div
+            aria-modal="true"
+            className="workshop-reforge"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setReforgeOpen(false)}
+            role="dialog"
+          >
+            <motion.section
+              aria-labelledby="reforge-title"
+              initial={{ scale: 0.9, y: 18 }}
+              animate={{ scale: 1, y: 0 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <RotateCcw aria-hidden="true" size={34} />
+              <span>Permanent reconstruction</span>
+              <h2 id="reforge-title">Reforge {selectedDie.name}?</h2>
+              <p>All Workshop upgrades on this die are removed. Attached Imprints return safely to your collection and keep their Power.</p>
+              <dl>
+                <div><dt>Souls invested</dt><dd>{forgeRecord.soulsSpent}</dd></div>
+                <div><dt>Recovery rate</dt><dd>{Math.round(reforgeRefundRate * 100)}%</dd></div>
+                <div><dt>Souls returned</dt><dd>{reforgeRefund}</dd></div>
+                <div><dt>Souls lost</dt><dd>{forgeRecord.soulsSpent - reforgeRefund}</dd></div>
+              </dl>
+              <div className="workshop-reforge__actions">
+                <button onClick={() => setReforgeOpen(false)} type="button">Cancel</button>
+                <button disabled={forgeRecord.soulsSpent <= 0} onClick={confirmReforge} type="button">Confirm Reforge</button>
+              </div>
+            </motion.section>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </main>
   )
 }

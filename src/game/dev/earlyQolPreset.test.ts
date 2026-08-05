@@ -27,6 +27,8 @@ function createBaseProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    recentReforgeOperationIds: [],
+    dieForgeRecords: {},
     charmRanks: {},
     equippedCharmIds: [],
     pendingFateDraw: null,

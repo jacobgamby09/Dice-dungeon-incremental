@@ -61,7 +61,7 @@ describe('progression cohort simulation', () => {
       strategyId: 'balanced',
     })
 
-    expect(result.milestones.dungeonOneClearRun.medianRun).toBeGreaterThanOrEqual(27)
+    expect(result.milestones.dungeonOneClearRun.medianRun).toBeGreaterThanOrEqual(25)
     expect(result.milestones.dungeonOneClearRun.medianRun).toBeLessThanOrEqual(34)
     expect(result.milestones.fourthSlotRun.medianRun)
       .toBeGreaterThan(result.milestones.dungeonTwoFirstRun.medianRun ?? 0)

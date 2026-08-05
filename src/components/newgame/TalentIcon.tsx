@@ -24,6 +24,8 @@ import {
   Search,
   Badge,
   Pickaxe,
+  RotateCcw,
+  Recycle,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -55,6 +57,9 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   'resonant-etching': Badge,
   'deep-delver': Pickaxe,
   'forge-overcharge': Zap,
+  reforging: RotateCcw,
+  'careful-salvage': Recycle,
+  'auto-forge': Bot,
 }
 
 interface TalentIconProps {

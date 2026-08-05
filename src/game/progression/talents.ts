@@ -10,6 +10,10 @@ import type {
 import type { SoulDieValues } from '../types/dice'
 import type { WorkshopDieFace, WorkshopDieValues } from '../types/workshop'
 import type { CharmRarityProtection } from './fate'
+import {
+  BASE_REFORGE_REFUND_RATE,
+  MAX_REFORGE_REFUND_RATE,
+} from '../forge/reforge'
 
 export const BASE_PLAYER_HP = 10
 export const BASE_DICE_SLOTS = 1
@@ -77,6 +81,24 @@ export function getRollSpeed(
 
 export function hasAutoCombatUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
   return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_combat')
+}
+
+export function hasReforgeUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
+  return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_reforge')
+}
+
+export function hasAutoForgeUnlocked(talentRanks: Readonly<TalentRanks>): boolean {
+  return getPurchasedEffects(talentRanks).some((effect) => effect.type === 'unlock_auto_forge')
+}
+
+export function getReforgeRefundRate(talentRanks: Readonly<TalentRanks>): number {
+  return Math.min(
+    MAX_REFORGE_REFUND_RATE,
+    getPurchasedEffects(talentRanks).reduce(
+      (rate, effect) => rate + (effect.type === 'reforge_refund_rate' ? effect.amount : 0),
+      BASE_REFORGE_REFUND_RATE,
+    ),
+  )
 }
 
 export function getCharmCapacity(talentRanks: Readonly<TalentRanks>): number {

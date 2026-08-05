@@ -436,6 +436,20 @@ hurtigere.
 
 ### 8.6 Atomisk persistence
 
+> **Aktuel Forge-ledger:** Workshop-prisen følger nu kun den Forge Power, spilleren
+> faktisk har tilføjet til den konkrete die. Medfødte startværdier tæller ikke, så
+> nye stærkere dice begynder på samme billige Workshop-kurve som Worn Blade Die.
+
+> **Reforge:** Talentet `Reforging` nulstiller en permanent die til dens canonical
+> seks faces og returnerer 60% af faktisk registrerede Souls brugt på base-die
+> upgrades. Tre `Careful Salvage`-ranks hæver dette til 70/80/90%, aldrig 100%.
+> Monterede Imprints afmonteres sikkert, beholder deres Power og refunderes ikke.
+
+> **Auto Forge:** Et separat efterfølgende talent åbner køer på 1, 5 eller 10
+> komplette Forge-ritualer. Automation accepterer første target, bruger ingen
+> Face Mastery-rerolls, stopper ved manglende Souls eller navigation og kører ikke
+> offline.
+
 Ved første Forge-handling fastlåses og gemmes:
 
 - operation-ID;

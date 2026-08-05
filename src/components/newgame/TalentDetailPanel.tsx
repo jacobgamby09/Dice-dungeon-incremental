@@ -15,6 +15,8 @@ import {
   Search,
   Badge,
   Pickaxe,
+  RotateCcw,
+  Recycle,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
@@ -66,6 +68,9 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   imprint_forge_bonus_chance: Badge,
   workshop_forge_bonus_chance: Zap,
   dungeon_loot_multiplier: Pickaxe,
+  unlock_reforge: RotateCcw,
+  reforge_refund_rate: Recycle,
+  unlock_auto_forge: Bot,
 }
 
 function getEffectLabel(effect: TalentEffect): string {
@@ -108,6 +113,12 @@ function getEffectLabel(effect: TalentEffect): string {
       return `${Math.round(effect.chance * 100)}% chance for +1 extra Forge Power`
     case 'dungeon_loot_multiplier':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Deep Dungeon Loot`
+    case 'unlock_reforge':
+      return 'Unlock Die Reforge · 60% Soul Recovery'
+    case 'reforge_refund_rate':
+      return `+${Math.round(effect.amount * 100)}% Reforge Recovery`
+    case 'unlock_auto_forge':
+      return 'Unlock Auto Forge Queue'
   }
 }
 

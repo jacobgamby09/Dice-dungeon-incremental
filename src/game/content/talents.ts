@@ -27,6 +27,9 @@ export const TALENT_IDS = {
   resonantEtching: 'resonant-etching',
   deepDelver: 'deep-delver',
   forgeOvercharge: 'forge-overcharge',
+  reforging: 'reforging',
+  carefulSalvage: 'careful-salvage',
+  autoForge: 'auto-forge',
 } as const
 
 export const TALENTS: TalentDefinition[] = [
@@ -200,6 +203,37 @@ export const TALENTS: TalentDefinition[] = [
       { cost: 42, effects: [{ type: 'workshop_forge_bonus_chance', chance: 0.08 }] },
       { cost: 78, effects: [{ type: 'workshop_forge_bonus_chance', chance: 0.09 }] },
     ],
+    track: 'workshop',
+  },
+  {
+    id: TALENT_IDS.reforging,
+    name: 'Reforging',
+    description: 'Reset a permanent die to its original faces and recover 60% of the Souls invested in it.',
+    iconKey: 'reforging',
+    prerequisiteIds: [TALENT_IDS.faceMastery],
+    ranks: [{ cost: 35, effects: [{ type: 'unlock_reforge' }] }],
+    track: 'workshop',
+  },
+  {
+    id: TALENT_IDS.carefulSalvage,
+    name: 'Careful Salvage',
+    description: 'Recover 10% more invested Souls when Reforging per rank, up to 90%.',
+    iconKey: 'careful-salvage',
+    prerequisiteIds: [TALENT_IDS.reforging],
+    ranks: [
+      { cost: 55, effects: [{ type: 'reforge_refund_rate', amount: 0.1 }] },
+      { cost: 95, effects: [{ type: 'reforge_refund_rate', amount: 0.1 }] },
+      { cost: 150, effects: [{ type: 'reforge_refund_rate', amount: 0.1 }] },
+    ],
+    track: 'workshop',
+  },
+  {
+    id: TALENT_IDS.autoForge,
+    name: 'Auto Forge',
+    description: 'Queue automatic Workshop forges while the Workshop remains open.',
+    iconKey: 'auto-forge',
+    prerequisiteIds: [TALENT_IDS.reforging],
+    ranks: [{ cost: 50, effects: [{ type: 'unlock_auto_forge' }] }],
     track: 'workshop',
   },
   {

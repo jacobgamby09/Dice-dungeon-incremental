@@ -24,6 +24,8 @@ function createBaseProfile(): PlayerProfile {
     diceCollection: createStartingDice(),
     equippedDieIds: ['attack-die-1'],
     recentForgeOperationIds: [],
+    recentReforgeOperationIds: [],
+    dieForgeRecords: {},
     charmRanks: {},
     equippedCharmIds: [],
     pendingFateDraw: null,

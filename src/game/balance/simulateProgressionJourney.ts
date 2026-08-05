@@ -35,6 +35,11 @@ import { CHARM_IDS } from '../types/charms'
 import type { CharmId, CharmSnapshot } from '../types/charms'
 import { createSeededRandom, simulateDungeonRun } from './simulateDungeon'
 import { createSoulDieState } from '../progression/soulDie'
+import {
+  createEmptyDieForgeRecord,
+  getDieForgeRecord,
+  recordCompletedForge,
+} from '../forge/reforge'
 
 export interface JourneyTalentStep {
   id: string
@@ -129,7 +134,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 23,
+    saveVersion: 24,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
@@ -145,6 +150,10 @@ function createJourneyProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    recentReforgeOperationIds: [],
+    dieForgeRecords: Object.fromEntries(
+      diceCollection.map((die) => [die.id, createEmptyDieForgeRecord(die.id)]),
+    ),
     charmRanks: {},
     equippedCharmIds: [],
     pendingFateDraw: null,
@@ -184,6 +193,12 @@ function purchaseTalent(profile: PlayerProfile, talentId: string): PlayerProfile
       [talentId]: currentRank + 1,
     },
     diceCollection,
+    dieForgeRecords: Object.fromEntries(
+      diceCollection.map((die) => [
+        die.id,
+        getDieForgeRecord(profile.dieForgeRecords, die.id),
+      ]),
+    ),
   }
 }
 
@@ -277,7 +292,12 @@ function spendSouls(
         effectiveDie: applyImprintsToDice([baseDie], nextProfile.imprints)[0],
       }))
       .find(({ effectiveDie }) => {
-        const cost = getChaosForgeCost(effectiveDie, costMultiplier)
+        const record = getDieForgeRecord(nextProfile.dieForgeRecords, effectiveDie.id)
+        const cost = getChaosForgeCost(
+          effectiveDie,
+          costMultiplier,
+          record.forgePowerAdded,
+        )
         return cost !== null && cost <= nextProfile.bankedSouls
       })
     if (!target) break
@@ -290,6 +310,10 @@ function spendSouls(
       {
         costMultiplier,
         targetRerolls: getWorkshopTargetRerolls(nextProfile.talentRanks),
+        forgePowerAdded: getDieForgeRecord(
+          nextProfile.dieForgeRecords,
+          target.effectiveDie.id,
+        ).forgePowerAdded,
       },
     )
     if (!prepared) break
@@ -327,6 +351,16 @@ function spendSouls(
               : imprint
           ))
         : nextProfile.imprints,
+      dieForgeRecords: targetImprint
+        ? nextProfile.dieForgeRecords
+        : {
+            ...nextProfile.dieForgeRecords,
+            [target.baseDie.id]: recordCompletedForge(
+              getDieForgeRecord(nextProfile.dieForgeRecords, target.baseDie.id),
+              forged.result.cost,
+              forged.result.amount,
+            ),
+          },
     }
     upgrades += 1
     jackpots += forged.result.isJackpot ? 1 : 0

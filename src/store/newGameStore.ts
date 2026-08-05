@@ -27,6 +27,13 @@ import {
   rerollWorkshopTarget,
   type ForgeResult,
 } from '../game/forge/forge'
+import {
+  createEmptyDieForgeRecord,
+  getDieForgeRecord,
+  getReforgeRefund,
+  recordCompletedForge,
+  resetDieToCanonical,
+} from '../game/forge/reforge'
 import { createPostDungeonOneDevProfile } from '../game/dev/postDungeonOnePreset'
 import { createEarlyQolTestProfile } from '../game/dev/earlyQolPreset'
 import { createFatecraftStartProfile } from '../game/dev/fatecraftStartPreset'
@@ -49,6 +56,8 @@ import {
   getImprintForgeBonusChance,
   getWorkshopForgeBonusChance,
   hasAutoCombatUnlocked,
+  getReforgeRefundRate,
+  hasReforgeUnlocked,
   hasCharmsUnlocked,
   normalizeTalentRanks,
 } from '../game/progression/talents'
@@ -141,6 +150,7 @@ export interface NewGameState {
     random?: () => number,
   ) => PendingWorkshopForge | null
   completePendingWorkshopForge: (operationId: string) => ForgeResult | null
+  reforgeDie: (dieId: string, operationId: string) => number | null
   precisionForgeFace: (dieId: string, faceId: string, operationId: string) => ForgeResult | null
   beginFateDraw: (operationId: string, random?: () => number) => PendingFateDraw | null
   claimFateCharm: () => boolean
@@ -154,7 +164,7 @@ export interface NewGameState {
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 23
+const SAVE_VERSION = 24
 const LEGACY_FATECRAFT_REFUND = 75
 const LEGACY_SECOND_DESCENT_ID = 'second-descent'
 const LEGACY_SECOND_DESCENT_REFUND = 75
@@ -181,6 +191,10 @@ function createInitialProfile(): PlayerProfile {
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
     recentForgeOperationIds: [],
+    recentReforgeOperationIds: [],
+    dieForgeRecords: Object.fromEntries(
+      diceCollection.map((die) => [die.id, createEmptyDieForgeRecord(die.id)]),
+    ),
     charmRanks: {},
     equippedCharmIds: [],
     pendingFateDraw: null,
@@ -426,6 +440,16 @@ function migratePendingFateDraw(
 
 function migrateNewGameState(persistedState: unknown, version: number): NewGameState {
   if (version >= SAVE_VERSION) return persistedState as NewGameState
+  const resetHistoricalSave = version < SAVE_VERSION
+  if (resetHistoricalSave) {
+    return {
+      screen: 'hub',
+      profile: createInitialProfile(),
+      run: createInactiveRun(),
+      combat: createCombatState([], 1),
+      runMenuOpen: false,
+    } as NewGameState
+  }
   if (version === 22) {
     const persisted = persistedState as NewGameState
     return {
@@ -1466,6 +1490,10 @@ export const useNewGameStore = create<NewGameState>()(
           [talent.id]: currentRank + 1,
         }
         const equippedDieIds = [...state.profile.equippedDieIds]
+        const dieForgeRecords = { ...state.profile.dieForgeRecords }
+        for (const die of diceCollection) {
+          dieForgeRecords[die.id] ??= createEmptyDieForgeRecord(die.id)
+        }
         const gainedDiceSlot = nextRank.effects.some((effect) => effect.type === 'dice_slots')
         if (gainedDiceSlot) {
           const capacity = getDiceCapacity(talentRanks)
@@ -1482,6 +1510,7 @@ export const useNewGameStore = create<NewGameState>()(
             talentRanks,
             diceCollection,
             equippedDieIds,
+            dieForgeRecords,
           },
         })
         return true
@@ -1566,6 +1595,7 @@ export const useNewGameStore = create<NewGameState>()(
         const baseDie = state.profile.diceCollection.find((candidate) => candidate.id === dieId)
         if (!baseDie) return null
         const die = applyImprintsToDice([baseDie], state.profile.imprints)[0]
+        const forgeRecord = getDieForgeRecord(state.profile.dieForgeRecords, dieId)
         const pendingForge = prepareWorkshopForge(
           die,
           operationId,
@@ -1574,6 +1604,7 @@ export const useNewGameStore = create<NewGameState>()(
           {
             costMultiplier: getWorkshopCostMultiplier(state.profile.talentRanks),
             targetRerolls: getWorkshopTargetRerolls(state.profile.talentRanks),
+            forgePowerAdded: forgeRecord.forgePowerAdded,
           },
         )
         if (!pendingForge || state.profile.bankedSouls < pendingForge.cost) return null
@@ -1657,6 +1688,16 @@ export const useNewGameStore = create<NewGameState>()(
         const targetImprint = die.faces.find(
           (face) => face.id === pendingForge.targetFaceId,
         )?.imprint
+        const nextForgeRecords = targetImprint
+          ? state.profile.dieForgeRecords
+          : {
+              ...state.profile.dieForgeRecords,
+              [die.id]: recordCompletedForge(
+                getDieForgeRecord(state.profile.dieForgeRecords, die.id),
+                pendingForge.cost,
+                forged.result.amount,
+              ),
+            }
         set({
           profile: {
             ...state.profile,
@@ -1674,6 +1715,7 @@ export const useNewGameStore = create<NewGameState>()(
                     : imprint
                 ))
               : state.profile.imprints,
+            dieForgeRecords: nextForgeRecords,
             pendingWorkshopForge: null,
             recentForgeOperationIds: [
               ...state.profile.recentForgeOperationIds,
@@ -1682,6 +1724,46 @@ export const useNewGameStore = create<NewGameState>()(
           },
         })
         return forged.result
+      },
+
+      reforgeDie: (dieId, operationId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return null
+        if (!hasReforgeUnlocked(state.profile.talentRanks)) return null
+        if (state.profile.pendingWorkshopForge) return null
+        if (!operationId || state.profile.recentReforgeOperationIds.includes(operationId)) return null
+        const currentDie = state.profile.diceCollection.find((die) => die.id === dieId)
+        if (!currentDie) return null
+        const canonicalDie = resetDieToCanonical(currentDie)
+        if (!canonicalDie) return null
+        const record = getDieForgeRecord(state.profile.dieForgeRecords, dieId)
+        const refund = getReforgeRefund(
+          record,
+          getReforgeRefundRate(state.profile.talentRanks),
+        )
+        set({
+          profile: {
+            ...state.profile,
+            bankedSouls: state.profile.bankedSouls + refund,
+            diceCollection: state.profile.diceCollection.map((die) => (
+              die.id === dieId ? canonicalDie : die
+            )),
+            imprints: state.profile.imprints.map((imprint) => (
+              imprint.attachment?.dieId === dieId
+                ? { ...imprint, attachment: undefined }
+                : imprint
+            )),
+            dieForgeRecords: {
+              ...state.profile.dieForgeRecords,
+              [dieId]: createEmptyDieForgeRecord(dieId),
+            },
+            recentReforgeOperationIds: [
+              ...state.profile.recentReforgeOperationIds,
+              operationId,
+            ].slice(-20),
+          },
+        })
+        return refund
       },
 
       precisionForgeFace: (dieId, faceId, operationId) => {
@@ -1699,6 +1781,16 @@ export const useNewGameStore = create<NewGameState>()(
         )
         if (!forged || state.profile.bankedSouls < forged.result.cost) return null
         const targetImprint = die.faces.find((face) => face.id === faceId)?.imprint
+        const nextForgeRecords = targetImprint
+          ? state.profile.dieForgeRecords
+          : {
+              ...state.profile.dieForgeRecords,
+              [dieId]: recordCompletedForge(
+                getDieForgeRecord(state.profile.dieForgeRecords, dieId),
+                forged.result.cost,
+                forged.result.amount,
+              ),
+            }
         set({
           profile: {
             ...state.profile,
@@ -1717,6 +1809,7 @@ export const useNewGameStore = create<NewGameState>()(
                     : imprint
                 ))
               : state.profile.imprints,
+            dieForgeRecords: nextForgeRecords,
             recentForgeOperationIds: [
               ...state.profile.recentForgeOperationIds,
               operationId,

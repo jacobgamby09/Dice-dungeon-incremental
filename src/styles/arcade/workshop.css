@@ -353,3 +353,118 @@
   font-size: 0.5rem;
   line-height: 1.35;
 }
+
+.workshop-reforge__open,
+.workshop-auto {
+  border: 2px solid var(--arcade-line-control);
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+  margin: 0 14px 14px;
+}
+
+.workshop-reforge__open {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  text-align: left;
+  width: calc(100% - 28px);
+}
+
+.workshop-reforge__open span {
+  display: grid;
+  gap: 3px;
+}
+
+.workshop-reforge__open small,
+.workshop-auto small {
+  color: var(--arcade-muted);
+  font-size: 0.55rem;
+}
+
+.workshop-auto {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.workshop-auto > div {
+  display: flex;
+  gap: 6px;
+}
+
+.workshop-auto > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.workshop-auto button {
+  border: 2px solid var(--arcade-cyan);
+  background: #00191c;
+  color: var(--arcade-white);
+  min-height: 36px;
+  padding: 0 9px;
+}
+
+.workshop-reforge {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 100;
+}
+
+.workshop-reforge > section {
+  border: 4px solid var(--arcade-white);
+  background: var(--arcade-black);
+  box-shadow: 8px 8px 0 #552020;
+  max-width: 360px;
+  padding: 22px;
+  width: 100%;
+}
+
+.workshop-reforge h2 {
+  font-size: 1.15rem;
+  margin: 8px 0 12px;
+}
+
+.workshop-reforge p {
+  color: var(--arcade-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.workshop-reforge dl {
+  border-block: 2px solid var(--arcade-line-control);
+  margin: 16px 0;
+  padding: 8px 0;
+}
+
+.workshop-reforge dl div {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.workshop-reforge dd {
+  color: var(--arcade-yellow);
+  margin: 0;
+}
+
+.workshop-reforge__actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1.4fr;
+}
+
+.workshop-reforge__actions button {
+  border: 3px solid var(--arcade-white);
+  background: #281010;
+  color: var(--arcade-white);
+  min-height: 46px;
+}

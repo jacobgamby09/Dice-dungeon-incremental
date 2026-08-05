@@ -44,11 +44,12 @@ export function getChaosEligibleFaces(die: DieInstance): FaceInstance[] {
 export function getChaosForgeCost(
   die: DieInstance,
   costMultiplier = 1,
+  forgePowerAdded = 0,
 ): number | null {
   const eligibleFaces = getChaosEligibleFaces(die);
   if (eligibleFaces.length === 0) return null;
 
-  const upgradeTier = Math.floor(Math.max(0, getDieUpgradeCount(die) - 1) / 3);
+  const upgradeTier = Math.floor(Math.max(0, forgePowerAdded) / 3);
   const baseCost = BASE_CHAOS_FORGE_COST + upgradeTier;
   return Math.max(1, Math.ceil(baseCost * Math.max(0, costMultiplier)));
 }
@@ -149,11 +150,16 @@ export function prepareWorkshopForge(
   options: {
     costMultiplier?: number;
     targetRerolls?: number;
+    forgePowerAdded?: number;
   } = {},
 ): PendingWorkshopForge | null {
   if (!operationId || workshopFaces.length === 0) return null;
   const eligibleFaces = getChaosEligibleFaces(die);
-  const cost = getChaosForgeCost(die, options.costMultiplier);
+  const cost = getChaosForgeCost(
+    die,
+    options.costMultiplier,
+    options.forgePowerAdded,
+  );
   if (eligibleFaces.length === 0 || cost === null) return null;
 
   const faceRoll = clampRandomRoll(random);

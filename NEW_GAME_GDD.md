@@ -270,6 +270,16 @@ Et Defeat er derfor ikke et tabt run i incremental forstand. Spilleren mister ku
 
 ## Die Workshop
 
+Den aktive Workshop-model er et totrinsritual: et tilfældigt fysisk face vælges,
+hvorefter Workshop Die afgør `+1/+2/+3`. Prisen følger kun faktisk player-applied
+Forge Power på den konkrete die, ikke dens medfødte startværdier.
+
+Talentet `Reforging` kan nulstille en die og returnere 60% af dens registrerede
+base-die Soul-investering. Tre `Careful Salvage`-ranks hæver dette til 70/80/90%,
+aldrig 100%. Imprints afmonteres sikkert og beholder Power; Imprint-investering
+refunderes ikke. `Auto Forge` åbner en kontrolleret 1/5/10-kø, der accepterer første
+target og kun kører, mens Workshop er åben.
+
 Spilleren vælger først én permanent terning og derefter en forge-metode:
 
 - `Chaos Forge` ruller blandt alle eligible faces på den valgte die. Resultatet fastlåses før animationen, og prisen er lavere, mens flere mulige faces er tilbage. Rabatten falder gradvist; med kun én eligible face koster Chaos det samme som Precision.
@@ -304,6 +314,8 @@ Workshoppen er den eneste upgrade-pipeline. Et monteret Imprint optager én af s
 Run-start snapshots fryser både attachment og Imprint Power. Manual og Auto Combat bruger samme ordering-resolution: lokal Imprint-effekt, indgående Relay-bonus, ny Relay-charge, Charm-effekter og til sidst round totals.
 
 ## Persistence
+
+- Save version 24 introducerer Forge-ledger, Reforge og Auto Forge. Denne prototype-version nulstiller bevidst alle saves fra version 23 og tidligere til en frisk profil; historiske migrationsgarantier er ikke længere i scope.
 
 - Save-formatet er versionsstyret.
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.

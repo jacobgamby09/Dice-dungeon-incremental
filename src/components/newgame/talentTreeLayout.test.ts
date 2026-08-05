@@ -34,7 +34,7 @@ describe('Talent Tree canvas layout', () => {
       { height: 800, width: 384 },
     )
 
-    expect(offset.x).toBeCloseTo(-97.84)
+    expect(offset.x).toBeCloseTo(62.16)
     expect(offset.y).toBe(-790)
   })
 

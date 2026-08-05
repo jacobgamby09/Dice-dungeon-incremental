@@ -24,12 +24,13 @@ describe('Classic V2 Workshop Forge', () => {
         `operation-${index}`,
         createWorkshopDieFaces(),
         () => 0,
+        { forgePowerAdded: index },
       )!
       forged = completeWorkshopForge(forged, pending)!.die
     }
 
     expect(getDieUpgradeCount(forged)).toBe(4)
-    expect(getChaosForgeCost(forged)).toBe(2)
+    expect(getChaosForgeCost(forged, 1, 4)).toBe(2)
   })
 
   it('locks one stable target face and a separate Workshop Die face', () => {
@@ -108,7 +109,8 @@ describe('Classic V2 Workshop Forge', () => {
     })
 
     expect(getChaosEligibleFaces(die)).toHaveLength(6)
-    expect(getChaosForgeCost(die)).toBe(8)
+    expect(getChaosForgeCost(die)).toBe(1)
+    expect(getChaosForgeCost(die, 1, 24)).toBe(9)
   })
 
   it('rerolls the target without changing cost or the locked Workshop result', () => {

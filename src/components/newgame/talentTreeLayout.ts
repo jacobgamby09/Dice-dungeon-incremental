@@ -41,6 +41,9 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.faceMastery]: { x: 620, y: 760 },
   [TALENT_IDS.forgeOvercharge]: { x: 440, y: 650 },
   [TALENT_IDS.resonantEtching]: { x: 530, y: 510 },
+  [TALENT_IDS.reforging]: { x: 420, y: 790 },
+  [TALENT_IDS.carefulSalvage]: { x: 280, y: 860 },
+  [TALENT_IDS.autoForge]: { x: 300, y: 690 },
 
   [TALENT_IDS.autoCombat]: { x: 900, y: 1020 },
   [TALENT_IDS.quickDraw]: { x: 800, y: 1000 },
