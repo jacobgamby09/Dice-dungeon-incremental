@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createDiceCatalog, createStartingDice } from '../content/dice'
-import { TALENT_IDS, TALENTS_BY_ID } from '../content/talents'
+import { createStartingDice } from '../content/dice'
+import { TALENT_IDS } from '../content/talents'
 import { getDiceCapacity, getPlayerMaxHp } from '../progression/talents'
 import { createSoulDieState } from '../progression/soulDie'
 import type { PlayerProfile } from '../types/progression'
@@ -47,12 +47,12 @@ describe('post-Dungeon-1 developer preset', () => {
   it('creates the canonical Classic V2 boss-clear profile', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
 
-    expect(profile.xp).toBe(0)
-    expect(profile.bankedSouls).toBe(POST_DUNGEON_ONE_DEV_PRESET.testSouls)
+    expect(profile.xp).toBe(POST_DUNGEON_ONE_DEV_PRESET.xp)
+    expect(profile.bankedSouls).toBe(POST_DUNGEON_ONE_DEV_PRESET.souls)
+    expect(profile.fateTokens).toBe(POST_DUNGEON_ONE_DEV_PRESET.fateTokens)
     expect(profile.imprints.map((imprint) => imprint.definitionId)).toEqual([
-      'lead-edge',
       'relay-strike',
-      'crescendo',
+      'lead-edge',
     ])
     expect(profile.unlockedDungeonIds).toEqual(['prototype-depths', 'iron-depths'])
     expect(profile.dungeonProgress).toEqual({
@@ -69,9 +69,8 @@ describe('post-Dungeon-1 developer preset', () => {
     })
   })
 
-  it('owns every basic family and equips the four-die Dungeon 2 transition loadout', () => {
+  it('owns and equips the exact irregular dice rolled by the representative journey', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
-    const catalog = createDiceCatalog()
 
     expect(profile.diceCollection).toHaveLength(POST_DUNGEON_ONE_DEV_PRESET.collectionCount)
     expect(profile.equippedDieIds).toHaveLength(POST_DUNGEON_ONE_DEV_PRESET.equippedCount)
@@ -80,35 +79,46 @@ describe('post-Dungeon-1 developer preset', () => {
       'attack-die-1',
       'attack-die-2',
       'shield-die-1',
-      'heal-die-bloodwell',
     ])
     expect(new Set(profile.diceCollection.map((die) => die.family))).toEqual(
       new Set(['attack', 'shield', 'heal']),
     )
 
-    for (const die of profile.diceCollection) {
-      const original = catalog.find((candidate) => candidate.id === die.id)!
-      expect(die.faces.map((face) => face.id)).toEqual(
-        original.faces.map((face) => face.id),
-      )
-      expect(die.faces.every(
-        (face) => face.signature
-          ? face.value === original.faces.find((candidate) => candidate.id === face.id)?.value
-          : face.value >= POST_DUNGEON_ONE_DEV_PRESET.faceMinimum,
-      )).toBe(true)
-    }
+    expect(profile.diceCollection.map((die) => die.faces.map((face) => face.value))).toEqual([
+      [6, 5, 9, 7, 8, 9],
+      [3, 3, 6, 4, 7, 3],
+      [4, 1, 5, 2, 5, 5],
+      [4, 1, 1, 2, 6, 3],
+      [5, 2, 3, 3, 3, 3],
+    ])
   })
 
-  it('keeps the displayed XP and Soul spend derived from actual content costs', () => {
+  it('preserves simulated Charms, Imprints, attachments and Forge ledgers', () => {
     const profile = createPostDungeonOneDevProfile(createBaseProfile())
-    const xpSpent = Object.entries(profile.talentRanks).reduce((total, [talentId, rank]) => (
-      total + TALENTS_BY_ID[talentId].ranks
-        .slice(0, rank)
-        .reduce((rankTotal, talentRank) => rankTotal + talentRank.cost, 0)
-    ), 0)
-    const soulsSpent = (63 * 4) + 15
 
-    expect(xpSpent).toBe(POST_DUNGEON_ONE_DEV_PRESET.xpSpent)
-    expect(soulsSpent).toBe(POST_DUNGEON_ONE_DEV_PRESET.soulsSpent)
+    expect(profile.charmRanks).toEqual({
+      'soul-prism': 1,
+      'ward-clock': 2,
+      'echo-knot': 1,
+      bloodroot: 1,
+    })
+    expect(profile.equippedCharmIds).toEqual(['echo-knot'])
+    expect(profile.imprints).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        definitionId: 'relay-strike',
+        refinement: 4,
+        attachment: { dieId: 'attack-die-2', faceId: 'attack-die-2-face-5' },
+      }),
+      expect.objectContaining({
+        definitionId: 'lead-edge',
+        refinement: 0,
+        attachment: { dieId: 'attack-die-1', faceId: 'attack-die-1-face-3' },
+      }),
+    ]))
+    expect(profile.dieForgeRecords['attack-die-1']).toEqual({
+      dieId: 'attack-die-1',
+      soulsSpent: 150,
+      forgePowerAdded: 38,
+    })
   })
 })

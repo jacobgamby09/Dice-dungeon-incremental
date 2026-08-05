@@ -90,6 +90,7 @@ export interface ProgressionJourneyRecord {
 }
 
 export interface ProgressionJourneyResult {
+  dungeonOneClearProfile: PlayerProfile | null
   finalProfile: PlayerProfile
   milestones: ProgressionJourneyMilestones
   records: ProgressionJourneyRecord[]
@@ -456,6 +457,7 @@ export function simulateProgressionJourney(
   const milestones = createMilestones()
   const records: ProgressionJourneyRecord[] = []
   let profile = createJourneyProfile()
+  let dungeonOneClearProfile: PlayerProfile | null = null
 
   for (let run = 1; run <= maxRuns; run += 1) {
     profile = spendTalentPath(profile, strategy)
@@ -542,6 +544,13 @@ export function simulateProgressionJourney(
       run,
       dungeonId === 'prototype-depths' && result.completedDungeon,
     )
+    if (
+      dungeonOneClearProfile === null
+      && dungeonId === 'prototype-depths'
+      && result.completedDungeon
+    ) {
+      dungeonOneClearProfile = profile
+    }
     setMilestone(
       milestones,
       'dungeonTwoClearRun',
@@ -622,5 +631,5 @@ export function simulateProgressionJourney(
 
   }
 
-  return { finalProfile: profile, milestones, records }
+  return { dungeonOneClearProfile, finalProfile: profile, milestones, records }
 }

@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-08-04.
+Senest opdateret: 2026-08-05.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Post-Dungeon-1 DEV-profilen er nu et simuleret medianforløb:** 250 fresh-save journeys gav median clear på run 27, fem ejede dice, tre slots, 17 Max HP, fire Charms og to Imprints. Seed 122 ligger tættest på de samlede medianer og indlæses præcis ved boss-clear checkpointet med sine faktiske ujævne face-rul, Forge-ledgers, Charm-ranks, Imprint Power/attachments og uspente rewards — ikke som kunstige ens terninger.
 - **Talent Tree bevarer nu altid spillerens viewport ved køb:** Reveal-ceremonien flytter ikke længere pan eller zoom til en beregnet frontier. Træets koordinater er samtidig samlet på et konsekvent 20-pixel-grid med cirka 23% mindre bredde og 21% mindre højde; geometriske tests fastholder kompakt footprint, linjefri nodes og forbindelser uden kryds.
 - **Reforge og Auto Forge er implementeret lokalt:** Workshop registrerer nu faktisk Soul-spend og tilført Forge Power per permanent die. Reforge nulstiller canonical faces, løsner Imprints sikkert og refunderer 60–90% gennem `Reforging`/`Careful Salvage`; `Auto Forge` giver kontrollerede 1/5/10-køer efter eget talent. Workshop-priser ignorerer medfødt face-styrke, så nye dice starter på en fair opgraderingskurve. Save version 24 nulstiller bevidst alle ældre saves.
 - **Signature Faces er nu tydelige i Workshop:** Execute, Fortify og Drain viser egne ikoner, farvede face-overflader og navne direkte på deres fysiske 1/6-positioner. Når et Signature Face låses som target, viser Workshop et effektpanel med aktuel baseværdi, præcis mechanic og forklaring af den permanente opgradering.
@@ -307,6 +308,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-05 — Simuleret post-Dungeon-1 DEV-profil
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Hubben kan indlæse et reproducerbart checkpoint umiddelbart efter første D1-boss-clear. Profilen bruger seed 122, valgt som den nærmeste samlede median blandt 250 simulerede fresh-save journeys; dens fem dice har de faktiske fordelinger `6/5/9/7/8/9`, `3/3/6/4/7/3`, `4/1/5/2/5/5`, `4/1/1/2/6/3` og `5/2/3/3/3/3`.
+- Beslutninger: DEV-profilen snapshots efter bossens rewards og unlocks, men før simulatorens næste automatiske Hub-spend. Charms, Charm-ranks, equipped Charm, Imprints, Imprint Power/attachments, Forge-ledgers, talents og valutaer kopieres fra det samme journey-resultat; intet normaliseres til ens face-værdier.
+- Berørte områder: Progression journey-output, post-D1 DEV-preset, Hub-confirmation, store-tests og simulation-provenance-test.
+- Validering: 250 journeys simuleret. Cohort-medianer: clear run 27, average face 4,23, fem dice, tre slots, 17 HP, fire Charms og to Imprints. `npx tsc --noEmit`, alle 204 tests, ESLint, production build og `git diff --check` består.
+- Kendte mangler: Presettet er et repræsentativt konkret RNG-forløb, ikke en ny tilfældig profil ved hvert klik; det sikrer reproducerbare playtests.
+- Git: Committed og pushed på `codex/arcade-foundation-v1` i dette changeset.
 
 ### 2026-08-05 — Stabilt viewport og kompakt Talent Tree
 

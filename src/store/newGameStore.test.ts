@@ -676,10 +676,13 @@ describe('Classic V2 store progression loop', () => {
       'attack-die-1',
       'attack-die-2',
       'shield-die-1',
-      'heal-die-bloodwell',
     ])
     expect(getPlayerMaxHp(state.profile.talentRanks)).toBe(17)
-    expect(getDiceCapacity(state.profile.talentRanks)).toBe(4)
+    expect(getDiceCapacity(state.profile.talentRanks)).toBe(3)
+    expect(state.profile.diceCollection[0].faces.map((face) => face.value))
+      .toEqual([6, 5, 9, 7, 8, 9])
+    expect(Object.keys(state.profile.charmRanks)).toHaveLength(4)
+    expect(state.profile.imprints).toHaveLength(2)
 
     state.startRun('iron-depths')
     expect(useNewGameStore.getState().run.enemy?.intentRolls.map((roll) => roll.type))

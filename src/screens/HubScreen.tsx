@@ -259,7 +259,7 @@ export function HubScreen() {
               ? `Fresh QoL test save loaded with ${EARLY_QOL_TEST_XP} XP.`
               : loadedPreset === 'charm'
                 ? 'Dungeon 2 + Fatecraft profile loaded.'
-                : 'Dungeon 2 test profile loaded.'}
+                : 'Simulated Dungeon 1 clear loaded.'}
           </p>
         ) : null}
 
@@ -322,9 +322,9 @@ export function HubScreen() {
             <div>
               <strong>Load post-Dungeon-1 profile?</strong>
               <p>
-                Replaces the current save with a realistic boss-clear build and leaves
-                The Iron Descent ready to enter, with every Dungeon 1 Imprint available
-                for binding and Workshop tests.
+                Replaces the current save with seed {POST_DUNGEON_ONE_DEV_PRESET.sourceSeed},
+                selected as the closest median result from {POST_DUNGEON_ONE_DEV_PRESET.sourceAttempts} simulated
+                fresh-save journeys. Dice faces, Charms and Imprints are the actual rolled results.
               </p>
             </div>
             <dl className="dev-preset__summary">
@@ -339,14 +339,15 @@ export function HubScreen() {
               <div>
                 <dt>Faces</dt>
                 <dd>
-                  Min {POST_DUNGEON_ONE_DEV_PRESET.faceMinimum} value
+                  Avg {POST_DUNGEON_ONE_DEV_PRESET.averageFace.toFixed(2)} · Irregular rolls
                 </dd>
               </div>
               <div><dt>Dungeon 1</dt><dd>Cleared</dd></div>
-              <div><dt>Imprints</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.imprintCount} owned</dd></div>
-              <div><dt>Test Souls</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.testSouls}</dd></div>
-              <div><dt>XP spent</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.xpSpent}</dd></div>
-              <div><dt>Souls spent</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.soulsSpent}</dd></div>
+              <div><dt>Clear run</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.clearRun}</dd></div>
+              <div><dt>Imprints</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.imprintCount} discovered</dd></div>
+              <div><dt>Charms</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.charmCount} discovered</dd></div>
+              <div><dt>Unspent XP</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.xp}</dd></div>
+              <div><dt>Unspent Souls</dt><dd>{POST_DUNGEON_ONE_DEV_PRESET.souls}</dd></div>
             </dl>
             <div className="dev-reset__actions">
               <button
@@ -421,7 +422,7 @@ export function HubScreen() {
               type="button"
             >
               <FastForward aria-hidden="true" size={15} />
-              DEV · Load Dungeon 2 profile
+              DEV · Simulated D1 clear
             </button>
             <button
               className="dev-reset__trigger"

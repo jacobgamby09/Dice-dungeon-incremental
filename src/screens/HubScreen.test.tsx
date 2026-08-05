@@ -15,7 +15,7 @@ describe('HubScreen developer tools', () => {
     expect(markup).toContain('DEV · Balance Lab')
     expect(markup).toContain('DEV · Dungeon 2 + Fatecraft')
     expect(markup).toContain('DEV · Fresh QoL test · 20 XP')
-    expect(markup).toContain('DEV · Load Dungeon 2 profile')
+    expect(markup).toContain('DEV · Simulated D1 clear')
     expect(markup).toContain('DEV · Reset game')
     expect(markup).toContain('Permanent Dice Incremental')
     expect(markup).toContain('role="region"')
