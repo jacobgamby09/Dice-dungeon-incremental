@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Talent Tree bevarer nu altid spillerens viewport ved køb:** Reveal-ceremonien flytter ikke længere pan eller zoom til en beregnet frontier. Træets koordinater er samtidig samlet på et konsekvent 20-pixel-grid med cirka 23% mindre bredde og 21% mindre højde; geometriske tests fastholder kompakt footprint, linjefri nodes og forbindelser uden kryds.
 - **Reforge og Auto Forge er implementeret lokalt:** Workshop registrerer nu faktisk Soul-spend og tilført Forge Power per permanent die. Reforge nulstiller canonical faces, løsner Imprints sikkert og refunderer 60–90% gennem `Reforging`/`Careful Salvage`; `Auto Forge` giver kontrollerede 1/5/10-køer efter eget talent. Workshop-priser ignorerer medfødt face-styrke, så nye dice starter på en fair opgraderingskurve. Save version 24 nulstiller bevidst alle ældre saves.
 - **Signature Faces er nu tydelige i Workshop:** Execute, Fortify og Drain viser egne ikoner, farvede face-overflader og navne direkte på deres fysiske 1/6-positioner. Når et Signature Face låses som target, viser Workshop et effektpanel med aktuel baseværdi, præcis mechanic og forklaring af den permanente opgradering.
 - **Evolutions er nu helt pensioneret som gameplay-system:** Workshop forbedrer almindelige faces og Signature Faces numerisk uden `Evolution Ready`, valgkammer eller hard cap. Power/Momentum/Rend/Bastion/Reserve/Spikes/Restoration/Regrowth/Overflow er fjernet fra types, Forge, combat, dice-inspektion og tests. De aktive speciallag er nu medfødte Signature Faces og flytbare Imprints.
@@ -306,6 +307,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-05 — Stabilt viewport og kompakt Talent Tree
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Køb og chain-reveals afspilles dér, hvor spilleren allerede kigger, uden automatisk pan eller zoom. Hele Talent Tree kræver mærkbart mindre panorering og har mere ensartet spacing.
+- Beslutninger: Kun første åbning og den manuelle centreringsknap må flytte viewportet. Layoutet bruger et fast 20-pixel-grid og et maksimalt testet footprint på 900×600 world-pixels.
+- Berørte områder: Talent Tree screen, canonical layout, layout-regressioner og progress-log.
+- Validering: Målrettede layout- og screen-tests samt fuld TypeScript/test/lint/build-gate.
+- Kendte mangler: Ingen gameplay-, talentpris- eller prerequisite-ændringer i dette pass.
+- Git: Committed og pushed på `codex/arcade-foundation-v1` i dette changeset.
 
 ### 2026-08-05 — Reforge, Forge-ledger og Auto Forge
 

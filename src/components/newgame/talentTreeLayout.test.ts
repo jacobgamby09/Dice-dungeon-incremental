@@ -34,8 +34,23 @@ describe('Talent Tree canvas layout', () => {
       { height: 800, width: 384 },
     )
 
-    expect(offset.x).toBeCloseTo(62.16)
-    expect(offset.y).toBe(-790)
+    expect(offset.x).toBeCloseTo(-77.84)
+    expect(offset.y).toBe(-770)
+  })
+
+  it('keeps the complete tree compact and aligned to its layout grid', () => {
+    const points = TALENTS.map((talent) => getTalentTreePoint(talent.id))
+    const horizontalSpan = Math.max(...points.map((point) => point.x))
+      - Math.min(...points.map((point) => point.x))
+    const verticalSpan = Math.max(...points.map((point) => point.y))
+      - Math.min(...points.map((point) => point.y))
+
+    expect(horizontalSpan).toBeLessThanOrEqual(900)
+    expect(verticalSpan).toBeLessThanOrEqual(600)
+    for (const point of points) {
+      expect(point.x % 20).toBe(0)
+      expect(point.y % 20).toBe(0)
+    }
   })
 
   it('keeps connected nodes in a compact radial cluster', () => {
@@ -43,7 +58,7 @@ describe('Talent Tree canvas layout', () => {
       const target = getTalentTreePoint(talent.id)
       for (const prerequisiteId of talent.prerequisiteIds) {
         const source = getTalentTreePoint(prerequisiteId)
-        expect(Math.hypot(target.x - source.x, target.y - source.y)).toBeLessThanOrEqual(350)
+        expect(Math.hypot(target.x - source.x, target.y - source.y)).toBeLessThanOrEqual(260)
       }
     }
   })

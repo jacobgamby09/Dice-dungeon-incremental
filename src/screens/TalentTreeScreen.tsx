@@ -39,7 +39,6 @@ interface VisibilityChange {
 
 interface PurchaseCeremony {
   changes: VisibilityChange[]
-  focusPoint: TalentCanvasFocusRequest['point']
   rank: number
   talentId: string
 }
@@ -151,10 +150,6 @@ export function TalentTreeScreen() {
     const revealTimer = hasReveal
       ? window.setTimeout(() => {
           setCeremonyStage('revealing')
-          setFocusRequest((current) => ({
-            id: current.id + 1,
-            point: ceremony.focusPoint,
-          }))
         }, revealDelay)
       : null
     const finishTimer = window.setTimeout(() => setCeremony(null), finishDelay)
@@ -234,7 +229,6 @@ export function TalentTreeScreen() {
     setCeremonyStage('rolling')
     setCeremony({
       changes,
-      focusPoint: getTalentTreeFrontierPoint(afterRanks),
       rank: currentRank + 1,
       talentId: selectedTalent.id,
     })
