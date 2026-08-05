@@ -21,10 +21,26 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createDieById } from '../../game/content/dice'
+import { SIGNATURE_DEFINITIONS } from '../../game/content/faceEffects'
 import { CurrencyIcon } from './CurrencyIcon'
 import { DUNGEONS } from '../../game/content/dungeons'
 import { TALENTS_BY_ID } from '../../game/content/talents'
-import { getTalentRank } from '../../game/progression/talents'
+import {
+  getCharmCapacity,
+  getDiceCapacity,
+  getDungeonLootMultiplier,
+  getFateDropMultiplier,
+  getImprintDropMultiplier,
+  getImprintForgeBonusChance,
+  getPlayerMaxHp,
+  getReforgeRefundRate,
+  getRollSpeed,
+  getTalentRank,
+  getWorkshopCostMultiplier,
+  getWorkshopForgeBonusChance,
+  getWorkshopTargetRerolls,
+  getXpRewardBonus,
+} from '../../game/progression/talents'
 import type { DungeonId, DungeonProgress } from '../../game/types/dungeon'
 import type {
   TalentDefinition,
@@ -34,6 +50,7 @@ import type {
 import type { TalentNodeState } from './TalentNode'
 import { TalentIcon } from './TalentIcon'
 import { DieSummary } from './DieSummary'
+import { SignatureIcon } from './SignatureIcon'
 
 interface TalentDetailPanelProps {
   isAnimating: boolean
@@ -73,52 +90,60 @@ const EFFECT_ICONS: Record<TalentEffect['type'], LucideIcon> = {
   unlock_auto_forge: Bot,
 }
 
-function getEffectLabel(effect: TalentEffect): string {
+function formatPercent(value: number): string {
+  return `${Math.round(value * 100)}%`
+}
+
+function getEffectLabel(
+  effect: TalentEffect,
+  currentRanks: Readonly<Record<string, number>>,
+  projectedRanks: Readonly<Record<string, number>>,
+): string {
   switch (effect.type) {
     case 'max_hp':
-      return `+${effect.amount} Max HP`
+      return `Max HP: ${getPlayerMaxHp(currentRanks)} → ${getPlayerMaxHp(projectedRanks)}`
     case 'dice_slots':
-      return `+${effect.amount} Dice Slot`
+      return `Dice Slots: ${getDiceCapacity(currentRanks)} → ${getDiceCapacity(projectedRanks)}`
     case 'grant_die':
       return createDieById(effect.dieId)?.name ?? 'Permanent Die'
     case 'roll_speed':
-      return `${Math.round((effect.multiplier - 1) * 100)}% Faster Rolls`
+      return `Total Combat Speed: +${Math.round((getRollSpeed(projectedRanks, 1) - 1) * 100)}%`
     case 'workshop_die_faces':
       return `Workshop Die · ${effect.values.join(' · ')}`
     case 'workshop_target_rerolls':
-      return `+${effect.amount} Target Reroll per Forge`
+      return `Target Rerolls per Forge: ${getWorkshopTargetRerolls(currentRanks)} → ${getWorkshopTargetRerolls(projectedRanks)}`
     case 'unlock_auto_combat':
       return 'Auto Combat Toggle'
     case 'unlock_charms':
       return 'Unlock Charm System'
     case 'xp_per_kill':
-      return `+${effect.amount} XP per Enemy`
+      return `Bonus XP per Enemy: +${getXpRewardBonus(projectedRanks)}`
     case 'soul_die_faces':
       return `Soul Die · ${effect.values.map((value) => `×${value}`).join(' · ')}`
     case 'workshop_cost_multiplier':
-      return `${Math.round((1 - effect.multiplier) * 100)}% Cheaper Workshop`
+      return `Total Forge Discount: ${Math.round((1 - getWorkshopCostMultiplier(projectedRanks)) * 100)}%`
     case 'charm_slots':
-      return `+${effect.amount} Charm Slot`
+      return `Charm Slots: ${getCharmCapacity(currentRanks)} → ${getCharmCapacity(projectedRanks)}`
     case 'charm_rarity_protection':
       return effect.legendaryThreshold
-        ? `Epic+ within ${effect.epicThreshold} · Legendary within ${effect.legendaryThreshold}`
-        : `Epic+ within ${effect.epicThreshold} Fate Draws`
+        ? `Rarity Pity: Epic+ within ${effect.epicThreshold} Draws · Legendary within ${effect.legendaryThreshold}`
+        : `Rarity Pity: Epic+ guaranteed within ${effect.epicThreshold} Draws`
     case 'fate_drop_multiplier':
-      return `+${Math.round((effect.multiplier - 1) * 100)}% Fate Token Chance`
+      return `Total Fate Token Drop Multiplier: ×${getFateDropMultiplier(projectedRanks).toFixed(2)}`
     case 'imprint_drop_multiplier':
-      return `+${Math.round((effect.multiplier - 1) * 100)}% Imprint Chance`
+      return `Total Imprint Drop Multiplier: ×${getImprintDropMultiplier(projectedRanks).toFixed(2)}`
     case 'imprint_forge_bonus_chance':
-      return `${Math.round(effect.chance * 100)}% chance for +1 extra Imprint Power`
+      return `Imprint-only bonus chance: ${formatPercent(getImprintForgeBonusChance(projectedRanks))}`
     case 'workshop_forge_bonus_chance':
-      return `${Math.round(effect.chance * 100)}% chance for +1 extra Forge Power`
+      return `Non-Imprint bonus chance: ${formatPercent(getWorkshopForgeBonusChance(projectedRanks))}`
     case 'dungeon_loot_multiplier':
-      return `+${Math.round((effect.multiplier - 1) * 100)}% Deep Dungeon Loot`
+      return `Dungeon 2+ Loot Multiplier: ×${getDungeonLootMultiplier(projectedRanks, 'iron-depths').toFixed(2)}`
     case 'unlock_reforge':
-      return 'Unlock Die Reforge · 60% Soul Recovery'
+      return 'Unlock Reforge · Reset faces and refund 60% of invested Souls'
     case 'reforge_refund_rate':
-      return `+${Math.round(effect.amount * 100)}% Reforge Recovery`
+      return `Soul refund when Reforging: ${formatPercent(getReforgeRefundRate(currentRanks))} → ${formatPercent(getReforgeRefundRate(projectedRanks))}`
     case 'unlock_auto_forge':
-      return 'Unlock Auto Forge Queue'
+      return 'Unlock Auto Forge Queue · first target is accepted automatically'
   }
 }
 
@@ -164,6 +189,12 @@ export function TalentDetailPanel({
   const grantedDie = grantedDieEffect?.type === 'grant_die'
     ? createDieById(grantedDieEffect.dieId)
     : null
+  const projectedRanks = talent && nextRank
+    ? { ...talentRanks, [talent.id]: rank + 1 }
+    : talentRanks
+  const grantedSignatures = grantedDie
+    ? [...new Set(grantedDie.faces.flatMap((face) => face.signature?.id ?? []))]
+    : []
   const prerequisiteNames = talent?.prerequisiteIds
     .map((id) => TALENTS_BY_ID[id]?.name)
     .filter((name): name is string => Boolean(name)) ?? []
@@ -251,13 +282,15 @@ export function TalentDetailPanel({
               </div>
             </header>
 
+            <p className="talent-canvas-inspector__description">{talent.description}</p>
+
             <div className="talent-canvas-inspector__effects" aria-label="Next rank effects">
               {displayedEffects.map((effect, index) => {
                 const EffectIcon = EFFECT_ICONS[effect.type]
                 return (
                   <span key={`${effect.type}-${index}`}>
                     <EffectIcon aria-hidden="true" size={20} />
-                    {getEffectLabel(effect)}
+                    {getEffectLabel(effect, talentRanks, projectedRanks)}
                   </span>
                 )
               })}
@@ -316,6 +349,22 @@ export function TalentDetailPanel({
             {grantedDie ? (
               <section className="talent-canvas-inspector__die-preview">
                 <DieSummary die={grantedDie} compact />
+                {grantedSignatures.map((signatureId) => {
+                  const signature = SIGNATURE_DEFINITIONS[signatureId]
+                  const faceCount = grantedDie.faces.filter(
+                    (face) => face.signature?.id === signatureId,
+                  ).length
+                  return (
+                    <article className="talent-canvas-inspector__signature" key={signatureId}>
+                      <SignatureIcon signatureId={signatureId} size={24} />
+                      <div>
+                        <strong>{signature.name} · {faceCount}/6 faces</strong>
+                        <span>{signature.description}</span>
+                        <small>Workshop can permanently increase this face's base value.</small>
+                      </div>
+                    </article>
+                  )
+                })}
               </section>
             ) : null}
 

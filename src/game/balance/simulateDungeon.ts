@@ -213,7 +213,7 @@ export function simulateDungeonRun(
             random,
             getFateDropMultiplier(build.talentRanks ?? {})
               * (dungeonId === 'iron-depths' ? 1.6 : 1)
-              * getDungeonLootMultiplier(build.talentRanks ?? {}),
+              * getDungeonLootMultiplier(build.talentRanks ?? {}, dungeonId),
           )
           fateTokensCollected += fateDrop.tokens
           fatePity = fateDrop.nextPity
@@ -227,7 +227,7 @@ export function simulateDungeonRun(
           random,
           dropMultiplier: getImprintDropMultiplier(build.talentRanks ?? {})
             * (dungeonId === 'iron-depths' ? 1.6 : 1)
-            * getDungeonLootMultiplier(build.talentRanks ?? {}),
+            * getDungeonLootMultiplier(build.talentRanks ?? {}, dungeonId),
         })
         if (imprintDrop) {
           imprints = grantImprint(

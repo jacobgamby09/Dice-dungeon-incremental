@@ -6,6 +6,7 @@ import {
   getCharmCapacity,
   getCharmRarityProtection,
   getDiceCapacity,
+  getDungeonLootMultiplier,
   getPlayerMaxHp,
   getSoulDieValues,
   getTalentPurchaseReason,
@@ -225,6 +226,13 @@ describe('Classic V2 connected talent progression', () => {
     expect(getWorkshopForgeBonusChance({})).toBe(0)
     expect(getWorkshopForgeBonusChance({ [TALENT_IDS.forgeOvercharge]: 1 })).toBeCloseTo(0.08)
     expect(getWorkshopForgeBonusChance({ [TALENT_IDS.forgeOvercharge]: 3 })).toBeCloseTo(0.25)
+  })
+
+  it('keeps Deep Delver inactive in Dungeon 1 and scales Dungeon 2+ loot', () => {
+    const ranks = { [TALENT_IDS.deepDelver]: 2 }
+
+    expect(getDungeonLootMultiplier(ranks, 'prototype-depths')).toBe(1)
+    expect(getDungeonLootMultiplier(ranks, 'iron-depths')).toBeCloseTo(1.44)
   })
 
   it('opens Fatecraft before Dungeon 1 clear through either efficiency branch', () => {

@@ -1123,7 +1123,7 @@ export const useNewGameStore = create<NewGameState>()(
                 random,
                 getFateDropMultiplier(state.profile.talentRanks)
                   * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
-                  * getDungeonLootMultiplier(state.profile.talentRanks),
+                  * getDungeonLootMultiplier(state.profile.talentRanks, state.run.dungeonId!),
               )
             : {
                 tokens: 0,
@@ -1155,7 +1155,7 @@ export const useNewGameStore = create<NewGameState>()(
                 random,
                 dropMultiplier: getImprintDropMultiplier(state.profile.talentRanks)
                   * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
-                  * getDungeonLootMultiplier(state.profile.talentRanks),
+                  * getDungeonLootMultiplier(state.profile.talentRanks, state.run.dungeonId!),
               })
           const imprintGrant = rolledImprintId
             ? grantImprintDrop(

@@ -260,8 +260,9 @@ Et Fate Draw koster 5 Fate Tokens og fastlåser én permanent Charm.
 - Der findes ingen gratis første-draw-garanti og ingen indbygget rarity-pity.
 - Ukendte Charms har fire gange vægten af kendte Charms inden for den valgte
   rarity, men duplicates er mulige fra første Draw.
-- Talentet `Fate's Favor` kan senere tilføje synlig bad-luck protection for
-  Epic+ og Legendary draws. Beskyttelsen eksisterer kun, når talentet er købt.
+- Talentet `Fate's Favor` tilføjer en synlig rarity-pity-timer for Epic+ og
+  senere Legendary draws. Epic/Legendary nulstiller Epic+-timeren, mens kun
+  Legendary nulstiller Legendary-timeren. Der findes ingen rarity-pity før rank 1.
 - En kendt Charm øges én rank; max-rank Charms fjernes fra draw-poolen.
 - Fate Sanctums header har en kompakt info-knap, som viser basisraterne
   Common 50%, Rare 30%, Epic 15% og Legendary 5%. Panelet forklarer også
@@ -519,14 +520,20 @@ soft-gates med XP, som optjenes langt hurtigere i den næste Dungeon.
 | Loaded Alloy | 8 / 16 / 28 XP | Inner Spark rank 1 | Opgrader Workshop Die per rank |
 | Efficient Tools | 10 / 22 / 40 XP | Inner Spark rank 1 | 10% lavere Workshop-pris per rank, multiplicativt |
 | Face Mastery | 14 / 30 / 55 XP | Loaded Alloy **eller** Efficient Tools | +1 valgfri target-reroll per Forge per rank |
-| Forge Overcharge | 20 / 42 / 78 XP | Face Mastery | +8% / +8% / +9% chance for +1 ekstra normal Forge Power |
+| Forge Overcharge | 20 / 42 / 78 XP | Face Mastery | Samlet 8% / 16% / 25% chance for +1 ekstra Forge Power på alle non-Imprint faces, inklusive Signatures |
+| Resonant Etching | 28 / 52 XP | Face Mastery | Samlet 12% / 24% chance for +1 ekstra Imprint Power, kun når Workshop rammer et Imprint |
+| Reforging | 35 XP | Face Mastery | Reset en die til start-faces, afmontér Imprints sikkert og refundér 60% af dens investerede Souls |
+| Careful Salvage | 55 / 95 / 150 XP | Reforging | Hæv Reforge-refund til 70% / 80% / 90% |
+| Auto Forge | 50 XP | Reforging | Automatisk Forge-kø med første target, mens Workshop er åben |
 | Auto Combat | 6 XP | Inner Spark rank 1 | Fuld normal combat-automation |
 | Quick Draw | 10 / 18 / 28 XP | Auto Combat | 15% hurtigere roll/score per rank |
 | Deep Reserves | 18 / 28 / 42 XP | Field Studies | +2 Max HP per rank |
 | Field Studies | 5 / 14 / 30 XP | Inner Spark rank 1 | +1 XP per enemy per rank |
 | Soul Die Mastery | 5 / 14 / 30 XP | Field Studies | Soul Die: `1,1,2,2,2,2` → `1,1,2,2,2,3` → `1,2,2,2,2,3` |
 | Fatecraft | 30 XP | Field Studies **eller** Soul Die Mastery | Unlock Fate drops, Fate Sanctum og Charm-slot 1 |
-| Fate's Favor | 18 / 36 / 64 XP | Fatecraft | Epic+ inden 8 draws → inden 6 draws → Legendary inden 15 draws |
+| Fate's Favor | 18 / 36 / 64 XP | Fatecraft | Synlig Epic+-pity inden 8 draws → inden 6 draws → desuden Legendary-pity inden 15 draws |
+| Occult Prospecting | 22 / 44 / 76 XP | Fatecraft | Fate Tokens og Imprints er 15% mere sandsynlige per rank i alle Dungeons |
+| Deep Delver | 34 / 68 XP | Fatecraft | Fate Tokens og Imprints er 20% mere sandsynlige per rank i Dungeon 2+; ingen D1-effekt |
 | Woven Pair | 45 XP | Fatecraft | Charm-slot 2 |
 | Trinity Knot | 1.400 XP | Woven Pair | Charm-slot 3 |
 

@@ -12,7 +12,7 @@ const mockedStore = vi.hoisted(() => ({
       pendingFateDraw: null,
       talentRanks: {
         fatecraft: 1,
-      },
+      } as Record<string, number>,
     },
     beginFateDraw: () => null,
     claimFateCharm: () => false,
@@ -30,6 +30,8 @@ vi.mock('../store/newGameStore', () => ({
 
 describe('Fate Sanctum player-facing rules', () => {
   it('keeps pity protection hidden while explaining the draw', () => {
+    mockedStore.state.profile.talentRanks = { fatecraft: 1 }
+    mockedStore.state.profile.charmRarityProgress = { epicMisses: 0, legendaryMisses: 0 }
     const markup = renderToStaticMarkup(<FateSanctumScreen />)
 
     expect(markup).toContain('Spend Fate Tokens to draw one permanent Charm')
@@ -42,5 +44,19 @@ describe('Fate Sanctum player-facing rules', () => {
     expect(markup).toContain('Epic')
     expect(markup).toContain('Legendary')
     expect(markup).not.toContain("Fate's Favor")
+  })
+
+  it('shows explicit rarity pity progress after Fate\'s Favor is purchased', () => {
+    mockedStore.state.profile.talentRanks = { fatecraft: 1, 'fates-favor': 3 }
+    mockedStore.state.profile.charmRarityProgress = { epicMisses: 2, legendaryMisses: 7 }
+    const markup = renderToStaticMarkup(<FateSanctumScreen />)
+
+    expect(markup).toContain('Rarity Pity Timer')
+    expect(markup).toContain('Epic+')
+    expect(markup).toContain('2/6')
+    expect(markup).toContain('Guaranteed within 4 Draws')
+    expect(markup).toContain('Legendary')
+    expect(markup).toContain('7/15')
+    expect(markup).toContain('role="progressbar"')
   })
 })

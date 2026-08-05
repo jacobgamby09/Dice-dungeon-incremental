@@ -36,7 +36,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.resonantEtching,
     name: 'Resonant Etching',
-    description: 'Each rank adds a 12% chance for a Workshop hit on an Imprint to gain +1 extra Imprint Power.',
+    description: 'When Workshop selects an Imprint, it can gain +1 extra Imprint Power. This does not affect normal or Signature Faces.',
     iconKey: 'resonant-etching',
     prerequisiteIds: [TALENT_IDS.faceMastery],
     ranks: [
@@ -63,7 +63,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.twinArsenal,
     name: 'Second Grip',
-    description: 'Gain a second dice slot. Which die fills it is your choice.',
+    description: 'Gain a second dice slot. Choose which owned die fills it in Loadout.',
     iconKey: 'twin-dice',
     prerequisiteIds: [TALENT_IDS.battleHardenedOne],
     ranks: [{ cost: 16, effects: [{ type: 'dice_slots', amount: 1 }] }],
@@ -72,7 +72,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.strikerPattern,
     name: 'Striker Pattern',
-    description: 'Receive the permanent Striker Die without automatically equipping it.',
+    description: 'Receive the permanent Striker Die. Its six starting faces are shown below before purchase.',
     iconKey: 'striker-pattern',
     prerequisiteIds: [TALENT_IDS.twinArsenal, TALENT_IDS.volatileTemper],
     prerequisiteCount: 1,
@@ -82,7 +82,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.shieldcraft,
     name: 'Shieldcraft',
-    description: 'Receive the permanent Iron Guard Die.',
+    description: 'Receive the permanent Iron Guard Die. Equip it in Loadout to add Shield faces to combat.',
     iconKey: 'shieldcraft',
     prerequisiteIds: [TALENT_IDS.twinArsenal, TALENT_IDS.strikerPattern],
     ranks: [{ cost: 42, effects: [{ type: 'grant_die', dieId: 'shield-die-1' }] }],
@@ -91,7 +91,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.thirdGrip,
     name: 'Third Grip',
-    description: 'Gain a third dice slot after combining defense with deeper reserves.',
+    description: 'Gain a third dice slot for one more equipped permanent die.',
     iconKey: 'twin-dice',
     prerequisiteIds: [TALENT_IDS.shieldcraft, TALENT_IDS.battleHardenedTwo],
     ranks: [{ cost: 58, effects: [{ type: 'dice_slots', amount: 1 }] }],
@@ -100,7 +100,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.healingArts,
     name: 'Healing Arts',
-    description: 'Receive the permanent Vitality Die.',
+    description: 'Receive the permanent Vitality Die. Equip it in Loadout to restore HP during combat.',
     iconKey: 'healing-arts',
     prerequisiteIds: [TALENT_IDS.thirdGrip],
     ranks: [{ cost: 78, effects: [{ type: 'grant_die', dieId: 'heal-die-1' }] }],
@@ -109,7 +109,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.fourthGrip,
     name: 'Fourth Grip',
-    description: 'Gain a fourth dice slot. Its XP cost is tuned as an early Dungeon 2 power spike.',
+    description: 'Gain a fourth dice slot for one more equipped permanent die.',
     iconKey: 'twin-dice',
     prerequisiteIds: [TALENT_IDS.healingArts, TALENT_IDS.executionerDoctrine, TALENT_IDS.bloodwellDoctrine],
     prerequisiteCount: 2,
@@ -119,7 +119,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.bloodwellDoctrine,
     name: 'Bloodwell Doctrine',
-    description: 'Receive a Heal Signature Die with two Drain faces. Deeper Dungeons fund it faster.',
+    description: 'Receive the permanent Bloodwell Die with two Drain faces that Heal and add Attack.',
     iconKey: 'bloodwell-die',
     prerequisiteIds: [TALENT_IDS.healingArts],
     ranks: [{ cost: 2400, effects: [{ type: 'grant_die', dieId: 'heal-die-bloodwell' }] }],
@@ -128,7 +128,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.executionerDoctrine,
     name: 'Executioner Doctrine',
-    description: 'Receive an Attack Signature Die with two Execute faces.',
+    description: 'Receive the permanent Executioner Die with two Execute faces that become stronger against wounded enemies.',
     iconKey: 'executioner-die',
     prerequisiteIds: [TALENT_IDS.thirdGrip],
     ranks: [{ cost: 135, effects: [{ type: 'grant_die', dieId: 'attack-die-executioner' }] }],
@@ -137,7 +137,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.towerDiscipline,
     name: 'Tower Discipline',
-    description: 'Receive a Shield Signature Die with two Fortify faces.',
+    description: 'Receive the permanent Tower Die with two Fortify faces that empower the next Shield face.',
     iconKey: 'tower-die',
     prerequisiteIds: [TALENT_IDS.thirdGrip, TALENT_IDS.battleHardenedTwo],
     ranks: [{ cost: 110, effects: [{ type: 'grant_die', dieId: 'shield-die-tower' }] }],
@@ -146,7 +146,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.volatileTemper,
     name: 'Loaded Alloy',
-    description: 'Improve the permanent Workshop Die that powers every Forge.',
+    description: 'Improve the permanent Workshop Die so every Forge can roll more power.',
     iconKey: 'volatile-temper',
     prerequisiteIds: [TALENT_IDS.battleHardenedOne],
     ranks: [
@@ -159,7 +159,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.efficientTools,
     name: 'Efficient Tools',
-    description: 'Reduce every Workshop Soul cost by 10% per rank.',
+    description: 'Reduce the Soul cost of Workshop Forges by 10% per rank.',
     iconKey: 'workshop-efficiency',
     prerequisiteIds: [TALENT_IDS.battleHardenedOne],
     ranks: [
@@ -172,7 +172,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.faceMastery,
     name: 'Face Mastery',
-    description: 'Gain one optional target-face reroll per rank during every Workshop Forge.',
+    description: 'After Workshop selects which face to upgrade, reroll that target once per rank before rolling Forge Power.',
     iconKey: 'face-mastery',
     prerequisiteIds: [TALENT_IDS.volatileTemper, TALENT_IDS.efficientTools],
     prerequisiteCount: 1,
@@ -195,7 +195,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.forgeOvercharge,
     name: 'Forge Overcharge',
-    description: 'Each rank adds a chance for a normal Workshop hit to gain +1 extra power.',
+    description: 'A non-Imprint face can gain +1 extra Forge Power. This also affects Signature Faces, but never Imprints.',
     iconKey: 'forge-overcharge',
     prerequisiteIds: [TALENT_IDS.faceMastery],
     ranks: [
@@ -208,7 +208,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.reforging,
     name: 'Reforging',
-    description: 'Reset a permanent die to its original faces and recover 60% of the Souls invested in it.',
+    description: 'Reset a permanent die to its original faces and refund 60% of the Souls spent upgrading it. Attached Imprints are safely removed and kept.',
     iconKey: 'reforging',
     prerequisiteIds: [TALENT_IDS.faceMastery],
     ranks: [{ cost: 35, effects: [{ type: 'unlock_reforge' }] }],
@@ -217,7 +217,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.carefulSalvage,
     name: 'Careful Salvage',
-    description: 'Recover 10% more invested Souls when Reforging per rank, up to 90%.',
+    description: 'Reforging refunds 10% more of that die\'s invested Souls per rank, increasing the total refund from 60% up to 90%.',
     iconKey: 'careful-salvage',
     prerequisiteIds: [TALENT_IDS.reforging],
     ranks: [
@@ -230,7 +230,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.autoForge,
     name: 'Auto Forge',
-    description: 'Queue automatic Workshop forges while the Workshop remains open.',
+    description: 'Automatically repeat Workshop Forges while the Workshop stays open. Auto Forge accepts the first target and stops when its queue ends or Souls run out.',
     iconKey: 'auto-forge',
     prerequisiteIds: [TALENT_IDS.reforging],
     ranks: [{ cost: 50, effects: [{ type: 'unlock_auto_forge' }] }],
@@ -239,12 +239,12 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.deepDelver,
     name: 'Deep Delver',
-    description: 'Increase the higher-dungeon bonus to Fate Token and Imprint drop chances.',
+    description: 'In Dungeon 2 and later, Fate Tokens and Imprints are 20% more likely to drop per rank. Dungeon 1 is unaffected.',
     iconKey: 'deep-delver',
     prerequisiteIds: [TALENT_IDS.fatecraft],
     ranks: [
-      { cost: 34, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.15 }] },
-      { cost: 68, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.15 }] },
+      { cost: 34, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.2 }] },
+      { cost: 68, effects: [{ type: 'dungeon_loot_multiplier', multiplier: 1.2 }] },
     ],
     track: 'descent',
   },
@@ -319,7 +319,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.fatesFavor,
     name: "Fate's Favor",
-    description: 'Add visible rarity protection to Fate Draws. No protection exists before rank 1.',
+    description: 'Add a rarity pity timer to Fate Draws. Drawing the protected rarity resets its timer; no rarity pity exists before rank 1.',
     iconKey: 'fate-favor',
     prerequisiteIds: [TALENT_IDS.fatecraft],
     ranks: [
@@ -332,7 +332,7 @@ export const TALENTS: TalentDefinition[] = [
   {
     id: TALENT_IDS.occultProspecting,
     name: 'Occult Prospecting',
-    description: 'Increase both Fate Token and Imprint drop chances by 15% per rank.',
+    description: 'Fate Tokens and Imprints are 15% more likely to drop in every Dungeon per rank.',
     iconKey: 'occult-prospecting',
     prerequisiteIds: [TALENT_IDS.fatecraft],
     ranks: [

@@ -8,6 +8,7 @@ import type {
   TalentRanks,
 } from '../types/progression'
 import type { SoulDieValues } from '../types/dice'
+import type { DungeonId } from '../types/dungeon'
 import type { WorkshopDieFace, WorkshopDieValues } from '../types/workshop'
 import type { CharmRarityProtection } from './fate'
 import {
@@ -174,7 +175,11 @@ export function getImprintDropMultiplier(talentRanks: Readonly<TalentRanks>): nu
   return getMultiplicativeTalentEffect(talentRanks, 'imprint_drop_multiplier')
 }
 
-export function getDungeonLootMultiplier(talentRanks: Readonly<TalentRanks>): number {
+export function getDungeonLootMultiplier(
+  talentRanks: Readonly<TalentRanks>,
+  dungeonId: DungeonId,
+): number {
+  if (dungeonId === 'prototype-depths') return 1
   return getMultiplicativeTalentEffect(talentRanks, 'dungeon_loot_multiplier')
 }
 

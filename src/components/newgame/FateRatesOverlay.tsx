@@ -49,7 +49,8 @@ export function FateRatesOverlay({ onClose }: FateRatesOverlayProps) {
         <div className="fate-rates-panel__notes">
           <p>These are the base rates while every rarity has an eligible Charm.</p>
           <p>When every Charm in a rarity reaches max rank, that rarity leaves the pool and the remaining rates normalize.</p>
-          <p>There is no default rarity protection. The Fate&apos;s Favor talent can add visible Epic+ and Legendary guarantees.</p>
+          <p>There is no default rarity pity. Fate&apos;s Favor adds visible Epic+ and Legendary pity timers.</p>
+          <p>Epic or Legendary resets the Epic+ timer. Only Legendary resets the Legendary timer.</p>
         </div>
       </section>
     </div>

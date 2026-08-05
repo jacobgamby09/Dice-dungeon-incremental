@@ -453,22 +453,79 @@
   animation-duration: 720ms;
 }
 
-.fate-protection {
+.fate-pity {
   margin-top: 10px;
-  border-left: 4px solid var(--arcade-purple);
+  border: var(--arcade-frame-section) solid var(--arcade-purple);
   background: #120b20;
-  padding: 8px 10px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.fate-pity__heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 0.8fr);
+  gap: 10px;
+  align-items: end;
+  border-bottom: var(--arcade-frame-subtle) solid #4d2873;
+  padding-bottom: 9px;
+}
+
+.fate-pity__heading > div {
   display: grid;
   gap: 3px;
 }
 
-.fate-protection strong,
-.fate-protection span {
-  font-family: var(--arcade-font-ui);
-  font-size: 0.56rem;
+.fate-pity__heading h3 {
+  margin: 0;
+  color: #f0e7ff;
+  font-family: var(--arcade-font-display);
+  font-size: 0.82rem;
+  text-transform: uppercase;
 }
 
-.fate-protection span { color: #d7c3ff; }
+.fate-pity__heading small,
+.fate-pity__row small {
+  color: #cbb7e8;
+  font-family: var(--arcade-font-ui);
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+.fate-pity__row {
+  display: grid;
+  gap: 5px;
+}
+
+.fate-pity__row > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #f0e7ff;
+  font-family: var(--arcade-font-ui);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.fate-pity__bar {
+  height: 10px;
+  border: var(--arcade-frame-subtle) solid #684298;
+  background: #050308;
+  overflow: hidden;
+}
+
+.fate-pity__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--arcade-purple);
+}
+
+@media (max-width: 360px) {
+  .fate-pity__heading {
+    grid-template-columns: 1fr;
+  }
+}
 
 .fate-machine__result > p {
   margin: 2px auto 6px;

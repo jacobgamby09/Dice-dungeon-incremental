@@ -47,6 +47,36 @@ interface CharmCollectionCardProps {
   rank: number
 }
 
+interface FatePityRowProps {
+  current: number
+  label: string
+  threshold: number
+}
+
+function FatePityRow({ current, label, threshold }: FatePityRowProps) {
+  const progress = Math.min(current, threshold)
+  const remaining = Math.max(1, threshold - progress)
+  return (
+    <div className="fate-pity__row">
+      <header>
+        <span>{label}</span>
+        <strong>{progress}/{threshold}</strong>
+      </header>
+      <div
+        aria-label={`${label} pity progress`}
+        aria-valuemax={threshold}
+        aria-valuemin={0}
+        aria-valuenow={progress}
+        className="fate-pity__bar"
+        role="progressbar"
+      >
+        <span style={{ width: `${(progress / threshold) * 100}%` }} />
+      </div>
+      <small>Guaranteed within {remaining} {remaining === 1 ? 'Draw' : 'Draws'}</small>
+    </div>
+  )
+}
+
 function CharmCollectionCard({
   capacity,
   charm,
@@ -198,11 +228,27 @@ export function FateSanctumScreen() {
           ) : null}
         </div>
         {protection ? (
-          <div className="fate-protection" aria-label="Fate's Favor rarity protection">
-            <strong>Fate's Favor</strong>
-            <span>Epic+ within {Math.max(1, protection.epicThreshold - profile.charmRarityProgress.epicMisses)} Draws</span>
-            {protection.legendaryThreshold ? <span>Legendary within {Math.max(1, protection.legendaryThreshold - profile.charmRarityProgress.legendaryMisses)} Draws</span> : null}
-          </div>
+          <section className="fate-pity" aria-labelledby="fate-pity-title">
+            <header className="fate-pity__heading">
+              <div>
+                <span className="eyebrow">Fate&apos;s Favor</span>
+                <h3 id="fate-pity-title">Rarity Pity Timer</h3>
+              </div>
+              <small>Drawing that rarity or higher resets its timer.</small>
+            </header>
+            <FatePityRow
+              current={profile.charmRarityProgress.epicMisses}
+              label="Epic+"
+              threshold={protection.epicThreshold}
+            />
+            {protection.legendaryThreshold ? (
+              <FatePityRow
+                current={profile.charmRarityProgress.legendaryMisses}
+                label="Legendary"
+                threshold={protection.legendaryThreshold}
+              />
+            ) : null}
+          </section>
         ) : null}
       </section>
 

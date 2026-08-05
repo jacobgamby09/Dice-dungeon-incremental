@@ -238,6 +238,17 @@
   color: var(--talent-accent);
 }
 
+.talent-canvas-inspector__description {
+  border-left: 4px solid var(--talent-accent);
+  padding: 8px 10px;
+  background: var(--talent-accent-soft);
+  color: color-mix(in srgb, var(--talent-accent) 36%, var(--arcade-white));
+  font-family: var(--arcade-font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .talent-canvas-inspector__effects span {
   border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   border-left: 4px solid var(--talent-accent);
@@ -247,6 +258,37 @@
   font-size: 0.72rem;
   font-weight: 800;
   line-height: 1.25;
+}
+
+.talent-canvas-inspector__signature {
+  border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
+  border-left: 4px solid var(--talent-accent);
+  padding: 9px 10px;
+  background: var(--arcade-black);
+  color: var(--arcade-white);
+}
+
+.talent-canvas-inspector__signature strong,
+.talent-canvas-inspector__signature span,
+.talent-canvas-inspector__signature small {
+  font-family: var(--arcade-font-ui);
+}
+
+.talent-canvas-inspector__signature strong {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.talent-canvas-inspector__signature span {
+  color: var(--arcade-white);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.talent-canvas-inspector__signature small {
+  color: var(--arcade-muted);
+  font-size: 0.6rem;
+  line-height: 1.35;
 }
 
 .talent-canvas-inspector__requirements,

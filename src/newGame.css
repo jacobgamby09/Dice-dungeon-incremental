@@ -6158,6 +6158,11 @@
   gap: 7px;
 }
 
+.talent-canvas-inspector__description {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
 .talent-canvas-inspector__effects span {
   min-height: 50px;
   border-left: 4px solid #43d5e4;
@@ -6498,7 +6503,19 @@
   border-top: 1px solid #1e3038;
   padding-top: 12px;
   display: grid;
-  gap: 0;
+  gap: 10px;
+}
+
+.talent-canvas-inspector__signature {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.talent-canvas-inspector__signature > div {
+  display: grid;
+  gap: 3px;
 }
 
 .round-total--ward,

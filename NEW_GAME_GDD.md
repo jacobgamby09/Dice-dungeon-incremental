@@ -280,6 +280,12 @@ aldrig 100%. Imprints afmonteres sikkert og beholder Power; Imprint-investering
 refunderes ikke. `Auto Forge` åbner en kontrolleret 1/5/10-kø, der accepterer første
 target og kun kører, mens Workshop er åben.
 
+`Forge Overcharge` gælder alle faces uden et Imprint, inklusive Signature Faces,
+mens `Resonant Etching` kun kan trigge, når Workshop vælger et Imprint. De to
+bonusser kan derfor aldrig trigge på samme target. `Occult Prospecting` forbedrer
+Fate Token- og Imprint-dropchance i alle Dungeons; `Deep Delver` giver i stedet
+sin separate 20%-per-rank bonus fra Dungeon 2 og frem.
+
 Spilleren vælger først én permanent terning og derefter en forge-metode:
 
 - `Chaos Forge` ruller blandt alle eligible faces på den valgte die. Resultatet fastlåses før animationen, og prisen er lavere, mens flere mulige faces er tilbage. Rabatten falder gradvist; med kun én eligible face koster Chaos det samme som Precision.

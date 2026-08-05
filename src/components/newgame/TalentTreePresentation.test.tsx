@@ -115,6 +115,88 @@ describe('Talent Tree presentation', () => {
     expect(markup).toContain('talent-canvas-inspector--track-arsenal')
   })
 
+  it('explains Reforge refunds in Souls and shows the resulting total', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.carefulSalvage]
+    const markup = renderToStaticMarkup(
+      <TalentDetailPanel
+        isAffordable
+        isAnimating={false}
+        nextRank={talent.ranks[0]}
+        nodeState="ready"
+        onClose={() => undefined}
+        onPurchase={() => undefined}
+        rank={0}
+        talent={talent}
+        talentRanks={{ [TALENT_IDS.reforging]: 1 }}
+        dungeonProgress={{
+          'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+        }}
+        xp={999}
+      />,
+    )
+
+    expect(markup).toContain('invested Souls per rank')
+    expect(markup).toContain('Soul refund when Reforging: 60% → 70%')
+    expect(markup).not.toContain('Reforge Recovery')
+  })
+
+  it('separates normal-face Overcharge from Imprint-only Etching', () => {
+    const overcharge = TALENTS_BY_ID[TALENT_IDS.forgeOvercharge]
+    const etching = TALENTS_BY_ID[TALENT_IDS.resonantEtching]
+    const sharedProps = {
+      isAffordable: true,
+      isAnimating: false,
+      nodeState: 'ready' as const,
+      onClose: () => undefined,
+      onPurchase: () => undefined,
+      rank: 0,
+      talentRanks: { [TALENT_IDS.faceMastery]: 1 },
+      dungeonProgress: {
+        'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
+        'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+      },
+      xp: 999,
+    }
+    const overchargeMarkup = renderToStaticMarkup(
+      <TalentDetailPanel {...sharedProps} nextRank={overcharge.ranks[0]} talent={overcharge} />,
+    )
+    const etchingMarkup = renderToStaticMarkup(
+      <TalentDetailPanel {...sharedProps} nextRank={etching.ranks[0]} talent={etching} />,
+    )
+
+    expect(overchargeMarkup).toContain('never Imprints')
+    expect(overchargeMarkup).toContain('Non-Imprint bonus chance: 8%')
+    expect(etchingMarkup).toContain('does not affect normal or Signature Faces')
+    expect(etchingMarkup).toContain('Imprint-only bonus chance: 12%')
+  })
+
+  it('shows the exact Signature mechanic before purchasing a new die', () => {
+    const talent = TALENTS_BY_ID[TALENT_IDS.executionerDoctrine]
+    const markup = renderToStaticMarkup(
+      <TalentDetailPanel
+        isAffordable
+        isAnimating={false}
+        nextRank={talent.ranks[0]}
+        nodeState="ready"
+        onClose={() => undefined}
+        onPurchase={() => undefined}
+        rank={0}
+        talent={talent}
+        talentRanks={{ [TALENT_IDS.thirdGrip]: 1 }}
+        dungeonProgress={{
+          'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+        }}
+        xp={999}
+      />,
+    )
+
+    expect(markup).toContain('Execute · 2/6 faces')
+    expect(markup).toContain('If the enemy began the roll sequence at 50% HP or less')
+    expect(markup).toContain('Workshop can permanently increase this face&#x27;s base value')
+  })
+
   it('only lights connections to talent nodes that can currently be purchased', () => {
     expect(getTalentConnectionState(1, 0, 'ready')).toBe('open')
     expect(getTalentConnectionState(1, 0, 'unaffordable')).toBe('open')

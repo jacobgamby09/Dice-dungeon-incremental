@@ -38,6 +38,7 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Talent Tree-copy og Fate-pity er nu player-facing:** Alle Talent-detaljer viser en kort konkret beskrivelse og den samlede effekt efter næste rank. Careful Salvage viser Soul-refund som 60→70→80→90%, Forge Overcharge er eksplicit non-Imprint, Resonant Etching er Imprint-only, og nye Signature Dice forklarer deres 2/6 Execute/Fortify/Drain-faces før køb. Deep Delver virker nu kun i Dungeon 2+ med 20% mere Fate/Imprint-loot per rank, mens Occult Prospecting forbliver den globale 15%-vej. Fate's Favor viser separate Epic+ og Legendary rarity-pity-bars i Fate Sanctum.
 - **Post-Dungeon-1 DEV-profilen er nu et simuleret medianforløb:** 250 fresh-save journeys gav median clear på run 27, fem ejede dice, tre slots, 17 Max HP, fire Charms og to Imprints. Seed 122 ligger tættest på de samlede medianer og indlæses præcis ved boss-clear checkpointet med sine faktiske ujævne face-rul, Forge-ledgers, Charm-ranks, Imprint Power/attachments og uspente rewards — ikke som kunstige ens terninger.
 - **Talent Tree bevarer nu altid spillerens viewport ved køb:** Reveal-ceremonien flytter ikke længere pan eller zoom til en beregnet frontier. Træets koordinater er samtidig samlet på et konsekvent 20-pixel-grid med cirka 23% mindre bredde og 21% mindre højde; geometriske tests fastholder kompakt footprint, linjefri nodes og forbindelser uden kryds.
 - **Reforge og Auto Forge er implementeret lokalt:** Workshop registrerer nu faktisk Soul-spend og tilført Forge Power per permanent die. Reforge nulstiller canonical faces, løsner Imprints sikkert og refunderer 60–90% gennem `Reforging`/`Careful Salvage`; `Auto Forge` giver kontrollerede 1/5/10-køer efter eget talent. Workshop-priser ignorerer medfødt face-styrke, så nye dice starter på en fair opgraderingskurve. Save version 24 nulstiller bevidst alle ældre saves.
@@ -308,6 +309,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-05 — Talent-readability og synlig rarity-pity
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: Talent-panelet bruger ikke længere interne begreber som `Reforge Recovery` eller uklare `Deep Dungeon Loot`-labels. Hver node viser player-facing formål og projected total efter køb; grant-die nodes viser alle faces samt den præcise Signature-mechanic. Fate Sanctum viser en semantisk rarity-pity-timer med progressbars, resterende draws og reset-regler efter Fate's Favor.
+- Beslutninger: Forge Overcharge gælder alle non-Imprint faces inklusive Signatures; Resonant Etching gælder kun Imprints. Occult Prospecting er global 15% per rank; Deep Delver er 20% per rank kun i Dungeon 2+ og har ingen D1-effekt. Rarity-pity er fortsat helt fraværende før Fate's Favor rank 1.
+- Berørte områder: Talent-katalog/progression, Talent-detail/UI-tests, Fate Sanctum/rate-overlay, Dungeon loot-multipliers, styling, GDD og progress-log.
+- Validering: Målrettede 63 tests samt den fulde suite på 209 tests består sammen med `npx tsc --noEmit`, ESLint, production build og `git diff --check`. React-review fandt ingen nye inline-komponenter, brede Zustand-subscriptions, render-effects eller tilgængelighedsblokere.
+- Kendte mangler: Deep Delvers nye D2+-værdi skal stadig vurderes gennem fysisk playtest; passet ændrer ikke XP-priser eller Fate-rarity-vægte.
+- Git: Committes og pushes på `codex/arcade-foundation-v1` i dette changeset.
 
 ### 2026-08-05 — Simuleret post-Dungeon-1 DEV-profil
 
