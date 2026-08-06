@@ -3,6 +3,7 @@ import type { CharmSnapshot } from '../types/charms'
 import type { RollResult } from '../types/dice'
 import {
   applyKillCharms,
+  applyEnemyStatusGuard,
   applyRollCharms,
   beginCharmRound,
   createCharmRunState,
@@ -73,5 +74,50 @@ describe('Charm combat engine', () => {
 
   it('returns the strongest equipped Shield carry rate', () => {
     expect(getShieldCarryRate([{ id: 'unbroken-wall', rank: 2 }])).toBe(0.6)
+  })
+
+  it('supports the deterministic D3 rhythm and five-die build charms', () => {
+    let state = createCharmRunState()
+    for (let index = 0; index < 2; index += 1) {
+      state = applyRollCharms(attackRoll(2), [{ id: 'third-spark', rank: 1 }], state).state
+    }
+    const spark = applyRollCharms(attackRoll(2), [{ id: 'third-spark', rank: 1 }], state)
+    const crown = applyRollCharms(
+      attackRoll(2),
+      [{ id: 'fivefold-crown', rank: 1 }],
+      createCharmRunState(),
+      { loadoutSize: 5 },
+    )
+
+    expect(spark.result.charmBonus).toBe(3)
+    expect(crown.result.charmBonus).toBe(2)
+  })
+
+  it('echoes only the last die and guards negative status dice per encounter', () => {
+    const echo = applyRollCharms(
+      attackRoll(8),
+      [{ id: 'last-echo', rank: 1 }],
+      createCharmRunState(),
+      { isLastRoll: true },
+    )
+    const encounter = beginCharmRound(
+      [{ id: 'clean-thread', rank: 1 }],
+      createCharmRunState(),
+      true,
+    )
+    const first = applyEnemyStatusGuard(
+      { attack: 4, shield: 0, heal: 0, bleed: 0, poison: 2, weaken: 1 },
+      [{ id: 'clean-thread', rank: 1 }],
+      encounter.state,
+    )
+    const second = applyEnemyStatusGuard(
+      { attack: 4, shield: 0, heal: 0, bleed: 0, poison: 2 },
+      [{ id: 'clean-thread', rank: 1 }],
+      first.state,
+    )
+
+    expect(echo.result.charmBonus).toBe(4)
+    expect(first.intent).toMatchObject({ poison: 0, weaken: 1 })
+    expect(second.intent.poison).toBe(2)
   })
 })

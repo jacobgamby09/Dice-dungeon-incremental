@@ -1,7 +1,7 @@
 # Dice Dungeon Incremental — Progress Log
 
 Status: aktiv, fælles projektlog.
-Senest opdateret: 2026-08-05.
+Senest opdateret: 2026-08-06.
 
 Dette dokument er den hurtige overlevering mellem alle, der arbejder på projektet. `NEW_GAME_GDD.md` beskriver spillet, `DESIGN.md` beskriver den visuelle retning, og denne fil beskriver **hvad der faktisk er sket, hvad der sker nu, og hvad næste skridt er**.
 
@@ -38,6 +38,9 @@ Brug denne skabelon:
 
 ## Aktuel status
 
+- **Dungeon 3 er implementeret som en komplet status-arc:** The Blighted Descent har ti floors, tre dice på normale enemies og fire på Plague Sovereign. Poison, Empower, Weaken og Cleanse følger loadout-rækkefølgen gennem den rene combat-engine. D2-bossen dropper Blighted Descent Key og åbner D3 automatisk; Talent Tree tilføjer Focus, Purifier, Fifth Grip, Blight Conditioning og fjerde Charm-slot.
+- **D3 har sit eget langsigtede lootlag:** Venom Edge, Purging Aegis og Plague Bloom er flytbare og Workshop-skalerbare Imprints. Imprint Hunt giver 1,75× chance i én valgt dungeon. Fire nye D3-gated Charms udvider Fate-poolen først ved D3-unlock, så de ikke accelererer D1/D2-progressionen.
+- **D3-balancen er regressionstestet:** En balanced 100-seed cohort rammer median D1-clear run 27, D2-clear 46, D3-start 47, femte slot 50, Purifier 58 og D3-clear 82. D3 varer dermed cirka 35 forsøg med et tidligt slot-power spike og et senere Cleanse-svar.
 - **Talent Tree-copy og Fate-pity er nu player-facing:** Alle Talent-detaljer viser en kort konkret beskrivelse og den samlede effekt efter næste rank. Careful Salvage viser Soul-refund som 60→70→80→90%, Forge Overcharge er eksplicit non-Imprint, Resonant Etching er Imprint-only, og nye Signature Dice forklarer deres 2/6 Execute/Fortify/Drain-faces før køb. Deep Delver virker nu kun i Dungeon 2+ med 20% mere Fate/Imprint-loot per rank, mens Occult Prospecting forbliver den globale 15%-vej. Fate's Favor viser separate Epic+ og Legendary rarity-pity-bars i Fate Sanctum.
 - **Post-Dungeon-1 DEV-profilen er nu et simuleret medianforløb:** 250 fresh-save journeys gav median clear på run 27, fem ejede dice, tre slots, 17 Max HP, fire Charms og to Imprints. Seed 122 ligger tættest på de samlede medianer og indlæses præcis ved boss-clear checkpointet med sine faktiske ujævne face-rul, Forge-ledgers, Charm-ranks, Imprint Power/attachments og uspente rewards — ikke som kunstige ens terninger.
 - **Talent Tree bevarer nu altid spillerens viewport ved køb:** Reveal-ceremonien flytter ikke længere pan eller zoom til en beregnet frontier. Træets koordinater er samtidig samlet på et konsekvent 20-pixel-grid med cirka 23% mindre bredde og 21% mindre højde; geometriske tests fastholder kompakt footprint, linjefri nodes og forbindelser uden kryds.
@@ -138,6 +141,10 @@ Brug denne skabelon:
 
 ## Næste anbefalede skridt
 
+- Playtest The Blighted Descent på fysisk mobil fra et normalt D2-clear-save. Kontrollér især om tre enemy dice stadig kan aflæses hurtigt, om Poison-tick føles fair, og om Plague Sovereigns fire-die reveal er dramatisk uden at blive langsomt.
+- Sammenlign Focus før og efter Fifth Grip. Empower skal gøre loadout-rækkefølge meningsfuld uden at skabe én obligatorisk placering; Purifier skal være et aktivt build-valg og ikke et ubetinget krav for D3-clear.
+- Test de tre D3-Imprints og fire D3-Charms i manuel og Auto Combat. Bekræft at Clean Thread-garden og Plague Blooms poison burst kommunikeres tydeligt i combat-feedback.
+- Bestil eller producer endelige sprites til Blight Cultist, Venom Guard og Plague Sovereign. De bruger bevidst eksisterende Cultist-, Shieldbearer- og Demon-assets som placeholders i denne gameplay-first iteration.
 - Åbn Executioner, Tower og Bloodwell i Loadout på fysisk mobil og bekræft, at overlayet kun viser faces, Signature-forklaring og Imprints — aldrig den pensionerede Evolution-liste.
 - Bekræft Workshop-rack, Face Mastery-krav og alle tre Imprint-rarities på fysisk iPhone; browserpasset ved 384 px viser ingen horisontal overflow eller tekst/status-overlap.
 - Playtest mindst én komplet D2-arc på fysisk mobil. Bekræft især at floor 5–7 føles som successive mål frem for samme væg, og at floor 8–10 er udfordrende uden at blive rene HP-svampe.
@@ -194,6 +201,10 @@ Brug denne skabelon:
 
 ## Åbne spørgsmål og kendte risici
 
+- D3 bruger foreløbige genbrugssprites for Blight Cultist, Venom Guard og Plague Sovereign. Mechanics, hitboxes og sprite-pipeline er på plads, men art-identiteten er ikke færdig.
+- D3 har cirka 35 simulerede forsøg mod D2's cirka 19. Det er tilsigtet som et større content-band, men fysisk spilletid og fire-die boss-tempo skal afgøre, om bossens 260 HP eller late-floor HP er for høj.
+- Dungeon 2 har endnu ingen egne Imprints ud over Blighted Descent Key. D1 og D3 har hver tre, så D2's loot-tabel er et bevidst content-hul til et senere pass.
+- Imprint Hunt er en direkte 1,75× dropmultiplikator og kan skiftes gratis uden for runs. Det er enkelt og læsbart, men bør playtestes før der tilføjes talents eller flere samtidige hunts.
 - Evolutions er fjernet fra den aktive model, men gamle historikposter og enkelte døde legacy-CSS-selectors kan fortsat nævne systemet som historisk reference. De påvirker ikke save, Workshop eller combat og bør kun fjernes ved en senere ren stylesheet-opdeling.
 - D2-længden er nu ensartet på balanced, Arsenal-, Workshop- og economy-paths i simulatoren, men den øgede late-floor HP og Attack kan fysisk opleves mere brutalt end den statistiske floor-kurve viser. Spiked Behemoths tre dice kræver særligt timing- og læsbarhedstjek.
 - Den sammenhængende Talent Tree-struktur er simulator-valid, men fri spilleradfærd kan stadig finde en stærkere eller mere frustrerende path end de canonical strategier. De nye prerequisites og priser skal derfor vurderes gennem flere menneskelige fresh-save-runs.
@@ -309,6 +320,18 @@ Brug denne skabelon:
 - Floor-10 Demon bruger den store røde hornede boss-art fra `Demon-GeneratedSource-v2.png` og fire 100 px-høje horisontale animation-sheets.
 
 ## Historik
+
+### 2026-08-06 — Dungeon 3: The Blighted Descent
+
+**Status:** Færdig
+**Ansvarlig:** Codex
+
+- Resultat: En komplet tredje dungeon med ti encounters, tre-die normale enemies, fire-die boss, automatisk key-transition, femte player-slot, Focus/Purifier dice, fire statuses, tre Imprints, Imprint Hunt og fire gated Charms er implementeret end-to-end.
+- Beslutninger: Poison ticker ved rundestart og falder med 1; Empower/Weaken forbruges af næste primære output; Cleanse fjerner begge debuffs eller bliver Shield. D3 Charms åbner først sammen med dungeonen. Første D3-boss-clear garanterer Venom Edge. Plague Sovereign har 260 HP efter simulatorpasset.
+- Berørte områder: Combat/types/tests, dice/enemy/dungeon/loot-content, Talent Tree, Fate, Imprints, Zustand-store/persistence, Dungeon/Combat/Workshop/Imprint UI, Charm-assets, Balance Lab, DEV-preset og GDD.
+- Validering: 100-seed cohort giver median D1-clear 27, D2-clear 46, D3-start 47, Fifth Grip 50, Purifier 58 og D3-clear 82. `npx tsc --noEmit`, 226 tests, ESLint, production build og `git diff --check` består. Lokalt 384×844 browserpass viser Hub, Dungeon 1–3 og Fate Sanctum uden overflow, error-overlay eller console warnings/errors; D3-Charms er korrekt skjult før unlock.
+- Kendte mangler: Tre D3-enemies bruger eksisterende sprites som placeholders; Dungeon 2 har endnu intet eget Imprint-sæt.
+- Git: Committed og pushed på `codex/arcade-foundation-v1` i dette changeset.
 
 ### 2026-08-05 — Talent-readability og synlig rarity-pity
 

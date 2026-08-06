@@ -5,9 +5,9 @@ import type { DieFaces } from '../types/dice'
 import type { PlayerProfile, TalentRanks } from '../types/progression'
 
 export const POST_DUNGEON_ONE_DEV_PRESET = {
-  averageFace: 4.27,
-  charmCount: 4,
-  clearRun: 27,
+  averageFace: 3.83,
+  charmCount: 3,
+  clearRun: 26,
   collectionCount: 5,
   diceSlots: 3,
   equippedCount: 3,
@@ -17,7 +17,7 @@ export const POST_DUNGEON_ONE_DEV_PRESET = {
   sourceAttempts: 250,
   sourceSeed: 122,
   souls: 23,
-  xp: 871,
+  xp: 695,
 } as const
 
 const SIMULATED_TALENT_RANKS: TalentRanks = {
@@ -41,18 +41,17 @@ const SIMULATED_TALENT_RANKS: TalentRanks = {
 }
 
 const SIMULATED_DICE = [
-  { id: 'attack-die-1', values: [6, 5, 9, 7, 8, 9] },
-  { id: 'attack-die-2', values: [3, 3, 6, 4, 7, 3] },
-  { id: 'shield-die-1', values: [4, 1, 5, 2, 5, 5] },
-  { id: 'heal-die-1', values: [4, 1, 1, 2, 6, 3] },
-  { id: 'attack-die-executioner', values: [5, 2, 3, 3, 3, 3] },
+  { id: 'attack-die-1', values: [7, 3, 8, 3, 7, 7] },
+  { id: 'attack-die-2', values: [7, 2, 4, 4, 4, 6] },
+  { id: 'shield-die-1', values: [1, 5, 4, 2, 4, 3] },
+  { id: 'heal-die-1', values: [1, 1, 1, 4, 4, 6] },
+  { id: 'attack-die-executioner', values: [2, 2, 4, 3, 3, 3] },
 ] as const
 
 const SIMULATED_CHARM_RANKS: CharmRanks = {
-  'soul-prism': 1,
   'ward-clock': 2,
   'echo-knot': 1,
-  bloodroot: 1,
+  'soul-prism': 1,
 }
 
 function createSimulatedDice() {
@@ -73,18 +72,14 @@ function createSimulatedImprints() {
   return [
     {
       ...createImprintInstance('relay-strike', 'dev-simulated-relay-strike'),
-      refinement: 4,
-      attachment: {
-        dieId: 'attack-die-2',
-        faceId: 'attack-die-2-face-5',
-      },
-    },
-    {
-      ...createImprintInstance('lead-edge', 'dev-simulated-lead-edge'),
+      refinement: 10,
       attachment: {
         dieId: 'attack-die-1',
         faceId: 'attack-die-1-face-3',
       },
+    },
+    {
+      ...createImprintInstance('lead-edge', 'dev-simulated-lead-edge'),
     },
   ]
 }
@@ -112,18 +107,22 @@ export function createPostDungeonOneDevProfile(
         highestFloorCleared: 0,
         clearCount: 0,
       },
+      'blighted-depths': {
+        highestFloorCleared: 0,
+        clearCount: 0,
+      },
     },
     diceCollection,
     equippedDieIds: ['attack-die-1', 'attack-die-2', 'shield-die-1'],
     dieForgeRecords: {
-      'attack-die-1': { dieId: 'attack-die-1', soulsSpent: 150, forgePowerAdded: 38 },
-      'attack-die-2': { dieId: 'attack-die-2', soulsSpent: 27, forgePowerAdded: 16 },
-      'shield-die-1': { dieId: 'shield-die-1', soulsSpent: 14, forgePowerAdded: 11 },
-      'heal-die-1': { dieId: 'heal-die-1', soulsSpent: 3, forgePowerAdded: 7 },
+      'attack-die-1': { dieId: 'attack-die-1', soulsSpent: 103, forgePowerAdded: 29 },
+      'attack-die-2': { dieId: 'attack-die-2', soulsSpent: 31, forgePowerAdded: 17 },
+      'shield-die-1': { dieId: 'shield-die-1', soulsSpent: 10, forgePowerAdded: 8 },
+      'heal-die-1': { dieId: 'heal-die-1', soulsSpent: 5, forgePowerAdded: 7 },
       'attack-die-executioner': {
         dieId: 'attack-die-executioner',
         soulsSpent: 1,
-        forgePowerAdded: 3,
+        forgePowerAdded: 1,
       },
     },
     charmRanks: { ...SIMULATED_CHARM_RANKS },

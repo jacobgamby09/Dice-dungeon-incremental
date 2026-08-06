@@ -59,6 +59,9 @@ export interface ProgressionJourneyMilestones {
   dungeonTwoUnlockRun: number | null
   dungeonTwoFirstRun: number | null
   dungeonTwoClearRun: number | null
+  dungeonThreeUnlockRun: number | null
+  dungeonThreeFirstRun: number | null
+  dungeonThreeClearRun: number | null
   firstJackpotForgeRun: number | null
   firstFaceUpgradeRun: number | null
   firstLoadoutChoiceRun: number | null
@@ -66,6 +69,9 @@ export interface ProgressionJourneyMilestones {
   fatecraftRun: number | null
   firstCharmRun: number | null
   fourthSlotRun: number | null
+  fifthSlotRun: number | null
+  focusDieRun: number | null
+  purifierDieRun: number | null
   relayImprintRun: number | null
   crescendoImprintRun: number | null
   secondDieRun: number | null
@@ -119,6 +125,12 @@ export const DEFAULT_JOURNEY_TALENT_PATH: readonly JourneyTalentStep[] = [
   { id: TALENT_IDS.executionerDoctrine },
   { id: TALENT_IDS.fourthGrip },
   { id: TALENT_IDS.bloodwellDoctrine },
+  { id: TALENT_IDS.focusPattern },
+  { id: TALENT_IDS.fifthGrip },
+  { id: TALENT_IDS.blightConditioning, targetRank: 2 },
+  { id: TALENT_IDS.purifierPattern },
+  { id: TALENT_IDS.blightConditioning, targetRank: 3 },
+  { id: TALENT_IDS.fourthCharmSlot },
 ]
 
 export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
@@ -127,6 +139,8 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
     'attack-die-2',
     'shield-die-1',
     'heal-die-bloodwell',
+    'cleanse-die-purifier',
+    'empower-die-focus',
     'heal-die-1',
   ],
   talentPath: DEFAULT_JOURNEY_TALENT_PATH,
@@ -135,7 +149,7 @@ export const DEFAULT_JOURNEY_STRATEGY: ProgressionJourneyStrategy = {
 function createJourneyProfile(): PlayerProfile {
   const diceCollection = createStartingDice()
   return {
-    saveVersion: 24,
+    saveVersion: 25,
     xp: 0,
     bankedSouls: 0,
     fateTokens: 0,
@@ -147,6 +161,7 @@ function createJourneyProfile(): PlayerProfile {
     dungeonProgress: {
       'prototype-depths': { clearCount: 0, highestFloorCleared: 0 },
       'iron-depths': { clearCount: 0, highestFloorCleared: 0 },
+      'blighted-depths': { clearCount: 0, highestFloorCleared: 0 },
     },
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
@@ -161,6 +176,7 @@ function createJourneyProfile(): PlayerProfile {
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
     imprints: [],
+    imprintHuntDungeonId: null,
     settings: {
       autoCombat: false,
       rollSpeed: 1,
@@ -246,6 +262,7 @@ function spendFateTokens(profile: PlayerProfile, random: () => number): PlayerPr
       nextProfile.charmRarityProgress,
       getCharmRarityProtection(nextProfile.talentRanks),
       random,
+      nextProfile.unlockedDungeonIds,
     )
     if (!created) break
     const charmRanks = claimFateDraw(nextProfile.charmRanks, created.draw)
@@ -403,6 +420,15 @@ function autoAttachImprints(profile: PlayerProfile): PlayerProfile {
   attachToDie('lead-edge', equippedDice[0])
   attachToDie('crescendo', [...equippedDice].reverse().find((die) => !usedDice.has(die.id)))
   attachToDie('relay-strike', equippedDice.find((die) => !usedDice.has(die.id)))
+  attachToDie('venom-edge', equippedDice.find((die) => (
+    !usedDice.has(die.id) && die.family === 'attack'
+  )))
+  attachToDie('purging-aegis', equippedDice.find((die) => (
+    !usedDice.has(die.id) && die.family === 'shield'
+  )))
+  attachToDie('plague-bloom', equippedDice.find((die) => (
+    !usedDice.has(die.id) && die.family === 'heal'
+  )))
 
   return {
     ...profile,
@@ -421,6 +447,9 @@ function createMilestones(): ProgressionJourneyMilestones {
     dungeonTwoUnlockRun: null,
     dungeonTwoFirstRun: null,
     dungeonTwoClearRun: null,
+    dungeonThreeUnlockRun: null,
+    dungeonThreeFirstRun: null,
+    dungeonThreeClearRun: null,
     firstJackpotForgeRun: null,
     firstFaceUpgradeRun: null,
     firstLoadoutChoiceRun: null,
@@ -428,6 +457,9 @@ function createMilestones(): ProgressionJourneyMilestones {
     fatecraftRun: null,
     firstCharmRun: null,
     fourthSlotRun: null,
+    fifthSlotRun: null,
+    focusDieRun: null,
+    purifierDieRun: null,
     relayImprintRun: null,
     crescendoImprintRun: null,
     secondDieRun: null,
@@ -475,6 +507,9 @@ export function simulateProgressionJourney(
       profile.diceCollection.some((die) => die.id === 'heal-die-bloodwell'),
     )
     setMilestone(milestones, 'fourthSlotRun', run, getDiceCapacity(profile.talentRanks) >= 4)
+    setMilestone(milestones, 'fifthSlotRun', run, getDiceCapacity(profile.talentRanks) >= 5)
+    setMilestone(milestones, 'focusDieRun', run, profile.diceCollection.some((die) => die.id === 'empower-die-focus'))
+    setMilestone(milestones, 'purifierDieRun', run, profile.diceCollection.some((die) => die.id === 'cleanse-die-purifier'))
     setMilestone(
       milestones,
       'autoCombatRun',
@@ -493,11 +528,13 @@ export function simulateProgressionJourney(
     const isHoldingInDungeonOne = strategy.dungeonOneUntilTalentId
       ? getTalentRank(profile.talentRanks, strategy.dungeonOneUntilTalentId) === 0
       : false
-    const dungeonId: DungeonId = profile.unlockedDungeonIds.includes('iron-depths')
-      && !isHoldingInDungeonOne
-      ? 'iron-depths'
-      : 'prototype-depths'
+    const dungeonId: DungeonId = profile.unlockedDungeonIds.includes('blighted-depths')
+      ? 'blighted-depths'
+      : profile.unlockedDungeonIds.includes('iron-depths') && !isHoldingInDungeonOne
+        ? 'iron-depths'
+        : 'prototype-depths'
     setMilestone(milestones, 'dungeonTwoFirstRun', run, dungeonId === 'iron-depths')
+    setMilestone(milestones, 'dungeonThreeFirstRun', run, dungeonId === 'blighted-depths')
     const equippedDice = profile.equippedDieIds.map((dieId) => (
       profile.diceCollection.find((die) => die.id === dieId)!
     ))
@@ -509,6 +546,7 @@ export function simulateProgressionJourney(
       talentRanks: profile.talentRanks,
       soulDieState: profile.soulDie,
       imprints: profile.imprints,
+      imprintHuntActive: true,
       dungeonClearCount: profile.dungeonProgress[dungeonId].clearCount,
     }, random)
 
@@ -524,7 +562,11 @@ export function simulateProgressionJourney(
         && result.completedDungeon
         && !profile.unlockedDungeonIds.includes('iron-depths')
         ? [...profile.unlockedDungeonIds, 'iron-depths']
-        : profile.unlockedDungeonIds,
+        : dungeonId === 'iron-depths'
+          && result.completedDungeon
+          && !profile.unlockedDungeonIds.includes('blighted-depths')
+          ? [...profile.unlockedDungeonIds, 'blighted-depths']
+          : profile.unlockedDungeonIds,
       dungeonProgress: {
         ...profile.dungeonProgress,
         [dungeonId]: {
@@ -556,6 +598,12 @@ export function simulateProgressionJourney(
       'dungeonTwoClearRun',
       run,
       dungeonId === 'iron-depths' && result.completedDungeon,
+    )
+    setMilestone(
+      milestones,
+      'dungeonThreeClearRun',
+      run,
+      dungeonId === 'blighted-depths' && result.completedDungeon,
     )
     setMilestone(milestones, 'firstImprintRun', run, profile.imprints.length > 0)
     setMilestone(
@@ -596,6 +644,9 @@ export function simulateProgressionJourney(
       profile.diceCollection.some((die) => die.id === 'heal-die-bloodwell'),
     )
     setMilestone(milestones, 'fourthSlotRun', run, getDiceCapacity(profile.talentRanks) >= 4)
+    setMilestone(milestones, 'fifthSlotRun', run, getDiceCapacity(profile.talentRanks) >= 5)
+    setMilestone(milestones, 'focusDieRun', run, profile.diceCollection.some((die) => die.id === 'empower-die-focus'))
+    setMilestone(milestones, 'purifierDieRun', run, profile.diceCollection.some((die) => die.id === 'cleanse-die-purifier'))
     setMilestone(
       milestones,
       'autoCombatRun',
@@ -607,6 +658,12 @@ export function simulateProgressionJourney(
       'dungeonTwoUnlockRun',
       run,
       profile.unlockedDungeonIds.includes('iron-depths'),
+    )
+    setMilestone(
+      milestones,
+      'dungeonThreeUnlockRun',
+      run,
+      profile.unlockedDungeonIds.includes('blighted-depths'),
     )
     setMilestone(milestones, 'fatecraftRun', run, hasCharmsUnlocked(profile.talentRanks))
     setMilestone(milestones, 'firstCharmRun', run, Object.keys(profile.charmRanks).length > 0)

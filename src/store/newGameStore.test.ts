@@ -32,6 +32,11 @@ function prepareResolvedRound(totals: {
         ward: 0,
         regrowth: 0,
         overflow: 0,
+        poison: 0,
+        empower: 0,
+        weaken: 0,
+        cleanse: 0,
+        poisonBurst: 0,
       },
     },
   })
@@ -45,7 +50,7 @@ describe('Classic V2 store progression loop', () => {
   it('starts with one permanent Attack die containing six one-value faces', () => {
     const profile = useNewGameStore.getState().profile
 
-    expect(profile.saveVersion).toBe(24)
+    expect(profile.saveVersion).toBe(25)
     expect(profile.diceCollection).toHaveLength(1)
     expect(profile.equippedDieIds).toEqual(['attack-die-1'])
     expect(profile.diceCollection[0].family).toBe('attack')
@@ -613,7 +618,7 @@ describe('Classic V2 store progression loop', () => {
         run: structuredClone(persisted.run),
         combat: structuredClone(persisted.combat),
       } as NewGameState,
-      version: 24,
+      version: 25,
     }
     const storage: PersistStorage<NewGameState> = {
       getItem: () => saved,
@@ -680,8 +685,8 @@ describe('Classic V2 store progression loop', () => {
     expect(getPlayerMaxHp(state.profile.talentRanks)).toBe(17)
     expect(getDiceCapacity(state.profile.talentRanks)).toBe(3)
     expect(state.profile.diceCollection[0].faces.map((face) => face.value))
-      .toEqual([6, 5, 9, 7, 8, 9])
-    expect(Object.keys(state.profile.charmRanks)).toHaveLength(4)
+      .toEqual([7, 3, 8, 3, 7, 7])
+    expect(Object.keys(state.profile.charmRanks)).toHaveLength(3)
     expect(state.profile.imprints).toHaveLength(2)
 
     state.startRun('iron-depths')
@@ -782,7 +787,7 @@ describe('Classic V2 store progression loop', () => {
 
     let saved: StorageValue<NewGameState> | null = {
       state: completed,
-      version: 24,
+      version: 25,
     }
     const storage: PersistStorage<NewGameState> = {
       getItem: () => saved,
@@ -802,6 +807,35 @@ describe('Classic V2 store progression loop', () => {
       useNewGameStore.persist.setOptions({ storage: originalStorage })
       useNewGameStore.getState().resetProgress()
     }
+  })
+
+  it('unlocks Dungeon 3 and grants its key exactly once after the Dungeon 2 boss', () => {
+    const initial = useNewGameStore.getState()
+    useNewGameStore.setState({
+      profile: {
+        ...initial.profile,
+        unlockedDungeonIds: ['prototype-depths', 'iron-depths'],
+      },
+    })
+    useNewGameStore.getState().startRun('iron-depths')
+    const running = useNewGameStore.getState()
+    useNewGameStore.setState({
+      run: {
+        ...running.run,
+        encounterIndex: 9,
+        enemy: createEnemyState('descent-2-spiked-behemoth'),
+      },
+    })
+    prepareResolvedRound({ attack: 999, shield: 0, heal: 0 })
+
+    expect(useNewGameStore.getState().beginRoundResolution(() => 0.99)?.outcome).toBe('victory')
+    const completed = useNewGameStore.getState()
+    expect(completed.profile.unlockedDungeonIds).toContain('blighted-depths')
+    expect(completed.run.lastReward?.dungeonKey).toBe('blighted-descent-key')
+    expect(useNewGameStore.getState().beginRoundResolution()).toBeNull()
+    expect(useNewGameStore.getState().profile.unlockedDungeonIds.filter(
+      (id) => id === 'blighted-depths',
+    )).toHaveLength(1)
   })
 
   it.skip('legacy: migrates the removed Second Descent talent into the key unlock and refunds its XP', async () => {
@@ -884,7 +918,7 @@ describe('Classic V2 store progression loop', () => {
       expect(migrated.screen).toBe('hub')
       expect(migrated.profile).toMatchObject({
         bankedSouls: 0,
-        saveVersion: 24,
+        saveVersion: 25,
         xp: 0,
       })
       expect(migrated.profile.diceCollection).toHaveLength(1)

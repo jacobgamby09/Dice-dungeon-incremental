@@ -35,6 +35,10 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.executionerDoctrine]: { x: 900, y: 540 },
   [TALENT_IDS.fourthGrip]: { x: 1000, y: 420 },
   [TALENT_IDS.bloodwellDoctrine]: { x: 1200, y: 500 },
+  [TALENT_IDS.fifthGrip]: { x: 900, y: 400 },
+  [TALENT_IDS.focusPattern]: { x: 1200, y: 400 },
+  [TALENT_IDS.purifierPattern]: { x: 1300, y: 400 },
+  [TALENT_IDS.blightConditioning]: { x: 1100, y: 400 },
 
   [TALENT_IDS.volatileTemper]: { x: 800, y: 820 },
   [TALENT_IDS.efficientTools]: { x: 700, y: 920 },
@@ -56,6 +60,7 @@ export const TALENT_TREE_LAYOUT: Record<TalentId, TalentTreePoint> = {
   [TALENT_IDS.occultProspecting]: { x: 1280, y: 820 },
   [TALENT_IDS.wovenPair]: { x: 1180, y: 740 },
   [TALENT_IDS.trinityKnot]: { x: 1280, y: 680 },
+  [TALENT_IDS.fourthCharmSlot]: { x: 1320, y: 600 },
 }
 
 const TALENT_LAYOUT_VALUES = Object.values(TALENT_TREE_LAYOUT)

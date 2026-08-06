@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
 import { createCombatState } from '../game/combat/combatState'
 import {
+  applyEnemyStatusGuard,
   applyKillCharms,
   applyRollCharms,
   beginCharmRound,
@@ -158,13 +159,14 @@ export interface NewGameState {
   unequipCharm: (charmId: CharmId) => boolean
   attachImprint: (imprintId: string, dieId: string, faceId: string) => boolean
   detachImprint: (imprintId: string) => boolean
+  setImprintHuntDungeon: (dungeonId: DungeonId | null) => void
   loadEarlyQolDevPreset: () => void
   loadFatecraftStartDevPreset: () => void
   loadPostDungeonOneDevPreset: () => void
   resetProgress: () => void
 }
 
-const SAVE_VERSION = 24
+const SAVE_VERSION = 25
 const LEGACY_FATECRAFT_REFUND = 75
 const LEGACY_SECOND_DESCENT_ID = 'second-descent'
 const LEGACY_SECOND_DESCENT_REFUND = 75
@@ -201,6 +203,7 @@ function createInitialProfile(): PlayerProfile {
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
     imprints: [],
+    imprintHuntDungeonId: null,
     settings: {
       rollSpeed: 1,
       autoCombat: false,
@@ -215,6 +218,10 @@ function createInitialDungeonProgress(): Record<DungeonId, DungeonProgress> {
       clearCount: 0,
     },
     'iron-depths': {
+      highestFloorCleared: 0,
+      clearCount: 0,
+    },
+    'blighted-depths': {
       highestFloorCleared: 0,
       clearCount: 0,
     },
@@ -307,6 +314,7 @@ function migrateEnemyState(
     ),
     shield: totalEnemyRolls(intentRolls).shield,
     bleed: Math.max(0, existingEnemy.bleed ?? 0),
+    poison: Math.max(0, existingEnemy.poison ?? 0),
     rewardClaimed: existingEnemy.rewardClaimed ?? false,
     intentRolls,
   }
@@ -1023,7 +1031,9 @@ export const useNewGameStore = create<NewGameState>()(
           rolledResult,
           state.combat.results.length,
           state.combat.pendingImprintRelay,
+          state.run.enemy?.poison ?? 0,
         )
+        const allDiceDrawn = remainingDieIds.length === 0
         const charmRoll = applyRollCharms(
           imprintRoll.result,
           state.run.equippedCharmSnapshot,
@@ -1032,10 +1042,11 @@ export const useNewGameStore = create<NewGameState>()(
             attackOnlyLoadout: state.run.equippedDiceSnapshot.every(
               (equippedDie) => equippedDie.family === 'attack',
             ),
+            isLastRoll: allDiceDrawn,
+            loadoutSize: state.run.equippedDiceSnapshot.length,
           },
         )
         const result = charmRoll.result
-        const allDiceDrawn = remainingDieIds.length === 0
         const rollEffects = addRollEffects(
           state.combat.totals,
           result,
@@ -1044,6 +1055,8 @@ export const useNewGameStore = create<NewGameState>()(
           {
             enemyHp: state.run.enemy?.hp,
             enemyMaxHp: state.run.enemy?.maxHp,
+            pendingEmpower: state.combat.pendingEmpower,
+            pendingWeaken: state.combat.pendingWeaken,
           },
         )
 
@@ -1059,6 +1072,8 @@ export const useNewGameStore = create<NewGameState>()(
             results: [...state.combat.results, result],
             totals: rollEffects.totals,
             pendingFortify: rollEffects.pendingFortify,
+            pendingEmpower: rollEffects.pendingEmpower,
+            pendingWeaken: rollEffects.pendingWeaken,
             pendingImprintRelay: imprintRoll.nextRelayBonus,
             lastCharmTriggers: charmRoll.triggers,
             charmTriggerVersion: state.combat.charmTriggerVersion
@@ -1075,6 +1090,11 @@ export const useNewGameStore = create<NewGameState>()(
         if (state.combat.phase !== 'awaiting_resolve') return null
         if (enemy.rewardClaimed) return null
 
+        const guardedIntent = applyEnemyStatusGuard(
+          totalEnemyRolls(enemy.intentRolls),
+          state.run.equippedCharmSnapshot,
+          state.run.charmState,
+        )
         const resolution = resolveRound({
           playerHp: state.run.playerHp,
           playerMaxHp: state.run.playerMaxHp,
@@ -1082,11 +1102,15 @@ export const useNewGameStore = create<NewGameState>()(
           enemyMaxHp: enemy.maxHp,
           enemyShield: enemy.shield,
           enemyBleed: enemy.bleed,
-          enemyIntent: totalEnemyRolls(enemy.intentRolls),
+          enemyIntent: guardedIntent.intent,
           totals: state.combat.totals,
           carriedShield: state.combat.carriedShield,
           carriedHeal: state.combat.carriedHeal,
           shieldCarryRate: getShieldCarryRate(state.run.equippedCharmSnapshot),
+          playerPoison: state.combat.playerPoison,
+          enemyPoison: enemy.poison,
+          remainingPlayerWeaken: state.combat.pendingWeaken,
+          pendingPlayerEmpower: state.combat.pendingEmpower,
         })
         const resolutionVersion = state.combat.resolutionVersion + 1
 
@@ -1108,12 +1132,12 @@ export const useNewGameStore = create<NewGameState>()(
             ? {
                 heal: 0,
                 soulBonus: 0,
-                state: state.run.charmState,
+                state: guardedIntent.state,
                 triggers: [],
               }
             : applyKillCharms(
                 state.run.equippedCharmSnapshot,
-                state.run.charmState,
+                guardedIntent.state,
               )
           const fateDrop = !rewardAlreadyClaimed
             && hasCharmsUnlocked(state.profile.talentRanks)
@@ -1122,7 +1146,9 @@ export const useNewGameStore = create<NewGameState>()(
                 state.profile.fatePity,
                 random,
                 getFateDropMultiplier(state.profile.talentRanks)
-                  * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
+                  * (state.run.dungeonId === 'blighted-depths'
+                    ? 2.2
+                    : state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
                   * getDungeonLootMultiplier(state.profile.talentRanks, state.run.dungeonId!),
               )
             : {
@@ -1137,11 +1163,14 @@ export const useNewGameStore = create<NewGameState>()(
           )
           const floorDefinition = dungeon.floors[state.run.encounterIndex]
           const dungeonComplete = floorDefinition.isBoss
-          const dungeonKey = dungeonComplete
-            && state.run.dungeonId === 'prototype-depths'
-            && !state.profile.unlockedDungeonIds.includes('iron-depths')
-            && !rewardAlreadyClaimed
-            ? 'iron-descent-key' as const
+          const dungeonKey = dungeonComplete && !rewardAlreadyClaimed
+            ? state.run.dungeonId === 'prototype-depths'
+              && !state.profile.unlockedDungeonIds.includes('iron-depths')
+              ? 'iron-descent-key' as const
+              : state.run.dungeonId === 'iron-depths'
+                && !state.profile.unlockedDungeonIds.includes('blighted-depths')
+                ? 'blighted-descent-key' as const
+                : undefined
             : undefined
           const previousProgress = state.profile.dungeonProgress[state.run.dungeonId!]
           const rolledImprintId = rewardAlreadyClaimed
@@ -1154,8 +1183,11 @@ export const useNewGameStore = create<NewGameState>()(
                 owned: state.profile.imprints,
                 random,
                 dropMultiplier: getImprintDropMultiplier(state.profile.talentRanks)
-                  * (state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
+                  * (state.run.dungeonId === 'blighted-depths'
+                    ? 2.2
+                    : state.run.dungeonId === 'iron-depths' ? 1.6 : 1)
                   * getDungeonLootMultiplier(state.profile.talentRanks, state.run.dungeonId!),
+                huntActive: state.profile.imprintHuntDungeonId === state.run.dungeonId,
               })
           const imprintGrant = rolledImprintId
             ? grantImprintDrop(
@@ -1166,9 +1198,11 @@ export const useNewGameStore = create<NewGameState>()(
             : { imprints: state.profile.imprints, receipt: null }
           const imprints = imprintGrant.imprints
           const imprintDrop = imprintGrant.receipt
-          const unlockedDungeonIds = dungeonKey
+          const unlockedDungeonIds = dungeonKey === 'iron-descent-key'
             ? [...state.profile.unlockedDungeonIds, 'iron-depths' as const]
-            : state.profile.unlockedDungeonIds
+            : dungeonKey === 'blighted-descent-key'
+              ? [...state.profile.unlockedDungeonIds, 'blighted-depths' as const]
+              : state.profile.unlockedDungeonIds
           const dungeonProgress = {
             ...state.profile.dungeonProgress,
             [state.run.dungeonId!]: {
@@ -1222,6 +1256,7 @@ export const useNewGameStore = create<NewGameState>()(
                 hp: resolution.enemyHp,
                 shield: resolution.enemyShieldAfterPlayerPhase,
                 bleed: resolution.enemyBleed,
+                poison: resolution.enemyPoison,
                 rewardClaimed: true,
               },
               lastReward: {
@@ -1252,9 +1287,9 @@ export const useNewGameStore = create<NewGameState>()(
               lastResolution: resolution,
               resolutionVersion,
               resolutionStep: 'player',
-              lastCharmTriggers: charmKill.triggers,
+              lastCharmTriggers: [...guardedIntent.triggers, ...charmKill.triggers],
               charmTriggerVersion: state.combat.charmTriggerVersion
-                + (charmKill.triggers.length > 0 ? 1 : 0),
+                + (guardedIntent.triggers.length + charmKill.triggers.length > 0 ? 1 : 0),
             },
           })
           return resolution
@@ -1266,11 +1301,13 @@ export const useNewGameStore = create<NewGameState>()(
               ...state.run,
               status: 'defeat',
               playerHp: 0,
+              charmState: guardedIntent.state,
               enemy: {
                 ...enemy,
                 hp: resolution.enemyHpAfterPlayerPhase,
                 shield: resolution.enemyShieldAfterPlayerPhase,
                 bleed: resolution.enemyBleed,
+                poison: resolution.enemyPoison,
               },
             },
             combat: {
@@ -1279,6 +1316,9 @@ export const useNewGameStore = create<NewGameState>()(
               lastResolution: resolution,
               resolutionVersion,
               resolutionStep: 'player',
+              lastCharmTriggers: guardedIntent.triggers,
+              charmTriggerVersion: state.combat.charmTriggerVersion
+                + (guardedIntent.triggers.length > 0 ? 1 : 0),
             },
           })
           return resolution
@@ -1288,11 +1328,13 @@ export const useNewGameStore = create<NewGameState>()(
           run: {
             ...state.run,
             playerHp: resolution.playerHpAfterPlayerPhase,
+            charmState: guardedIntent.state,
             enemy: {
               ...enemy,
               hp: resolution.enemyHpAfterPlayerPhase,
               shield: resolution.enemyShieldAfterPlayerPhase,
               bleed: resolution.enemyBleed,
+              poison: resolution.enemyPoison,
             },
           },
           combat: {
@@ -1301,6 +1343,9 @@ export const useNewGameStore = create<NewGameState>()(
             lastResolution: resolution,
             resolutionVersion,
             resolutionStep: 'player',
+            lastCharmTriggers: guardedIntent.triggers,
+            charmTriggerVersion: state.combat.charmTriggerVersion
+              + (guardedIntent.triggers.length > 0 ? 1 : 0),
           },
         })
         return resolution
@@ -1323,6 +1368,7 @@ export const useNewGameStore = create<NewGameState>()(
                     hp: resolution.enemyHp,
                     shield: 0,
                     bleed: resolution.enemyBleed,
+                    poison: resolution.enemyPoison,
                   }
                 : null,
             },
@@ -1347,6 +1393,7 @@ export const useNewGameStore = create<NewGameState>()(
                   hp: resolution.enemyHp,
                   shield: 0,
                   bleed: resolution.enemyBleed,
+                  poison: resolution.enemyPoison,
                 }
               : null,
           },
@@ -1399,6 +1446,11 @@ export const useNewGameStore = create<NewGameState>()(
             {
               shield: state.combat.lastResolution.nextRoundShield + charmRound.shield,
               heal: state.combat.lastResolution.nextRoundHeal,
+            },
+            {
+              poison: state.combat.lastResolution.nextPlayerPoison,
+              weaken: state.combat.lastResolution.nextPlayerWeaken,
+              empower: state.combat.lastResolution.nextPlayerEmpower,
             },
             ),
             lastCharmTriggers: charmRound.triggers,
@@ -1854,6 +1906,7 @@ export const useNewGameStore = create<NewGameState>()(
           state.profile.charmRarityProgress,
           getCharmRarityProtection(state.profile.talentRanks),
           random,
+          state.profile.unlockedDungeonIds,
         )
         if (!fateDraw) return null
         const pendingFateDraw = fateDraw.draw
@@ -1961,6 +2014,18 @@ export const useNewGameStore = create<NewGameState>()(
           },
         })
         return true
+      },
+
+      setImprintHuntDungeon: (dungeonId) => {
+        const state = get()
+        if (state.run.status !== 'inactive') return
+        if (dungeonId && !state.profile.unlockedDungeonIds.includes(dungeonId)) return
+        set({
+          profile: {
+            ...state.profile,
+            imprintHuntDungeonId: dungeonId,
+          },
+        })
       },
 
       loadEarlyQolDevPreset: () => {

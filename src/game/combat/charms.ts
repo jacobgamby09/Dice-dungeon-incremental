@@ -5,9 +5,13 @@ import type {
   CharmTrigger,
 } from '../types/charms'
 import type { RollResult } from '../types/dice'
+import { normalizeRoundTotals } from '../types/combat'
+import type { RoundTotals, RoundTotalsInput } from '../types/combat'
 
 export interface RollCharmOptions {
   attackOnlyLoadout?: boolean
+  isLastRoll?: boolean
+  loadoutSize?: number
   random?: () => number
 }
 
@@ -18,6 +22,7 @@ export function createCharmRunState(): CharmRunState {
     roundsStarted: 0,
     encountersStarted: 0,
     enemiesDefeated: 0,
+    statusGuardsUsed: 0,
   }
 }
 
@@ -89,6 +94,24 @@ export function applyRollCharms(
       bonus += effect.bonus
       triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, 'attack'))
     }
+    const isPrimary = result.type === 'attack' || result.type === 'shield' || result.type === 'heal'
+    if (
+      effect.type === 'total_rhythm'
+      && isPrimary
+      && nextState.totalRolls % effect.threshold === 0
+    ) {
+      bonus += effect.bonus
+      triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, result.type))
+    }
+    if (effect.type === 'last_echo' && options.isLastRoll && isPrimary) {
+      const echoed = Math.ceil(result.value * effect.multiplier)
+      bonus += echoed
+      triggers.push(createTrigger(snapshot, 'echo', echoed, result.type))
+    }
+    if (effect.type === 'fivefold_output' && options.loadoutSize === 5 && isPrimary) {
+      bonus += effect.bonus
+      triggers.push(createTrigger(snapshot, 'roll_bonus', effect.bonus, result.type))
+    }
   }
 
   return {
@@ -114,6 +137,7 @@ export function beginCharmRound(
   const nextState = normalizeCharmRunState(state)
   nextState.roundsStarted += 1
   if (encounterStart) nextState.encountersStarted += 1
+  if (encounterStart) nextState.statusGuardsUsed = 0
   const triggers: CharmTrigger[] = []
   let shield = 0
 
@@ -127,6 +151,32 @@ export function beginCharmRound(
     }
   }
   return { shield, state: nextState, triggers }
+}
+
+export function applyEnemyStatusGuard(
+  intent: RoundTotalsInput,
+  snapshots: readonly CharmSnapshot[],
+  state: Readonly<CharmRunState>,
+): { intent: RoundTotals; state: CharmRunState; triggers: CharmTrigger[] } {
+  const nextState = normalizeCharmRunState(state)
+  const nextIntent = normalizeRoundTotals(intent)
+  const triggers: CharmTrigger[] = []
+
+  for (const snapshot of snapshots) {
+    const effect = getEffect(snapshot)
+    if (effect.type !== 'status_guard') continue
+    let remainingGuards = Math.max(0, effect.amount - nextState.statusGuardsUsed)
+    for (const type of ['poison', 'weaken'] as const) {
+      if (remainingGuards <= 0 || nextIntent[type] <= 0) continue
+      const blocked = nextIntent[type]
+      nextIntent[type] = 0
+      nextState.statusGuardsUsed += 1
+      remainingGuards -= 1
+      triggers.push(createTrigger(snapshot, 'cleanse', blocked, type))
+    }
+  }
+
+  return { intent: nextIntent, state: nextState, triggers }
 }
 
 export function applyKillCharms(

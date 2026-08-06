@@ -32,6 +32,10 @@ const FACE_SURFACES = {
   attack: '#5f1521',
   shield: '#173b78',
   heal: '#14532d',
+  poison: '#365314',
+  empower: '#713f12',
+  weaken: '#4c1d95',
+  cleanse: '#164e63',
 } as const
 
 function EnemyFaceContent({

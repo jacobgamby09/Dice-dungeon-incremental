@@ -48,6 +48,16 @@ describe('MVP content integrity', () => {
     ])
   })
 
+  it('defines the Dungeon 3 status dice with forgeable Dormant faces', () => {
+    const focus = createDiceCatalog().find((die) => die.id === 'empower-die-focus')
+    const purifier = createDiceCatalog().find((die) => die.id === 'cleanse-die-purifier')
+
+    expect(focus?.faces.map((face) => face.value)).toEqual([0, 0, 0, 1, 1, 2])
+    expect(focus?.faces.every((face) => face.type === 'empower')).toBe(true)
+    expect(purifier?.faces.map((face) => face.value)).toEqual([0, 0, 1, 1, 1, 2])
+    expect(purifier?.faces.every((face) => face.type === 'cleanse')).toBe(true)
+  })
+
   it('defines six stable same-type faces for every enemy die', () => {
     const enemyDice = Object.values(ENEMY_DICE)
     const faceIds = enemyDice.flatMap((die) => die.faces.map((face) => face.id))
@@ -119,12 +129,31 @@ describe('MVP content integrity', () => {
     expect(firstFourDungeonTwoXp).toBeGreaterThan(dungeonOneXp)
   })
 
+  it('makes Dungeon 3 the three-die status dungeon with a four-die boss', () => {
+    const descent = DUNGEONS['blighted-depths'].floors
+      .map((floor) => ENCOUNTERS[floor.encounterId])
+
+    expect(descent.slice(0, -1).every((encounter) => encounter.dieIds.length === 3)).toBe(true)
+    expect(descent.at(-1)?.dieIds).toHaveLength(4)
+    expect(descent.slice(0, 4).map((encounter) => (
+      encounter.dieIds.map((id) => ENEMY_DICE[id].type).join('+')
+    ))).toEqual([
+      'attack+attack+poison',
+      'weaken+attack+attack',
+      'empower+attack+heal',
+      'shield+attack+poison',
+    ])
+    expect(descent.at(-1)?.maxHp).toBe(260)
+    expect(descent.at(-1)?.dieIds.map((id) => ENEMY_DICE[id].type))
+      .toEqual(['empower', 'attack', 'poison', 'attack'])
+  })
+
   it('gives permanent Soul loot from every encounter and funds the first face upgrade immediately', () => {
     expect(Object.values(ENCOUNTERS).every((encounter) => encounter.soulValue > 0)).toBe(true)
     expect(ENCOUNTERS['descent-1-slime-l1'].soulValue).toBe(getFaceUpgradeCost(1))
   })
 
-  it('orders both dungeons as ten floors with exactly one final boss', () => {
+  it('orders every dungeon as ten floors with exactly one final boss', () => {
     for (const dungeon of Object.values(DUNGEONS)) {
       expect(dungeon.floors.map((floor) => floor.floor)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
       expect(dungeon.floors.filter((floor) => floor.isBoss)).toEqual([dungeon.floors[9]])

@@ -40,6 +40,14 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     name: 'Spiked Behemoth',
     spriteName: 'SpikedBehemoth',
   },
+  'toxic-creep': { id: 'toxic-creep', name: 'Toxic Creep', spriteName: 'ToxicCreep' },
+  'blight-cultist': { id: 'blight-cultist', name: 'Blight Cultist', spriteName: 'Cultist' },
+  'venom-guard': { id: 'venom-guard', name: 'Venom Guard', spriteName: 'Shieldbearer' },
+  'plague-sovereign': {
+    id: 'plague-sovereign',
+    name: 'Plague Sovereign',
+    spriteName: 'Demon',
+  },
 }
 
 export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
@@ -232,6 +240,59 @@ export const ENCOUNTERS: Record<EncounterId, EncounterDefinition> = {
     soulValue: 12,
     rewardTier: 'boss',
   },
+  'descent-3-toxic-creep-l1': {
+    id: 'descent-3-toxic-creep-l1', enemyId: 'toxic-creep', level: 1, maxHp: 105,
+    dieIds: ['toxic-creep-l1-attack-a', 'toxic-creep-l1-attack-b', 'toxic-creep-l1-poison'],
+    xpReward: 280, soulValue: 10,
+  },
+  'descent-3-marrow-bat-l1': {
+    id: 'descent-3-marrow-bat-l1', enemyId: 'marrow-bat', level: 1, maxHp: 116,
+    dieIds: ['marrow-bat-l1-weaken', 'marrow-bat-l1-attack-a', 'marrow-bat-l1-attack-b'],
+    xpReward: 310, soulValue: 10,
+  },
+  'descent-3-blight-cultist-l1': {
+    id: 'descent-3-blight-cultist-l1', enemyId: 'blight-cultist', level: 1, maxHp: 128,
+    dieIds: ['blight-cultist-l1-empower', 'blight-cultist-l1-attack', 'blight-cultist-l1-heal'],
+    xpReward: 345, soulValue: 11,
+  },
+  'descent-3-venom-guard-l1': {
+    id: 'descent-3-venom-guard-l1', enemyId: 'venom-guard', level: 1, maxHp: 142,
+    dieIds: ['venom-guard-l1-shield', 'venom-guard-l1-attack', 'venom-guard-l1-poison'],
+    xpReward: 385, soulValue: 11,
+  },
+  'descent-3-toxic-creep-l2': {
+    id: 'descent-3-toxic-creep-l2', enemyId: 'toxic-creep', level: 2, maxHp: 180,
+    dieIds: ['toxic-creep-l2-attack-a', 'toxic-creep-l2-attack-b', 'toxic-creep-l2-poison'],
+    xpReward: 450, soulValue: 12,
+  },
+  'descent-3-marrow-bat-l2': {
+    id: 'descent-3-marrow-bat-l2', enemyId: 'marrow-bat', level: 2, maxHp: 195,
+    dieIds: ['marrow-bat-l2-weaken', 'marrow-bat-l2-attack-a', 'marrow-bat-l2-attack-b'],
+    xpReward: 510, soulValue: 12,
+  },
+  'descent-3-blight-cultist-l2': {
+    id: 'descent-3-blight-cultist-l2', enemyId: 'blight-cultist', level: 2, maxHp: 215,
+    dieIds: ['blight-cultist-l2-empower', 'blight-cultist-l2-attack', 'blight-cultist-l2-heal'],
+    xpReward: 580, soulValue: 13,
+  },
+  'descent-3-venom-guard-l2': {
+    id: 'descent-3-venom-guard-l2', enemyId: 'venom-guard', level: 2, maxHp: 235,
+    dieIds: ['venom-guard-l2-shield', 'venom-guard-l2-attack', 'venom-guard-l2-poison'],
+    xpReward: 660, soulValue: 13,
+  },
+  'descent-3-venom-guard-elite': {
+    id: 'descent-3-venom-guard-elite', enemyId: 'venom-guard', level: 3, maxHp: 270,
+    dieIds: ['venom-guard-elite-shield', 'venom-guard-elite-attack', 'venom-guard-elite-poison'],
+    xpReward: 780, soulValue: 16, rewardTier: 'elite',
+  },
+  'descent-3-plague-sovereign': {
+    id: 'descent-3-plague-sovereign', enemyId: 'plague-sovereign', level: 1, maxHp: 260,
+    dieIds: [
+      'plague-sovereign-empower', 'plague-sovereign-attack-a',
+      'plague-sovereign-poison', 'plague-sovereign-attack-b',
+    ],
+    xpReward: 1100, soulValue: 22, rewardTier: 'boss',
+  },
 }
 
 function rollIntent(
@@ -259,6 +320,7 @@ export function createEnemyState(
     maxHp: encounter.maxHp,
     shield: totalEnemyRolls(intentRolls).shield,
     bleed: 0,
+    poison: 0,
     dieIds: [...encounter.dieIds],
     intentRolls,
     xpReward: encounter.xpReward,

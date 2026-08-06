@@ -38,6 +38,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     dungeonProgress: {
       'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
       'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+      'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
     },
     diceCollection: [],
     equippedDieIds: [],
@@ -50,6 +51,7 @@ function createProfile(talentRanks: TalentRanks = {}, xp = 0): PlayerProfile {
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
     imprints: [],
+    imprintHuntDungeonId: null,
     settings: { rollSpeed: 1, autoCombat: false },
   }
 }

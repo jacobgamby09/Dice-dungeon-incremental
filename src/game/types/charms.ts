@@ -1,4 +1,5 @@
 import type { FaceType } from './dice'
+import type { DungeonId } from './dungeon'
 
 export const CHARM_IDS = [
   'blade-rhythm',
@@ -9,6 +10,10 @@ export const CHARM_IDS = [
   'soul-prism',
   'crimson-oath',
   'unbroken-wall',
+  'third-spark',
+  'clean-thread',
+  'last-echo',
+  'fivefold-crown',
 ] as const
 
 export const CHARM_RARITIES = ['common', 'rare', 'epic', 'legendary'] as const
@@ -26,6 +31,10 @@ export type CharmEffect =
   | { type: 'soul_flat'; amount: number }
   | { type: 'attack_oath'; bonus: number }
   | { type: 'shield_carry'; rate: number }
+  | { type: 'total_rhythm'; threshold: number; bonus: number }
+  | { type: 'status_guard'; amount: number }
+  | { type: 'last_echo'; multiplier: number }
+  | { type: 'fivefold_output'; bonus: number }
 
 export interface CharmRankDefinition {
   description: string
@@ -39,6 +48,7 @@ export interface CharmDefinition {
   assetPath: string
   accent: string
   rarity: CharmRarity
+  minimumDungeonId?: DungeonId
   ranks: [CharmRankDefinition, CharmRankDefinition, CharmRankDefinition]
 }
 
@@ -50,7 +60,7 @@ export interface CharmSnapshot {
 export interface CharmTrigger {
   charmId: CharmId
   charmName: string
-  kind: 'roll_bonus' | 'echo' | 'shield' | 'heal' | 'souls'
+  kind: 'roll_bonus' | 'echo' | 'shield' | 'heal' | 'souls' | 'cleanse'
   amount: number
   targetType?: FaceType
 }
@@ -61,6 +71,7 @@ export interface CharmRunState {
   roundsStarted: number
   encountersStarted: number
   enemiesDefeated: number
+  statusGuardsUsed: number
 }
 
 export interface CharmRarityProgress {

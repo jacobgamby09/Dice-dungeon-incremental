@@ -1,6 +1,7 @@
-import { Gem, KeyRound, LockKeyhole, Skull, Swords } from 'lucide-react'
+import { Crosshair, Gem, KeyRound, LockKeyhole, Skull, Swords } from 'lucide-react'
 import { DUNGEONS } from '../game/content/dungeons'
 import { getDungeonLootTable } from '../game/content/dungeonLootTables'
+import { DUNGEON_KEYS } from '../game/content/dungeonKeys'
 import type { DungeonId } from '../game/types/dungeon'
 import { useNewGameStore } from '../store/newGameStore'
 
@@ -8,6 +9,8 @@ export function DungeonSelectScreen() {
   const unlockedDungeonIds = useNewGameStore((state) => state.profile.unlockedDungeonIds)
   const dungeonProgress = useNewGameStore((state) => state.profile.dungeonProgress)
   const imprints = useNewGameStore((state) => state.profile.imprints)
+  const imprintHuntDungeonId = useNewGameStore((state) => state.profile.imprintHuntDungeonId)
+  const setImprintHuntDungeon = useNewGameStore((state) => state.setImprintHuntDungeon)
   const startRun = useNewGameStore((state) => state.startRun)
   const goToHub = useNewGameStore((state) => state.goToHub)
 
@@ -24,6 +27,11 @@ export function DungeonSelectScreen() {
           const isUnlocked = unlockedDungeonIds.includes(dungeonId)
           const lootTable = getDungeonLootTable(dungeonId)
           const showLootTable = imprints.length > 0 && lootTable.length > 0
+          const unlockRequirement = dungeonId === 'iron-depths'
+            ? 'Defeat the Demon and claim the Iron Descent Key'
+            : dungeonId === 'blighted-depths'
+              ? 'Defeat the Spiked Behemoth and claim the Blighted Descent Key'
+              : ''
           return (
             <article
               aria-label={`${dungeon.name}, ${isUnlocked ? 'unlocked' : 'locked'}`}
@@ -44,7 +52,7 @@ export function DungeonSelectScreen() {
                 {!isUnlocked ? (
                   <span className="dungeon-card__requirement">
                     <KeyRound aria-hidden="true" size={16} />
-                    Defeat the Demon and claim the Iron Descent Key
+                    {unlockRequirement}
                   </span>
                 ) : null}
                 {showLootTable ? (
@@ -56,7 +64,7 @@ export function DungeonSelectScreen() {
                     <ul>
                       {lootTable.map((entry) => {
                         const discovered = entry.kind === 'dungeon-key'
-                          ? unlockedDungeonIds.includes('iron-depths')
+                          ? unlockedDungeonIds.includes(DUNGEON_KEYS[entry.id].unlocksDungeonId)
                           : imprints.some((imprint) => imprint.definitionId === entry.id)
                         return (
                           <li
@@ -71,6 +79,19 @@ export function DungeonSelectScreen() {
                       })}
                     </ul>
                   </section>
+                ) : null}
+                {isUnlocked && imprints.length > 0 && lootTable.some((entry) => entry.kind === 'imprint') ? (
+                  <button
+                    aria-pressed={imprintHuntDungeonId === dungeonId}
+                    className="dungeon-imprint-hunt"
+                    onClick={() => setImprintHuntDungeon(
+                      imprintHuntDungeonId === dungeonId ? null : dungeonId,
+                    )}
+                    type="button"
+                  >
+                    <Crosshair aria-hidden="true" size={15} />
+                    {imprintHuntDungeonId === dungeonId ? 'Imprint Hunt Active' : 'Track Imprints'}
+                  </button>
                 ) : null}
               </div>
               <button

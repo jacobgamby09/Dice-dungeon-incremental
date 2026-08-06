@@ -35,4 +35,21 @@ export const DUNGEONS: Record<DungeonId, DungeonDefinition> = {
       { floor: 10, encounterId: 'descent-2-spiked-behemoth', isBoss: true },
     ],
   },
+  'blighted-depths': {
+    id: 'blighted-depths',
+    name: 'The Blighted Descent',
+    description: 'Master Poison, Empower and Weaken against three-die enemies and the Plague Sovereign.',
+    floors: [
+      { floor: 1, encounterId: 'descent-3-toxic-creep-l1', isBoss: false },
+      { floor: 2, encounterId: 'descent-3-marrow-bat-l1', isBoss: false },
+      { floor: 3, encounterId: 'descent-3-blight-cultist-l1', isBoss: false },
+      { floor: 4, encounterId: 'descent-3-venom-guard-l1', isBoss: false },
+      { floor: 5, encounterId: 'descent-3-toxic-creep-l2', isBoss: false },
+      { floor: 6, encounterId: 'descent-3-marrow-bat-l2', isBoss: false },
+      { floor: 7, encounterId: 'descent-3-blight-cultist-l2', isBoss: false },
+      { floor: 8, encounterId: 'descent-3-venom-guard-l2', isBoss: false },
+      { floor: 9, encounterId: 'descent-3-venom-guard-elite', isBoss: false },
+      { floor: 10, encounterId: 'descent-3-plague-sovereign', isBoss: true },
+    ],
+  },
 }

@@ -24,6 +24,7 @@ function createBaseProfile(): PlayerProfile {
     dungeonProgress: {
       'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
       'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+      'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
     },
     diceCollection,
     equippedDieIds: diceCollection.map((die) => die.id),
@@ -36,6 +37,7 @@ function createBaseProfile(): PlayerProfile {
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
     imprints: [],
+    imprintHuntDungeonId: null,
     settings: {
       rollSpeed: 1,
       autoCombat: false,
@@ -58,6 +60,7 @@ describe('post-Dungeon-1 developer preset', () => {
     expect(profile.dungeonProgress).toEqual({
       'prototype-depths': { highestFloorCleared: 10, clearCount: 1 },
       'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+      'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
     })
     expect(getPlayerMaxHp(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.maxHp)
     expect(getDiceCapacity(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.diceSlots)
@@ -85,11 +88,11 @@ describe('post-Dungeon-1 developer preset', () => {
     )
 
     expect(profile.diceCollection.map((die) => die.faces.map((face) => face.value))).toEqual([
-      [6, 5, 9, 7, 8, 9],
-      [3, 3, 6, 4, 7, 3],
-      [4, 1, 5, 2, 5, 5],
-      [4, 1, 1, 2, 6, 3],
-      [5, 2, 3, 3, 3, 3],
+      [7, 3, 8, 3, 7, 7],
+      [7, 2, 4, 4, 4, 6],
+      [1, 5, 4, 2, 4, 3],
+      [1, 1, 1, 4, 4, 6],
+      [2, 2, 4, 3, 3, 3],
     ])
   })
 
@@ -100,25 +103,23 @@ describe('post-Dungeon-1 developer preset', () => {
       'soul-prism': 1,
       'ward-clock': 2,
       'echo-knot': 1,
-      bloodroot: 1,
     })
     expect(profile.equippedCharmIds).toEqual(['echo-knot'])
     expect(profile.imprints).toEqual(expect.arrayContaining([
       expect.objectContaining({
         definitionId: 'relay-strike',
-        refinement: 4,
-        attachment: { dieId: 'attack-die-2', faceId: 'attack-die-2-face-5' },
+        refinement: 10,
+        attachment: { dieId: 'attack-die-1', faceId: 'attack-die-1-face-3' },
       }),
       expect.objectContaining({
         definitionId: 'lead-edge',
         refinement: 0,
-        attachment: { dieId: 'attack-die-1', faceId: 'attack-die-1-face-3' },
       }),
     ]))
     expect(profile.dieForgeRecords['attack-die-1']).toEqual({
       dieId: 'attack-die-1',
-      soulsSpent: 150,
-      forgePowerAdded: 38,
+      soulsSpent: 103,
+      forgePowerAdded: 29,
     })
   })
 })

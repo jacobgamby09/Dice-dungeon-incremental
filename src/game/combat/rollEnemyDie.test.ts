@@ -41,4 +41,14 @@ describe('enemy dice', () => {
     expect(shielded.shield).toBe(2)
     expect(nextRound.shield).toBe(0)
   })
+
+  it('applies enemy Empower only to the following primary dice', () => {
+    const results = [
+      rollEnemyDie(getEnemyDie('blight-cultist-l1-empower'), () => 0.999),
+      rollEnemyDie(getEnemyDie('blight-cultist-l1-attack'), () => 0),
+      rollEnemyDie(getEnemyDie('blight-cultist-l1-heal'), () => 0),
+    ]
+
+    expect(totalEnemyRolls(results)).toMatchObject({ empower: 2, attack: 10, heal: 3 })
+  })
 })

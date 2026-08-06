@@ -110,7 +110,7 @@ export function OutcomeRewards({
               <span>Milestone Loot</span>
               <strong>{DUNGEON_KEYS[dungeonKey].name}</strong>
               <em>{DUNGEON_KEYS[dungeonKey].description}</em>
-              <small>Dungeon 2 unlocked</small>
+              <small>{DUNGEON_KEYS[dungeonKey].unlocksDungeonId === 'iron-depths' ? 'Dungeon 2' : 'Dungeon 3'} unlocked</small>
             </div>
           ) : null}
           {imprintDrop ? (

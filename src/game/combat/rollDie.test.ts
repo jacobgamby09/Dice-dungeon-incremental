@@ -62,4 +62,44 @@ describe('rollDie', () => {
     )
     expect(contributions[0]).toMatchObject({ executeBonus: 3, totalValue: 6 })
   })
+
+  it('consumes Empower and Weaken in loadout order on primary dice only', () => {
+    const empower = addRollEffects(
+      { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      { dieId: 'e', dieName: 'Focus', faceId: 'e1', faceIndex: 0, type: 'empower', value: 2 },
+      false,
+    )
+    const attack = addRollEffects(
+      empower.totals,
+      { dieId: 'a', dieName: 'Blade', faceId: 'a1', faceIndex: 0, type: 'attack', value: 8 },
+      false,
+      0,
+      { pendingEmpower: empower.pendingEmpower, pendingWeaken: 1 },
+    )
+
+    expect(empower.pendingEmpower).toBe(2)
+    expect(attack.totals.attack).toBe(8)
+    expect(attack.feedback).toMatchObject({ empowerBonus: 2, weakenPenalty: 2 })
+    expect(attack.pendingEmpower).toBe(1)
+    expect(attack.pendingWeaken).toBe(0)
+  })
+
+  it('allows dormant status faces to contribute zero until forged', () => {
+    const die = createDiceCatalog().find((candidate) => candidate.id === 'empower-die-focus')!
+    const dormant = addRollEffects(
+      { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      rollDie(die, () => 0),
+      false,
+    )
+    const awakened = addRollEffects(
+      dormant.totals,
+      rollDie(die, () => 0.6),
+      false,
+      0,
+      { pendingEmpower: dormant.pendingEmpower },
+    )
+
+    expect(dormant.pendingEmpower).toBe(0)
+    expect(awakened.pendingEmpower).toBe(1)
+  })
 })

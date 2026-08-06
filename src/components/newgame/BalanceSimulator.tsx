@@ -36,9 +36,15 @@ const DISPLAYED_MILESTONES: readonly {
   { key: 'relayImprintRun', label: 'Relay Strike found' },
   { key: 'crescendoImprintRun', label: 'Crescendo found' },
   { key: 'dungeonTwoClearRun', label: 'Dungeon 2 clear' },
+  { key: 'dungeonThreeUnlockRun', label: 'Dungeon 3 unlock' },
+  { key: 'dungeonThreeFirstRun', label: 'First Dungeon 3 run' },
+  { key: 'focusDieRun', label: 'Focus Die' },
+  { key: 'fifthSlotRun', label: 'Fifth dice slot' },
+  { key: 'purifierDieRun', label: 'Purifier Die' },
+  { key: 'dungeonThreeClearRun', label: 'Dungeon 3 clear' },
 ]
 
-const CURVE_CHECKPOINTS = new Set([1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 60, 80])
+const CURVE_CHECKPOINTS = new Set([1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 60, 80, 100, 120])
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`
@@ -49,8 +55,8 @@ function formatDecimal(value: number): string {
 }
 
 export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
-  const [attempts, setAttempts] = useState(10)
-  const [maxRuns, setMaxRuns] = useState(60)
+  const [attempts, setAttempts] = useState(3)
+  const [maxRuns, setMaxRuns] = useState(100)
   const [seed, setSeed] = useState(431)
   const [strategyId, setStrategyId] = useState<ProgressionStrategyId>('balanced')
   const [result, setResult] = useState<ProgressionCohortResult>(() => (
@@ -121,9 +127,11 @@ export function BalanceSimulator({ onClose }: BalanceSimulatorProps) {
           <label>
             Journeys
             <select onChange={(event) => setAttempts(Number(event.target.value))} value={attempts}>
+              <option value={3}>3</option>
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={100}>100</option>
+              <option value={120}>120</option>
               <option value={250}>250</option>
               <option value={500}>500</option>
             </select>

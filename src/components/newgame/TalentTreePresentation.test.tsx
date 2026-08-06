@@ -76,6 +76,7 @@ describe('Talent Tree presentation', () => {
         dungeonProgress={{
           'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
           'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
         }}
         xp={88}
       />,
@@ -107,6 +108,7 @@ describe('Talent Tree presentation', () => {
         dungeonProgress={{
           'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
           'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
         }}
         xp={0}
       />,
@@ -131,6 +133,7 @@ describe('Talent Tree presentation', () => {
         dungeonProgress={{
           'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
           'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
         }}
         xp={999}
       />,
@@ -155,6 +158,7 @@ describe('Talent Tree presentation', () => {
       dungeonProgress: {
         'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
         'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+        'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
       },
       xp: 999,
     }
@@ -187,6 +191,7 @@ describe('Talent Tree presentation', () => {
         dungeonProgress={{
           'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
           'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+          'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
         }}
         xp={999}
       />,

@@ -227,6 +227,12 @@ export const PROGRESSION_MILESTONE_KEYS: readonly (keyof ProgressionJourneyMiles
   'relayImprintRun',
   'crescendoImprintRun',
   'dungeonTwoClearRun',
+  'dungeonThreeUnlockRun',
+  'dungeonThreeFirstRun',
+  'focusDieRun',
+  'fifthSlotRun',
+  'purifierDieRun',
+  'dungeonThreeClearRun',
 ]
 
 function percentile(sortedValues: readonly number[], percentileValue: number): number | null {

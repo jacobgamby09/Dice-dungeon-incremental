@@ -9,6 +9,7 @@ export function applyImprintRoll(
   result: RollResult,
   priorRollCount: number,
   pendingRelayMultiplier: number,
+  enemyPoison = 0,
 ): ImprintRollResolution {
   const relayBonus = Math.ceil(result.value * Math.max(0, pendingRelayMultiplier))
   let value = result.value + relayBonus
@@ -26,11 +27,24 @@ export function applyImprintRoll(
   if (effect === 'relay') nextRelayBonus = 0.5
   value += localBonus
 
+  const appliedPoison = effect === 'venom'
+    ? Math.max(1, Math.floor(value / 4))
+    : result.appliedPoison
+  const appliedCleanse = effect === 'purging'
+    ? Math.max(1, Math.floor(value / 5))
+    : result.appliedCleanse
+  const poisonBurst = effect === 'plague-bloom'
+    ? Math.max(0, enemyPoison)
+    : result.poisonBurst
+
   return {
     result: {
       ...result,
       value,
       imprintBonus: localBonus + relayBonus,
+      appliedPoison,
+      appliedCleanse,
+      poisonBurst,
     },
     nextRelayBonus,
   }

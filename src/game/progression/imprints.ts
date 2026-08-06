@@ -89,15 +89,18 @@ export function rollImprintDrop(options: {
   owned: readonly ImprintInstance[]
   random?: () => number
   dropMultiplier?: number
+  huntActive?: boolean
 }): ImprintId | null {
   const random = options.random ?? Math.random
   const ownedIds = new Set(options.owned.map((instance) => instance.definitionId))
   if (
-    options.dungeonId === 'prototype-depths'
+    (options.dungeonId === 'prototype-depths' || options.dungeonId === 'blighted-depths')
     && options.isBoss
     && options.clearCount === 0
-    && !ownedIds.has('lead-edge')
-  ) return 'lead-edge'
+  ) {
+    const guaranteedId = options.dungeonId === 'prototype-depths' ? 'lead-edge' : 'venom-edge'
+    if (!ownedIds.has(guaranteedId)) return guaranteedId
+  }
 
   const candidates = (Object.values(IMPRINT_DEFINITIONS) as typeof IMPRINT_DEFINITIONS[ImprintId][])
     .filter((definition) => (
@@ -111,11 +114,16 @@ export function rollImprintDrop(options: {
     'lead-edge': 0.016,
     'relay-strike': 0.008,
     crescendo: 0.002,
+    'venom-edge': 0.018,
+    'purging-aegis': 0.009,
+    'plague-bloom': 0.0025,
   }
   const roll = Math.min(0.999999, Math.max(0, random()))
   let cursor = 0
   for (const candidate of candidates) {
-    cursor += chances[candidate.id] * depthMultiplier * bossMultiplier * Math.max(0, options.dropMultiplier ?? 1)
+    const huntMultiplier = options.huntActive ? 1.75 : 1
+    cursor += chances[candidate.id] * depthMultiplier * bossMultiplier
+      * Math.max(0, options.dropMultiplier ?? 1) * huntMultiplier
     if (roll < cursor) return candidate.id
   }
   return null

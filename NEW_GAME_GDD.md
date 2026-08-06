@@ -1,6 +1,6 @@
 # Dice Dungeon Incremental — Game Design Document
 
-Status: gældende design for det nye spil. Version: MVP 0.7.
+Status: gældende design for det nye spil. Version: MVP 0.8.
 
 ## High concept
 
@@ -39,12 +39,12 @@ Spilleren skal mærke hurtig fremgang fra begyndelsen. De første 2–3 runs ska
 ```text
 Hub
 → vælg dungeon
-→ træk alle permanente terninger i tilfældig rækkefølge
+→ rul alle permanente terninger i den rækkefølge, spilleren har valgt i sit loadout
 → resolve Heal, Attack, Shield og enemy intent
 → vind permanent XP og permanente Souls fra hver enemy
 → fortsæt lineært til næste floor eller returnér efter Defeat/boss
 → brug XP på karakter-, system- og content-unlocks
-→ brug Souls i Chaos Forge eller Precision Forge på én eksisterende terning
+→ brug Souls i Workshop-ritualet på et tilfældigt fysisk face
 → start et nyt run med større kapacitet og stærkere personlige dice
 → nå dybere, tjene hurtigere og unlock mere automation
 ```
@@ -143,6 +143,8 @@ MVP-katalog:
 - `attack-die-executioner`, Executioner Die: `1, 2, 3, 3 Attack + 2 Execute`. Et Execute-face giver sin aktuelle face-værdi som Attack og yderligere +3 Attack, når enemy begyndte roll-sekvensen på højst 50% HP.
 - `shield-die-tower`, Tower Die: `1, 2, 3, 3 Shield + 2 Fortify`. Et Fortify-face giver sin aktuelle face-værdi som Shield og +2 til næste Shield-face; hvis ingen Shield-face følger, falder bonussen straks tilbage til Shield.
 - `heal-die-bloodwell`, Bloodwell Die: fire normale Heal-faces og to Drain-faces. Et Drain-face giver sin aktuelle face-værdi som Heal samt +2 Attack.
+- `empower-die-focus`, Focus Die: `0, 0, 0, 1, 1, 2 Empower`. Hver charge forstærker næste primære player-face med 25%, afrundet op. Dormant 0-faces kan udvikles i Workshop.
+- `cleanse-die-purifier`, Purifier Die: `0, 0, 1, 1, 1, 2 Cleanse`. Cleanse fjerner samme mængde Poison og Weaken; uden en aktiv debuff bliver værdien i stedet til Shield.
 
 Spilleren starter kun med Worn Blade Die og ét dice slot. De øvrige konkrete terninger kommer fra XP-talenter.
 
@@ -162,15 +164,19 @@ Den centrale `Battle-Hardened`-node har tre ranks. Hver rank giver +2 Max HP, s�
 | Twin Arsenal | 16 XP | Battle-Hardened rank 1 | +1 dice slot og én Striker Die |
 | Auto Combat | 12 XP | Twin Arsenal | Spillerstyret automation af rolls, resolution, normale victories og næste floor |
 | Shieldcraft | 32 XP | Twin Arsenal | Én Iron Guard Die og adgang til Shield-familien |
-| Second Descent | 60 XP | Shieldcraft + første clear af The First Descent | Unlock The Iron Descent |
 | Battle-Hardened II | 24 XP | Shieldcraft | +3 Max HP |
 | Third Grip | 40 XP | Shieldcraft | +1 dice slot |
 | Quick Draw | 20 XP | Shieldcraft | Roll- og score-animationer er 25% hurtigere |
 | Healing Arts | 55 XP | Third Grip | Én Vitality Die og adgang til Heal-familien |
 | Fourth Grip | 2.500 XP | 2 af Healing Arts / Executioner Doctrine / Bloodwell Doctrine | +1 dice slot |
 | Bloodwell Doctrine | 2.400 XP | Healing Arts | Én Bloodwell Signature Die |
-| Executioner Doctrine | 45 XP | Second Descent | Én Executioner Die |
-| Tower Discipline | 45 XP | Second Descent | Én Tower Die |
+| Executioner Doctrine | 135 XP | Third Grip | Én Executioner Die |
+| Tower Discipline | 110 XP | Third Grip + Battle-Hardened II | Én Tower Die |
+| Fifth Grip | 8.000 XP | Fourth Grip | +1 dice slot |
+| Focus Pattern | 3.600 XP | Bloodwell Doctrine | Én Focus Die med Empower |
+| Purifier Pattern | 6.200 XP | Focus Pattern | Én Purifier Die med Cleanse |
+| Blight Conditioning rank 1/2/3 | 1.600 / 3.000 / 4.800 XP | Fourth Grip / forrige rank | +3 Max HP per rank |
+| Tetrad Weave | 7.000 XP | Trinity Knot | +1 Charm slot |
 
 Auto Combat er én spillerstyret toggle. Når den er aktiv, ruller den alle player dice, resolver runden, starter næste runde og fortsætter automatisk gennem normale Victory-pulses til næste floor. Den stopper altid ved Defeat og Boss Victory; Auto Retry findes ikke i denne fase. Spilleren kan slå automationen fra under combat, hvorefter det nuværende atomiske animations-/resolutionstrin færdiggøres, før manuel styring overtager.
 
@@ -189,16 +195,25 @@ Den tidlige tilsigtede cadence er:
 5. Auto Combat bliver tilgængelig for 12 XP direkte efter Twin Arsenal og nås derfor typisk efter cirka 3–5 kills.
 6. Shieldcraft åbner derefter Survival, Arsenal og den senere hastighedsprogression.
 7. Healing Arts kan nås sent i Dungeon 1, så spilleren lærer Heal, før en enemy bruger mechanicen.
-8. Første clear af The First Descent afslører adgangskravet til Second Descent; købet åbner Dungeon 2.
-9. Second Descent åbner både Executioner Doctrine og Tower Discipline uden branch lockout. Spilleren må eje begge, men deres værdi opstår gennem et aktivt loadout-valg inden for fire slots.
+8. Første clear af The First Descent dropper Iron Descent Key og åbner Dungeon 2 automatisk; dungeon-adgang købes ikke i Talent Tree.
+9. Første clear af The Iron Descent dropper Blighted Descent Key og åbner Dungeon 3 automatisk.
+10. Focus kan købes sent i Dungeon 2, Fifth Grip er det første store Dungeon 3-power spike, og Purifier følger midt i D3-arcen.
 
 ## Kamp
 
-Spilleren ser altid enemy HP og det præcise næste intent før første draw. En enemy ejer 1–3 data-drevne, seks-sidede dice med stabile die- og face-ID'er. Hver die er Attack, Shield eller Heal og følger samme farve- og ikonsprog som player dice. Ved rundestart vælges og persisteres alle enemy-resultater først; derefter ruller de mindre fysiske enemy dice automatisk i rækkefølge og lander som det synlige samlede intent. Player Draw er låst under reveal-animationen. Resultaterne ændres aldrig bagefter.
+Spilleren ser altid enemy HP og det præcise næste intent før første draw. En enemy ejer 1–4 data-drevne, seks-sidede dice med stabile die- og face-ID'er. Dice kan være Attack, Shield, Heal, Poison, Empower eller Weaken og følger samme farve- og ikonsprog som player dice. Ved rundestart vælges og persisteres alle enemy-resultater først; derefter ruller de mindre fysiske enemy dice automatisk i rækkefølge og lander som det synlige samlede intent. Player Draw er låst under reveal-animationen. Resultaterne ændres aldrig bagefter.
 
 Enemy Shield er midlertidigt. Det nye Shield-roll erstatter sidste rundes værdi, absorberer player Attack og udløber efter enemy-fasen. Enemy Heal udføres kun, hvis enemy overlever player-fasen, og ligger før dens Attack. En dræbt enemy får derfor både Heal og Attack annulleret.
 
-Efter enemy reveal blandes alle udstyrede player dice i en persisteret draw-pile. `Draw` tager den næste tilfældige terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste Attack-, Shield- eller Heal-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
+Efter enemy reveal oprettes en persisteret draw-pile i præcis spillerens valgte loadout-rækkefølge. `Draw` tager den næste terning uden replacement, ruller den og føjer den dynamisk til rækken af spillede terninger. Boardet har ingen faste type-slots. Hvert resultat gemmes som præcis `die.id`, `face.id`, type og værdi før animationen vises.
+
+### Statusregler
+
+- `Poison` rammer HP direkte ved rundestart, ignorerer Shield og falder derefter med 1. Ny Poison fra rundens intent begynder først at ticke næste runde.
+- `Empower` er en charge på den side, der har rullet den. Hver charge giver næste primære die-output +25%, afrundet op, og forbruges derefter. Loadout-rækkefølge er derfor et aktivt build-værktøj.
+- `Weaken` lægges på spilleren og reducerer næste primære player-output med 25% per charge, afrundet ned, før chargen forbruges.
+- `Cleanse` fjerner både Poison og Weaken med face-værdien. Hvis ingen af delene er aktive, konverteres værdien til Shield, så Purifier aldrig er et helt dødt roll.
+- Poison-death evalueres før normale round-actions. Ved reel samtidig Poison-død har player death fortsat prioritet.
 
 Alle udstyrede terninger skal trækkes præcis én gang. Først når posen er tom, kan runden resolves. I manuel mode aktiveres `Resolve Round`; Auto Combat udfører samme transition automatisk efter sidste færdigscorede roll. Der er intet stop- eller bust-valg.
 
@@ -259,6 +274,27 @@ Dungeon 2 introducerer multi-dice enemies. Alle normale enemies har præcis to d
 
 Floor 1–4 bevarer den hurtige D2-entry og lader en ny D1-vinder se de nye intent-profiler. Floor 5–7 er den egentlige mid-wall, hvor slot 4 og fortsatte Forge-køb skal kunne mærkes. Floor 8–10 skalerer skarpere og kræver, at spilleren udvikler sin fire-dice engine, Bloodwell, Charms og/eller Imprints frem mod bossen.
 
+Første boss-clear giver Blighted Descent Key og åbner Dungeon 3 automatisk.
+
+### Dungeon 3 — The Blighted Descent
+
+Dungeon 3 gør loadout-rækkefølge og statuses til selve encounter-sproget. Alle normale enemies har tre dice; Plague Sovereign har fire. Spilleren kan have lært Empower via Focus inden overgangen, får femte slot tidligt i D3 og kan senere købe Purifier som svar på Poison og Weaken.
+
+| Floor | Enemy | Level | HP | Dice | XP | Soul Value |
+|---:|---|---:|---:|---|---:|---:|
+| 1 | Toxic Creep | 1 | 105 | Attack + Attack + Poison | 280 | 10 |
+| 2 | Marrow Bat | 1 | 116 | Weaken + Attack + Attack | 310 | 10 |
+| 3 | Blight Cultist | 1 | 128 | Empower + Attack + Heal | 345 | 11 |
+| 4 | Venom Guard | 1 | 142 | Shield + Attack + Poison | 385 | 11 |
+| 5 | Toxic Creep | 2 | 180 | Attack + Attack + Poison | 450 | 12 |
+| 6 | Marrow Bat | 2 | 195 | Weaken + Attack + Attack | 510 | 12 |
+| 7 | Blight Cultist | 2 | 215 | Empower + Attack + Heal | 580 | 13 |
+| 8 | Venom Guard | 2 | 235 | Shield + Attack + Poison | 660 | 13 |
+| 9 | Venom Guard Elite | 3 | 270 | Shield + Attack + Poison | 780 | 16 |
+| 10 | Plague Sovereign — Boss | Boss | 260 | Empower + Attack + Poison + Attack | 1.100 | 22 |
+
+Den balancerede 100-seed journey rammer aktuelt D1-clear median run 27, D2-clear 46, første D3-run 47, Fifth Grip 50, Purifier 58 og D3-clear 82. Det svarer til cirka 35 D3-forsøg. Tallene er regression rails, ikke player-facing løfter.
+
 HP fortsætter mellem encounters. Efter hver sejr gives både XP og Souls permanent med det samme.
 
 - `Victory`: vis `+XP`, `+Souls`, opdaterede totals, nuværende HP og dungeon-progress. Vis ingen information om næste enemy. Manuel mode bruger én Continue-knap; Auto Combat viser pulsen i cirka 1,25 sekunder og fortsætter, medmindre spilleren trykker Pause.
@@ -311,6 +347,14 @@ Dungeon 1 introducerer tre ordering-baserede Imprints:
 - Epic `Relay Strike`: minimum 2 Attack; næste die får +50% til sit primære output, afrundet op.
 - Legendary `Crescendo`: minimum 3 Attack; +25% Attack per tidligere roll op til +100%, afrundet op.
 
+Dungeon 3 introducerer tre status-baserede Imprints:
+
+- Rare `Venom Edge`: Attack plus Poison svarende til en fjerdedel af face-værdien, minimum 1.
+- Epic `Purging Aegis`: Shield plus Cleanse svarende til en femtedel af face-værdien, minimum 1.
+- Legendary `Plague Bloom`: Heal og trig enemyens eksisterende Poison straks uden at forbruge den.
+
+Første Dungeon 3-boss-clear garanterer Venom Edge, hvis det ikke allerede er fundet. `Imprint Hunt` kan sættes på én dungeon fra Dungeon-oversigten og giver 1,75× Imprint-dropchance dér; det ændrer ikke Fate Token- eller Soul-output.
+
 Alle Dungeon 1-enemies kan droppe et endnu ukendt Imprint med floor- og bossvægtning. Basechancerne før multipliers er 1,6% Rare, 0,8% Epic og 0,2% Legendary. Første Dungeon 1-boss-clear garanterer Lead Edge sammen med Iron Descent Key, hvis det ikke allerede er fundet. Duplicates findes ikke i første version. Reward-UI må kun vise et Imprint, når samme stabile instance-ID allerede findes i den persisterede inventory.
 
 Imprints monteres, flyttes og fjernes gratis i en separat Hub-sektion, kun uden for aktive runs. Et Imprint kan kun bindes til samme face-familie som sit output. Ét Imprint kan sidde på hver die; faste signature-faces kan ikke erstattes. Ét Legendary Imprint må være aktivt i loadout ad gangen.
@@ -319,9 +363,20 @@ Workshoppen er den eneste upgrade-pipeline. Et monteret Imprint optager én af s
 
 Run-start snapshots fryser både attachment og Imprint Power. Manual og Auto Combat bruger samme ordering-resolution: lokal Imprint-effekt, indgående Relay-bonus, ny Relay-charge, Charm-effekter og til sidst round totals.
 
+## Dungeon 3 Charms
+
+Fate-poolen udvides først, når The Blighted Descent er åbnet. De nye Charms kan derfor hverken rulles eller ses som undiscovered i Fate Sanctum før D3-transitionen.
+
+- Common `Clean Thread`: ignorerer den første 1/2/3 negative status-die per encounter.
+- Rare `Third Spark`: hver tredje primære die får +3/+5/+7 output.
+- Epic `Last Echo`: sidste primære die i runden gentager 50/75/100% af sit rå output.
+- Legendary `Fivefold Crown`: med præcis fem equipped dice får alle primære faces +2/+3/+4.
+
+Alle fire bruger samme tre-rank duplicate-progression, rarity-farve, loot-reveal og persisterede claim-flow som det eksisterende katalog.
+
 ## Persistence
 
-- Save version 24 introducerer Forge-ledger, Reforge og Auto Forge. Denne prototype-version nulstiller bevidst alle saves fra version 23 og tidligere til en frisk profil; historiske migrationsgarantier er ikke længere i scope.
+- Save version 25 introducerer Dungeon 3, status-state, fem nye progressionfelter og Imprint Hunt. Denne prototype-version nulstiller bevidst ældre saves til en frisk profil; historiske migrationsgarantier er ikke længere i scope.
 
 - Save-formatet er versionsstyret.
 - Save-key er `new-dice-dungeon-save` og er isoleret fra legacy-spillet.

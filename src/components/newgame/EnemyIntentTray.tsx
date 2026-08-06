@@ -26,7 +26,15 @@ interface EnemyIntentTrayProps {
   totals: RoundTotals
 }
 
-const TYPE_ORDER: FaceType[] = ['attack', 'shield', 'heal']
+const TYPE_ORDER: FaceType[] = [
+  'attack',
+  'shield',
+  'heal',
+  'poison',
+  'empower',
+  'weaken',
+  'cleanse',
+]
 
 export function EnemyIntentTray({
   activeShield,

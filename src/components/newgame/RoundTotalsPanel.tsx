@@ -48,6 +48,11 @@ export const RoundTotalsPanel = memo(function RoundTotalsPanel({
     || normalizedTotals.ward > 0
     || normalizedTotals.regrowth > 0
     || normalizedTotals.overflow > 0
+    || normalizedTotals.poison > 0
+    || normalizedTotals.empower > 0
+    || normalizedTotals.weaken > 0
+    || normalizedTotals.cleanse > 0
+    || normalizedTotals.poisonBurst > 0
     || pendingFortify > 0
   if (revealedTypes.length === 0 && !hasEffects) return null
 

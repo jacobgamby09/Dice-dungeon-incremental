@@ -158,6 +158,10 @@
 
 .die-summary--shield { --die-color: #60a5fa; }
 .die-summary--heal { --die-color: #4ade80; }
+.die-summary--poison { --die-color: #a3e635; }
+.die-summary--empower { --die-color: #facc15; }
+.die-summary--weaken { --die-color: #c084fc; }
+.die-summary--cleanse { --die-color: #22d3ee; }
 .die-summary--compact { padding: 7px; }
 
 .die-summary__header {
@@ -1036,6 +1040,10 @@
 
 .roll-die--shield { --die-color: #60a5fa; --die-surface: #1e3a8a; }
 .roll-die--heal { --die-color: #4ade80; --die-surface: #166534; }
+.roll-die--poison { --die-color: #a3e635; --die-surface: #365314; }
+.roll-die--empower { --die-color: #facc15; --die-surface: #713f12; }
+.roll-die--weaken { --die-color: #c084fc; --die-surface: #4c1d95; }
+.roll-die--cleanse { --die-color: #22d3ee; --die-surface: #164e63; }
 
 .roll-die__body {
   position: relative;
@@ -1794,6 +1802,10 @@
 
 .workshop-ritual__tab--shield { --workshop-family: #60a5fa; }
 .workshop-ritual__tab--heal { --workshop-family: #4ade80; }
+.workshop-ritual__tab--poison { --workshop-family: #a3e635; }
+.workshop-ritual__tab--empower { --workshop-family: #facc15; }
+.workshop-ritual__tab--weaken { --workshop-family: #c084fc; }
+.workshop-ritual__tab--cleanse { --workshop-family: #22d3ee; }
 
 .workshop-ritual__tab[aria-pressed="true"] {
   border-color: var(--workshop-family);
@@ -1837,6 +1849,10 @@
 
 .workshop-ritual__chamber--shield { --workshop-family: #60a5fa; }
 .workshop-ritual__chamber--heal { --workshop-family: #4ade80; }
+.workshop-ritual__chamber--poison { --workshop-family: #a3e635; }
+.workshop-ritual__chamber--empower { --workshop-family: #facc15; }
+.workshop-ritual__chamber--weaken { --workshop-family: #c084fc; }
+.workshop-ritual__chamber--cleanse { --workshop-family: #22d3ee; }
 
 .workshop-ritual__die-heading {
   margin-bottom: 16px;
@@ -1941,6 +1957,18 @@
 
 .workshop-target__face--shield { --target-color: #60a5fa; }
 .workshop-target__face--heal { --target-color: #4ade80; }
+.workshop-target__face--poison { --target-color: #a3e635; }
+.workshop-target__face--empower { --target-color: #facc15; }
+.workshop-target__face--weaken { --target-color: #c084fc; }
+.workshop-target__face--cleanse { --target-color: #22d3ee; }
+
+.workshop-target__dormant-badge {
+  color: #94a3b8;
+  font-size: 0.46rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 .workshop-target__face > small {
   position: absolute;

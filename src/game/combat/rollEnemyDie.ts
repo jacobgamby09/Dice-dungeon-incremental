@@ -43,8 +43,21 @@ export function findEnemyRollByValue(
 export function totalEnemyRolls(
   rolls: readonly EnemyRollResult[],
 ): RoundTotals {
-  return rolls.reduce<RoundTotals>((totals, roll) => ({
-    ...totals,
-    [roll.type]: totals[roll.type] + roll.value,
-  }), { ...EMPTY_TOTALS })
+  let pendingEmpower = 0
+  return rolls.reduce<RoundTotals>((totals, roll) => {
+    if (roll.type === 'empower') {
+      pendingEmpower += roll.value
+      return { ...totals, empower: totals.empower + roll.value }
+    }
+
+    const isPrimary = roll.type === 'attack' || roll.type === 'shield' || roll.type === 'heal'
+    const empowerBonus = isPrimary && pendingEmpower > 0
+      ? Math.ceil(roll.value * 0.25)
+      : 0
+    if (isPrimary && pendingEmpower > 0) pendingEmpower -= 1
+    return {
+      ...totals,
+      [roll.type]: totals[roll.type] + roll.value + empowerBonus,
+    }
+  }, { ...EMPTY_TOTALS })
 }

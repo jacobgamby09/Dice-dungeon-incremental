@@ -438,7 +438,7 @@ export function WorkshopScreen() {
                     animate={isHighlighted
                       ? { scale: [1, 1.12, 1.05], y: [0, -5, -3] }
                       : { scale: 1, y: 0 }}
-                    aria-label={`Face ${faceIndex + 1}: ${face.value} ${FACE_META[face.type].label}${face.signature ? `, ${face.signature.name} Signature` : ''}${face.imprint ? `, ${face.imprint.name} Imprint` : ''}`}
+                    aria-label={`Face ${faceIndex + 1}: ${face.value === 0 ? 'Dormant' : `${face.value} ${FACE_META[face.type].label}`}${face.signature ? `, ${face.signature.name} Signature` : ''}${face.imprint ? `, ${face.imprint.name} Imprint` : ''}`}
                     className={`workshop-target__face workshop-target__face--${face.type}${face.signature ? ` workshop-target__face--signature workshop-target__face--signature-${face.signature.id}` : ''}${face.imprint ? ` workshop-target__face--imprint workshop-target__face--imprint-${face.imprint.rarity}` : ''}${isHighlighted ? ' workshop-target__face--highlighted' : ''}${isLockedTarget ? ' workshop-target__face--locked' : ''}`}
                     key={face.id}
                     style={signatureStyle}
@@ -453,6 +453,7 @@ export function WorkshopScreen() {
                     ) : <FaceIcon type={face.type} size={17} />}
                     {face.imprint ? <span className="workshop-target__imprint-badge">Imprint</span> : null}
                     {face.signature ? <span className="workshop-target__signature-badge">{face.signature.name}</span> : null}
+                    {face.value === 0 ? <span className="workshop-target__dormant-badge">Dormant</span> : null}
                     {isLockedTarget ? <em>Target</em> : null}
                   </motion.div>
                 )

@@ -1,5 +1,6 @@
 import { addRollEffects, rollDie } from '../combat/rollDie'
 import {
+  applyEnemyStatusGuard,
   applyKillCharms,
   applyRollCharms,
   beginCharmRound,
@@ -36,6 +37,7 @@ export interface SimulationBuild {
   dungeonClearCount?: number
   fatePity?: number
   imprints?: readonly ImprintInstance[]
+  imprintHuntActive?: boolean
   playerMaxHp: number
   soulDieState?: SoulDieState
   talentRanks?: Readonly<TalentRanks>
@@ -119,23 +121,34 @@ export function simulateDungeonRun(
     charmTriggers += encounterCharm.triggers.length
     let carriedShield = encounterCharm.shield
     let carriedHeal = 0
+    let playerPoison = 0
+    let carriedEmpower = 0
+    let carriedWeaken = 0
 
     for (let round = 0; round < 100; round += 1) {
       let totals = { ...EMPTY_TOTALS }
       let pendingFortify = 0
+      let pendingEmpower = carriedEmpower
+      let pendingWeaken = carriedWeaken
       let pendingImprintRelay = 0
       for (const [index, die] of orderedDice.entries()) {
         const imprintRoll = applyImprintRoll(
           rollDie(die, random),
           index,
           pendingImprintRelay,
+          enemy.poison,
         )
         const charmRoll = hasEquippedCharms
           ? applyRollCharms(
               imprintRoll.result,
               charms,
               charmState,
-              { attackOnlyLoadout, random },
+              {
+                attackOnlyLoadout,
+                isLastRoll: index === orderedDice.length - 1,
+                loadoutSize: orderedDice.length,
+                random,
+              },
             )
           : { result: imprintRoll.result, state: charmState, triggers: [] }
         charmState = charmRoll.state
@@ -148,10 +161,14 @@ export function simulateDungeonRun(
           {
             enemyHp: enemy.hp,
             enemyMaxHp: enemy.maxHp,
+            pendingEmpower,
+            pendingWeaken,
           },
         )
         totals = effects.totals
         pendingFortify = effects.pendingFortify
+        pendingEmpower = effects.pendingEmpower
+        pendingWeaken = effects.pendingWeaken
         pendingImprintRelay = imprintRoll.nextRelayBonus
       }
 
@@ -160,6 +177,11 @@ export function simulateDungeonRun(
       totalPlayerHeal += totals.heal
       totalPlayerShield += totals.shield
       roundsByFloor[floor.floor - 1] += 1
+      const guardedIntent = hasEquippedCharms
+        ? applyEnemyStatusGuard(totalEnemyRolls(enemy.intentRolls), charms, charmState)
+        : { intent: totalEnemyRolls(enemy.intentRolls), state: charmState, triggers: [] }
+      charmState = guardedIntent.state
+      charmTriggers += guardedIntent.triggers.length
       const resolution = resolveRound({
         playerHp,
         playerMaxHp: build.playerMaxHp,
@@ -167,20 +189,28 @@ export function simulateDungeonRun(
         enemyMaxHp: enemy.maxHp,
         enemyShield: enemy.shield,
         enemyBleed: enemy.bleed,
-        enemyIntent: totalEnemyRolls(enemy.intentRolls),
+        enemyIntent: guardedIntent.intent,
         totals,
         carriedShield,
         carriedHeal,
         shieldCarryRate,
+        playerPoison,
+        enemyPoison: enemy.poison,
+        remainingPlayerWeaken: pendingWeaken,
+        pendingPlayerEmpower: pendingEmpower,
       })
       carriedShield = resolution.nextRoundShield
       carriedHeal = resolution.nextRoundHeal
+      playerPoison = resolution.nextPlayerPoison
+      carriedEmpower = resolution.nextPlayerEmpower
+      carriedWeaken = resolution.nextPlayerWeaken
       playerHp = resolution.playerHp
       enemy = {
         ...enemy,
         hp: resolution.enemyHp,
         shield: resolution.enemyShield,
         bleed: resolution.enemyBleed,
+        poison: resolution.enemyPoison,
       }
 
       if (resolution.outcome === 'victory') {
@@ -212,7 +242,7 @@ export function simulateDungeonRun(
             fatePity,
             random,
             getFateDropMultiplier(build.talentRanks ?? {})
-              * (dungeonId === 'iron-depths' ? 1.6 : 1)
+              * (dungeonId === 'blighted-depths' ? 2.2 : dungeonId === 'iron-depths' ? 1.6 : 1)
               * getDungeonLootMultiplier(build.talentRanks ?? {}, dungeonId),
           )
           fateTokensCollected += fateDrop.tokens
@@ -226,8 +256,9 @@ export function simulateDungeonRun(
           owned: imprints,
           random,
           dropMultiplier: getImprintDropMultiplier(build.talentRanks ?? {})
-            * (dungeonId === 'iron-depths' ? 1.6 : 1)
+            * (dungeonId === 'blighted-depths' ? 2.2 : dungeonId === 'iron-depths' ? 1.6 : 1)
             * getDungeonLootMultiplier(build.talentRanks ?? {}, dungeonId),
+          huntActive: build.imprintHuntActive,
         })
         if (imprintDrop) {
           imprints = grantImprint(

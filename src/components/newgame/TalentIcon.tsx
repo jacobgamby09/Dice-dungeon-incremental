@@ -26,6 +26,9 @@ import {
   Pickaxe,
   RotateCcw,
   Recycle,
+  Eraser,
+  Focus,
+  HeartHandshake,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { TalentIconKey } from '../../game/types/progression'
@@ -60,6 +63,10 @@ const TALENT_ICONS: Record<TalentIconKey, LucideIcon> = {
   reforging: RotateCcw,
   'careful-salvage': Recycle,
   'auto-forge': Bot,
+  'focus-die': Focus,
+  'purifier-die': Eraser,
+  'blight-heart': HeartHandshake,
+  'charm-fourth': Network,
 }
 
 interface TalentIconProps {

@@ -5,14 +5,23 @@ export interface RoundTotals {
   attack: number
   shield: number
   heal: number
+  poison: number
+  empower: number
+  weaken: number
+  cleanse: number
+  poisonBurst: number
   bleed: number
   ward: number
   regrowth: number
   overflow: number
 }
 
-export type RoundTotalsInput = Pick<RoundTotals, 'attack' | 'shield' | 'heal' | 'bleed'>
+export type RoundTotalsInput = Pick<
+  RoundTotals,
+  'attack' | 'shield' | 'heal' | 'bleed'
+>
   & Partial<Pick<RoundTotals, 'ward' | 'regrowth' | 'overflow'>>
+  & Partial<Pick<RoundTotals, 'poison' | 'empower' | 'weaken' | 'cleanse' | 'poisonBurst'>>
 
 export type CombatOutcome = 'ongoing' | 'victory' | 'defeat'
 export type CombatPhase =
@@ -45,6 +54,12 @@ export interface RoundResolution {
   enemyActed: boolean
   enemyDamageBlocked: number
   playerDamageTaken: number
+  playerPoisonDamage: number
+  enemyPoisonDamage: number
+  enemyPoison: number
+  nextPlayerPoison: number
+  nextPlayerWeaken: number
+  nextPlayerEmpower: number
 }
 
 export interface CombatState {
@@ -54,6 +69,9 @@ export interface CombatState {
   results: RollResult[]
   totals: RoundTotals
   pendingFortify: number
+  pendingEmpower: number
+  pendingWeaken: number
+  playerPoison: number
   pendingImprintRelay: number
   lastCharmTriggers: CharmTrigger[]
   charmTriggerVersion: number
@@ -68,6 +86,11 @@ export const EMPTY_TOTALS: RoundTotals = {
   attack: 0,
   shield: 0,
   heal: 0,
+  poison: 0,
+  empower: 0,
+  weaken: 0,
+  cleanse: 0,
+  poisonBurst: 0,
   bleed: 0,
   ward: 0,
   regrowth: 0,
@@ -79,6 +102,11 @@ export function normalizeRoundTotals(totals: RoundTotalsInput): RoundTotals {
     attack: totals.attack,
     shield: totals.shield,
     heal: totals.heal,
+    poison: totals.poison ?? 0,
+    empower: totals.empower ?? 0,
+    weaken: totals.weaken ?? 0,
+    cleanse: totals.cleanse ?? 0,
+    poisonBurst: totals.poisonBurst ?? 0,
     bleed: totals.bleed,
     ward: totals.ward ?? 0,
     regrowth: totals.regrowth ?? 0,

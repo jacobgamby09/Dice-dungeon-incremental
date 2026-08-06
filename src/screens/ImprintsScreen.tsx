@@ -38,6 +38,11 @@ export function ImprintsScreen() {
     epic: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'epic'),
     legendary: imprints.filter((imprint) => IMPRINT_DEFINITIONS[imprint.definitionId].rarity === 'legendary'),
   }), [imprints])
+  const rarityTotals = useMemo(() => ({
+    rare: Object.values(IMPRINT_DEFINITIONS).filter((definition) => definition.rarity === 'rare').length,
+    epic: Object.values(IMPRINT_DEFINITIONS).filter((definition) => definition.rarity === 'epic').length,
+    legendary: Object.values(IMPRINT_DEFINITIONS).filter((definition) => definition.rarity === 'legendary').length,
+  }), [])
 
   useEffect(() => {
     if (!selected) return
@@ -53,7 +58,7 @@ export function ImprintsScreen() {
       <header className="imprints-header">
         <button aria-label="Back to Hub" onClick={goToHub} type="button"><ChevronLeft /></button>
         <div><span>Permanent face relics</span><h1>Imprints</h1></div>
-        <strong>{imprints.length}/3</strong>
+        <strong>{imprints.length}/{Object.keys(IMPRINT_DEFINITIONS).length}</strong>
       </header>
 
       <section className="imprints-guide" aria-labelledby="imprints-guide-title">
@@ -68,20 +73,21 @@ export function ImprintsScreen() {
         <header><span>Collection</span><h2 id="imprint-collection-title">Discovered Imprints</h2></header>
         {(['rare', 'epic', 'legendary'] as const).map((rarity) => (
           <section className={`imprint-rarity imprint-rarity--${rarity}`} key={rarity}>
-            <header><h3>{rarity}</h3><span>{grouped[rarity].length}/1</span></header>
+            <header><h3>{rarity}</h3><span>{grouped[rarity].length}/{rarityTotals[rarity]}</span></header>
             <div className="imprint-rarity__grid">
-              {grouped[rarity].length > 0 ? grouped[rarity].map((imprint) => (
+              {grouped[rarity].map((imprint) => (
                 <ImprintCard
                   imprint={imprint}
                   key={imprint.id}
                   onSelect={() => setSelectedId(imprint.id)}
                 />
-              )) : (
-                <div className="imprint-card imprint-card--unknown">
+              ))}
+              {Array.from({ length: rarityTotals[rarity] - grouped[rarity].length }, (_, index) => (
+                <div className="imprint-card imprint-card--unknown" key={`${rarity}-unknown-${index}`}>
                   <strong>?</strong>
                   <span>Undiscovered Imprint</span>
                 </div>
-              )}
+              ))}
             </div>
           </section>
         ))}

@@ -20,11 +20,11 @@ describe('post-Dungeon-1 simulated profile provenance', () => {
       id: die.id,
       values: die.faces.map((face) => face.value),
     }))).toEqual([
-      { id: 'attack-die-1', values: [6, 5, 9, 7, 8, 9] },
-      { id: 'attack-die-2', values: [3, 3, 6, 4, 7, 3] },
-      { id: 'shield-die-1', values: [4, 1, 5, 2, 5, 5] },
-      { id: 'heal-die-1', values: [4, 1, 1, 2, 6, 3] },
-      { id: 'attack-die-executioner', values: [5, 2, 3, 3, 3, 3] },
+      { id: 'attack-die-1', values: [7, 3, 8, 3, 7, 7] },
+      { id: 'attack-die-2', values: [7, 2, 4, 4, 4, 6] },
+      { id: 'shield-die-1', values: [1, 5, 4, 2, 4, 3] },
+      { id: 'heal-die-1', values: [1, 1, 1, 4, 4, 6] },
+      { id: 'attack-die-executioner', values: [2, 2, 4, 3, 3, 3] },
     ])
     expect(getDiceCapacity(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.diceSlots)
     expect(getPlayerMaxHp(profile.talentRanks)).toBe(POST_DUNGEON_ONE_DEV_PRESET.maxHp)

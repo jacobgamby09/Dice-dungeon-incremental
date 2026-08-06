@@ -15,4 +15,11 @@ describe('Dungeon loot tables', () => {
     expect(table.find((entry) => entry.id === 'lead-edge')?.source)
       .toContain('first boss clear guarantees it')
   })
+
+  it('publishes the Dungeon 2 key and all three Dungeon 3 Imprints', () => {
+    expect(getDungeonLootTable('iron-depths').map((entry) => entry.id))
+      .toEqual(['blighted-descent-key'])
+    expect(getDungeonLootTable('blighted-depths').map((entry) => entry.id))
+      .toEqual(['venom-edge', 'purging-aegis', 'plague-bloom'])
+  })
 })

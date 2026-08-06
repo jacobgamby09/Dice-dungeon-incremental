@@ -50,7 +50,37 @@ export const DUNGEON_LOOT_TABLES: Record<DungeonId, readonly DungeonLootEntry[]>
       source: 'Any enemy',
     },
   ],
-  'iron-depths': [],
+  'iron-depths': [
+    {
+      id: 'blighted-descent-key',
+      kind: 'dungeon-key',
+      name: DUNGEON_KEYS['blighted-descent-key'].name,
+      source: 'First boss victory',
+    },
+  ],
+  'blighted-depths': [
+    {
+      id: 'venom-edge',
+      kind: 'imprint',
+      name: IMPRINT_DEFINITIONS['venom-edge'].name,
+      rarity: IMPRINT_DEFINITIONS['venom-edge'].rarity,
+      source: 'Any enemy - first boss clear guarantees it',
+    },
+    {
+      id: 'purging-aegis',
+      kind: 'imprint',
+      name: IMPRINT_DEFINITIONS['purging-aegis'].name,
+      rarity: IMPRINT_DEFINITIONS['purging-aegis'].rarity,
+      source: 'Any enemy',
+    },
+    {
+      id: 'plague-bloom',
+      kind: 'imprint',
+      name: IMPRINT_DEFINITIONS['plague-bloom'].name,
+      rarity: IMPRINT_DEFINITIONS['plague-bloom'].rarity,
+      source: 'Any enemy',
+    },
+  ],
 }
 
 export function getDungeonLootTable(dungeonId: DungeonId): readonly DungeonLootEntry[] {

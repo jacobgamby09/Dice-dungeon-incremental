@@ -119,6 +119,33 @@
   background: var(--arcade-black);
 }
 
+.enemy-intent-total--poison { color: #a3e635; }
+.enemy-intent-total--empower { color: #facc15; }
+.enemy-intent-total--weaken { color: #c084fc; }
+.enemy-intent-total--cleanse { color: #22d3ee; }
+
+.combat-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.combat-status {
+  align-items: center;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 900;
+  gap: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.combat-status--poison { color: #a3e635; }
+.combat-status--weaken { color: #c084fc; }
+.combat-status--empower { color: #facc15; }
+
 .enemy-intent-tray__details {
   border: var(--arcade-frame-subtle) solid var(--arcade-line-control);
   background: var(--arcade-black);

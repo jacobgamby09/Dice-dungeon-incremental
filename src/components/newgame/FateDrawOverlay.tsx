@@ -7,39 +7,42 @@ import {
   CHARM_DEFINITIONS,
   CHARM_RARITY_DEFINITIONS,
 } from '../../game/content/charms'
-import type { PendingFateDraw } from '../../game/types/charms'
+import type { CharmId, PendingFateDraw } from '../../game/types/charms'
 import { CharmIcon } from './CharmIcon'
 
 interface FateDrawOverlayProps {
   animate: boolean
+  availableCharmIds?: readonly CharmId[]
   currentRank: number
   draw: PendingFateDraw
   onClaim: () => void
 }
 
 const SPIN_STEPS = 18
-const CHARM_IDS = CHARMS.map((charm) => charm.id)
+const ALL_CHARM_IDS = CHARMS.map((charm) => charm.id)
 
 export function FateDrawOverlay({
   animate,
+  availableCharmIds,
   currentRank,
   draw,
   onClaim,
 }: FateDrawOverlayProps) {
+  const charmIds = availableCharmIds?.length ? availableCharmIds : ALL_CHARM_IDS
   const reduceMotion = useReducedMotion()
   const shouldAnimate = animate && !reduceMotion
   const [landed, setLanded] = useState(!shouldAnimate)
   const [displayedCharmId, setDisplayedCharmId] = useState(() => {
     if (!shouldAnimate) return draw.selectedCharmId
-    const selectedIndex = CHARM_IDS.indexOf(draw.selectedCharmId)
-    return CHARM_IDS[(selectedIndex + 1) % CHARM_IDS.length]
+    const selectedIndex = charmIds.indexOf(draw.selectedCharmId)
+    return charmIds[(selectedIndex + 1) % charmIds.length]
   })
 
   useEffect(() => {
     if (!shouldAnimate) return
-    const selectedIndex = CHARM_IDS.indexOf(draw.selectedCharmId)
+    const selectedIndex = charmIds.indexOf(draw.selectedCharmId)
     const sequence = Array.from({ length: SPIN_STEPS }, (_, index) => (
-      CHARM_IDS[(selectedIndex + index + 1) % CHARM_IDS.length]
+      charmIds[(selectedIndex + index + 1) % charmIds.length]
     ))
     const timers: number[] = []
     let elapsed = 70
@@ -58,16 +61,16 @@ export function FateDrawOverlay({
     }, elapsed + 330))
 
     return () => timers.forEach((timer) => window.clearTimeout(timer))
-  }, [draw.selectedCharmId, shouldAnimate])
+  }, [charmIds, draw.selectedCharmId, shouldAnimate])
 
   const displayedCharm = CHARM_DEFINITIONS[displayedCharmId]
   const selectedCharm = CHARM_DEFINITIONS[draw.selectedCharmId]
   const displayedRarity = CHARM_RARITY_DEFINITIONS[displayedCharm.rarity]
   const selectedRarity = CHARM_RARITY_DEFINITIONS[selectedCharm.rarity]
   const selectedDefinition = selectedCharm.ranks[Math.min(currentRank, 2)]
-  const displayedIndex = CHARM_IDS.indexOf(displayedCharmId)
-  const previousCharmId = CHARM_IDS[(displayedIndex - 1 + CHARM_IDS.length) % CHARM_IDS.length]
-  const nextCharmId = CHARM_IDS[(displayedIndex + 1) % CHARM_IDS.length]
+  const displayedIndex = charmIds.indexOf(displayedCharmId)
+  const previousCharmId = charmIds[(displayedIndex - 1 + charmIds.length) % charmIds.length]
+  const nextCharmId = charmIds[(displayedIndex + 1) % charmIds.length]
   const previousRarity = CHARM_RARITY_DEFINITIONS[CHARM_DEFINITIONS[previousCharmId].rarity]
   const nextRarity = CHARM_RARITY_DEFINITIONS[CHARM_DEFINITIONS[nextCharmId].rarity]
 

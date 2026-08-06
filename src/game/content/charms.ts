@@ -124,6 +124,62 @@ export const CHARM_DEFINITIONS: Record<CharmId, CharmDefinition> = {
       { description: 'Carry 80% of unused Shield into the next round.', effect: { type: 'shield_carry', rate: 0.8 } },
     ],
   },
+  'third-spark': {
+    id: 'third-spark',
+    name: 'Third Spark',
+    flavor: 'Every third pulse erupts brighter than the last.',
+    assetPath: '/sprites/charms/third-spark.svg',
+    accent: '#facc15',
+    rarity: 'rare',
+    minimumDungeonId: 'blighted-depths',
+    ranks: [
+      { description: 'Every 3rd die gains +3 primary output.', effect: { type: 'total_rhythm', threshold: 3, bonus: 3 } },
+      { description: 'Every 3rd die gains +5 primary output.', effect: { type: 'total_rhythm', threshold: 3, bonus: 5 } },
+      { description: 'Every 3rd die gains +7 primary output.', effect: { type: 'total_rhythm', threshold: 3, bonus: 7 } },
+    ],
+  },
+  'clean-thread': {
+    id: 'clean-thread',
+    name: 'Clean Thread',
+    flavor: 'A silver strand cuts corruption before it can take hold.',
+    assetPath: '/sprites/charms/clean-thread.svg',
+    accent: '#22d3ee',
+    rarity: 'common',
+    minimumDungeonId: 'blighted-depths',
+    ranks: [
+      { description: 'Ignore the first negative status die each encounter.', effect: { type: 'status_guard', amount: 1 } },
+      { description: 'Ignore the first 2 negative status dice each encounter.', effect: { type: 'status_guard', amount: 2 } },
+      { description: 'Ignore the first 3 negative status dice each encounter.', effect: { type: 'status_guard', amount: 3 } },
+    ],
+  },
+  'last-echo': {
+    id: 'last-echo',
+    name: 'Last Echo',
+    flavor: 'The final cast leaves an afterimage in the dark.',
+    assetPath: '/sprites/charms/last-echo.svg',
+    accent: '#c084fc',
+    rarity: 'epic',
+    minimumDungeonId: 'blighted-depths',
+    ranks: [
+      { description: 'The last die each round repeats 50% of its raw output.', effect: { type: 'last_echo', multiplier: 0.5 } },
+      { description: 'The last die each round repeats 75% of its raw output.', effect: { type: 'last_echo', multiplier: 0.75 } },
+      { description: 'The last die each round repeats 100% of its raw output.', effect: { type: 'last_echo', multiplier: 1 } },
+    ],
+  },
+  'fivefold-crown': {
+    id: 'fivefold-crown',
+    name: 'Fivefold Crown',
+    flavor: 'Five chosen faces form a single sovereign engine.',
+    assetPath: '/sprites/charms/fivefold-crown.svg',
+    accent: '#ff8a2a',
+    rarity: 'legendary',
+    minimumDungeonId: 'blighted-depths',
+    ranks: [
+      { description: 'With exactly 5 Dice equipped, every primary face gains +2.', effect: { type: 'fivefold_output', bonus: 2 } },
+      { description: 'With exactly 5 Dice equipped, every primary face gains +3.', effect: { type: 'fivefold_output', bonus: 3 } },
+      { description: 'With exactly 5 Dice equipped, every primary face gains +4.', effect: { type: 'fivefold_output', bonus: 4 } },
+    ],
+  },
 }
 
 export const CHARMS = Object.values(CHARM_DEFINITIONS)

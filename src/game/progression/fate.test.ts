@@ -89,4 +89,36 @@ describe('Fate drops and draws', () => {
     }, 'draw-final', EMPTY_CHARM_RARITY_PROGRESS, null, sequence(0.5, 0.5))
     expect(result?.draw.selectedCharmId).toBe('soul-prism')
   })
+
+  it('keeps Dungeon 3 Charms out of Fate Draws until that dungeon is unlocked', () => {
+    const completedEarlyPool = {
+      'blade-rhythm': 3,
+      'echo-knot': 3,
+      'low-omen': 3,
+      'ward-clock': 3,
+      bloodroot: 3,
+      'soul-prism': 3,
+      'crimson-oath': 3,
+      'unbroken-wall': 3,
+    }
+    expect(createFateDraw(
+      completedEarlyPool,
+      'draw-before-d3',
+      EMPTY_CHARM_RARITY_PROGRESS,
+      null,
+      sequence(0, 0),
+      ['prototype-depths', 'iron-depths'],
+    )).toBeNull()
+
+    const unlocked = createFateDraw(
+      completedEarlyPool,
+      'draw-in-d3',
+      EMPTY_CHARM_RARITY_PROGRESS,
+      null,
+      sequence(0, 0),
+      ['prototype-depths', 'iron-depths', 'blighted-depths'],
+    )
+    expect(['third-spark', 'clean-thread', 'last-echo', 'fivefold-crown'])
+      .toContain(unlocked?.draw.selectedCharmId)
+  })
 })

@@ -11,7 +11,7 @@ describe('BalanceSimulator', () => {
     expect(markup).toContain('Your save is never changed.')
     expect(markup).toContain('Milestone distribution')
     expect(markup).toContain('Progression curve')
-    expect(markup).toContain('10 journeys')
+    expect(markup).toContain('3 journeys')
     expect(markup).toContain('Run simulation')
     expect(markup).toContain('Progression curve table')
   })

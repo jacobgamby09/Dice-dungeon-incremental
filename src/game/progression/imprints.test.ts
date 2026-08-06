@@ -127,6 +127,44 @@ describe('Imprints', () => {
       instanceId: 'missing-instance',
     }], grant.imprints)).toEqual([])
   })
+
+  it('guarantees Venom Edge on the first Dungeon 3 boss clear', () => {
+    expect(rollImprintDrop({
+      dungeonId: 'blighted-depths', floor: 10, isBoss: true, clearCount: 0, owned: [], random: () => 0.99,
+    })).toBe('venom-edge')
+  })
+
+  it('makes a tracked Imprint Hunt materially improve that dungeon drop roll', () => {
+    const options = {
+      dungeonId: 'prototype-depths' as const,
+      floor: 1,
+      isBoss: false,
+      clearCount: 1,
+      owned: [] as ImprintInstance[],
+      random: () => 0.02,
+    }
+    expect(rollImprintDrop(options)).toBeNull()
+    expect(rollImprintDrop({ ...options, huntActive: true })).not.toBeNull()
+  })
+
+  it('turns Dungeon 3 Imprints into scaling Poison, Cleanse and Poison burst', () => {
+    const venom = applyImprintRoll({
+      dieId: 'a', dieName: 'A', faceId: 'a1', faceIndex: 0, type: 'attack', value: 12,
+      imprint: { ...leadEdgeSnapshot, definitionId: 'venom-edge', effectKind: 'venom' },
+    }, 0, 0)
+    const purging = applyImprintRoll({
+      dieId: 's', dieName: 'S', faceId: 's1', faceIndex: 0, type: 'shield', value: 10,
+      imprint: { ...leadEdgeSnapshot, definitionId: 'purging-aegis', effectKind: 'purging' },
+    }, 1, 0)
+    const bloom = applyImprintRoll({
+      dieId: 'h', dieName: 'H', faceId: 'h1', faceIndex: 0, type: 'heal', value: 6,
+      imprint: { ...leadEdgeSnapshot, definitionId: 'plague-bloom', effectKind: 'plague-bloom' },
+    }, 2, 0, 7)
+
+    expect(venom.result.appliedPoison).toBe(3)
+    expect(purging.result.appliedCleanse).toBe(2)
+    expect(bloom.result.poisonBurst).toBe(7)
+  })
 })
 
 const leadEdgeSnapshot = {

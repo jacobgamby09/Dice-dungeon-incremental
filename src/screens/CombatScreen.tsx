@@ -15,6 +15,7 @@ import { CombatCharmBar } from '../components/newgame/CombatCharmBar'
 import { CurrencyIcon } from '../components/newgame/CurrencyIcon'
 import type { EnemyDamageTransferPath } from '../components/newgame/EnemyDamageTransfer'
 import { EnemyIntentTray } from '../components/newgame/EnemyIntentTray'
+import { FaceIcon } from '../components/newgame/FaceIcon'
 import { HpBar } from '../components/newgame/HpBar'
 import { ImprintInspectOverlay } from '../components/newgame/ImprintInspectOverlay'
 import { RollDieTile } from '../components/newgame/RollDieTile'
@@ -77,6 +78,9 @@ export function CombatScreen() {
     results: state.combat.results,
     totals: state.combat.totals,
     pendingFortify: state.combat.pendingFortify,
+    pendingEmpower: state.combat.pendingEmpower,
+    pendingWeaken: state.combat.pendingWeaken,
+    playerPoison: state.combat.playerPoison,
     lastCharmTriggers: state.combat.lastCharmTriggers,
     charmTriggerVersion: state.combat.charmTriggerVersion,
     carriedShield: state.combat.carriedShield,
@@ -506,6 +510,11 @@ export function CombatScreen() {
                 <Droplets aria-hidden="true" size={11} /> {enemy.bleed}
               </span>
             ) : null}
+            {enemy.poison > 0 ? (
+              <span aria-label={`${enemy.poison} Poison`} className="combat-status combat-status--poison">
+                <FaceIcon type="poison" size={11} /> {enemy.poison}
+              </span>
+            ) : null}
             <strong>{enemy.hp}/{enemy.maxHp}</strong>
           </div>
           <HpBar
@@ -536,6 +545,25 @@ export function CombatScreen() {
           impactVersion={combat.resolutionVersion}
           max={run.playerMaxHp}
         />
+        {combat.playerPoison > 0 || combat.pendingWeaken > 0 || combat.pendingEmpower > 0 ? (
+          <div aria-label="Active combat statuses" className="combat-statuses">
+            {combat.playerPoison > 0 ? (
+              <span className="combat-status combat-status--poison">
+                <FaceIcon type="poison" size={13} /> Poison {combat.playerPoison}
+              </span>
+            ) : null}
+            {combat.pendingWeaken > 0 ? (
+              <span className="combat-status combat-status--weaken">
+                <FaceIcon type="weaken" size={13} /> Weaken {combat.pendingWeaken}
+              </span>
+            ) : null}
+            {combat.pendingEmpower > 0 ? (
+              <span className="combat-status combat-status--empower">
+                <FaceIcon type="empower" size={13} /> Empower {combat.pendingEmpower}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
         <CombatCharmBar
           charms={run.equippedCharmSnapshot}
           charmState={run.charmState}

@@ -14,22 +14,42 @@ export interface ResolveRoundInput {
   carriedShield?: number
   carriedHeal?: number
   shieldCarryRate?: number
+  playerPoison?: number
+  enemyPoison?: number
+  remainingPlayerWeaken?: number
+  pendingPlayerEmpower?: number
 }
 
 export function resolveRound(input: ResolveRoundInput): RoundResolution {
   const totals = normalizeRoundTotals(input.totals)
   const enemyIntent = normalizeRoundTotals(input.enemyIntent)
+  const existingPlayerPoison = Math.max(0, input.playerPoison ?? 0)
+  const existingEnemyPoison = Math.max(0, input.enemyPoison ?? 0)
+  const playerPoisonDamage = Math.min(input.playerHp, existingPlayerPoison)
+  const enemyPoisonDamage = Math.min(input.enemyHp, existingEnemyPoison)
+  const playerHpAfterPoison = Math.max(0, input.playerHp - playerPoisonDamage)
+  const enemyHpAfterPoison = Math.max(0, input.enemyHp - enemyPoisonDamage)
+  const decayedPlayerPoison = Math.max(0, existingPlayerPoison - 1)
+  const decayedEnemyPoison = Math.max(0, existingEnemyPoison - 1)
+  const remainingPlayerWeaken = Math.max(0, input.remainingPlayerWeaken ?? 0)
+  const hasDebuffToCleanse = decayedPlayerPoison > 0 || remainingPlayerWeaken > 0
+  const cleansedPlayerPoison = Math.max(0, decayedPlayerPoison - totals.cleanse)
+  const cleansedPlayerWeaken = Math.max(0, remainingPlayerWeaken - totals.cleanse)
+  const cleanseShield = hasDebuffToCleanse ? 0 : totals.cleanse
+  const pendingPlayerEmpower = Math.max(0, input.pendingPlayerEmpower ?? 0)
   const carriedHeal = Math.max(0, input.carriedHeal ?? 0)
   const carriedShield = Math.max(0, input.carriedShield ?? 0)
   const totalHealing = totals.heal + carriedHeal
-  const healedPlayerHp = Math.min(input.playerMaxHp, input.playerHp + totalHealing)
-  const healApplied = healedPlayerHp - input.playerHp
-  const excessHealing = Math.max(0, input.playerHp + totalHealing - input.playerMaxHp)
+  const healedPlayerHp = Math.min(input.playerMaxHp, playerHpAfterPoison + totalHealing)
+  const healApplied = healedPlayerHp - playerHpAfterPoison
+  const excessHealing = Math.max(0, playerHpAfterPoison + totalHealing - input.playerMaxHp)
   const overflowShield = Math.min(Math.max(0, totals.overflow), excessHealing)
 
   const existingBleed = Math.max(0, input.enemyBleed ?? 0)
-  const bleedDamageToEnemy = Math.min(input.enemyHp, existingBleed)
-  const enemyHpAfterBleed = Math.max(0, input.enemyHp - bleedDamageToEnemy)
+  const poisonBurstDamage = Math.min(enemyHpAfterPoison, Math.max(0, totals.poisonBurst))
+  const enemyHpAfterPoisonBurst = Math.max(0, enemyHpAfterPoison - poisonBurstDamage)
+  const bleedDamageToEnemy = Math.min(enemyHpAfterPoisonBurst, existingBleed)
+  const enemyHpAfterBleed = Math.max(0, enemyHpAfterPoisonBurst - bleedDamageToEnemy)
   const decayedBleed = Math.max(0, existingBleed - 1)
   const attackAbsorbedByEnemyShield = Math.min(input.enemyShield, totals.attack)
   const attackDamageToEnemy = Math.min(
@@ -47,6 +67,38 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
 
   const recoil = Math.max(0, input.playerRecoil ?? 0)
   const hpAfterRecoil = Math.max(0, healedPlayerHp - recoil)
+
+  // Poison ticks at round start. Player death keeps priority on a real Double K.O.
+  if (playerHpAfterPoison <= 0) {
+    return {
+      outcome: 'defeat',
+      healedPlayerHp: 0,
+      playerHpAfterPlayerPhase: 0,
+      playerHp: 0,
+      enemyHp: enemyHpAfterPoison,
+      enemyHpAfterPlayerPhase: enemyHpAfterPoison,
+      enemyShield: input.enemyShield,
+      enemyShieldAfterPlayerPhase: input.enemyShield,
+      enemyBleed: decayedBleed,
+      healApplied: 0,
+      overflowShield: 0,
+      nextRoundShield: 0,
+      nextRoundHeal: 0,
+      bleedDamageToEnemy: 0,
+      enemyHealApplied: 0,
+      attackAbsorbedByEnemyShield: 0,
+      attackDamageToEnemy: 0,
+      enemyActed: false,
+      enemyDamageBlocked: 0,
+      playerDamageTaken: playerPoisonDamage,
+      playerPoisonDamage,
+      enemyPoisonDamage,
+      enemyPoison: decayedEnemyPoison,
+      nextPlayerPoison: 0,
+      nextPlayerWeaken: 0,
+      nextPlayerEmpower: 0,
+    }
+  }
 
   // Player death has priority if a future player effect creates a real Double K.O.
   if (hpAfterRecoil <= 0) {
@@ -70,7 +122,15 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       attackDamageToEnemy,
       enemyActed: false,
       enemyDamageBlocked: 0,
-      playerDamageTaken: recoil,
+      playerDamageTaken: playerPoisonDamage + recoil,
+      playerPoisonDamage,
+      enemyPoisonDamage,
+      enemyPoison: enemyHpAfterPlayerPhase > 0
+        ? decayedEnemyPoison + totals.poison
+        : 0,
+      nextPlayerPoison: 0,
+      nextPlayerWeaken: 0,
+      nextPlayerEmpower: 0,
     }
   }
 
@@ -96,7 +156,13 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
       attackDamageToEnemy,
       enemyActed: false,
       enemyDamageBlocked: 0,
-      playerDamageTaken: recoil,
+      playerDamageTaken: playerPoisonDamage + recoil,
+      playerPoisonDamage,
+      enemyPoisonDamage,
+      enemyPoison: 0,
+      nextPlayerPoison: 0,
+      nextPlayerWeaken: 0,
+      nextPlayerEmpower: 0,
     }
   }
 
@@ -106,7 +172,7 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
   )
   const enemyHealApplied = enemyHp - enemyHpAfterPlayerPhase
   const incomingDamage = Math.max(0, enemyIntent.attack)
-  const availableShield = totals.shield + carriedShield + overflowShield
+  const availableShield = totals.shield + carriedShield + overflowShield + cleanseShield
   const enemyDamageBlocked = Math.min(availableShield, incomingDamage)
   const unblockedDamage = incomingDamage - enemyDamageBlocked
   const playerHp = Math.max(0, hpAfterRecoil - unblockedDamage)
@@ -136,6 +202,12 @@ export function resolveRound(input: ResolveRoundInput): RoundResolution {
     attackDamageToEnemy,
     enemyActed: true,
     enemyDamageBlocked,
-    playerDamageTaken: recoil + unblockedDamage,
+    playerDamageTaken: playerPoisonDamage + recoil + unblockedDamage,
+    playerPoisonDamage,
+    enemyPoisonDamage,
+    enemyPoison: decayedEnemyPoison + Math.max(0, totals.poison),
+    nextPlayerPoison: cleansedPlayerPoison + Math.max(0, enemyIntent.poison),
+    nextPlayerWeaken: cleansedPlayerWeaken + Math.max(0, enemyIntent.weaken),
+    nextPlayerEmpower: pendingPlayerEmpower,
   }
 }

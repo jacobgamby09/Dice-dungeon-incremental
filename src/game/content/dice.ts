@@ -93,6 +93,20 @@ const BLOODWELL_DIE: DieInstance = {
   ),
 }
 
+const FOCUS_DIE: DieInstance = {
+  id: 'empower-die-focus',
+  name: 'Focus Die',
+  family: 'empower',
+  faces: createFaces('empower-die-focus', 'empower', [0, 0, 0, 1, 1, 2]),
+}
+
+const PURIFIER_DIE: DieInstance = {
+  id: 'cleanse-die-purifier',
+  name: 'Purifier Die',
+  family: 'cleanse',
+  faces: createFaces('cleanse-die-purifier', 'cleanse', [0, 0, 1, 1, 1, 2]),
+}
+
 const DICE_CATALOG: DieInstance[] = [
   WORN_BLADE_DIE,
   STRIKER_DIE,
@@ -101,6 +115,8 @@ const DICE_CATALOG: DieInstance[] = [
   EXECUTIONER_DIE,
   TOWER_DIE,
   BLOODWELL_DIE,
+  FOCUS_DIE,
+  PURIFIER_DIE,
 ]
 
 const SOUL_DIE_FACE_IDS = Array.from(

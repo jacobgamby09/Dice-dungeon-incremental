@@ -121,6 +121,100 @@ export const ENEMY_DICE: Record<EnemyDieId, EnemyDieDefinition> = {
   'spiked-behemoth-heal': createEnemyDie(
     'spiked-behemoth-heal', 'Spiked Behemoth Heal Die', 'heal', [1, 1, 2, 2, 3, 4],
   ),
+
+  'toxic-creep-l1-attack-a': createEnemyDie(
+    'toxic-creep-l1-attack-a', 'Toxic Creep Attack Die', 'attack', [6, 6, 7, 7, 8, 8],
+  ),
+  'toxic-creep-l1-attack-b': createEnemyDie(
+    'toxic-creep-l1-attack-b', 'Toxic Creep Fang Die', 'attack', [4, 5, 5, 6, 6, 7],
+  ),
+  'toxic-creep-l1-poison': createEnemyDie(
+    'toxic-creep-l1-poison', 'Toxic Creep Poison Die', 'poison', [0, 0, 0, 1, 1, 2],
+  ),
+  'marrow-bat-l1-weaken': createEnemyDie(
+    'marrow-bat-l1-weaken', 'Marrow Bat Screech Die', 'weaken', [0, 0, 0, 1, 1, 2],
+  ),
+  'marrow-bat-l1-attack-a': createEnemyDie(
+    'marrow-bat-l1-attack-a', 'Marrow Bat Attack Die', 'attack', [5, 5, 6, 6, 7, 8],
+  ),
+  'marrow-bat-l1-attack-b': createEnemyDie(
+    'marrow-bat-l1-attack-b', 'Marrow Bat Talon Die', 'attack', [5, 5, 6, 6, 7, 7],
+  ),
+  'blight-cultist-l1-empower': createEnemyDie(
+    'blight-cultist-l1-empower', 'Blight Cultist Empower Die', 'empower', [0, 0, 0, 1, 1, 2],
+  ),
+  'blight-cultist-l1-attack': createEnemyDie(
+    'blight-cultist-l1-attack', 'Blight Cultist Attack Die', 'attack', [8, 8, 9, 9, 10, 10],
+  ),
+  'blight-cultist-l1-heal': createEnemyDie(
+    'blight-cultist-l1-heal', 'Blight Cultist Heal Die', 'heal', [2, 3, 3, 4, 4, 5],
+  ),
+  'venom-guard-l1-shield': createEnemyDie(
+    'venom-guard-l1-shield', 'Venom Guard Shield Die', 'shield', [4, 4, 5, 5, 6, 6],
+  ),
+  'venom-guard-l1-attack': createEnemyDie(
+    'venom-guard-l1-attack', 'Venom Guard Attack Die', 'attack', [7, 8, 8, 9, 9, 10],
+  ),
+  'venom-guard-l1-poison': createEnemyDie(
+    'venom-guard-l1-poison', 'Venom Guard Poison Die', 'poison', [0, 0, 0, 1, 2, 2],
+  ),
+  'toxic-creep-l2-attack-a': createEnemyDie(
+    'toxic-creep-l2-attack-a', 'Toxic Creep II Attack Die', 'attack', [7, 8, 8, 9, 9, 10],
+  ),
+  'toxic-creep-l2-attack-b': createEnemyDie(
+    'toxic-creep-l2-attack-b', 'Toxic Creep II Fang Die', 'attack', [6, 6, 7, 7, 8, 9],
+  ),
+  'toxic-creep-l2-poison': createEnemyDie(
+    'toxic-creep-l2-poison', 'Toxic Creep II Poison Die', 'poison', [0, 0, 0, 2, 2, 3],
+  ),
+  'marrow-bat-l2-weaken': createEnemyDie(
+    'marrow-bat-l2-weaken', 'Marrow Bat II Screech Die', 'weaken', [0, 0, 0, 1, 2, 2],
+  ),
+  'marrow-bat-l2-attack-a': createEnemyDie(
+    'marrow-bat-l2-attack-a', 'Marrow Bat II Attack Die', 'attack', [7, 7, 8, 8, 9, 10],
+  ),
+  'marrow-bat-l2-attack-b': createEnemyDie(
+    'marrow-bat-l2-attack-b', 'Marrow Bat II Talon Die', 'attack', [6, 7, 7, 8, 8, 9],
+  ),
+  'blight-cultist-l2-empower': createEnemyDie(
+    'blight-cultist-l2-empower', 'Blight Cultist II Empower Die', 'empower', [0, 0, 0, 1, 2, 2],
+  ),
+  'blight-cultist-l2-attack': createEnemyDie(
+    'blight-cultist-l2-attack', 'Blight Cultist II Attack Die', 'attack', [10, 10, 11, 11, 12, 13],
+  ),
+  'blight-cultist-l2-heal': createEnemyDie(
+    'blight-cultist-l2-heal', 'Blight Cultist II Heal Die', 'heal', [4, 4, 5, 5, 6, 7],
+  ),
+  'venom-guard-l2-shield': createEnemyDie(
+    'venom-guard-l2-shield', 'Venom Guard II Shield Die', 'shield', [6, 7, 7, 8, 8, 9],
+  ),
+  'venom-guard-l2-attack': createEnemyDie(
+    'venom-guard-l2-attack', 'Venom Guard II Attack Die', 'attack', [9, 9, 10, 10, 11, 12],
+  ),
+  'venom-guard-l2-poison': createEnemyDie(
+    'venom-guard-l2-poison', 'Venom Guard II Poison Die', 'poison', [0, 0, 0, 2, 3, 3],
+  ),
+  'venom-guard-elite-shield': createEnemyDie(
+    'venom-guard-elite-shield', 'Venom Guard Elite Shield Die', 'shield', [8, 8, 9, 9, 10, 11],
+  ),
+  'venom-guard-elite-attack': createEnemyDie(
+    'venom-guard-elite-attack', 'Venom Guard Elite Attack Die', 'attack', [12, 12, 13, 13, 14, 15],
+  ),
+  'venom-guard-elite-poison': createEnemyDie(
+    'venom-guard-elite-poison', 'Venom Guard Elite Poison Die', 'poison', [0, 0, 0, 3, 3, 4],
+  ),
+  'plague-sovereign-empower': createEnemyDie(
+    'plague-sovereign-empower', 'Plague Sovereign Empower Die', 'empower', [0, 0, 1, 1, 2, 2],
+  ),
+  'plague-sovereign-attack-a': createEnemyDie(
+    'plague-sovereign-attack-a', 'Plague Sovereign Greater Attack Die', 'attack', [12, 13, 13, 14, 14, 15],
+  ),
+  'plague-sovereign-poison': createEnemyDie(
+    'plague-sovereign-poison', 'Plague Sovereign Poison Die', 'poison', [0, 0, 0, 3, 4, 5],
+  ),
+  'plague-sovereign-attack-b': createEnemyDie(
+    'plague-sovereign-attack-b', 'Plague Sovereign Attack Die', 'attack', [9, 10, 10, 11, 11, 12],
+  ),
 }
 
 export function getEnemyDie(id: EnemyDieId): EnemyDieDefinition {

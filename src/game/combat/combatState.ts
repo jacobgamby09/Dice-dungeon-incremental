@@ -9,6 +9,7 @@ export function createCombatState(
   resolutionVersion = 0,
   revealEnemyIntent = false,
   carried: { shield?: number; heal?: number } = {},
+  statuses: { poison?: number; empower?: number; weaken?: number } = {},
 ): CombatState {
   return {
     phase: revealEnemyIntent ? 'revealing_enemy_intent' : 'awaiting_roll',
@@ -19,6 +20,9 @@ export function createCombatState(
     results: [],
     totals: { ...EMPTY_TOTALS },
     pendingFortify: 0,
+    pendingEmpower: Math.max(0, statuses.empower ?? 0),
+    pendingWeaken: Math.max(0, statuses.weaken ?? 0),
+    playerPoison: Math.max(0, statuses.poison ?? 0),
     pendingImprintRelay: 0,
     lastCharmTriggers: [],
     charmTriggerVersion: 0,

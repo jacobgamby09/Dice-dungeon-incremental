@@ -11,6 +11,7 @@ import type {
   FateRewardTier,
   PendingFateDraw,
 } from '../types/charms'
+import type { DungeonId } from '../types/dungeon'
 
 export const FATE_DRAW_COST = 5
 export const FATE_DROP_CHANCE = 0.2
@@ -133,10 +134,12 @@ export function createFateDraw(
   rarityProgress: Readonly<CharmRarityProgress> = EMPTY_CHARM_RARITY_PROGRESS,
   protection: CharmRarityProtection | null = null,
   random: () => number = Math.random,
+  availableDungeonIds?: readonly DungeonId[],
 ): FateDrawCreationResult | null {
   if (!operationId) return null
   const eligible = CHARMS.filter((charm) => (
     (charmRanks[charm.id] ?? 0) < MAX_CHARM_RANK
+    && (!charm.minimumDungeonId || (availableDungeonIds?.includes(charm.minimumDungeonId) ?? false))
   ))
   const eligibleRarities = [...new Set(eligible.map((charm) => charm.rarity))]
   const progress = normalizeCharmRarityProgress(rarityProgress)

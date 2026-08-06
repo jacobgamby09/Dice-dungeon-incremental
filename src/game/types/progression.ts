@@ -44,6 +44,10 @@ export const TALENT_ICON_KEYS = [
   'reforging',
   'careful-salvage',
   'auto-forge',
+  'focus-die',
+  'purifier-die',
+  'blight-heart',
+  'charm-fourth',
 ] as const
 export type TalentIconKey = (typeof TALENT_ICON_KEYS)[number]
 
@@ -129,5 +133,6 @@ export interface PlayerProfile {
   recentFateOperationIds: string[]
   pendingWorkshopForge: PendingWorkshopForge | null
   imprints: ImprintInstance[]
+  imprintHuntDungeonId: DungeonId | null
   settings: PlayerSettings
 }

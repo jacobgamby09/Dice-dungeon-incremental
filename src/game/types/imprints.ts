@@ -4,10 +4,23 @@ import type { FaceType } from './dice'
 export const IMPRINT_RARITIES = ['rare', 'epic', 'legendary'] as const
 export type ImprintRarity = (typeof IMPRINT_RARITIES)[number]
 
-export const IMPRINT_IDS = ['lead-edge', 'relay-strike', 'crescendo'] as const
+export const IMPRINT_IDS = [
+  'lead-edge',
+  'relay-strike',
+  'crescendo',
+  'venom-edge',
+  'purging-aegis',
+  'plague-bloom',
+] as const
 export type ImprintId = (typeof IMPRINT_IDS)[number]
 
-export type ImprintEffectKind = 'opener' | 'relay' | 'crescendo'
+export type ImprintEffectKind =
+  | 'opener'
+  | 'relay'
+  | 'crescendo'
+  | 'venom'
+  | 'purging'
+  | 'plague-bloom'
 
 export interface ImprintDefinition {
   id: ImprintId

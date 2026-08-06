@@ -20,6 +20,7 @@ function createBaseProfile(): PlayerProfile {
     dungeonProgress: {
       'prototype-depths': { highestFloorCleared: 0, clearCount: 0 },
       'iron-depths': { highestFloorCleared: 0, clearCount: 0 },
+      'blighted-depths': { highestFloorCleared: 0, clearCount: 0 },
     },
     diceCollection: createStartingDice(),
     equippedDieIds: ['attack-die-1'],
@@ -32,6 +33,7 @@ function createBaseProfile(): PlayerProfile {
     recentFateOperationIds: [],
     pendingWorkshopForge: null,
     imprints: [],
+    imprintHuntDungeonId: null,
     settings: {
       rollSpeed: 1,
       autoCombat: false,

@@ -76,4 +76,22 @@ describe('progression cohort simulation', () => {
     expect(result.milestones.dungeonTwoClearRun.medianRun)
       .toBeLessThanOrEqual((result.milestones.dungeonTwoFirstRun.medianRun ?? 0) + 24)
   }, 10_000)
+
+  it('stages Dungeon 3 around Focus, the fifth slot and Purifier progression', () => {
+    const result = simulateProgressionCohort({
+      attempts: 16,
+      maxRuns: 120,
+      seed: 431,
+      strategyId: 'balanced',
+    })
+
+    const firstD3 = result.milestones.dungeonThreeFirstRun.medianRun ?? 0
+    expect(firstD3).toBeGreaterThan(result.milestones.dungeonTwoFirstRun.medianRun ?? 0)
+    expect(result.milestones.fifthSlotRun.medianRun).toBeGreaterThanOrEqual(firstD3)
+    expect(result.milestones.fifthSlotRun.medianRun).toBeLessThanOrEqual(firstD3 + 10)
+    expect(result.milestones.purifierDieRun.medianRun)
+      .toBeGreaterThan(result.milestones.fifthSlotRun.medianRun ?? 0)
+    expect(result.milestones.dungeonThreeClearRun.medianRun).toBeGreaterThanOrEqual(firstD3 + 25)
+    expect(result.milestones.dungeonThreeClearRun.medianRun).toBeLessThanOrEqual(firstD3 + 45)
+  }, 10_000)
 })

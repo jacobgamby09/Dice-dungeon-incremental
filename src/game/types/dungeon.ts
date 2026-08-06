@@ -21,8 +21,12 @@ export type EnemyId =
   | 'blood-orc'
   | 'demon'
   | 'spiked-behemoth'
-export type DungeonId = 'prototype-depths' | 'iron-depths'
-export type DungeonKeyId = 'iron-descent-key'
+  | 'toxic-creep'
+  | 'blight-cultist'
+  | 'venom-guard'
+  | 'plague-sovereign'
+export type DungeonId = 'prototype-depths' | 'iron-depths' | 'blighted-depths'
+export type DungeonKeyId = 'iron-descent-key' | 'blighted-descent-key'
 export type EncounterId =
   | 'descent-1-slime-l1'
   | 'descent-1-slime-crawler-l1'
@@ -44,6 +48,16 @@ export type EncounterId =
   | 'descent-2-blood-orc-l2'
   | 'descent-2-blood-orc-elite'
   | 'descent-2-spiked-behemoth'
+  | 'descent-3-toxic-creep-l1'
+  | 'descent-3-marrow-bat-l1'
+  | 'descent-3-blight-cultist-l1'
+  | 'descent-3-venom-guard-l1'
+  | 'descent-3-toxic-creep-l2'
+  | 'descent-3-marrow-bat-l2'
+  | 'descent-3-blight-cultist-l2'
+  | 'descent-3-venom-guard-l2'
+  | 'descent-3-venom-guard-elite'
+  | 'descent-3-plague-sovereign'
 
 export interface EnemyDefinition {
   id: EnemyId
@@ -72,6 +86,7 @@ export interface EnemyState {
   maxHp: number
   shield: number
   bleed: number
+  poison: number
   dieIds: EnemyDieId[]
   intentRolls: EnemyRollResult[]
   xpReward: number

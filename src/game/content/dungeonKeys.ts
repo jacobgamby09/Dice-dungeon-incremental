@@ -14,4 +14,10 @@ export const DUNGEON_KEYS: Record<DungeonKeyId, DungeonKeyDefinition> = {
     description: 'Unlocks The Iron Descent.',
     unlocksDungeonId: 'iron-depths',
   },
+  'blighted-descent-key': {
+    id: 'blighted-descent-key',
+    name: 'Blighted Descent Key',
+    description: 'Unlocks The Blighted Descent.',
+    unlocksDungeonId: 'blighted-depths',
+  },
 }

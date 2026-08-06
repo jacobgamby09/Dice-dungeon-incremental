@@ -131,6 +131,7 @@ export function FateSanctumScreen() {
     fateTokens: state.profile.fateTokens,
     pendingFateDraw: state.profile.pendingFateDraw,
     talentRanks: state.profile.talentRanks,
+    unlockedDungeonIds: state.profile.unlockedDungeonIds,
   })))
   const beginFateDraw = useNewGameStore((state) => state.beginFateDraw)
   const claimFateCharm = useNewGameStore((state) => state.claimFateCharm)
@@ -142,8 +143,16 @@ export function FateSanctumScreen() {
   const [showRates, setShowRates] = useState(false)
   const capacity = getCharmCapacity(profile.talentRanks)
   const protection = getCharmRarityProtection(profile.talentRanks)
-  const ownedCharms = CHARMS.filter((charm) => (profile.charmRanks[charm.id] ?? 0) > 0)
-  const eligibleCount = CHARMS.filter(
+  const availableCharms = useMemo(() => CHARMS.filter((charm) => (
+    !charm.minimumDungeonId
+    || (profile.unlockedDungeonIds ?? ['prototype-depths']).includes(charm.minimumDungeonId)
+  )), [profile.unlockedDungeonIds])
+  const availableCharmIds = useMemo(
+    () => availableCharms.map((charm) => charm.id),
+    [availableCharms],
+  )
+  const ownedCharms = availableCharms.filter((charm) => (profile.charmRanks[charm.id] ?? 0) > 0)
+  const eligibleCount = availableCharms.filter(
     (charm) => (profile.charmRanks[charm.id] ?? 0) < MAX_CHARM_RANK,
   ).length
   const equippedSlots = useMemo(
@@ -255,6 +264,7 @@ export function FateSanctumScreen() {
       {profile.pendingFateDraw ? (
         <FateDrawOverlay
           animate={animatedOperationId === profile.pendingFateDraw.operationId}
+          availableCharmIds={availableCharmIds}
           currentRank={profile.charmRanks[profile.pendingFateDraw.selectedCharmId] ?? 0}
           draw={profile.pendingFateDraw}
           key={profile.pendingFateDraw.operationId}
@@ -266,7 +276,8 @@ export function FateSanctumScreen() {
         <header><span className="eyebrow">Permanent collection</span><h2 id="charm-collection-title">Charms</h2></header>
         <div className="charm-rarity-groups">
           {CHARM_RARITIES.map((rarity) => {
-            const rarityCharms = CHARMS.filter((charm) => charm.rarity === rarity)
+            const rarityCharms = availableCharms.filter((charm) => charm.rarity === rarity)
+            if (rarityCharms.length === 0) return null
             const ownedCount = rarityCharms.filter((charm) => (profile.charmRanks[charm.id] ?? 0) > 0).length
             return (
               <section className={`charm-rarity-group charm-rarity-group--${rarity}`} data-rarity={rarity} key={rarity} style={getRarityStyle(rarity)}>

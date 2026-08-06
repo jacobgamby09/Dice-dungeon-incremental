@@ -156,6 +156,24 @@
 .dungeon-loot-table__entry--legendary { border-left-color: #fb923c !important; }
 .dungeon-loot-table__entry--legendary > span { color: #fb923c !important; }
 
+.dungeon-imprint-hunt {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+  margin-top: 9px;
+  min-height: 36px !important;
+  padding: 6px 10px;
+  color: #22d3ee;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.dungeon-imprint-hunt[aria-pressed="true"] {
+  border-color: #22d3ee;
+  background: #062c33;
+  box-shadow: 3px 3px 0 #164e63;
+}
+
 .dungeon-card--locked button:disabled {
   border-color: #41414a;
   background: #111118;

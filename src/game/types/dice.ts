@@ -1,4 +1,12 @@
-export const FACE_TYPES = ['attack', 'shield', 'heal'] as const
+export const FACE_TYPES = [
+  'attack',
+  'shield',
+  'heal',
+  'poison',
+  'empower',
+  'weaken',
+  'cleanse',
+] as const
 
 export type FaceType = (typeof FACE_TYPES)[number]
 export type DieFamily = FaceType
@@ -90,6 +98,9 @@ export interface RollResult {
   signature?: FaceSignature
   imprint?: import('./imprints').ImprintSnapshot
   imprintBonus?: number
+  appliedPoison?: number
+  appliedCleanse?: number
+  poisonBurst?: number
 }
 
 export function cloneDie(die: DieInstance): DieInstance {

@@ -210,4 +210,72 @@ describe('resolveRound', () => {
     expect(result.enemyDamageBlocked).toBe(2)
     expect(result.nextRoundShield).toBe(3)
   })
+
+  it('ticks existing Poison through Shield, decays it, and delays newly applied Poison', () => {
+    const result = resolveRound({
+      playerHp: 12,
+      playerMaxHp: 12,
+      playerPoison: 3,
+      enemyHp: 20,
+      enemyMaxHp: 20,
+      enemyShield: 9,
+      enemyPoison: 4,
+      enemyIntent: { attack: 0, shield: 0, heal: 0, bleed: 0, poison: 2 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0, poison: 3 },
+    })
+
+    expect(result.playerPoisonDamage).toBe(3)
+    expect(result.enemyPoisonDamage).toBe(4)
+    expect(result.playerHp).toBe(9)
+    expect(result.enemyHp).toBe(16)
+    expect(result.enemyShieldAfterPlayerPhase).toBe(9)
+    expect(result.enemyPoison).toBe(6)
+    expect(result.nextPlayerPoison).toBe(4)
+  })
+
+  it('cleanses Poison and Weaken equally, or becomes Shield with no debuff', () => {
+    const cleansed = resolveRound({
+      playerHp: 10,
+      playerMaxHp: 10,
+      playerPoison: 4,
+      remainingPlayerWeaken: 3,
+      enemyHp: 20,
+      enemyMaxHp: 20,
+      enemyShield: 0,
+      enemyIntent: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0, cleanse: 2 },
+    })
+    const shielded = resolveRound({
+      playerHp: 10,
+      playerMaxHp: 10,
+      enemyHp: 20,
+      enemyMaxHp: 20,
+      enemyShield: 0,
+      enemyIntent: { attack: 4, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0, cleanse: 3 },
+    })
+
+    expect(cleansed.nextPlayerPoison).toBe(1)
+    expect(cleansed.nextPlayerWeaken).toBe(1)
+    expect(shielded.enemyDamageBlocked).toBe(3)
+    expect(shielded.playerHp).toBe(9)
+  })
+
+  it('gives player death priority when both sides die to Poison at round start', () => {
+    const result = resolveRound({
+      playerHp: 2,
+      playerMaxHp: 10,
+      playerPoison: 2,
+      enemyHp: 2,
+      enemyMaxHp: 10,
+      enemyPoison: 2,
+      enemyShield: 0,
+      enemyIntent: { attack: 99, shield: 0, heal: 0, bleed: 0 },
+      totals: { attack: 0, shield: 0, heal: 0, bleed: 0 },
+    })
+
+    expect(result.outcome).toBe('defeat')
+    expect(result.playerHp).toBe(0)
+    expect(result.enemyActed).toBe(false)
+  })
 })
